@@ -1,0 +1,52 @@
+{
+  "theme": {
+    "system": "跟随系统",
+    "light": "亮色",
+    "dark": "暗色"
+  },
+  "language": {
+    "zh_CN": "中文",
+    "en_US": "english"
+  },
+  "common": {
+    "confirm": "确认",
+    "cancel": "取消",
+    "ok": "好的",
+    "close": "关闭",
+    "delete": "删除",
+    "edit": "编辑",
+    "add": "添加",
+    "save": "保存",
+    "search": "搜索",
+    "select": "选择",
+    "selectAll": "全选",
+    "selectNone": "全不选"
+  },
+  "views": {
+    "backpack": {
+      "title": "背包同步",
+      "description": "文件同步工具",
+      "newPlan": "新方案",
+      "startSync": "开始同步",
+      "sourceFolder": "源目录",
+      "targetFolder": "目标目录",
+      "twoWaySync": "双向同步",
+      "mirrorSync": "镜像同步",
+      "incrementalSync": "增量同步"
+    },
+    "ticoShare": {
+      "title": "松鼠搬运",
+      "description": "局域网文件传输工具"
+    },
+    "setting": {
+      "title": "设置",
+      "description": "全局参数设置",
+      "language": "语言",
+      "theme": "主题",
+      "save": "保存",
+      "reset": "恢复默认"
+    }
+  },
+  "layout": {
+  }
+}

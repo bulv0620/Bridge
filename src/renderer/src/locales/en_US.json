@@ -1,0 +1,52 @@
+{
+  "theme": {
+    "system": "system",
+    "light": "light",
+    "dark": "dark"
+  },
+  "language": {
+    "zh_CN": "中文",
+    "en_US": "english"
+  },
+  "common": {
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "ok": "OK",
+    "close": "Close",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "save": "Save",
+    "search": "Search",
+    "select": "Select",
+    "selectAll": "Select All",
+    "selectNone": "Select None"
+  },
+  "views": {
+    "backpack": {
+      "title": "Backpack Sync",
+      "description": "File sync tool.",
+      "newPlan": "New Plan",
+      "startSync": "Start Sync",
+      "sourceFolder": "Source Folder",
+      "targetFolder": "Target Folder",
+      "twoWaySync": "Two-way Sync",
+      "mirrorSync": "Mirror Sync",
+      "incrementalSync": "Incremental Sync"
+    },
+    "ticoShare": {
+      "title": "Tico Share",
+      "description": "LAN file transfer tool."
+    },
+    "setting": {
+      "title": "Settings",
+      "description": "Global parameter settings",
+      "language": "Language",
+      "theme": "Theme",
+      "save": "Save",
+      "reset": "Reset to Default"
+    }
+  },
+  "layout": {
+  }
+}
