@@ -28,6 +28,7 @@
       "description": "文件同步工具",
       "newPlan": "新方案",
       "startSync": "开始同步",
+      "savePlan": "保存方案",
       "sourceFolder": "源目录",
       "targetFolder": "目标目录",
       "twoWaySync": "双向同步",

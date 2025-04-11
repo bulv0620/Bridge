@@ -1,4 +1,4 @@
-import { BrowserWindow, ipcMain, nativeTheme, Tray } from 'electron'
+import { BrowserWindow, dialog, ipcMain, nativeTheme, Tray } from 'electron'
 import ElectronStore from 'electron-store'
 import { updateTray } from '../utils/tray'
 
@@ -28,5 +28,18 @@ export function createEventHandler({
       win.webContents.send('switch-lang', lang)
     })
     updateTray(tray, lang, { mainWindow })
+  })
+
+  // 监听渲染进程的请求并返回文件夹路径
+  ipcMain.handle('select-folder', async () => {
+    const result = await dialog.showOpenDialog(mainWindow, {
+      properties: ['openDirectory'],
+    })
+
+    if (result.canceled) {
+      return null
+    } else {
+      return result.filePaths[0] // 返回所选文件夹路径
+    }
   })
 }

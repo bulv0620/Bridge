@@ -28,6 +28,7 @@
       "description": "File sync tool.",
       "newPlan": "New Plan",
       "startSync": "Start Sync",
+      "savePlan": "Save Plan",
       "sourceFolder": "Source Folder",
       "targetFolder": "Target Folder",
       "twoWaySync": "Two-way Sync",

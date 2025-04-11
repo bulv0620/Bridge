@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { FolderOutline, Sync, FileTrayFull } from '@vicons/ionicons5'
+import { FolderOutline, Sync, FileTrayFull, SaveOutline } from '@vicons/ionicons5'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -45,35 +45,21 @@ const columns = computed(() => [
     key: 'actions',
   },
 ])
+const percentage = ref(40)
 </script>
 
 <template>
   <div class="backpack-sync">
     <div class="container">
       <n-flex justify="space-between">
-        <n-flex class="left">
-          <p class="title">
-            <n-button strong secondary circle>
-              <template #icon>
-                <n-icon>
-                  <FileTrayFull />
-                </n-icon>
-              </template>
-            </n-button>
-            <span>{{ $t('views.backpack.newPlan') }}</span>
-          </p>
-        </n-flex>
-        <n-flex class="right" :wrap="false">
-          <n-select v-model:value="syncType" :options="syncOptions" style="width: 180px" />
-          <n-button>
-            <template #icon>
-              <n-icon>
-                <Sync />
-              </n-icon>
-            </template>
-            {{ $t('views.backpack.startSync') }}
-          </n-button>
-        </n-flex>
+        <p class="title">
+          <span>{{ $t('views.backpack.newPlan') }}</span>
+        </p>
+        <n-button strong circle>
+          <template #icon>
+            <n-icon> <FileTrayFull /> </n-icon>
+          </template>
+        </n-button>
       </n-flex>
 
       <n-flex :wrap="false">
@@ -87,11 +73,9 @@ const columns = computed(() => [
             </template>
           </n-button>
         </n-input-group>
-        <n-button strong secondary circle>
+        <n-button strong circle>
           <template #icon>
-            <n-icon>
-              <Sync />
-            </n-icon>
+            <n-icon> <Sync /> </n-icon>
           </template>
         </n-button>
         <n-input-group>
@@ -105,6 +89,30 @@ const columns = computed(() => [
           </n-button>
         </n-input-group>
       </n-flex>
+
+      <n-flex :wrap="false">
+        <n-select v-model:value="syncType" :options="syncOptions" style="width: 180px" />
+        <n-button>
+          <template #icon>
+            <n-icon> <Sync /> </n-icon>
+          </template>
+          {{ $t('views.backpack.startSync') }}
+        </n-button>
+        <n-button>
+          <template #icon>
+            <n-icon> <SaveOutline /> </n-icon>
+          </template>
+          {{ $t('views.backpack.savePlan') }}
+        </n-button>
+      </n-flex>
+
+      <n-progress
+        processing
+        status="success"
+        type="line"
+        :percentage="percentage"
+        :show-indicator="false"
+      />
 
       <div class="table-wrapper">
         <n-data-table
