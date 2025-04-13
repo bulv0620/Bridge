@@ -9,6 +9,9 @@
     "en_US": "english"
   },
   "common": {
+    "next": "下一步",
+    "prev": "上一步",
+    "empty": "空",
     "confirm": "确认",
     "cancel": "取消",
     "ok": "好的",
@@ -33,7 +36,18 @@
       "targetFolder": "目标目录",
       "twoWaySync": "双向同步",
       "mirrorSync": "镜像同步",
-      "incrementalSync": "增量同步"
+      "incrementalSync": "增量同步",
+      "local": "本地",
+      "ftp": "FTP",
+      "localFolder": "本地目录",
+      "ftpFolder": "FTP目录",
+      "ftpConfig": "FTP配置",
+      "ftpHost": "主机",
+      "ftpPort": "端口",
+      "ftpUsername": "用户名",
+      "ftpPassword": "密码",
+      "ftpConnInfo": "连接信息",
+      "ftpPathSelect": "路径选择"
     },
     "ticoShare": {
       "title": "松鼠搬运",

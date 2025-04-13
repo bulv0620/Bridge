@@ -9,6 +9,9 @@
     "en_US": "english"
   },
   "common": {
+    "next": "Next",
+    "prev": "Previous",
+    "empty": "Empty",
     "confirm": "Confirm",
     "cancel": "Cancel",
     "ok": "OK",
@@ -33,7 +36,18 @@
       "targetFolder": "Target Folder",
       "twoWaySync": "Two-way Sync",
       "mirrorSync": "Mirror Sync",
-      "incrementalSync": "Incremental Sync"
+      "incrementalSync": "Incremental Sync",
+      "local": "Local",
+      "ftp": "FTP",
+      "localFolder": "Local Folder",
+      "ftpFolder": "FTP Folder",
+      "ftpConfig": "FTP Config",
+      "ftpHost": "Host",
+      "ftpPort": "Port",
+      "ftpUsername": "User",
+      "ftpPassword": "Password",
+      "ftpConnInfo": "Connection Info",
+      "ftpPathSelect": "Path Select"
     },
     "ticoShare": {
       "title": "Tico Share",

@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { FolderOutline, Sync, FileTrayFull, SaveOutline } from '@vicons/ionicons5'
+import { Sync, FileTrayFull, SaveOutline } from '@vicons/ionicons5'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import FolderSelectionInput from './components/folder-selection-input/FolderSelectionInput.vue'
+import type { IFolderInfo } from './components/folder-selection-input/FolderSelectionInput.vue'
 
 const { t } = useI18n()
 
@@ -13,16 +15,7 @@ const syncOptions = computed(() => [
 
 const syncType = ref('two-way')
 
-const tableData = ref([
-  // 100个测试数据
-  ...Array.from({ length: 1000 }, (_, i) => ({
-    name: `Name ${i + 1}`,
-    age: Math.floor(Math.random() * 60) + 18, // 随机年龄 18-77
-    address: `Address ${i + 1}`,
-    tags: [`Tag${Math.floor(Math.random() * 5) + 1}`], // 随机标签
-    actions: `Action ${i + 1}`,
-  })),
-])
+const tableData = ref([])
 const columns = computed(() => [
   {
     title: 'Name',
@@ -45,7 +38,16 @@ const columns = computed(() => [
     key: 'actions',
   },
 ])
-const percentage = ref(40)
+const percentage = ref(0)
+
+const sourceFolder = ref<IFolderInfo>({
+  type: '',
+  path: '',
+})
+const targetFolder = ref<IFolderInfo>({
+  type: '',
+  path: '',
+})
 </script>
 
 <template>
@@ -63,31 +65,13 @@ const percentage = ref(40)
       </n-flex>
 
       <n-flex :wrap="false">
-        <n-input-group>
-          <n-input readonly :placeholder="$t('views.backpack.sourceFolder')" />
-          <n-button>
-            <template #icon>
-              <n-icon>
-                <FolderOutline />
-              </n-icon>
-            </template>
-          </n-button>
-        </n-input-group>
-        <n-button strong circle>
+        <FolderSelectionInput v-model:value="sourceFolder" type="source"></FolderSelectionInput>
+        <n-button strong circle :disabled="!sourceFolder.path || !targetFolder.path">
           <template #icon>
             <n-icon> <Sync /> </n-icon>
           </template>
         </n-button>
-        <n-input-group>
-          <n-input readonly :placeholder="$t('views.backpack.targetFolder')" />
-          <n-button>
-            <template #icon>
-              <n-icon>
-                <FolderOutline />
-              </n-icon>
-            </template>
-          </n-button>
-        </n-input-group>
+        <FolderSelectionInput v-model:value="targetFolder" type="target"></FolderSelectionInput>
       </n-flex>
 
       <n-flex :wrap="false">
