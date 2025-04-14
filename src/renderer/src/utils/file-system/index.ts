@@ -4,6 +4,7 @@ export interface DiffFile {
   diffType: 'onlySource' | 'onlyTarget' | 'conflict'
   source: FileInfo | null
   target: FileInfo | null
+  action?: 'toLeft' | 'toRight' | 'peace' | 'doubt'
 }
 
 export * from './LocalFileSystem'

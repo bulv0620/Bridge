@@ -1,5 +1,13 @@
 <script setup lang="ts">
-import { Sync, FileTrayFull, SaveOutline } from '@vicons/ionicons5'
+import {
+  Sync,
+  FileTrayFull,
+  SaveOutline,
+  ArrowBack,
+  ArrowForward,
+  Remove,
+  Help,
+} from '@vicons/ionicons5'
 import { computed, h, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FolderSelectionInput from './components/folder-selection-input/FolderSelectionInput.vue'
@@ -10,7 +18,7 @@ import {
   FtpFileSystem,
   LocalFileSystem,
 } from '@renderer/utils/file-system'
-import { NTag } from 'naive-ui'
+import { NIcon, NTag } from 'naive-ui'
 
 const { t } = useI18n()
 
@@ -106,6 +114,23 @@ const columns = computed(() => [
     key: 'operation',
     align: 'center',
     width: 100,
+    render(row: DiffFile) {
+      return h(
+        NIcon,
+        {
+          size: 20,
+          color: 'var(--n-color-success)',
+        },
+        () =>
+          h(
+            row.diffType === 'onlySource'
+              ? ArrowForward
+              : row.diffType === 'onlyTarget'
+                ? ArrowBack
+                : Remove,
+          ),
+      )
+    },
   },
 ])
 
