@@ -1,9 +1,16 @@
 <script setup lang="ts">
 import { Sync, FileTrayFull, SaveOutline } from '@vicons/ionicons5'
-import { computed, ref } from 'vue'
+import { computed, h, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FolderSelectionInput from './components/folder-selection-input/FolderSelectionInput.vue'
 import type { FolderInfo } from './components/folder-selection-input/FolderSelectionInput.vue'
+import {
+  DiffFile,
+  diffFileListsUnified,
+  FtpFileSystem,
+  LocalFileSystem,
+} from '@renderer/utils/file-system'
+import { NTag } from 'naive-ui'
 
 const { t } = useI18n()
 
@@ -15,30 +22,9 @@ const syncOptions = computed(() => [
 
 const syncType = ref('two-way')
 
-const tableData = ref([])
-const columns = computed(() => [
-  {
-    title: 'Name',
-    key: 'name',
-  },
-  {
-    title: 'Age',
-    key: 'age',
-  },
-  {
-    title: 'Address',
-    key: 'address',
-  },
-  {
-    title: 'Tags',
-    key: 'tags',
-  },
-  {
-    title: 'Action',
-    key: 'actions',
-  },
-])
 const percentage = ref(0)
+
+const loading = ref(false)
 
 const sourceFolder = ref<FolderInfo>({
   type: '',
@@ -48,6 +34,122 @@ const targetFolder = ref<FolderInfo>({
   type: '',
   path: '',
 })
+
+const diffTableData = ref([])
+const columns = computed(() => [
+  {
+    title: '序号',
+    key: 'index',
+    align: 'center',
+    width: 60,
+    render(_: DiffFile, index: number) {
+      return index + 1
+    },
+  },
+  {
+    title: '差异类型',
+    key: 'diffType',
+    align: 'center',
+    width: 140,
+    filterOptions: [
+      {
+        label: t('views.backpack.onlySource'),
+        value: 'onlySource',
+      },
+      {
+        label: t('views.backpack.onlyTarget'),
+        value: 'onlyTarget',
+      },
+      {
+        label: t('views.backpack.conflict'),
+        value: 'conflict',
+      },
+    ],
+    filter(value: string, row: DiffFile) {
+      return row.diffType === value
+    },
+    render(row: DiffFile) {
+      return h(
+        NTag,
+        {
+          type:
+            row.diffType === 'onlySource'
+              ? 'success'
+              : row.diffType === 'onlyTarget'
+                ? 'warning'
+                : 'error',
+        },
+        () => t(`views.backpack.${row.diffType}`),
+      )
+    },
+  },
+  {
+    title: '源文件',
+    key: 'sourceFileName',
+    align: 'center',
+    resizable: true,
+    render(row: DiffFile) {
+      return row.source?.fileName
+    },
+  },
+  {
+    title: '目标文件',
+    key: 'targetFileName',
+    align: 'center',
+    resizable: true,
+    render(row: DiffFile) {
+      return row.target?.fileName
+    },
+  },
+  {
+    title: '操作',
+    key: 'operation',
+    align: 'center',
+    width: 100,
+  },
+])
+
+const handleDiffClick = async () => {
+  try {
+    loading.value = true
+
+    if (!sourceFolder.value.path || !targetFolder.value.path) {
+      return
+    }
+
+    let source: LocalFileSystem | FtpFileSystem
+    let target: LocalFileSystem | FtpFileSystem
+
+    if (sourceFolder.value.type === 'local') {
+      source = new LocalFileSystem(sourceFolder.value.path)
+    } else {
+      source = new FtpFileSystem(sourceFolder.value.ftpConfig!, sourceFolder.value.path)
+    }
+    if (targetFolder.value.type === 'local') {
+      target = new LocalFileSystem(targetFolder.value.path)
+    } else {
+      target = new FtpFileSystem(targetFolder.value.ftpConfig!, targetFolder.value.path)
+    }
+
+    const sourceFiles = await source.getAllFiles()
+    const targetFiles = await target.getAllFiles()
+
+    const diff = diffFileListsUnified(sourceFiles, targetFiles)
+
+    diffTableData.value = diff as any
+
+    if (source instanceof FtpFileSystem) {
+      source.disconnect()
+    }
+    if (target instanceof FtpFileSystem) {
+      target.disconnect()
+    }
+  } catch (error) {
+    console.error(error)
+  } finally {
+    loading.value = false
+  }
+}
 </script>
 
 <template>
@@ -66,7 +168,13 @@ const targetFolder = ref<FolderInfo>({
 
       <n-flex :wrap="false">
         <FolderSelectionInput v-model:value="sourceFolder" type="source"></FolderSelectionInput>
-        <n-button strong circle :disabled="!sourceFolder.path || !targetFolder.path">
+        <n-button
+          strong
+          circle
+          :disabled="!sourceFolder.path || !targetFolder.path"
+          :loading="loading"
+          @click="handleDiffClick"
+        >
           <template #icon>
             <n-icon> <Sync /> </n-icon>
           </template>
@@ -76,13 +184,13 @@ const targetFolder = ref<FolderInfo>({
 
       <n-flex :wrap="false">
         <n-select v-model:value="syncType" :options="syncOptions" style="width: 180px" />
-        <n-button>
+        <n-button :disabled="diffTableData.length === 0">
           <template #icon>
             <n-icon> <Sync /> </n-icon>
           </template>
           {{ $t('views.backpack.startSync') }}
         </n-button>
-        <n-button>
+        <n-button :disabled="!sourceFolder.path || !targetFolder.path">
           <template #icon>
             <n-icon> <SaveOutline /> </n-icon>
           </template>
@@ -100,10 +208,12 @@ const targetFolder = ref<FolderInfo>({
 
       <div class="table-wrapper">
         <n-data-table
-          striped
+          :loading="loading"
+          size="small"
+          align="center"
           virtual-scroll
           :columns="columns"
-          :data="tableData"
+          :data="diffTableData"
           flex-height
           style="height: 100%"
         />

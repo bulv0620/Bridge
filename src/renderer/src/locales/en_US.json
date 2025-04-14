@@ -55,7 +55,10 @@
       "ftpHostFormat": "FTP host format is incorrect",
       "ftpPortRange": "FTP port must be between 1 and 65535",
       "ftpUserRequired": "FTP user is required",
-      "ftpPasswordRequired": "FTP password is required"
+      "ftpPasswordRequired": "FTP password is required",
+      "onlySource": "Only Source",
+      "onlyTarget": "Only Target",
+      "conflict": "Conflict"
     },
     "ticoShare": {
       "title": "Tico Share",

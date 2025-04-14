@@ -55,7 +55,10 @@
       "ftpHostFormat": "FTP主机格式不正确",
       "ftpPortRange": "FTP端口必须在1到65535之间",
       "ftpUserRequired": "FTP用户名不能为空",
-      "ftpPasswordRequired": "FTP密码不能为空"
+      "ftpPasswordRequired": "FTP密码不能为空",
+      "onlySource": "仅源",
+      "onlyTarget": "仅目标",
+      "conflict": "冲突"
     },
     "ticoShare": {
       "title": "松鼠搬运",
