@@ -3,7 +3,7 @@ import { Sync, FileTrayFull, SaveOutline } from '@vicons/ionicons5'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FolderSelectionInput from './components/folder-selection-input/FolderSelectionInput.vue'
-import type { IFolderInfo } from './components/folder-selection-input/FolderSelectionInput.vue'
+import type { FolderInfo } from './components/folder-selection-input/FolderSelectionInput.vue'
 
 const { t } = useI18n()
 
@@ -40,11 +40,11 @@ const columns = computed(() => [
 ])
 const percentage = ref(0)
 
-const sourceFolder = ref<IFolderInfo>({
+const sourceFolder = ref<FolderInfo>({
   type: '',
   path: '',
 })
-const targetFolder = ref<IFolderInfo>({
+const targetFolder = ref<FolderInfo>({
   type: '',
   path: '',
 })

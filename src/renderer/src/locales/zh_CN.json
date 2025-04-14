@@ -44,10 +44,13 @@
       "ftpConfig": "FTP配置",
       "ftpHost": "主机",
       "ftpPort": "端口",
-      "ftpUsername": "用户名",
+      "ftpUser": "用户名",
       "ftpPassword": "密码",
       "ftpConnInfo": "连接信息",
-      "ftpPathSelect": "路径选择"
+      "ftpPathSelect": "路径选择",
+      "ftpConnFailed": "FTP连接失败",
+      "ftpConnSuccess": "FTP连接成功",
+      "currentPath": "当前路径"
     },
     "ticoShare": {
       "title": "松鼠搬运",

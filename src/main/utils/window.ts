@@ -26,6 +26,8 @@ export function createCustomWindow(windowOption?: IWindowOptions): BrowserWindow
     autoHideMenuBar: windowOption?.hideMenuBar || true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
+      contextIsolation: false,
+      nodeIntegration: true,
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
     },

@@ -1,25 +1,31 @@
 <script setup lang="ts">
-import { FormRules } from 'naive-ui'
+import { FormRules, NForm, TreeOption, useMessage } from 'naive-ui'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { FtpFileSystem } from '@renderer/utils/file-system'
 
-export interface IFtpConfig {
+export interface FtpConfig {
   host: string
   port: number
-  username: string
+  user: string
   password: string
 }
 
 const { t } = useI18n()
+const message = useMessage()
 
+let ftpInstance: FtpFileSystem | null = null
+
+const loading = ref(false)
 const visible = ref(false)
+const formRef = ref<InstanceType<typeof NForm> | null>(null)
 const resolveRef = ref<((value: any) => void) | null>(null)
 const current = ref(1)
 const currentStatus = ref('process')
-const model = ref<IFtpConfig>({
+const model = ref<FtpConfig>({
   host: '',
   port: 21,
-  username: '',
+  user: '',
   password: '',
 })
 const rules: FormRules = {
@@ -31,11 +37,13 @@ const rules: FormRules = {
   ],
   port: [
     {
-      required: true,
+      type: 'number',
+      min: 1,
+      max: 65535,
       trigger: ['change'],
     },
   ],
-  username: [
+  user: [
     {
       required: true,
       trigger: ['change'],
@@ -49,13 +57,27 @@ const rules: FormRules = {
   ],
 }
 
+const folderTree = ref<TreeOption[]>([])
+const currentPath = ref<string[]>([])
+
+const handleLoad = async (node: TreeOption) => {
+  const folderList = await ftpInstance?.getFolder(node.key as string)
+  node.children = folderList?.map((label) => ({
+    label: label,
+    key: `${node.key}/${label}`,
+    isLeaf: false,
+  }))
+
+  ftpInstance?.disconnect()
+}
+
 const select = () => {
   return new Promise<any>((resolve) => {
     current.value = 1
     model.value = {
       host: '',
       port: 21,
-      username: '',
+      user: '',
       password: '',
     }
     visible.value = true
@@ -64,7 +86,35 @@ const select = () => {
 }
 
 const handleNext = async () => {
-  current.value = 2
+  try {
+    loading.value = true
+    await formRef.value?.validate()
+
+    ftpInstance = new FtpFileSystem(model.value)
+    const bool = await ftpInstance.validate()
+    if (!bool) {
+      message.error(t('views.backpack.ftpConnFailed'))
+      return
+    }
+
+    current.value = 2
+
+    const folderList = await ftpInstance.getFolder()
+
+    folderTree.value = folderList.map((label) => ({
+      key: `/${label}`,
+      label,
+      isLeaf: false,
+    }))
+    currentPath.value = []
+
+    ftpInstance.disconnect()
+  } catch (error) {
+    // 连接失败
+    console.error(error)
+  } finally {
+    loading.value = false
+  }
 }
 
 const handlePrev = async () => {
@@ -111,18 +161,19 @@ defineExpose({
       :rules="rules"
       label-placement="left"
       label-width="86px"
+      @submit.prevent
     >
       <n-form-item path="host" :label="$t('views.backpack.ftpHost')">
-        <n-input v-model:value="model.host" placeholder="127.0.0.1" @keydown.enter.prevent />
+        <n-input v-model:value="model.host" placeholder="127.0.0.1" :disabled="loading" />
       </n-form-item>
       <n-form-item path="port" :label="$t('views.backpack.ftpPort')">
-        <n-input v-model:value.number="model.port" type="number" @keydown.enter.prevent />
+        <n-input-number v-model:value="model.port" style="width: 100%" :disabled="loading" />
       </n-form-item>
-      <n-form-item path="username" :label="$t('views.backpack.ftpUsername')">
+      <n-form-item path="user" :label="$t('views.backpack.ftpUser')">
         <n-input
-          v-model:value="model.username"
-          :placeholder="$t('views.backpack.ftpUsername')"
-          @keydown.enter.prevent
+          v-model:value="model.user"
+          :placeholder="$t('views.backpack.ftpUser')"
+          :disabled="loading"
         />
       </n-form-item>
       <n-form-item path="password" :label="$t('views.backpack.ftpPassword')">
@@ -131,19 +182,56 @@ defineExpose({
           type="password"
           show-password-on="click"
           :placeholder="$t('views.backpack.ftpPassword')"
-          @keydown.enter.prevent
+          :disabled="loading"
         />
       </n-form-item>
     </n-form>
+    <div v-else>
+      <n-scrollbar style="max-height: 200px; margin-top: 18px" trigger="none">
+        <n-tree
+          v-model:selected-keys="currentPath"
+          block-line
+          :data="folderTree"
+          selectable
+          :on-load="handleLoad"
+        />
+      </n-scrollbar>
+      <n-form-item
+        style="margin-top: 18px"
+        :label="$t('views.backpack.currentPath')"
+        label-placement="left"
+      >
+        <n-input :value="currentPath[0] || '/'" readonly />
+      </n-form-item>
+    </div>
+
     <template #footer>
       <n-flex>
-        <n-button v-if="current === 1" type="primary" size="small" @click="handleNext">
+        <n-button
+          v-if="current === 1"
+          type="primary"
+          size="small"
+          :loading="loading"
+          @click="handleNext"
+        >
           {{ t('common.next') }}
         </n-button>
-        <n-button v-if="current === 2" type="primary" size="small" @click="handlePrev">
+        <n-button
+          v-if="current === 2"
+          type="primary"
+          size="small"
+          :loading="loading"
+          @click="handlePrev"
+        >
           {{ t('common.prev') }}
         </n-button>
-        <n-button v-if="current === 2" type="primary" size="small" @click="handlePositive">
+        <n-button
+          v-if="current === 2"
+          type="primary"
+          size="small"
+          :loading="loading"
+          @click="handlePositive"
+        >
           {{ t('common.confirm') }}
         </n-button>
         <n-button size="small" @click="visible = false">

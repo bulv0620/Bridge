@@ -1,8 +1,21 @@
 import { contextBridge } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import fs from 'fs/promises'
+import path from 'path'
+import ftp from 'basic-ftp'
+import { Readable } from 'stream'
+import streamBuffers from 'stream-buffers'
+import crypto from 'crypto'
 
 // Custom APIs for renderer
-const api = {}
+const api = {
+  fs,
+  path,
+  ftp,
+  Readable,
+  streamBuffers,
+  crypto,
+}
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise

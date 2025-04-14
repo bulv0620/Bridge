@@ -44,10 +44,13 @@
       "ftpConfig": "FTP Config",
       "ftpHost": "Host",
       "ftpPort": "Port",
-      "ftpUsername": "User",
+      "ftpUser": "User",
       "ftpPassword": "Password",
       "ftpConnInfo": "Connection Info",
-      "ftpPathSelect": "Path Select"
+      "ftpPathSelect": "Path Select",
+      "ftpConnFailed": "FTP connection failed",
+      "ftpConnSuccess": "FTP connection successful",
+      "currentPath": "Current Path"
     },
     "ticoShare": {
       "title": "Tico Share",

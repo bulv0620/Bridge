@@ -2,14 +2,14 @@
 import { FolderOutline } from '@vicons/ionicons5'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import FtpConfigModal, { IFtpConfig } from '../ftp-config-modal/FtpConfigModal.vue'
+import FtpConfigModal, { FtpConfig } from '../ftp-config-modal/FtpConfigModal.vue'
 
 const ipcRenderer = window.electron.ipcRenderer
 
-export interface IFolderInfo {
+export interface FolderInfo {
   type: 'local' | 'ftp' | ''
   path: string
-  ftpConfig?: IFtpConfig
+  ftpConfig?: FtpConfig
 }
 
 const props = withDefaults(
@@ -19,7 +19,7 @@ const props = withDefaults(
   {},
 )
 
-const value = defineModel<IFolderInfo>('value', { required: true })
+const value = defineModel<FolderInfo>('value', { required: true })
 const ftpConfigModalRef = ref<InstanceType<typeof FtpConfigModal> | null>(null)
 
 const { t } = useI18n()

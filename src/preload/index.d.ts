@@ -1,8 +1,17 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
+interface WindowAPI {
+  fs: typeof import('fs/promises')
+  path: typeof import('path')
+  ftp: typeof import('basic-ftp')
+  Readable: typeof import('stream').Readable
+  streamBuffers: typeof import('stream-buffers')
+  crypto: typeof import('crypto')
+  // Add any other APIs you want to expose here
+}
 
 declare global {
   interface Window {
     electron: ElectronAPI
-    api: any
+    api: WindowAPI
   }
 }
