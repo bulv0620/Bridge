@@ -48,10 +48,14 @@ const handleSelect = async (key: string) => {
     if (path) {
       value.value.type = 'local'
       value.value.path = path
+      value.value.ftpConfig = undefined
     }
   } else if (key === 'ftp') {
-    const conf = await ftpConfigModalRef.value?.select()
-    console.log(conf)
+    const conf = await ftpConfigModalRef.value?.select(value.value)
+    if (!conf) return
+    value.value.type = 'ftp'
+    value.value.path = conf.path
+    value.value.ftpConfig = conf.ftpConfig
   }
 }
 </script>
@@ -72,6 +76,6 @@ const handleSelect = async (key: string) => {
         </template>
       </n-button>
     </n-dropdown>
-    <FtpConfigModal ref="ftpConfigModalRef"></FtpConfigModal>
   </n-input-group>
+  <FtpConfigModal ref="ftpConfigModalRef"></FtpConfigModal>
 </template>

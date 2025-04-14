@@ -50,7 +50,12 @@
       "ftpPathSelect": "路径选择",
       "ftpConnFailed": "FTP连接失败",
       "ftpConnSuccess": "FTP连接成功",
-      "currentPath": "当前路径"
+      "currentPath": "当前路径",
+      "ftpHostRequired": "FTP主机不能为空",
+      "ftpHostFormat": "FTP主机格式不正确",
+      "ftpPortRange": "FTP端口必须在1到65535之间",
+      "ftpUserRequired": "FTP用户名不能为空",
+      "ftpPasswordRequired": "FTP密码不能为空"
     },
     "ticoShare": {
       "title": "松鼠搬运",

@@ -50,7 +50,12 @@
       "ftpPathSelect": "Path Select",
       "ftpConnFailed": "FTP connection failed",
       "ftpConnSuccess": "FTP connection successful",
-      "currentPath": "Current Path"
+      "currentPath": "Current Path",
+      "ftpHostRequired": "FTP host is required",
+      "ftpHostFormat": "FTP host format is incorrect",
+      "ftpPortRange": "FTP port must be between 1 and 65535",
+      "ftpUserRequired": "FTP user is required",
+      "ftpPasswordRequired": "FTP password is required"
     },
     "ticoShare": {
       "title": "Tico Share",

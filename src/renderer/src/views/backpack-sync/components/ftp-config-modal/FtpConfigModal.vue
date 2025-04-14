@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { FormRules, NForm, TreeOption, useMessage } from 'naive-ui'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { FtpFileSystem } from '@renderer/utils/file-system'
+import { FolderInfo } from '../folder-selection-input/FolderSelectionInput.vue'
 
 export interface FtpConfig {
   host: string
@@ -28,11 +29,21 @@ const model = ref<FtpConfig>({
   user: '',
   password: '',
 })
-const rules: FormRules = {
+const rules = computed<FormRules>(() => ({
   host: [
     {
-      required: true,
       trigger: ['change'],
+      validator(_, value) {
+        if (!value) {
+          return new Error(t('views.backpack.ftpHostRequired'))
+        }
+        const reg =
+          /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
+        if (!reg.test(value)) {
+          return new Error(t('views.backpack.ftpHostFormat'))
+        }
+        return true
+      },
     },
   ],
   port: [
@@ -41,21 +52,24 @@ const rules: FormRules = {
       min: 1,
       max: 65535,
       trigger: ['change'],
+      message: t('views.backpack.ftpPortRange'),
     },
   ],
   user: [
     {
       required: true,
       trigger: ['change'],
+      message: t('views.backpack.ftpUserRequired'),
     },
   ],
   password: [
     {
       required: true,
       trigger: ['change'],
+      message: t('views.backpack.ftpPasswordRequired'),
     },
   ],
-}
+}))
 
 const folderTree = ref<TreeOption[]>([])
 const currentPath = ref<string[]>([])
@@ -71,7 +85,7 @@ const handleLoad = async (node: TreeOption) => {
   ftpInstance?.disconnect()
 }
 
-const select = () => {
+const select = (initVal: FolderInfo) => {
   return new Promise<any>((resolve) => {
     current.value = 1
     model.value = {
@@ -82,12 +96,22 @@ const select = () => {
     }
     visible.value = true
     resolveRef.value = resolve
+
+    if (initVal.type && initVal.type === 'ftp' && initVal.ftpConfig) {
+      model.value.host = initVal.ftpConfig.host
+      model.value.port = initVal.ftpConfig.port
+      model.value.user = initVal.ftpConfig.user
+      model.value.password = initVal.ftpConfig.password
+
+      handleNext()
+    }
   })
 }
 
 const handleNext = async () => {
   try {
     loading.value = true
+
     await formRef.value?.validate()
 
     ftpInstance = new FtpFileSystem(model.value)
@@ -123,7 +147,11 @@ const handlePrev = async () => {
 
 const handlePositive = () => {
   if (resolveRef.value) {
-    resolveRef.value('ok')
+    resolveRef.value({
+      ftpConfig: model.value,
+      path: currentPath.value[0] || '/',
+      type: 'ftp',
+    })
     resolveRef.value = null
   }
   visible.value = false
