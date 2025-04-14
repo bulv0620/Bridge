@@ -49,10 +49,8 @@ export class FtpFileSystem extends FileSystem {
   }
 
   async disconnect(): Promise<void> {
-    if (this.connected) {
-      await this.client.close()
-      this.connected = false
-    }
+    await this.client?.close()
+    this.connected = false
   }
 
   async getAllFiles(dir: string = ''): Promise<FileInfo[]> {
@@ -103,7 +101,9 @@ export class FtpFileSystem extends FileSystem {
     await this.connect()
     const resolvedPath = this._resolve(dirPath)
     const entries = await this.client.list(resolvedPath)
-    return entries.map((item) => item.name).filter((name) => name !== '.' && name !== '..')
+    return entries
+      .filter((item) => item.name !== '.' && item.name !== '..' && item.isDirectory)
+      .map((item) => item.name)
   }
 
   async getFile(filePath: string): Promise<Buffer> {

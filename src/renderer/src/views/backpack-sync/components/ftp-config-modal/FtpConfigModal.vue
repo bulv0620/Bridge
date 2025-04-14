@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { FormRules, NForm, TreeOption, useMessage } from 'naive-ui'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { FtpFileSystem } from '@renderer/utils/file-system'
 import { FolderInfo } from '../folder-selection-input/FolderSelectionInput.vue'
@@ -19,6 +19,13 @@ let ftpInstance: FtpFileSystem | null = null
 
 const loading = ref(false)
 const visible = ref(false)
+
+watch(visible, (val) => {
+  if (!val && ftpInstance) {
+    ftpInstance.disconnect()
+  }
+})
+
 const formRef = ref<InstanceType<typeof NForm> | null>(null)
 const resolveRef = ref<((value: any) => void) | null>(null)
 const current = ref(1)
@@ -87,6 +94,7 @@ const handleLoad = async (node: TreeOption) => {
 
 const select = (initVal: FolderInfo) => {
   return new Promise<any>((resolve) => {
+    ftpInstance = null
     current.value = 1
     model.value = {
       host: '',
@@ -113,6 +121,11 @@ const handleNext = async () => {
     loading.value = true
 
     await formRef.value?.validate()
+
+    if (ftpInstance) {
+      ftpInstance.disconnect()
+    }
+    ftpInstance = null
 
     ftpInstance = new FtpFileSystem(model.value)
     const bool = await ftpInstance.validate()
