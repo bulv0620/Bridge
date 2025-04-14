@@ -149,6 +149,7 @@ defineExpose({
     preset="card"
     :title="$t('views.backpack.ftpConfig')"
     :on-after-leave="handleNegative"
+    :mask-closable="false"
   >
     <n-steps :current="current" :status="currentStatus" size="small" style="margin-bottom: 24px">
       <n-step :title="$t('views.backpack.ftpConnInfo')" />
