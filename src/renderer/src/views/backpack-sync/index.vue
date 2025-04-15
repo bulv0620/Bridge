@@ -141,6 +141,23 @@ const handleDiffClick = async () => {
     loading.value = false
   }
 }
+
+const tableRef = ref<any>()
+
+const wait = (ms: number) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(true)
+    }, ms)
+  })
+}
+
+const handleTest = async () => {
+  for (let i = 0; i < diffTableData.value.length; i++) {
+    await wait(50)
+    tableRef.value?.scrollTo(51.8 * i)
+  }
+}
 </script>
 
 <template>
@@ -175,7 +192,7 @@ const handleDiffClick = async () => {
 
       <n-flex :wrap="false">
         <n-select v-model:value="syncType" :options="syncOptions" style="width: 180px" />
-        <n-button :disabled="diffTableData.length === 0">
+        <n-button :disabled="diffTableData.length === 0" @click="handleTest">
           <template #icon>
             <n-icon> <Sync /> </n-icon>
           </template>
@@ -198,7 +215,11 @@ const handleDiffClick = async () => {
       />
 
       <div class="table-wrapper">
-        <DiffDataTable v-model:data="diffTableData" :loading="loading"></DiffDataTable>
+        <DiffDataTable
+          ref="tableRef"
+          v-model:data="diffTableData"
+          :loading="loading"
+        ></DiffDataTable>
       </div>
     </div>
   </div>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { DiffFile } from '@renderer/utils/file-system'
-import { computed, h } from 'vue'
+import { computed, h, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import DiffTypeTag from './DiffTypeTag.vue'
 import DiffActionButton from './DiffActionButton.vue'
@@ -102,10 +102,23 @@ const columns = computed(() => [
     },
   },
 ])
+
+const tableRef = ref<any>()
+const scrollTo = (top: number) => {
+  tableRef.value?.scrollTo({
+    top: top,
+    left: 0,
+  })
+}
+
+defineExpose({
+  scrollTo,
+})
 </script>
 
 <template>
   <n-data-table
+    ref="tableRef"
     :loading="loading"
     size="small"
     virtual-scroll
