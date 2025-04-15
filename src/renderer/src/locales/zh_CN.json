@@ -58,7 +58,21 @@
       "ftpPasswordRequired": "FTP密码不能为空",
       "onlySource": "仅源",
       "onlyTarget": "仅目标",
-      "conflict": "冲突"
+      "conflict": "冲突",
+      "toLeft": "左移",
+      "toRight": "右移",
+      "ignore": "忽略",
+      "index": "#",
+      "diffType": "差异类型",
+      "sourceFile": "源文件",
+      "targetFile": "目标文件",
+      "action": "操作",
+      "sourceFileInfo": "源文件信息",
+      "targetFileInfo": "目标文件信息",
+      "fileName": "文件名",
+      "filePath": "文件路径",
+      "fileSize": "文件大小",
+      "fileTimestamp": "文件修改日期"
     },
     "ticoShare": {
       "title": "松鼠搬运",

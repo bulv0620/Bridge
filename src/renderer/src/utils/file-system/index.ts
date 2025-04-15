@@ -1,14 +1,43 @@
 import { FileInfo } from './FileSystem.adstract'
+const path = window.api.path
+
+export enum EDiffType {
+  onlySource = 'onlySource',
+  onlyTarget = 'onlyTarget',
+  conflict = 'conflict',
+}
+
+export enum EDiffAction {
+  toLeft = 'toLeft',
+  toRight = 'toRight',
+  ignore = 'ignore',
+  conflict = 'conflict',
+}
+
+export enum EDiffStatus {
+  wait = 'wait',
+  success = 'success',
+  error = 'error',
+}
 
 export interface DiffFile {
-  diffType: 'onlySource' | 'onlyTarget' | 'conflict'
+  diffType: EDiffType
   source: FileInfo | null
   target: FileInfo | null
-  action?: 'toLeft' | 'toRight' | 'peace' | 'doubt'
+  action?: EDiffAction
+  status?: EDiffStatus
 }
 
 export * from './LocalFileSystem'
 export * from './FtpFileSystem'
+
+const unifyPath = (filePath: string) => {
+  // 先使用 path.normalize 规范化路径（例如，将多余的“.”和“..”清理掉）
+  const normalized = path.normalize(filePath)
+  // 将当前平台的分隔符替换为 POSIX 的分隔符（即 '/')
+  // 例如：在 Windows 上将 '\' 替换为 '/'
+  return normalized.split(path.sep).join(path.posix.sep)
+}
 
 /**
  * 对比两个目录下的文件列表，返回包含差异项的统一数组，每项包含 diffType 字段
@@ -22,16 +51,16 @@ export function diffFileListsUnified(sourceFiles: FileInfo[], targetFiles: FileI
   // 建立目标文件的 Map，以 relativePath 为 key
   const targetMap = new Map()
   targetFiles.forEach((file) => {
-    targetMap.set(file.fileName, file)
+    targetMap.set(unifyPath(file.relativePath), file)
   })
 
   // 遍历源文件列表
   sourceFiles.forEach((sourceFile) => {
-    const targetFile = targetMap.get(sourceFile.fileName)
+    const targetFile = targetMap.get(unifyPath(sourceFile.relativePath))
     if (!targetFile) {
       // 仅源端存在
       diffs.push({
-        diffType: 'onlySource',
+        diffType: EDiffType.onlySource,
         source: sourceFile,
         target: null,
       })
@@ -47,20 +76,20 @@ export function diffFileListsUnified(sourceFiles: FileInfo[], targetFiles: FileI
 
       if (sourceFile.size !== targetFile.size || sourceTime.getTime() !== targetTime.getTime()) {
         diffs.push({
-          diffType: 'conflict',
+          diffType: EDiffType.conflict,
           source: sourceFile,
           target: targetFile,
         })
       }
       // 删除已处理的目标文件
-      targetMap.delete(sourceFile.fileName)
+      targetMap.delete(unifyPath(sourceFile.relativePath))
     }
   })
 
   // 剩余在 targetMap 中的文件为仅目标端存在
   targetMap.forEach((targetFile) => {
     diffs.push({
-      diffType: 'onlyTarget',
+      diffType: EDiffType.onlyTarget,
       source: null,
       target: targetFile,
     })

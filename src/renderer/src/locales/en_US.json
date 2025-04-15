@@ -58,7 +58,21 @@
       "ftpPasswordRequired": "FTP password is required",
       "onlySource": "Only Source",
       "onlyTarget": "Only Target",
-      "conflict": "Conflict"
+      "conflict": "Conflict",
+      "toLeft": "To Left",
+      "toRight": "To Right",
+      "ignore": "Ignore",
+      "index": "#",
+      "diffType": "Diff Type",
+      "sourceFile": "Source",
+      "targetFile": "Target",
+      "action": "Action",
+      "sourceFileInfo": "Source File Info",
+      "targetFileInfo": "Target File Info",
+      "fileName": "Name",
+      "filePath": "Path",
+      "fileSize": "Size",
+      "fileTimestamp": "timestamp"
     },
     "ticoShare": {
       "title": "Tico Share",

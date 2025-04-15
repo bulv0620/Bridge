@@ -1,38 +1,26 @@
 <script setup lang="ts">
-import {
-  Sync,
-  FileTrayFull,
-  SaveOutline,
-  ArrowBack,
-  ArrowForward,
-  Remove,
-  Help,
-} from '@vicons/ionicons5'
-import { computed, h, ref } from 'vue'
+import { Sync, FileTrayFull, SaveOutline } from '@vicons/ionicons5'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FolderSelectionInput from './components/folder-selection-input/FolderSelectionInput.vue'
 import type { FolderInfo } from './components/folder-selection-input/FolderSelectionInput.vue'
 import {
   DiffFile,
   diffFileListsUnified,
+  EDiffAction,
+  EDiffStatus,
+  EDiffType,
   FtpFileSystem,
   LocalFileSystem,
 } from '@renderer/utils/file-system'
-import { NIcon, NTag } from 'naive-ui'
+import { NIcon } from 'naive-ui'
+import DiffDataTable from './components/diff-data-table/DiffDataTable.vue'
 
+const crypto = window.api.crypto
 const { t } = useI18n()
 
-const syncOptions = computed(() => [
-  { label: t('views.backpack.twoWaySync'), value: 'two-way' },
-  { label: t('views.backpack.mirrorSync'), value: 'mirror' },
-  { label: t('views.backpack.incrementalSync'), value: 'increment' },
-])
-
-const syncType = ref('two-way')
-
-const percentage = ref(0)
-
 const loading = ref(false)
+const percentage = ref(0)
 
 const sourceFolder = ref<FolderInfo>({
   type: '',
@@ -43,98 +31,71 @@ const targetFolder = ref<FolderInfo>({
   path: '',
 })
 
-const diffTableData = ref([])
-const columns = computed(() => [
-  {
-    title: '序号',
-    key: 'index',
-    align: 'center',
-    width: 60,
-    render(_: DiffFile, index: number) {
-      return index + 1
-    },
-  },
-  {
-    title: '差异类型',
-    key: 'diffType',
-    align: 'center',
-    width: 140,
-    filterOptions: [
-      {
-        label: t('views.backpack.onlySource'),
-        value: 'onlySource',
-      },
-      {
-        label: t('views.backpack.onlyTarget'),
-        value: 'onlyTarget',
-      },
-      {
-        label: t('views.backpack.conflict'),
-        value: 'conflict',
-      },
-    ],
-    filter(value: string, row: DiffFile) {
-      return row.diffType === value
-    },
-    render(row: DiffFile) {
-      return h(
-        NTag,
-        {
-          type:
-            row.diffType === 'onlySource'
-              ? 'success'
-              : row.diffType === 'onlyTarget'
-                ? 'warning'
-                : 'error',
-        },
-        () => t(`views.backpack.${row.diffType}`),
-      )
-    },
-  },
-  {
-    title: '源文件',
-    key: 'sourceFileName',
-    align: 'center',
-    resizable: true,
-    render(row: DiffFile) {
-      return row.source?.fileName
-    },
-  },
-  {
-    title: '目标文件',
-    key: 'targetFileName',
-    align: 'center',
-    resizable: true,
-    render(row: DiffFile) {
-      return row.target?.fileName
-    },
-  },
-  {
-    title: '操作',
-    key: 'operation',
-    align: 'center',
-    width: 100,
-    render(row: DiffFile) {
-      return h(
-        NIcon,
-        {
-          size: 20,
-          color: 'var(--n-color-success)',
-        },
-        () =>
-          h(
-            row.diffType === 'onlySource'
-              ? ArrowForward
-              : row.diffType === 'onlyTarget'
-                ? ArrowBack
-                : Remove,
-          ),
-      )
-    },
-  },
+const diffTableData = ref<DiffFile[]>([])
+
+watch(sourceFolder, () => {
+  diffTableData.value = []
+})
+watch(targetFolder, () => {
+  diffTableData.value = []
+})
+
+enum ESyncType {
+  mirror = 'mirror',
+  twoWay = 'two-way',
+  increment = 'increment',
+}
+const syncOptions = computed(() => [
+  { label: t('views.backpack.mirrorSync'), value: ESyncType.mirror },
+  { label: t('views.backpack.twoWaySync'), value: ESyncType.twoWay },
+  { label: t('views.backpack.incrementalSync'), value: ESyncType.increment },
 ])
+const syncType = ref(ESyncType.mirror)
+watch(syncType, (type) => {
+  diffTableData.value.forEach((diffFile) => {
+    diffFile.action = getDiffAction(diffFile, type)
+  })
+})
+
+const getDiffAction = (diffFile: DiffFile, syncType: ESyncType): EDiffAction => {
+  switch (syncType) {
+    case ESyncType.mirror:
+      // 镜像模式下，无论 diffFile.diffType 为何均同步为右侧
+      return EDiffAction.toRight
+
+    case ESyncType.twoWay:
+      // 双向同步，根据 diffFile.diffType 决定方向
+      switch (diffFile.diffType) {
+        case EDiffType.onlySource:
+          return EDiffAction.toRight
+        case EDiffType.onlyTarget:
+          return EDiffAction.toLeft
+        case EDiffType.conflict:
+          return EDiffAction.conflict
+        default:
+          throw new Error(`未处理的 diffType:${diffFile.diffType}`)
+      }
+
+    case ESyncType.increment:
+      // 增量同步
+      switch (diffFile.diffType) {
+        case EDiffType.onlySource:
+          return EDiffAction.toRight
+        case EDiffType.onlyTarget:
+          return EDiffAction.ignore
+        case EDiffType.conflict:
+          return EDiffAction.toRight
+        default:
+          throw new Error(`未处理的 diffType:${diffFile.diffType}`)
+      }
+
+    default:
+      throw new Error(`未处理的 syncType:${syncType}`)
+  }
+}
 
 const handleDiffClick = async () => {
+  diffTableData.value = []
   try {
     loading.value = true
 
@@ -161,7 +122,12 @@ const handleDiffClick = async () => {
 
     const diff = diffFileListsUnified(sourceFiles, targetFiles)
 
-    diffTableData.value = diff as any
+    diffTableData.value = diff.map((diffFile) => ({
+      key: crypto.randomUUID(),
+      ...diffFile,
+      action: getDiffAction(diffFile, syncType.value),
+      status: EDiffStatus.wait,
+    }))
 
     if (source instanceof FtpFileSystem) {
       source.disconnect()
@@ -232,16 +198,7 @@ const handleDiffClick = async () => {
       />
 
       <div class="table-wrapper">
-        <n-data-table
-          :loading="loading"
-          size="small"
-          align="center"
-          virtual-scroll
-          :columns="columns"
-          :data="diffTableData"
-          flex-height
-          style="height: 100%"
-        />
+        <DiffDataTable v-model:data="diffTableData" :loading="loading"></DiffDataTable>
       </div>
     </div>
   </div>
