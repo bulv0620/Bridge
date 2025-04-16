@@ -1,17 +1,18 @@
 <script setup lang="ts">
+import { EDiffType } from '@renderer/utils/file-system'
 import { computed } from 'vue'
 
 const props = defineProps<{
-  diffType: 'onlySource' | 'onlyTarget' | 'conflict'
+  diffType: EDiffType
 }>()
 
-const map = {
-  onlySource: 'success',
-  onlyTarget: 'warning',
-  conflict: 'error',
-}
+const map = new Map<EDiffType, string>([
+  [EDiffType.onlySource, 'success'],
+  [EDiffType.onlyTarget, 'warning'],
+  [EDiffType.conflict, 'error'],
+])
 
-const type = computed(() => map[props.diffType])
+const type = computed(() => map.get(props.diffType))
 </script>
 
 <template>

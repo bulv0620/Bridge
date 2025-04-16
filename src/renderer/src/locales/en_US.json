@@ -72,7 +72,8 @@
       "fileName": "Name",
       "filePath": "Path",
       "fileSize": "Size",
-      "fileTimestamp": "timestamp"
+      "fileTimestamp": "timestamp",
+      "noTasksToPerform": "No Tasks To Perform"
     },
     "ticoShare": {
       "title": "Tico Share",

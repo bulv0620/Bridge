@@ -1,4 +1,7 @@
-import { FileInfo } from './FileSystem.adstract'
+import { FolderInfo } from '@renderer/views/backpack-sync/components/folder-selection-input/FolderSelectionInput.vue'
+import { FileInfo, FileSystem } from './FileSystem.adstract'
+import { LocalFileSystem } from './LocalFileSystem'
+import { FtpFileSystem } from './FtpFileSystem'
 const path = window.api.path
 
 export enum EDiffType {
@@ -15,7 +18,8 @@ export enum EDiffAction {
 }
 
 export enum EDiffStatus {
-  wait = 'wait',
+  waiting = 'wait',
+  processing = 'processing',
   success = 'success',
   error = 'error',
 }
@@ -31,7 +35,7 @@ export interface DiffFile {
 export * from './LocalFileSystem'
 export * from './FtpFileSystem'
 
-const unifyPath = (filePath: string) => {
+function unifyPath(filePath: string) {
   // 先使用 path.normalize 规范化路径（例如，将多余的“.”和“..”清理掉）
   const normalized = path.normalize(filePath)
   // 将当前平台的分隔符替换为 POSIX 的分隔符（即 '/')
@@ -98,40 +102,62 @@ export function diffFileListsUnified(sourceFiles: FileInfo[], targetFiles: FileI
   return diffs
 }
 
-// /**
-//  * 通用文件同步函数
-//  * @param {string} sourceFilePath - 源文件相对于 sourceFileSystem.basePath 的路径
-//  * @param {string} targetFilePath - 目标文件相对于 targetFileSystem.basePath 的路径（如果传入，则同步时先删除目标文件）
-//  * @param {FileSystem} sourceFileSystem - 源文件系统实例
-//  * @param {FileSystem} targetFileSystem - 目标文件系统实例
-//  *
-//  * 逻辑说明：
-//  *   - 若 targetFilePath 有效（即目标文件存在或需要被覆盖），先删除目标文件，然后将源文件数据和元数据复制过去；
-//  *   - 否则直接复制。
-//  */
-// export async function syncFile(sourceFilePath, targetFilePath, sourceFileSystem, targetFileSystem) {
-//   try {
-//     // 从源系统读取文件数据和元数据
-//     const data = await sourceFileSystem.getFile(sourceFilePath)
-//     const meta = await sourceFileSystem.getMeta(sourceFilePath)
+/**
+ * 通用文件同步函数
+ */
+export async function syncFile(
+  diffFile: DiffFile,
+  sourceFileSystem: FileSystem,
+  targetFileSystem: FileSystem,
+) {
+  if (diffFile.action === EDiffAction.toLeft) {
+    // 文件左移  target -> source
+    // 如果source存在文件则先删除
+    if (diffFile.source) {
+      await sourceFileSystem.delFile(diffFile.source.relativePath)
+    }
 
-//     // 如果传入了 targetFilePath，则先尝试删除目标文件（若文件不存在，则捕获异常忽略）
-//     const finalTargetPath = targetFilePath || sourceFilePath
-//     if (targetFilePath) {
-//       try {
-//         await targetFileSystem.delFile(finalTargetPath)
-//         console.log(`已删除目标文件: ${finalTargetPath}`)
-//       } catch (e) {
-//         console.warn(`删除目标文件失败（可能不存在）: ${finalTargetPath}`)
-//       }
-//     }
+    // 如果target文件存在则移动到source
+    if (diffFile.target) {
+      const data = await targetFileSystem.getFile(diffFile.target.relativePath)
+      const meta = await targetFileSystem.getMeta(diffFile.target.relativePath)
 
-//     // 写入文件数据到目标文件系统
-//     await targetFileSystem.writeFile(finalTargetPath, data)
-//     // 将源文件的元数据复制过去
-//     await targetFileSystem.setMeta(finalTargetPath, meta)
-//     console.log(`已同步文件 ${sourceFilePath} 到 ${finalTargetPath}`)
-//   } catch (err) {
-//     console.error('同步文件时发生错误:', err)
-//   }
-// }
+      // 写入文件数据
+      await sourceFileSystem.writeFile(diffFile.target.relativePath, data)
+      // 将文件的元数据复制过去
+      await sourceFileSystem.setMeta(diffFile.target.relativePath, meta)
+    }
+  } else if (diffFile.action === EDiffAction.toRight) {
+    // 文件右移  source -> target
+    // 如果target存在文件则先删除
+    if (diffFile.target) {
+      await sourceFileSystem.delFile(diffFile.target.relativePath)
+    }
+
+    // 如果source文件存在则移动到target
+    if (diffFile.source) {
+      const data = await sourceFileSystem.getFile(diffFile.source.relativePath)
+      const meta = await sourceFileSystem.getMeta(diffFile.source.relativePath)
+
+      // 写入文件数据
+      await targetFileSystem.writeFile(diffFile.source.relativePath, data)
+      // 将文件的元数据复制过去
+      await targetFileSystem.setMeta(diffFile.source.relativePath, meta)
+    }
+  } else {
+    return
+  }
+}
+
+/**
+ * 获取文件系统实例对象
+ * @param folder
+ * @returns
+ */
+export function getFileSystemInstance(folder: FolderInfo) {
+  if (folder.type === 'ftp') {
+    return new FtpFileSystem(folder.ftpConfig!, folder.path)
+  } else {
+    return new LocalFileSystem(folder.path)
+  }
+}

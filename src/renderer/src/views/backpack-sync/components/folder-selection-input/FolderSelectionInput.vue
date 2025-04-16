@@ -15,6 +15,7 @@ export interface FolderInfo {
 const props = withDefaults(
   defineProps<{
     type: 'target' | 'source'
+    processing: boolean
   }>(),
   {},
 )
@@ -69,7 +70,7 @@ const handleSelect = async (key: string) => {
         </n-tag>
       </template>
     </n-input>
-    <n-dropdown trigger="hover" :options="options" @select="handleSelect">
+    <n-dropdown trigger="hover" :options="options" :disabled="processing" @select="handleSelect">
       <n-button>
         <template #icon>
           <n-icon> <FolderOutline /> </n-icon>

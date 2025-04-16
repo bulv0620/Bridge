@@ -117,10 +117,9 @@ const select = (initVal: FolderInfo) => {
 }
 
 const handleNext = async () => {
+  await formRef.value?.validate()
   try {
     loading.value = true
-
-    await formRef.value?.validate()
 
     if (ftpInstance) {
       ftpInstance.disconnect()
@@ -149,6 +148,7 @@ const handleNext = async () => {
   } catch (error) {
     // 连接失败
     console.error(error)
+    message.error(t('views.backpack.ftpConnFailed'))
   } finally {
     loading.value = false
   }

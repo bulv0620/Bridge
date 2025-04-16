@@ -72,7 +72,8 @@
       "fileName": "文件名",
       "filePath": "文件路径",
       "fileSize": "文件大小",
-      "fileTimestamp": "文件修改日期"
+      "fileTimestamp": "文件修改日期",
+      "noTasksToPerform": "无可执行任务"
     },
     "ticoShare": {
       "title": "松鼠搬运",

@@ -6,12 +6,14 @@ import DiffTypeTag from './DiffTypeTag.vue'
 import DiffActionButton from './DiffActionButton.vue'
 import DiffDetail from './DiffDetail.vue'
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     loading: boolean
+    processing: boolean
   }>(),
   {
     loading: false,
+    processing: false,
   },
 )
 
@@ -93,7 +95,8 @@ const columns = computed(() => [
     width: 100,
     render(row: DiffFile) {
       return h(DiffActionButton, {
-        diffType: row.diffType,
+        status: row.status!,
+        processing: props.processing,
         action: row.action,
         'onUpdate:action': (val) => {
           row.action = val

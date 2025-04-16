@@ -1,24 +1,27 @@
 <script setup lang="ts">
-import { EDiffAction } from '@renderer/utils/file-system'
-import { ArrowBack, ArrowForward, Help, Remove } from '@vicons/ionicons5'
+import { EDiffAction, EDiffStatus } from '@renderer/utils/file-system'
+import { ArrowBack, ArrowForward, Help, Remove, Checkmark, Close } from '@vicons/ionicons5'
 import { NIcon } from 'naive-ui'
 import { Component, computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-defineProps<{}>()
+const props = defineProps<{
+  status: EDiffStatus
+  processing: boolean
+}>()
 
-const typeMap = new Map<EDiffAction, string>([
-  [EDiffAction.toRight, 'success'],
-  [EDiffAction.toLeft, 'warning'],
-  [EDiffAction.conflict, 'error'],
-  [EDiffAction.ignore, 'info'],
+const typeMap = new Map<EDiffStatus, string>([
+  [EDiffStatus.waiting, 'default'],
+  [EDiffStatus.processing, 'info'],
+  [EDiffStatus.success, 'success'],
+  [EDiffStatus.error, 'error'],
 ])
 
 const { t } = useI18n()
 
 const action = defineModel<EDiffAction>('action')
 const type = computed(() => {
-  if (action.value) return typeMap.get(action.value)
+  if (action.value) return typeMap.get(props.status)
   return ''
 })
 
@@ -54,10 +57,16 @@ const handleSelect = (key: EDiffAction) => {
 </script>
 
 <template>
-  <n-dropdown :options="options" @select="handleSelect">
-    <n-button strong secondary circle :type="type">
+  <n-dropdown
+    :options="options"
+    :disabled="status !== EDiffStatus.waiting || processing"
+    @select="handleSelect"
+  >
+    <n-button strong secondary circle :type="type" :loading="status === EDiffStatus.processing">
       <template #icon>
-        <n-icon>
+        <n-icon v-if="status === EDiffStatus.success"> <Checkmark></Checkmark> </n-icon>
+        <n-icon v-else-if="status === EDiffStatus.error"> <Close></Close> </n-icon>
+        <n-icon v-else>
           <ArrowForward v-if="action === EDiffAction.toRight"></ArrowForward>
           <ArrowBack v-else-if="action === EDiffAction.toLeft"></ArrowBack>
           <Remove v-else-if="action === EDiffAction.ignore"></Remove>
