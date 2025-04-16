@@ -21,8 +21,10 @@ const { t } = useI18n()
 
 const action = defineModel<EDiffAction>('action')
 const type = computed(() => {
-  if (action.value) return typeMap.get(props.status)
-  return ''
+  if (action.value === EDiffAction.conflict && props.status === EDiffStatus.waiting)
+    return 'warning'
+
+  return typeMap.get(props.status)
 })
 
 const renderIcon = (icon: Component) => {

@@ -23,14 +23,23 @@
     "search": "搜索",
     "select": "选择",
     "selectAll": "全选",
-    "selectNone": "全不选"
+    "selectNone": "全不选",
+    "warning": "警告",
+    "error": "错误",
+    "info": "信息",
+    "success": "成功",
+    "loading": "加载中",
+    "noData": "无数据",
+    "noResult": "无结果"
   },
   "views": {
     "backpack": {
       "title": "背包同步",
       "description": "文件同步工具",
       "newPlan": "新方案",
+      "contrast": "对比差异",
       "startSync": "开始同步",
+      "stopSync": "停止同步",
       "savePlan": "保存方案",
       "sourceFolder": "源目录",
       "targetFolder": "目标目录",
@@ -73,7 +82,11 @@
       "filePath": "文件路径",
       "fileSize": "文件大小",
       "fileTimestamp": "文件修改日期",
-      "noTasksToPerform": "无可执行任务"
+      "noTasksToPerform": "无可执行任务",
+      "syncConflict": "同步冲突",
+      "syncConflictContent": "存在冲突文件, 是否继续?",
+      "syncComplete": "同步完成",
+      "syncSummary": "耗时 {time} 秒，同步成功 {success} 个，失败 {failure} 个"
     },
     "ticoShare": {
       "title": "松鼠搬运",

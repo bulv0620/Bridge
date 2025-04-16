@@ -17,10 +17,11 @@ export interface IWindowOptions {
 
 export function createCustomWindow(windowOption?: IWindowOptions): BrowserWindow {
   const win = new BrowserWindow({
-    width: windowOption?.width || 900,
-    height: windowOption?.height || 600,
+    width: windowOption?.width || 990,
+    height: windowOption?.height || 660,
     minWidth: windowOption?.minWidth || 200,
     minHeight: windowOption?.minHeight || 50,
+    fullscreenable: false,
     resizable: windowOption?.resizable,
     show: false,
     autoHideMenuBar: windowOption?.hideMenuBar || true,

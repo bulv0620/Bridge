@@ -66,5 +66,15 @@ const tableData = computed(() => [
 </script>
 
 <template>
-  <n-data-table :single-line="false" :columns="columns" :data="tableData" size="small" bordered />
+  <div>
+    <n-alert
+      v-if="diffFile.error"
+      :title="$t('common.error')"
+      type="error"
+      style="margin-bottom: 12px"
+    >
+      {{ diffFile.error?.message }}
+    </n-alert>
+    <n-data-table :single-line="false" :columns="columns" :data="tableData" size="small" bordered />
+  </div>
 </template>

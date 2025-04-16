@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { DiffFile } from '@renderer/utils/file-system'
-import { computed, h, ref } from 'vue'
+import { computed, h, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import DiffTypeTag from './DiffTypeTag.vue'
 import DiffActionButton from './DiffActionButton.vue'
 import DiffDetail from './DiffDetail.vue'
+import { DataTableBaseColumn, DataTableFilterState } from 'naive-ui'
 
 const props = withDefaults(
   defineProps<{
@@ -20,9 +21,39 @@ const props = withDefaults(
 const { t } = useI18n()
 
 const diffTableData = defineModel<DiffFile[]>('data')
+const diffTypeColumn = reactive({
+  title: t('views.backpack.diffType'),
+  key: 'diffType',
+  align: 'center',
+  width: 140,
+  filterOptionValues: [],
+  filterOptions: [
+    {
+      label: t('views.backpack.onlySource'),
+      value: 'onlySource',
+    },
+    {
+      label: t('views.backpack.onlyTarget'),
+      value: 'onlyTarget',
+    },
+    {
+      label: t('views.backpack.conflict'),
+      value: 'conflict',
+    },
+  ],
+  filter(value: string, row: DiffFile) {
+    return row.diffType === value
+  },
+  render(row: DiffFile) {
+    return h(DiffTypeTag, {
+      diffType: row.diffType,
+    })
+  },
+})
 const columns = computed(() => [
   {
     type: 'expand',
+    expandable: () => !props.processing,
     renderExpand: (row: DiffFile) => {
       return h(DiffDetail, { diffFile: row })
     },
@@ -36,34 +67,7 @@ const columns = computed(() => [
       return index + 1
     },
   },
-  {
-    title: t('views.backpack.diffType'),
-    key: 'diffType',
-    align: 'center',
-    width: 140,
-    filterOptions: [
-      {
-        label: t('views.backpack.onlySource'),
-        value: 'onlySource',
-      },
-      {
-        label: t('views.backpack.onlyTarget'),
-        value: 'onlyTarget',
-      },
-      {
-        label: t('views.backpack.conflict'),
-        value: 'conflict',
-      },
-    ],
-    filter(value: string, row: DiffFile) {
-      return row.diffType === value
-    },
-    render(row: DiffFile) {
-      return h(DiffTypeTag, {
-        diffType: row.diffType,
-      })
-    },
-  },
+  diffTypeColumn,
   {
     title: t('views.backpack.sourceFile'),
     key: 'sourceFileName',
@@ -114,8 +118,18 @@ const scrollTo = (top: number) => {
   })
 }
 
+const clearFilter = () => {
+  diffTypeColumn.filterOptionValues = []
+}
+
+const handleUpdateFilter = (filters: DataTableFilterState, sourceColumn: DataTableBaseColumn) => {
+  console.log(filters)
+  diffTypeColumn.filterOptionValues = filters[sourceColumn.key] as any
+}
+
 defineExpose({
   scrollTo,
+  clearFilter,
 })
 </script>
 
@@ -129,5 +143,6 @@ defineExpose({
     :data="diffTableData"
     flex-height
     style="height: 100%"
+    @update:filters="handleUpdateFilter"
   />
 </template>

@@ -4,6 +4,10 @@ import { languageOptions } from '@renderer/locales'
 import { useTheme } from '@renderer/composables/theme'
 import { computed } from 'vue'
 
+defineOptions({
+  name: 'Setting',
+})
+
 const { locale, t } = useI18n()
 const { themeMode } = useTheme()
 

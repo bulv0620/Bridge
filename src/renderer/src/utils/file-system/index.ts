@@ -30,6 +30,7 @@ export interface DiffFile {
   target: FileInfo | null
   action?: EDiffAction
   status?: EDiffStatus
+  error?: Error
 }
 
 export * from './LocalFileSystem'
@@ -131,7 +132,7 @@ export async function syncFile(
     // 文件右移  source -> target
     // 如果target存在文件则先删除
     if (diffFile.target) {
-      await sourceFileSystem.delFile(diffFile.target.relativePath)
+      await targetFileSystem.delFile(diffFile.target.relativePath)
     }
 
     // 如果source文件存在则移动到target

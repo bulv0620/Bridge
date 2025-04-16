@@ -23,14 +23,23 @@
     "search": "Search",
     "select": "Select",
     "selectAll": "Select All",
-    "selectNone": "Select None"
+    "selectNone": "Select None",
+    "warning": "Warning",
+    "error": "Error",
+    "info": "Info",
+    "success": "Success",
+    "loading": "Loading",
+    "noData": "No Data",
+    "noResult": "No Result"
   },
   "views": {
     "backpack": {
       "title": "Backpack Sync",
       "description": "File sync tool.",
       "newPlan": "New Plan",
+      "contrast": "Contrast Difference",
       "startSync": "Start Sync",
+      "stopSync": "Stop Sync",
       "savePlan": "Save Plan",
       "sourceFolder": "Source Folder",
       "targetFolder": "Target Folder",
@@ -73,7 +82,11 @@
       "filePath": "Path",
       "fileSize": "Size",
       "fileTimestamp": "timestamp",
-      "noTasksToPerform": "No Tasks To Perform"
+      "noTasksToPerform": "No Tasks To Perform",
+      "syncConflict": "Sync Conflict",
+      "syncConflictContent": "There are conflicting files, do you want to continue?",
+      "syncComplete": "Sync Complete",
+      "syncSummary": "Elapsed {time} seconds, successfully synced {success} files, and {failure} failed"
     },
     "ticoShare": {
       "title": "Tico Share",

@@ -11,7 +11,11 @@ import Sider from './components/Sider.vue'
     <n-layout has-sider style="height: calc(100vh - 33px)">
       <Sider></Sider>
       <n-layout :native-scrollbar="false">
-        <router-view></router-view>
+        <router-view v-slot="{ Component }">
+          <keep-alive>
+            <component :is="Component" />
+          </keep-alive>
+        </router-view>
       </n-layout>
     </n-layout>
   </n-layout>
