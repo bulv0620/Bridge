@@ -22,7 +22,7 @@ const { t } = useI18n()
 
 const diffTableData = defineModel<DiffFile[]>('data')
 const diffTypeColumn = reactive({
-  title: t('views.backpack.diffType'),
+  title: computed(() => t('views.backpack.diffType')),
   key: 'diffType',
   align: 'center',
   width: 140,
@@ -111,11 +111,8 @@ const columns = computed(() => [
 ])
 
 const tableRef = ref<any>()
-const scrollTo = (top: number) => {
-  tableRef.value?.scrollTo({
-    top: top,
-    left: 0,
-  })
+const scrollTo = (index: number) => {
+  tableRef.value?.scrollTo({ index })
 }
 
 const clearFilter = () => {

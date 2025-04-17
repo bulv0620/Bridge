@@ -195,7 +195,7 @@ const handleStartSync = async () => {
       pauseFlag.value = false
       return
     }
-    tableRef.value?.scrollTo(51 * i) // 滚动到指定位置
+    tableRef.value?.scrollTo(i) // 滚动到指定位置
 
     // 当前行
     const processingItem = diffTableData.value[i]
