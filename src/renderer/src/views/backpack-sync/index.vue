@@ -186,6 +186,9 @@ const handleStartSync = async () => {
   // 清除过滤
   tableRef.value?.clearFilter()
 
+  const source = getFileSystemInstance(sourceFolder.value)
+  const target = getFileSystemInstance(targetFolder.value)
+
   for (let i = startIndex; i < diffTableData.value.length; i++) {
     // 如果按下暂停，则结束
     if (pauseFlag.value) {
@@ -197,9 +200,6 @@ const handleStartSync = async () => {
     // 当前行
     const processingItem = diffTableData.value[i]
     processingItem.status = EDiffStatus.processing
-
-    const source = getFileSystemInstance(sourceFolder.value)
-    const target = getFileSystemInstance(targetFolder.value)
 
     try {
       if (processingItem.action === EDiffAction.conflict) {
@@ -213,13 +213,14 @@ const handleStartSync = async () => {
       processingItem.error = error as Error
     } finally {
       percentage.value = ((i + 1) / diffTableData.value.length) * 100
-      if (source instanceof FtpFileSystem) {
-        source.disconnect()
-      }
-      if (target instanceof FtpFileSystem) {
-        target.disconnect()
-      }
     }
+  }
+
+  if (source instanceof FtpFileSystem) {
+    source.disconnect()
+  }
+  if (target instanceof FtpFileSystem) {
+    target.disconnect()
   }
 }
 

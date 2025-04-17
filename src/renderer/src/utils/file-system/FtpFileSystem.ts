@@ -171,14 +171,14 @@ export class FtpFileSystem extends FileSystem {
   private formatDateForMFMT(date: Date): string {
     const pad = (n: number) => n.toString().padStart(2, '0')
     return (
-      date.getUTCFullYear().toString() +
-      pad(date.getUTCMonth() + 1) +
-      pad(date.getUTCDate()) +
-      pad(date.getUTCHours()) +
-      pad(date.getUTCMinutes()) +
-      pad(date.getUTCSeconds()) +
+      date.getFullYear().toString() +
+      pad(date.getMonth() + 1) +
+      pad(date.getDate()) +
+      pad(date.getHours()) +
+      pad(date.getMinutes()) +
+      pad(date.getSeconds()) +
       '.' +
-      date.getUTCMilliseconds().toString().padStart(3, '0')
+      date.getMilliseconds().toString().padStart(3, '0')
     )
   }
 }
