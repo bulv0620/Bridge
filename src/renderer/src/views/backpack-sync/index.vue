@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // #region imports
-import { SwapHorizontal, FileTrayFull, List, Pause, Play } from '@vicons/ionicons5'
-import { computed, onActivated, onDeactivated, ref, watch } from 'vue'
+import { SwapHorizontal, FileTrayFull, List, Pause, Play, Document, Save } from '@vicons/ionicons5'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FolderWhiteListModal from './components/folder-white-list-modal/FolderWhiteListModal.vue'
 import FolderSelectionInput from './components/folder-selection-input/FolderSelectionInput.vue'
@@ -24,12 +24,6 @@ import { dialogPromise } from '@renderer/utils/dialog'
 // #region options
 defineOptions({
   name: 'BackpackSync',
-})
-onActivated(() => {
-  console.log('Setting activated')
-})
-onDeactivated(() => {
-  console.log('Setting deactivated')
 })
 // #endregion
 
@@ -295,11 +289,23 @@ const handlePauseSync = async () => {
         <p class="title">
           <span>{{ $t('views.backpack.newPlan') }}</span>
         </p>
-        <n-button strong secondary circle :disabled="processing">
-          <template #icon>
-            <n-icon> <FileTrayFull /> </n-icon>
-          </template>
-        </n-button>
+        <n-flex>
+          <n-button circle :disabled="processing">
+            <template #icon>
+              <n-icon> <Document /> </n-icon>
+            </template>
+          </n-button>
+          <n-button circle :disabled="processing">
+            <template #icon>
+              <n-icon> <Save /> </n-icon>
+            </template>
+          </n-button>
+          <n-button circle :disabled="processing">
+            <template #icon>
+              <n-icon> <FileTrayFull /> </n-icon>
+            </template>
+          </n-button>
+        </n-flex>
       </n-flex>
 
       <!-- 目录选择栏 -->
@@ -316,7 +322,6 @@ const handlePauseSync = async () => {
         >
           <template #trigger>
             <n-button
-              strong
               circle
               :disabled="!sourceFolder.path || !targetFolder.path || processing"
               :loading="loading"
@@ -366,7 +371,7 @@ const handlePauseSync = async () => {
           <template #icon>
             <n-icon> <List /> </n-icon>
           </template>
-          {{ $t('views.backpack.folderWhiteList') }}
+          {{ $t('views.backpack.folderWhiteList') + ` ${folderWhiteList.length}` }}
         </n-button>
       </n-flex>
 
