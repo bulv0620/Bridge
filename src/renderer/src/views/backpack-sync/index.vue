@@ -179,12 +179,14 @@ let errorCount = 0
 const handleStartSync = async () => {
   if (!hasWaitingFile.value) return
 
-  await dialogPromise(dialog.info, {
-    title: t('common.info'),
-    content: t('views.backpack.syncConfirm'),
-    positiveText: t('common.confirm'),
-    negativeText: t('common.cancel'),
-  })
+  if (diffTableData.value.every((el) => el.status === EDiffStatus.waiting)) {
+    await dialogPromise(dialog.info, {
+      title: t('common.info'),
+      content: t('views.backpack.syncConfirm'),
+      positiveText: t('common.confirm'),
+      negativeText: t('common.cancel'),
+    })
+  }
 
   if (diffTableData.value.some((el) => el.action === EDiffAction.conflict)) {
     await dialogPromise(dialog.warning, {
@@ -217,8 +219,8 @@ const handleStartSync = async () => {
   for (let i = startIndex; i < diffTableData.value.length; i++) {
     if (pauseFlag.value) {
       pauseFlag.value = false
-      startTime = 0
       totalTime += new Date().getTime() - startTime
+      startTime = 0
       return
     }
     tableRef.value?.scrollTo(i)
