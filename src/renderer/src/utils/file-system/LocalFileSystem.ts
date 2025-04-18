@@ -2,15 +2,16 @@ import { FileSystem, FileInfo, FileMetaData } from './FileSystem.adstract'
 
 const fs = window.api.fs
 const path = window.api.path
-// 定义白名单目录名称数组
-const folderWhitelist = ['']
 
 /**
  * 本地文件系统实现
  */
 export class LocalFileSystem extends FileSystem {
-  constructor(basePath: string = '') {
+  private folderWhitelist: string[]
+
+  constructor(basePath: string = '', whiteList: string[] = []) {
     super(basePath)
+    this.folderWhitelist = whiteList
   }
 
   protected _resolve(filePath: string): string {
@@ -36,7 +37,7 @@ export class LocalFileSystem extends FileSystem {
       const fullPath = path.join(resolvedDir, entry.name)
 
       if (entry.isDirectory()) {
-        if (folderWhitelist.includes(entry.name)) {
+        if (this.folderWhitelist.includes(entry.name)) {
           const subEntries = await fs.readdir(fullPath, { withFileTypes: true })
           for (const subEntry of subEntries) {
             if (subEntry.isFile()) {

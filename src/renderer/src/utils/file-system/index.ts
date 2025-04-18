@@ -155,10 +155,10 @@ export async function syncFile(
  * @param folder
  * @returns
  */
-export function getFileSystemInstance(folder: FolderInfo) {
+export function getFileSystemInstance(folder: FolderInfo, folderWhitelist: string[]) {
   if (folder.type === 'ftp') {
-    return new FtpFileSystem(folder.ftpConfig!, folder.path)
+    return new FtpFileSystem(folder.ftpConfig!, folder.path, folderWhitelist)
   } else {
-    return new LocalFileSystem(folder.path)
+    return new LocalFileSystem(folder.path, folderWhitelist)
   }
 }

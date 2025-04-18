@@ -41,6 +41,8 @@
       "startSync": "开始同步",
       "stopSync": "停止同步",
       "savePlan": "保存方案",
+      "folderWhiteList": "白名单",
+      "folderWhiteListEmptyValue": "白名单不能存在空值",
       "sourceFolder": "源目录",
       "targetFolder": "目标目录",
       "twoWaySync": "双向同步",
@@ -84,9 +86,13 @@
       "fileTimestamp": "文件修改日期",
       "noTasksToPerform": "无可执行任务",
       "syncConflict": "同步冲突",
+      "syncConfirm": "操作不可逆, 是否继续?",
       "syncConflictContent": "存在冲突文件, 是否继续?",
       "syncComplete": "同步完成",
-      "syncSummary": "耗时 {time} 秒，同步成功 {success} 个，失败 {failure} 个"
+      "syncSummary": "耗时 {time} 秒，同步成功 {success} 个，失败 {failure} 个",
+      "sourceInvalid": "源目录校验失败",
+      "targetInvalid": "目标目录校验失败",
+      "needRecompare": "修改白名单后需重新对比"
     },
     "ticoShare": {
       "title": "松鼠搬运",

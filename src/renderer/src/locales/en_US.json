@@ -41,6 +41,8 @@
       "startSync": "Start Sync",
       "stopSync": "Stop Sync",
       "savePlan": "Save Plan",
+      "folderWhiteList": "Folder White List",
+      "folderWhiteListEmptyValue": "The whitelist cannot contain empty values",
       "sourceFolder": "Source Folder",
       "targetFolder": "Target Folder",
       "twoWaySync": "Two-way Sync",
@@ -83,10 +85,14 @@
       "fileSize": "Size",
       "fileTimestamp": "timestamp",
       "noTasksToPerform": "No Tasks To Perform",
+      "syncConfirm": "The operation is irreversible. Do you want to continue?",
       "syncConflict": "Sync Conflict",
       "syncConflictContent": "There are conflicting files, do you want to continue?",
       "syncComplete": "Sync Complete",
-      "syncSummary": "Elapsed {time} seconds, successfully synced {success} files, and {failure} failed"
+      "syncSummary": "Elapsed {time}, successfully synced {success} files, and {failure} failed",
+      "sourceInvalid": "Source Invalid",
+      "targetInvalid": "Target Invalid",
+      "needRecompare": "Re-comparison is required after modifying the whitelist"
     },
     "ticoShare": {
       "title": "Tico Share",

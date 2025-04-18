@@ -5,23 +5,23 @@ const ftp = window.api.ftp
 const Readable = window.api.Readable
 const streamBuffers = window.api.streamBuffers
 
-// 定义白名单目录名称数组
-const folderWhitelist = ['']
-
 /**
  * FTP 文件系统实现
  */
 export class FtpFileSystem extends FileSystem {
   private client: Client
   private connected: boolean = false
+  private folderWhitelist: string[]
 
   constructor(
     private config: AccessOptions,
     basePath: string = '',
+    whiteList: string[] = [],
   ) {
     super(basePath)
     this.client = new ftp.Client()
     this.client.ftp.verbose = false
+    this.folderWhitelist = whiteList
   }
 
   protected _resolve(filePath: string): string {
@@ -63,7 +63,7 @@ export class FtpFileSystem extends FileSystem {
       const fullPath = path.posix.join(resolvedDir, item.name)
 
       if (item.isDirectory) {
-        if (folderWhitelist.includes(item.name)) {
+        if (this.folderWhitelist.includes(item.name)) {
           const subEntries = await this.client.list(fullPath)
           for (const subItem of subEntries) {
             if (!subItem.isDirectory) {
