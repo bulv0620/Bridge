@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // #region imports
-import { SwapHorizontal, FileTrayFull, List, Pause, Play, Document, Save } from '@vicons/ionicons5'
+import { SwapHorizontal, List, Pause, Play } from '@vicons/ionicons5'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FolderWhiteListModal from './components/folder-white-list-modal/FolderWhiteListModal.vue'
@@ -19,6 +19,7 @@ import {
 import { NIcon, useDialog, useMessage } from 'naive-ui'
 import DiffDataTable from './components/diff-data-table/DiffDataTable.vue'
 import { dialogPromise } from '@renderer/utils/dialog'
+import PlanControl from './components/plan-control/PlanControl.vue'
 // #endregion
 
 // #region options
@@ -43,6 +44,7 @@ const { t } = useI18n()
 
 const loading = ref(false)
 const percentage = ref(0)
+const planName = ref(t('views.backpack.newPlan'))
 const sourceFolder = ref<FolderInfo>({ type: '', path: '' })
 const targetFolder = ref<FolderInfo>({ type: '', path: '' })
 const diffTableData = ref<DiffFile[]>([])
@@ -289,25 +291,16 @@ const handlePauseSync = async () => {
       <!-- 方案栏 -->
       <n-flex justify="space-between">
         <p class="title">
-          <span>{{ $t('views.backpack.newPlan') }}</span>
+          <span>{{ planName }}</span>
         </p>
-        <n-flex>
-          <n-button circle :disabled="processing">
-            <template #icon>
-              <n-icon> <Document /> </n-icon>
-            </template>
-          </n-button>
-          <n-button circle :disabled="processing">
-            <template #icon>
-              <n-icon> <Save /> </n-icon>
-            </template>
-          </n-button>
-          <n-button circle :disabled="processing">
-            <template #icon>
-              <n-icon> <FileTrayFull /> </n-icon>
-            </template>
-          </n-button>
-        </n-flex>
+
+        <PlanControl
+          v-model:plan-name="planName"
+          v-model:source-folder="sourceFolder"
+          v-model:target-folder="targetFolder"
+          v-model:folder-white-list="folderWhiteList"
+          :processing="processing"
+        ></PlanControl>
       </n-flex>
 
       <!-- 目录选择栏 -->
