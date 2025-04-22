@@ -11,7 +11,7 @@ const props = defineProps<{
 const { t } = useI18n()
 
 // 定义数据表的列配置
-const columns = [
+const columns = computed(() => [
   {
     title: '',
     key: 'prop',
@@ -34,7 +34,7 @@ const columns = [
       tooltip: true,
     },
   },
-]
+])
 
 // 将原有表格内容转化为数据数组，每一项对应一行
 const tableData = computed(() => [

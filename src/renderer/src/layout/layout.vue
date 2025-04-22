@@ -8,7 +8,7 @@ import Sider from './components/Sider.vue'
     <div class="layout__header">
       <Header />
     </div>
-    <n-layout has-sider style="height: calc(100vh - 33px)">
+    <n-layout has-sider style="height: calc(100vh - 33px); overflow: hidden">
       <Sider></Sider>
       <n-layout :native-scrollbar="false">
         <router-view v-slot="{ Component }">

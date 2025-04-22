@@ -12,6 +12,7 @@ import {
   EDiffAction,
   EDiffStatus,
   EDiffType,
+  ESyncType,
   FtpFileSystem,
   getFileSystemInstance,
   syncFile,
@@ -26,14 +27,6 @@ import PlanControl from './components/plan-control/PlanControl.vue'
 defineOptions({
   name: 'BackpackSync',
 })
-// #endregion
-
-// #region enums
-enum ESyncType {
-  mirror = 'mirror',
-  twoWay = 'two-way',
-  increment = 'increment',
-}
 // #endregion
 
 // #region global states
@@ -51,14 +44,14 @@ const diffTableData = ref<DiffFile[]>([])
 const tableRef = ref<any>()
 const folderWhiteList = ref<string[]>([])
 const folderWhiteListModalRef = ref<InstanceType<typeof FolderWhiteListModal> | null>(null)
+const syncType = ref(ESyncType.mirror)
+const pauseFlag = ref(false)
 
 const syncOptions = computed(() => [
   { label: t('views.backpack.mirrorSync'), value: ESyncType.mirror },
   { label: t('views.backpack.twoWaySync'), value: ESyncType.twoWay },
   { label: t('views.backpack.incrementalSync'), value: ESyncType.increment },
 ])
-const syncType = ref(ESyncType.mirror)
-const pauseFlag = ref(false)
 
 const processing = computed(() => {
   return diffTableData.value.some((diffFile) => diffFile.status === EDiffStatus.processing)
@@ -299,6 +292,7 @@ const handlePauseSync = async () => {
           v-model:source-folder="sourceFolder"
           v-model:target-folder="targetFolder"
           v-model:folder-white-list="folderWhiteList"
+          v-model:sync-type="syncType"
           :processing="processing"
         ></PlanControl>
       </n-flex>
@@ -354,7 +348,6 @@ const handlePauseSync = async () => {
         <n-button
           v-else
           :disabled="diffTableData.length === 0 || !hasWaitingFile"
-          :loading="loading"
           @click="handleStartSync"
         >
           <template #icon>

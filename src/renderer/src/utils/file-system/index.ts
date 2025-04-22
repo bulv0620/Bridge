@@ -24,6 +24,12 @@ export enum EDiffStatus {
   error = 'error',
 }
 
+export enum ESyncType {
+  mirror = 'mirror',
+  twoWay = 'two-way',
+  increment = 'increment',
+}
+
 export interface DiffFile {
   diffType: EDiffType
   source: FileInfo | null
