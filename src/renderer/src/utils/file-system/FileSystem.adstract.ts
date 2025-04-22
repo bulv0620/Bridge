@@ -17,6 +17,7 @@ export interface FileInfo {
   timestamp: Date
   filePath: string
   relativePath: string
+  meta: FileMetaData
 }
 
 /**

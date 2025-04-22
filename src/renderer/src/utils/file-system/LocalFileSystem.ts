@@ -38,25 +38,12 @@ export class LocalFileSystem extends FileSystem {
 
       if (entry.isDirectory()) {
         if (this.folderWhitelist.includes(entry.name)) {
-          const subEntries = await fs.readdir(fullPath, { withFileTypes: true })
-          for (const subEntry of subEntries) {
-            if (subEntry.isFile()) {
-              const subFullPath = path.join(fullPath, subEntry.name)
-              const stats = await fs.stat(subFullPath)
-              filesList.push({
-                fileName: subEntry.name,
-                size: stats.size,
-                timestamp: stats.mtime,
-                filePath: subFullPath,
-                relativePath: path.relative(this.basePath, subFullPath),
-              })
-            }
-          }
-        } else {
-          const subDir = path.join(dir, entry.name)
-          const subFiles = await this.getAllFiles(subDir)
-          filesList = filesList.concat(subFiles)
+          continue
         }
+
+        const subDir = path.join(dir, entry.name)
+        const subFiles = await this.getAllFiles(subDir)
+        filesList = filesList.concat(subFiles)
       } else if (entry.isFile()) {
         const stats = await fs.stat(fullPath)
         filesList.push({
@@ -65,6 +52,12 @@ export class LocalFileSystem extends FileSystem {
           timestamp: stats.mtime,
           filePath: fullPath,
           relativePath: path.relative(this.basePath, fullPath),
+          meta: {
+            atime: stats.atime,
+            mtime: stats.mtime,
+            mode: stats.mode,
+            size: stats.size,
+          },
         })
       }
     }

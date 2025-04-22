@@ -64,26 +64,12 @@ export class FtpFileSystem extends FileSystem {
 
       if (item.isDirectory) {
         if (this.folderWhitelist.includes(item.name)) {
-          const subEntries = await this.client.list(fullPath)
-          for (const subItem of subEntries) {
-            if (!subItem.isDirectory) {
-              const subFullPath = path.posix.join(fullPath, subItem.name)
-              filesList.push({
-                fileName: subItem.name,
-                size: subItem.size,
-                timestamp: new Date(subItem.date),
-                filePath: subFullPath,
-                relativePath: this.basePath
-                  ? path.posix.relative(this.basePath, subFullPath)
-                  : subItem.name,
-              })
-            }
-          }
-        } else {
-          const subDir = path.posix.join(dir, item.name)
-          const subFiles = await this.getAllFiles(subDir)
-          filesList = filesList.concat(subFiles)
+          continue
         }
+
+        const subDir = path.posix.join(dir, item.name)
+        const subFiles = await this.getAllFiles(subDir)
+        filesList = filesList.concat(subFiles)
       } else {
         filesList.push({
           fileName: item.name,
@@ -91,6 +77,12 @@ export class FtpFileSystem extends FileSystem {
           timestamp: new Date(item.date),
           filePath: fullPath,
           relativePath: this.basePath ? path.posix.relative(this.basePath, fullPath) : item.name,
+          meta: {
+            atime: new Date(item.date),
+            mtime: new Date(item.date),
+            mode: 0o644,
+            size: item.size,
+          },
         })
       }
     }
