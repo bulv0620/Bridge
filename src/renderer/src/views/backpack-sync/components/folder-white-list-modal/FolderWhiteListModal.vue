@@ -20,11 +20,11 @@
       <n-dynamic-input v-model:value="whiteList" />
     </n-scrollbar>
     <template #footer>
-      <n-flex>
+      <n-flex justify="end">
+        <n-button size="small" @click="visible = false">{{ t('common.cancel') }}</n-button>
         <n-button type="primary" size="small" @click="handlePositiveClick">
           {{ t('common.confirm') }}
         </n-button>
-        <n-button size="small" @click="visible = false">{{ t('common.cancel') }}</n-button>
       </n-flex>
     </template>
   </n-modal>

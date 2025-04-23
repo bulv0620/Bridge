@@ -43,6 +43,8 @@
       "savedPlans": "Saved Plans",
       "planList": "Plan List",
       "planName": "Plan Name",
+      "planNameRequired": "Plan name is required",
+      "planNameExists": "Plan name is exists",
       "contrast": "Contrast Difference",
       "startSync": "Start Sync",
       "stopSync": "Stop Sync",
