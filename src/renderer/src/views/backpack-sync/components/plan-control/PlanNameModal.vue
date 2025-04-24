@@ -6,7 +6,11 @@
     :title="$t('views.backpack.planName')"
     :on-after-leave="handleNegativeClick"
   >
-    <n-input ref="inputRef" v-model:value="form.planName" :status="form.planName ? '' : 'error'" />
+    <n-form ref="formRef" :model="form" :rules="rules">
+      <n-form-item :show-label="false" path="planName">
+        <n-input ref="inputRef" v-model:value="form.planName" />
+      </n-form-item>
+    </n-form>
 
     <template #footer>
       <n-flex justify="end">
@@ -20,6 +24,7 @@
 </template>
 
 <script setup lang="ts">
+import { FormItemRule, NForm } from 'naive-ui'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -30,6 +35,23 @@ const visible = ref(false)
 const form = ref({
   planName: '',
 })
+const formRef = ref<InstanceType<typeof NForm> | null>(null)
+const rules = {
+  planName: [
+    {
+      required: true,
+      validator(_: FormItemRule, value: string) {
+        if (!value) {
+          return new Error(t('views.backpack.planNameRequired'))
+        } else if (savedPlanNameList.value.includes(value)) {
+          return new Error(t('views.backpack.planNameDuplicate'))
+        }
+        return true
+      },
+      trigger: ['input', 'blur'],
+    },
+  ],
+}
 const savedPlanNameList = ref<string[]>([])
 const inputRef = ref<HTMLElement | null>(null)
 const resolveRef = ref<((value: any) => void) | null>(null)
@@ -43,15 +65,12 @@ const prompt = (defaultName: string, planNameList: string[]) => {
   })
 }
 
-const handlePositiveClick = () => {
+const handlePositiveClick = async () => {
   if (!form.value.planName) {
     return
   }
 
-  if (savedPlanNameList.value.includes(form.value.planName)) {
-    // 方案名称重复
-    return
-  }
+  await formRef.value?.validate()
 
   if (resolveRef.value) {
     resolveRef.value(form.value.planName)

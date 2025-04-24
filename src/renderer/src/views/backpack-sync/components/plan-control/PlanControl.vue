@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { FileTrayFull, Document, Save } from '@vicons/ionicons5'
 import { FolderInfo } from '../folder-selection-input/FolderSelectionInput.vue'
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useDialog } from 'naive-ui'
 import { dialogPromise } from '@renderer/utils/dialog'
@@ -73,7 +73,7 @@ onMounted(() => {
 
 // 新方案
 const handleCreateNewPlan = async () => {
-  if (!deepEqual(currentPlanData.value, tempPlanData) && isComplete.value) {
+  if (!deepEqual(currentPlanData.value, tempPlanData)) {
     await dialogPromise(dialog.warning, {
       title: t('common.warning'),
       content: t('views.backpack.newPlanConfirm'),
@@ -87,6 +87,8 @@ const handleCreateNewPlan = async () => {
   sourceFolder.value = { type: '', path: '' }
   targetFolder.value = { type: '', path: '' }
   folderWhiteList.value = []
+
+  await nextTick()
 
   // 重置临时数据
   tempPlanData = deepClone({
