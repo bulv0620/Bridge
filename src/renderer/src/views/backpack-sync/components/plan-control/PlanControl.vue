@@ -8,6 +8,7 @@ import { dialogPromise } from '@renderer/utils/dialog'
 import { deepClone, deepEqual } from '@renderer/utils/object'
 import { ESyncType } from '@renderer/utils/file-system'
 import PlanNameModal from './PlanNameModal.vue'
+import PlanManageModal from './PlanManageModal.vue'
 
 withDefaults(
   defineProps<{
@@ -18,7 +19,7 @@ withDefaults(
   },
 )
 
-interface PlanInfo {
+export interface PlanInfo {
   planId: string
   planName: string
   sourceFolder: FolderInfo
@@ -40,6 +41,7 @@ const folderWhiteList = defineModel<string[]>('folderWhiteList', { required: tru
 const syncType = defineModel<ESyncType>('syncType', { required: true })
 
 const planNameModalRef = ref<InstanceType<typeof PlanNameModal> | null>(null)
+const planManageModal = ref<InstanceType<typeof PlanManageModal> | null>(null)
 
 const isComplete = computed(() => {
   return (
@@ -157,6 +159,11 @@ const handleSavePlan = async () => {
   // 更新临时数据
   tempPlanData = deepClone(planInfo)
 }
+
+// 打开方案管理modal
+const handleOpenPlanManageModal = () => {
+  planManageModal.value?.open()
+}
 </script>
 
 <template>
@@ -185,7 +192,7 @@ const handleSavePlan = async () => {
 
     <n-popover trigger="hover" placement="bottom" :delay="500" :disabled="processing">
       <template #trigger>
-        <n-button circle :disabled="processing">
+        <n-button circle :disabled="processing" @click="handleOpenPlanManageModal">
           <template #icon>
             <n-icon> <FileTrayFull /> </n-icon>
           </template>
@@ -194,5 +201,6 @@ const handleSavePlan = async () => {
       <span>{{ $t('views.backpack.savedPlans') }}</span>
     </n-popover>
     <PlanNameModal ref="planNameModalRef"></PlanNameModal>
+    <PlanManageModal ref="planManageModal"></PlanManageModal>
   </n-flex>
 </template>
