@@ -66,7 +66,7 @@ const tableData = computed(() => [
 </script>
 
 <template>
-  <div>
+  <n-card size="small">
     <n-alert
       v-if="diffFile.error"
       :title="$t('common.error')"
@@ -76,5 +76,5 @@ const tableData = computed(() => [
       {{ diffFile.error?.message }}
     </n-alert>
     <n-data-table :single-line="false" :columns="columns" :data="tableData" size="small" bordered />
-  </div>
+  </n-card>
 </template>

@@ -71,6 +71,7 @@ watch(
   sourceFolder,
   () => {
     diffTableData.value = []
+    percentage.value = 0
   },
   { deep: true },
 )
@@ -78,6 +79,7 @@ watch(
   targetFolder,
   () => {
     diffTableData.value = []
+    percentage.value = 0
   },
   { deep: true },
 )
@@ -282,20 +284,15 @@ const handlePauseSync = async () => {
   <div class="backpack-sync">
     <div class="container">
       <!-- 方案栏 -->
-      <n-flex justify="space-between">
-        <p class="title">
-          <span>{{ planName }}</span>
-        </p>
 
-        <PlanControl
-          v-model:plan-name="planName"
-          v-model:source-folder="sourceFolder"
-          v-model:target-folder="targetFolder"
-          v-model:folder-white-list="folderWhiteList"
-          v-model:sync-type="syncType"
-          :processing="processing"
-        ></PlanControl>
-      </n-flex>
+      <PlanControl
+        v-model:plan-name="planName"
+        v-model:source-folder="sourceFolder"
+        v-model:target-folder="targetFolder"
+        v-model:folder-white-list="folderWhiteList"
+        v-model:sync-type="syncType"
+        :processing="processing"
+      ></PlanControl>
 
       <!-- 目录选择栏 -->
       <n-flex :wrap="false">
@@ -394,15 +391,6 @@ const handlePauseSync = async () => {
     display: flex;
     flex-direction: column;
     gap: 12px;
-
-    .title {
-      height: 100%;
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      font-size: large;
-      font-weight: 400;
-    }
 
     .table-wrapper {
       flex: 1;
