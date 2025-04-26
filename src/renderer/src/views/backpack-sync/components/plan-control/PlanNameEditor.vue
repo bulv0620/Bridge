@@ -24,6 +24,10 @@ const startEdit = async () => {
 
 const confirmEdit = () => {
   if (!isEditing.value) return
+  if (tempValue.value === '') {
+    isEditing.value = false
+    return
+  }
   isEditing.value = false
   if (tempValue.value !== props.value) {
     emit('save', tempValue.value)
