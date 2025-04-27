@@ -9,7 +9,7 @@ const { naiveLocale, naiveDateLocale } = useLang()
 
 <template>
   <n-config-provider :theme="themeConfig" :locale="naiveLocale" :date-locale="naiveDateLocale">
-    <n-message-provider>
+    <n-message-provider placement="bottom-right">
       <n-dialog-provider>
         <layout></layout>
       </n-dialog-provider>

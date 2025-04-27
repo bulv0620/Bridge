@@ -117,7 +117,8 @@
       "language": "语言",
       "theme": "主题",
       "save": "保存",
-      "reset": "恢复默认"
+      "reset": "恢复默认",
+      "resetConfirm": "是否恢复默认设置?"
     }
   },
   "layout": {

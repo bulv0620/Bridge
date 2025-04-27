@@ -117,7 +117,8 @@
       "language": "Language",
       "theme": "Theme",
       "save": "Save",
-      "reset": "Reset to Default"
+      "reset": "Reset to Default",
+      "resetConfirm": "Are you sure you want to reset to default settings?"
     }
   },
   "layout": {
