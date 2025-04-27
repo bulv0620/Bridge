@@ -3,7 +3,7 @@
     v-model:show="visible"
     style="width: 400px"
     preset="card"
-    :title="$t('views.backpack.planName')"
+    :title="$t('views.fileSync.planName')"
     :on-after-leave="handleNegativeClick"
   >
     <n-form ref="formRef" :model="form" :rules="rules">
@@ -42,9 +42,9 @@ const rules = {
       required: true,
       validator(_: FormItemRule, value: string) {
         if (!value) {
-          return new Error(t('views.backpack.planNameRequired'))
+          return new Error(t('views.fileSync.planNameRequired'))
         } else if (savedPlanNameList.value.includes(value)) {
-          return new Error(t('views.backpack.planNameDuplicate'))
+          return new Error(t('views.fileSync.planNameDuplicate'))
         }
         return true
       },

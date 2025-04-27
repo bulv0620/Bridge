@@ -16,5 +16,5 @@ const type = computed(() => map.get(props.diffType))
 </script>
 
 <template>
-  <n-tag :type="type">{{ $t(`views.backpack.${diffType}`) }}</n-tag>
+  <n-tag :type="type">{{ $t(`views.fileSync.${diffType}`) }}</n-tag>
 </template>

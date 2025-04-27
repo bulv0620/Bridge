@@ -27,19 +27,19 @@ const { t } = useI18n()
 
 const placeholder = computed(() => {
   if (props.type === 'source') {
-    return t('views.backpack.sourceFolder')
+    return t('views.fileSync.sourceFolder')
   } else {
-    return t('views.backpack.targetFolder')
+    return t('views.fileSync.targetFolder')
   }
 })
 
 const options = computed(() => [
   {
-    label: t('views.backpack.localFolder'),
+    label: t('views.fileSync.localFolder'),
     key: 'local',
   },
   {
-    label: t('views.backpack.ftpFolder'),
+    label: t('views.fileSync.ftpFolder'),
     key: 'ftp',
   },
 ])
@@ -66,7 +66,7 @@ const handleSelect = async (key: string) => {
     <n-input v-model:value="value.path" readonly :placeholder="placeholder">
       <template #prefix>
         <n-tag size="small" :type="value.type ? 'success' : ''">
-          {{ value.type ? $t(`views.backpack.${value.type}`) : $t('common.empty') }}
+          {{ value.type ? $t(`views.fileSync.${value.type}`) : $t('common.empty') }}
         </n-tag>
       </template>
     </n-input>

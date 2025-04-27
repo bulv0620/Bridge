@@ -1,12 +1,12 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 
-import BackpackSync from '@renderer/views/backpack-sync/index.vue'
-import TicoShare from '@renderer/views/tico-share/index.vue'
+import FileSync from '@renderer/views/file-sync/index.vue'
+import FileShare from '@renderer/views/file-share/index.vue'
 import Setting from '@renderer/views/setting/index.vue'
 
 const routes = [
-  { path: '/', component: BackpackSync },
-  { path: '/tico-share', component: TicoShare },
+  { path: '/', component: FileSync },
+  { path: '/tico-share', component: FileShare },
   { path: '/setting', component: Setting },
 ]
 

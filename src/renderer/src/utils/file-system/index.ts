@@ -1,4 +1,4 @@
-import { FolderInfo } from '@renderer/views/backpack-sync/components/folder-selection-input/FolderSelectionInput.vue'
+import { FolderInfo } from '@renderer/views/file-sync/components/folder-selection-input/FolderSelectionInput.vue'
 import { FileInfo, FileSystem } from './FileSystem.adstract'
 import { LocalFileSystem } from './LocalFileSystem'
 import { FtpFileSystem } from './FtpFileSystem'

@@ -22,22 +22,22 @@ const { t } = useI18n()
 
 const diffTableData = defineModel<DiffFile[]>('data')
 const diffTypeColumn = reactive({
-  title: computed(() => t('views.backpack.diffType')),
+  title: computed(() => t('views.fileSync.diffType')),
   key: 'diffType',
   align: 'center',
   width: 140,
   filterOptionValues: [],
   filterOptions: [
     {
-      label: t('views.backpack.onlySource'),
+      label: t('views.fileSync.onlySource'),
       value: 'onlySource',
     },
     {
-      label: t('views.backpack.onlyTarget'),
+      label: t('views.fileSync.onlyTarget'),
       value: 'onlyTarget',
     },
     {
-      label: t('views.backpack.conflict'),
+      label: t('views.fileSync.conflict'),
       value: 'conflict',
     },
   ],
@@ -59,7 +59,7 @@ const columns = computed(() => [
     },
   },
   {
-    title: t('views.backpack.index'),
+    title: t('views.fileSync.index'),
     key: 'key',
     align: 'center',
     width: 60,
@@ -69,7 +69,7 @@ const columns = computed(() => [
   },
   diffTypeColumn,
   {
-    title: t('views.backpack.sourceFile'),
+    title: t('views.fileSync.sourceFile'),
     key: 'sourceFileName',
     align: 'center',
     resizable: true,
@@ -81,7 +81,7 @@ const columns = computed(() => [
     },
   },
   {
-    title: t('views.backpack.targetFile'),
+    title: t('views.fileSync.targetFile'),
     key: 'targetFileName',
     align: 'center',
     resizable: true,
@@ -93,7 +93,7 @@ const columns = computed(() => [
     },
   },
   {
-    title: t('views.backpack.action'),
+    title: t('views.fileSync.action'),
     key: 'operation',
     align: 'center',
     width: 100,

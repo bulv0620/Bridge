@@ -33,8 +33,8 @@
     "noResult": "无结果"
   },
   "views": {
-    "backpack": {
-      "title": "背包同步",
+    "fileSync": {
+      "title": "文件同步",
       "description": "文件同步工具",
       "notSaved": "未保存",
       "newPlan": "新方案",
@@ -107,9 +107,9 @@
       "targetInvalid": "目标目录校验失败",
       "needRecompare": "修改白名单后需重新对比"
     },
-    "ticoShare": {
-      "title": "松鼠搬运",
-      "description": "局域网文件传输工具"
+    "fileShare": {
+      "title": "文件共享",
+      "description": "局域网文件共享工具"
     },
     "setting": {
       "title": "设置",

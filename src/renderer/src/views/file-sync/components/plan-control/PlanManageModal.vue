@@ -34,12 +34,12 @@ const columns = computed(() => [
     },
   },
   {
-    title: t('views.backpack.planName'),
+    title: t('views.fileSync.planName'),
     key: 'planName',
     align: 'center',
   },
   {
-    title: t('views.backpack.action'),
+    title: t('views.fileSync.action'),
     key: 'actions',
     align: 'center',
     render(row: any) {
@@ -87,7 +87,7 @@ const handleSelectPlan = async (row: PlanInfo) => {
   if (!props.isPlanSaved) {
     await dialogPromise(dialog.warning, {
       title: t('common.warning'),
-      content: t('views.backpack.selectPlanConfirm'),
+      content: t('views.fileSync.selectPlanConfirm'),
       positiveText: t('common.confirm'),
       negativeText: t('common.cancel'),
     })
@@ -99,7 +99,7 @@ const handleSelectPlan = async (row: PlanInfo) => {
 const handleDeletePlan = async (row: PlanInfo) => {
   await dialogPromise(dialog.warning, {
     title: t('common.warning'),
-    content: t('views.backpack.deletePlanConfirm'),
+    content: t('views.fileSync.deletePlanConfirm'),
     positiveText: t('common.confirm'),
     negativeText: t('common.cancel'),
   })
@@ -122,7 +122,7 @@ defineExpose({
     v-model:show="visible"
     style="width: 600px"
     preset="card"
-    :title="$t('views.backpack.planList')"
+    :title="$t('views.fileSync.planList')"
   >
     <n-data-table
       :columns="columns"

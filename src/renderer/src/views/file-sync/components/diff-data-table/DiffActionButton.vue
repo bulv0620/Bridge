@@ -37,17 +37,17 @@ const renderIcon = (icon: Component) => {
 
 const options = computed(() => [
   {
-    label: t('views.backpack.toRight'),
+    label: t('views.fileSync.toRight'),
     key: EDiffAction.toRight,
     icon: renderIcon(ArrowForward),
   },
   {
-    label: t('views.backpack.toLeft'),
+    label: t('views.fileSync.toLeft'),
     key: EDiffAction.toLeft,
     icon: renderIcon(ArrowBack),
   },
   {
-    label: t('views.backpack.ignore'),
+    label: t('views.fileSync.ignore'),
     key: EDiffAction.ignore,
     icon: renderIcon(Remove),
   },

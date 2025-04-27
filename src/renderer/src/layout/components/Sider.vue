@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { MenuOption } from 'naive-ui'
-import { BackpackOutlined, DirectionsCarOutlined, SettingsOutlined } from '@vicons/material'
+import { SyncAltOutlined, FolderCopyOutlined, DisplaySettingsFilled } from '@vicons/material'
 import { NIcon } from 'naive-ui'
 import { computed, h, ref } from 'vue'
 import type { Component } from 'vue'
@@ -26,10 +26,10 @@ const menuOptions = computed<MenuOption[]>(() => {
               path: '/',
             },
           },
-          { default: () => t('views.backpack.title') },
+          { default: () => t('views.fileSync.title') },
         ),
       key: '/',
-      icon: renderIcon(BackpackOutlined),
+      icon: renderIcon(SyncAltOutlined),
     },
     {
       label: () =>
@@ -40,10 +40,10 @@ const menuOptions = computed<MenuOption[]>(() => {
               path: '/tico-share',
             },
           },
-          { default: () => t('views.ticoShare.title') },
+          { default: () => t('views.fileShare.title') },
         ),
       key: '/tico-share',
-      icon: renderIcon(DirectionsCarOutlined),
+      icon: renderIcon(FolderCopyOutlined),
     },
     {
       label: () =>
@@ -57,7 +57,7 @@ const menuOptions = computed<MenuOption[]>(() => {
           { default: () => t('views.setting.title') },
         ),
       key: '/setting',
-      icon: renderIcon(SettingsOutlined),
+      icon: renderIcon(DisplaySettingsFilled),
     },
   ]
 })

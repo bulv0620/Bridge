@@ -3,7 +3,7 @@
     v-model:show="visible"
     style="width: 400px"
     preset="card"
-    :title="$t('views.backpack.folderWhiteList')"
+    :title="$t('views.fileSync.folderWhiteList')"
     :on-after-leave="handleNegativeClick"
   >
     <n-alert
@@ -13,7 +13,7 @@
       closable
       @close="handleAlertClose"
     >
-      {{ $t('views.backpack.needRecompare') }}
+      {{ $t('views.fileSync.needRecompare') }}
     </n-alert>
 
     <n-scrollbar style="max-height: 220px">
@@ -63,7 +63,7 @@ const select = (initWhiteList: string[]) => {
 
 const handlePositiveClick = () => {
   if (whiteList.value.some((item) => item.trim() === '')) {
-    message.error(t('views.backpack.folderWhiteListEmptyValue'))
+    message.error(t('views.fileSync.folderWhiteListEmptyValue'))
     return
   }
 

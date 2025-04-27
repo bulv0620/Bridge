@@ -25,7 +25,7 @@ import PlanControl from './components/plan-control/PlanControl.vue'
 
 // #region options
 defineOptions({
-  name: 'BackpackSync',
+  name: 'FileSync',
 })
 // #endregion
 
@@ -37,7 +37,7 @@ const { t } = useI18n()
 
 const loading = ref(false)
 const percentage = ref(0)
-const planName = ref(t('views.backpack.newPlan'))
+const planName = ref(t('views.fileSync.newPlan'))
 const sourceFolder = ref<FolderInfo>({ type: '', path: '' })
 const targetFolder = ref<FolderInfo>({ type: '', path: '' })
 const diffTableData = ref<DiffFile[]>([])
@@ -48,9 +48,9 @@ const syncType = ref(ESyncType.mirror)
 const pauseFlag = ref(false)
 
 const syncOptions = computed(() => [
-  { label: t('views.backpack.mirrorSync'), value: ESyncType.mirror },
-  { label: t('views.backpack.twoWaySync'), value: ESyncType.twoWay },
-  { label: t('views.backpack.incrementalSync'), value: ESyncType.increment },
+  { label: t('views.fileSync.mirrorSync'), value: ESyncType.mirror },
+  { label: t('views.fileSync.twoWaySync'), value: ESyncType.twoWay },
+  { label: t('views.fileSync.incrementalSync'), value: ESyncType.increment },
 ])
 
 const processing = computed(() => {
@@ -139,12 +139,12 @@ const handleDiffClick = async () => {
 
     const sourceValid = await source.validate()
     if (!sourceValid) {
-      message.error(t('views.backpack.sourceInvalid'))
+      message.error(t('views.fileSync.sourceInvalid'))
       return
     }
     const targetValid = await target.validate()
     if (!targetValid) {
-      message.error(t('views.backpack.targetInvalid'))
+      message.error(t('views.fileSync.targetInvalid'))
       return
     }
 
@@ -179,7 +179,7 @@ const handleStartSync = async () => {
   if (diffTableData.value.every((el) => el.status === EDiffStatus.waiting)) {
     await dialogPromise(dialog.info, {
       title: t('common.info'),
-      content: t('views.backpack.syncConfirm'),
+      content: t('views.fileSync.syncConfirm'),
       positiveText: t('common.confirm'),
       negativeText: t('common.cancel'),
     })
@@ -188,7 +188,7 @@ const handleStartSync = async () => {
   if (diffTableData.value.some((el) => el.action === EDiffAction.conflict)) {
     await dialogPromise(dialog.warning, {
       title: t('common.warning'),
-      content: t('views.backpack.syncConflictContent'),
+      content: t('views.fileSync.syncConflictContent'),
       positiveText: t('common.confirm'),
       negativeText: t('common.cancel'),
     })
@@ -203,12 +203,12 @@ const handleStartSync = async () => {
 
   const sourceValid = await source.validate()
   if (!sourceValid) {
-    message.error(t('views.backpack.sourceInvalid'))
+    message.error(t('views.fileSync.sourceInvalid'))
     return
   }
   const targetValid = await target.validate()
   if (!targetValid) {
-    message.error(t('views.backpack.targetInvalid'))
+    message.error(t('views.fileSync.targetInvalid'))
     return
   }
 
@@ -227,7 +227,7 @@ const handleStartSync = async () => {
 
     try {
       if (processingItem.action === EDiffAction.conflict) {
-        throw new Error(t('views.backpack.syncConflict'))
+        throw new Error(t('views.fileSync.syncConflict'))
       }
       await syncFile(processingItem, source, target)
 
@@ -249,7 +249,7 @@ const handleStartSync = async () => {
 
   dialog.success({
     title: t('common.success'),
-    content: t('views.backpack.syncSummary', {
+    content: t('views.fileSync.syncSummary', {
       time: formatTimeDifference(totalTime),
       success: successCount,
       failure: errorCount,
@@ -281,7 +281,7 @@ const handlePauseSync = async () => {
 </script>
 
 <template>
-  <div class="backpack-sync">
+  <div class="file-sync">
     <div class="container">
       <!-- 方案栏 -->
 
@@ -318,7 +318,7 @@ const handlePauseSync = async () => {
               </template>
             </n-button>
           </template>
-          <span>{{ $t('views.backpack.contrast') }}</span>
+          <span>{{ $t('views.fileSync.contrast') }}</span>
         </n-popover>
 
         <FolderSelectionInput
@@ -340,7 +340,7 @@ const handlePauseSync = async () => {
           <template #icon>
             <n-icon> <Pause /> </n-icon>
           </template>
-          {{ $t('views.backpack.stopSync') }}
+          {{ $t('views.fileSync.stopSync') }}
         </n-button>
         <n-button
           v-else
@@ -350,13 +350,13 @@ const handlePauseSync = async () => {
           <template #icon>
             <n-icon> <Play /> </n-icon>
           </template>
-          {{ $t('views.backpack.startSync') }}
+          {{ $t('views.fileSync.startSync') }}
         </n-button>
         <n-button @click="handleSetFolderWhiteList">
           <template #icon>
             <n-icon> <List /> </n-icon>
           </template>
-          {{ $t('views.backpack.folderWhiteList') + ` ${folderWhiteList.length}` }}
+          {{ $t('views.fileSync.folderWhiteList') + ` ${folderWhiteList.length}` }}
         </n-button>
       </n-flex>
 
@@ -382,7 +382,7 @@ const handlePauseSync = async () => {
 </template>
 
 <style lang="less" scoped>
-.backpack-sync {
+.file-sync {
   padding: 18px;
   height: calc(100vh - 69px);
 

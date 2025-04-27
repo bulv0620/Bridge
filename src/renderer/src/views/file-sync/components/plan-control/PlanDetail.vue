@@ -18,13 +18,13 @@ const columns = computed(() => [
     width: 120,
   },
   {
-    title: t('views.backpack.sourceFolder'),
+    title: t('views.fileSync.sourceFolder'),
     key: 'source',
     align: 'left',
     ellipsis: { tooltip: true },
   },
   {
-    title: t('views.backpack.targetFolder'),
+    title: t('views.fileSync.targetFolder'),
     key: 'target',
     align: 'left',
     ellipsis: { tooltip: true },
@@ -34,12 +34,12 @@ const columns = computed(() => [
 // 构造表格数据
 const tableData = computed(() => [
   {
-    prop: t('views.backpack.folderType'),
+    prop: t('views.fileSync.folderType'),
     source: props.plan.sourceFolder.type || '-',
     target: props.plan.targetFolder.type || '-',
   },
   {
-    prop: t('views.backpack.folderPath'),
+    prop: t('views.fileSync.folderPath'),
     source: props.plan.sourceFolder.path,
     target: props.plan.targetFolder.path,
   },
@@ -58,7 +58,7 @@ const tableData = computed(() => [
       />
 
       <n-space>
-        <strong>{{ $t('views.backpack.folderWhiteList') }}</strong>
+        <strong>{{ $t('views.fileSync.folderWhiteList') }}</strong>
         <NSpace wrap>
           <n-tag v-for="(item, idx) in props.plan.folderWhiteList" :key="idx" type="info">
             {{ item }}

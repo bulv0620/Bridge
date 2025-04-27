@@ -42,12 +42,12 @@ const rules = computed<FormRules>(() => ({
       trigger: ['change'],
       validator(_, value) {
         if (!value) {
-          return new Error(t('views.backpack.ftpHostRequired'))
+          return new Error(t('views.fileSync.ftpHostRequired'))
         }
         const reg =
           /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
         if (!reg.test(value)) {
-          return new Error(t('views.backpack.ftpHostFormat'))
+          return new Error(t('views.fileSync.ftpHostFormat'))
         }
         return true
       },
@@ -59,21 +59,21 @@ const rules = computed<FormRules>(() => ({
       min: 1,
       max: 65535,
       trigger: ['change'],
-      message: t('views.backpack.ftpPortRange'),
+      message: t('views.fileSync.ftpPortRange'),
     },
   ],
   user: [
     {
       required: true,
       trigger: ['change'],
-      message: t('views.backpack.ftpUserRequired'),
+      message: t('views.fileSync.ftpUserRequired'),
     },
   ],
   password: [
     {
       required: true,
       trigger: ['change'],
-      message: t('views.backpack.ftpPasswordRequired'),
+      message: t('views.fileSync.ftpPasswordRequired'),
     },
   ],
 }))
@@ -129,7 +129,7 @@ const handleNext = async () => {
     ftpInstance = new FtpFileSystem(model.value)
     const bool = await ftpInstance.validate()
     if (!bool) {
-      message.error(t('views.backpack.ftpConnFailed'))
+      message.error(t('views.fileSync.ftpConnFailed'))
       return
     }
 
@@ -148,7 +148,7 @@ const handleNext = async () => {
   } catch (error) {
     // 连接失败
     console.error(error)
-    message.error(t('views.backpack.ftpConnFailed'))
+    message.error(t('views.fileSync.ftpConnFailed'))
   } finally {
     loading.value = false
   }
@@ -188,13 +188,13 @@ defineExpose({
     v-model:show="visible"
     :style="`width: 400px; max-width: 100%`"
     preset="card"
-    :title="$t('views.backpack.ftpConfig')"
+    :title="$t('views.fileSync.ftpConfig')"
     :on-after-leave="handleNegative"
     :mask-closable="false"
   >
     <n-steps :current="current" :status="currentStatus" size="small" style="margin-bottom: 24px">
-      <n-step :title="$t('views.backpack.ftpConnInfo')" />
-      <n-step :title="$t('views.backpack.ftpPathSelect')" />
+      <n-step :title="$t('views.fileSync.ftpConnInfo')" />
+      <n-step :title="$t('views.fileSync.ftpPathSelect')" />
     </n-steps>
     <n-form
       v-if="current === 1"
@@ -205,25 +205,25 @@ defineExpose({
       label-width="86px"
       @submit.prevent
     >
-      <n-form-item path="host" :label="$t('views.backpack.ftpHost')">
+      <n-form-item path="host" :label="$t('views.fileSync.ftpHost')">
         <n-input v-model:value="model.host" placeholder="127.0.0.1" :disabled="loading" />
       </n-form-item>
-      <n-form-item path="port" :label="$t('views.backpack.ftpPort')">
+      <n-form-item path="port" :label="$t('views.fileSync.ftpPort')">
         <n-input-number v-model:value="model.port" style="width: 100%" :disabled="loading" />
       </n-form-item>
-      <n-form-item path="user" :label="$t('views.backpack.ftpUser')">
+      <n-form-item path="user" :label="$t('views.fileSync.ftpUser')">
         <n-input
           v-model:value="model.user"
-          :placeholder="$t('views.backpack.ftpUser')"
+          :placeholder="$t('views.fileSync.ftpUser')"
           :disabled="loading"
         />
       </n-form-item>
-      <n-form-item path="password" :label="$t('views.backpack.ftpPassword')">
+      <n-form-item path="password" :label="$t('views.fileSync.ftpPassword')">
         <n-input
           v-model:value="model.password"
           type="password"
           show-password-on="click"
-          :placeholder="$t('views.backpack.ftpPassword')"
+          :placeholder="$t('views.fileSync.ftpPassword')"
           :disabled="loading"
         />
       </n-form-item>
@@ -240,7 +240,7 @@ defineExpose({
       </n-scrollbar>
       <n-form-item
         style="margin-top: 18px"
-        :label="$t('views.backpack.currentPath')"
+        :label="$t('views.fileSync.currentPath')"
         label-placement="left"
       >
         <n-input :value="currentPath[0] || '/'" readonly />

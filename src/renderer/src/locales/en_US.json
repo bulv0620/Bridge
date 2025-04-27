@@ -33,8 +33,8 @@
     "noResult": "No Result"
   },
   "views": {
-    "backpack": {
-      "title": "Backpack Sync",
+    "fileSync": {
+      "title": "File Sync",
       "description": "File sync tool.",
       "notSaved": "Not Saved",
       "newPlan": "New Plan",
@@ -107,9 +107,9 @@
       "targetInvalid": "Target Invalid",
       "needRecompare": "Re-comparison is required after modifying the whitelist"
     },
-    "ticoShare": {
-      "title": "Tico Share",
-      "description": "LAN file transfer tool."
+    "fileShare": {
+      "title": "File Share",
+      "description": "LAN file sharing tool."
     },
     "setting": {
       "title": "Settings",

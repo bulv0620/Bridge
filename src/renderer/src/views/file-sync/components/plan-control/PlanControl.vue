@@ -91,7 +91,7 @@ const handleNameEditSave = (newName: string) => {
   const planListData = planList ? JSON.parse(planList) : []
 
   if (planListData.find((plan: PlanInfo) => plan.planName === newName)) {
-    message.error(t('views.backpack.planNameDuplicate'))
+    message.error(t('views.fileSync.planNameDuplicate'))
     return
   }
 
@@ -103,14 +103,14 @@ const handleCreateNewPlan = async (valid: boolean = true) => {
   if (!deepEqual(currentPlanData.value, tempPlanData.value) && valid) {
     await dialogPromise(dialog.warning, {
       title: t('common.warning'),
-      content: t('views.backpack.newPlanConfirm'),
+      content: t('views.fileSync.newPlanConfirm'),
       positiveText: t('common.confirm'),
       negativeText: t('common.cancel'),
     })
   }
 
   planId.value = ''
-  planName.value = t('views.backpack.newPlan')
+  planName.value = t('views.fileSync.newPlan')
   sourceFolder.value = { type: '', path: '' }
   targetFolder.value = { type: '', path: '' }
   folderWhiteList.value = []
@@ -138,7 +138,7 @@ const handleSavePlan = async () => {
   if (!isComplete.value) {
     await dialogPromise(dialog.warning, {
       title: t('common.warning'),
-      content: t('views.backpack.savePlanConfirm'),
+      content: t('views.fileSync.savePlanConfirm'),
       positiveText: t('common.confirm'),
       negativeText: t('common.cancel'),
     })
@@ -230,7 +230,7 @@ const handleDeletePlan = (id: string) => {
             </template>
           </n-button>
         </template>
-        <span>{{ $t('views.backpack.newPlan') }}</span>
+        <span>{{ $t('views.fileSync.newPlan') }}</span>
       </n-popover>
 
       <n-popover trigger="hover" placement="bottom" :delay="500" :disabled="processing">
@@ -241,7 +241,7 @@ const handleDeletePlan = (id: string) => {
             </template>
           </n-button>
         </template>
-        <span>{{ $t('views.backpack.savePlan') }}</span>
+        <span>{{ $t('views.fileSync.savePlan') }}</span>
       </n-popover>
 
       <n-popover trigger="hover" placement="bottom" :delay="500" :disabled="processing">
@@ -252,7 +252,7 @@ const handleDeletePlan = (id: string) => {
             </template>
           </n-button>
         </template>
-        <span>{{ $t('views.backpack.savedPlans') }}</span>
+        <span>{{ $t('views.fileSync.savedPlans') }}</span>
       </n-popover>
       <PlanNameModal ref="planNameModalRef"></PlanNameModal>
       <PlanManageModal

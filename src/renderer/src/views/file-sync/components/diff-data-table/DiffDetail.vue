@@ -19,7 +19,7 @@ const columns = computed(() => [
     width: 110,
   },
   {
-    title: t('views.backpack.sourceFileInfo'),
+    title: t('views.fileSync.sourceFileInfo'),
     key: 'source',
     align: 'left',
     ellipsis: {
@@ -27,7 +27,7 @@ const columns = computed(() => [
     },
   },
   {
-    title: t('views.backpack.targetFileInfo'),
+    title: t('views.fileSync.targetFileInfo'),
     key: 'target',
     align: 'left',
     ellipsis: {
@@ -39,22 +39,22 @@ const columns = computed(() => [
 // 将原有表格内容转化为数据数组，每一项对应一行
 const tableData = computed(() => [
   {
-    prop: t('views.backpack.fileName'),
+    prop: t('views.fileSync.fileName'),
     source: props.diffFile.source?.fileName ?? '',
     target: props.diffFile.target?.fileName ?? '',
   },
   {
-    prop: t('views.backpack.filePath'),
+    prop: t('views.fileSync.filePath'),
     source: props.diffFile.source?.relativePath ?? '',
     target: props.diffFile.target?.relativePath ?? '',
   },
   {
-    prop: t('views.backpack.fileSize'),
+    prop: t('views.fileSync.fileSize'),
     source: props.diffFile.source?.size ?? '',
     target: props.diffFile.target?.size ?? '',
   },
   {
-    prop: t('views.backpack.fileTimestamp'),
+    prop: t('views.fileSync.fileTimestamp'),
     source: props.diffFile.source?.timestamp
       ? dayjs(props.diffFile.source.timestamp).format('YYYY-MM-DD HH:mm:ss')
       : '',
