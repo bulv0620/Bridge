@@ -20,7 +20,7 @@ export class FtpFileSystem extends FileSystem {
   ) {
     super(basePath)
     this.client = new ftp.Client()
-    this.client.ftp.verbose = false
+    this.client.ftp.verbose = true
     this.folderWhitelist = whiteList
   }
 
@@ -57,7 +57,10 @@ export class FtpFileSystem extends FileSystem {
     await this.connect()
     let filesList: FileInfo[] = []
     const resolvedDir = this._resolve(dir)
+
     const entries = await this.client.list(resolvedDir)
+
+    console.log(entries)
 
     for (const item of entries) {
       const fullPath = path.posix.join(resolvedDir, item.name)

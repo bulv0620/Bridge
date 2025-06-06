@@ -9,6 +9,9 @@
     "en_US": "english"
   },
   "common": {
+    "clear": "Clear",
+    "refresh": "Refresh",
+    "reset": "Reset",
     "next": "Next",
     "prev": "Previous",
     "empty": "Empty",
@@ -107,9 +110,26 @@
       "targetInvalid": "Target Invalid",
       "needRecompare": "Re-comparison is required after modifying the whitelist"
     },
-    "fileShare": {
-      "title": "File Share",
-      "description": "LAN file sharing tool."
+    "pluginCenter": {
+      "title": "Plugin Center",
+      "description": "Plugin Center",
+      "searchPlaceholder": "Enter keywords",
+      "emptyText": "No Plugin",
+      "run": "Run",
+      "stop": "Stop",
+      "config": "Config",
+      "viewLog": "View Logs",
+      "available": "Available",
+      "unavailable": "Unavailable",
+      "logs": "Logs",
+      "logFileReadError": "Log file read error",
+      "logFileClearConfirm": "Are you sure you want to clear the log file?",
+      "logFileCleared": "Log file cleared",
+      "logFileClearError": "Log file clear error",
+      "readConfigError": "Failed to read config file",
+      "configFileSaveConfirm": "Are you sure you want to save the config file?",
+      "configFileSaveError": "Failed to save config file",
+      "configFileSaved": "Config file saved"
     },
     "setting": {
       "title": "Settings",

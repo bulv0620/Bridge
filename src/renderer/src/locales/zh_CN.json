@@ -9,6 +9,9 @@
     "en_US": "english"
   },
   "common": {
+    "clear": "清空",
+    "refresh": "刷新",
+    "reset": "重置",
     "next": "下一步",
     "prev": "上一步",
     "empty": "空",
@@ -107,9 +110,26 @@
       "targetInvalid": "目标目录校验失败",
       "needRecompare": "修改白名单后需重新对比"
     },
-    "fileShare": {
-      "title": "文件共享",
-      "description": "局域网文件共享工具"
+    "pluginCenter": {
+      "title": "插件中心",
+      "description": "插件中心",
+      "searchPlaceholder": "请输入关键词",
+      "emptyText": "找不到插件",
+      "run": "启动",
+      "stop": "停止",
+      "config": "配置参数",
+      "viewLog": "查看日志",
+      "available": "可用",
+      "unavailable": "不可用",
+      "logs": "日志",
+      "logFileReadError": "日志读取失败",
+      "logFileClearConfirm": "是否清空日志文件?",
+      "logFileCleared": "日志已清空",
+      "logFileClearError": "日志清空失败",
+      "readConfigError": "读取配置文件失败",
+      "configFileSaveConfirm": "是否保存配置文件?",
+      "configFileSaveError": "配置文件保存失败",
+      "configFileSaved": "配置文件已保存"
     },
     "setting": {
       "title": "设置",

@@ -1,0 +1,6 @@
+{
+  "title": "FTP Server",
+  "summary": "Supported by Python, starting the plugin will run a local FTP service according to the configuration.",
+  "author": "bulv",
+  "version": "0.0.1"
+}

@@ -1,15 +1,19 @@
 import { contextBridge } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import fs from 'fs/promises'
+import fsSync from 'fs'
 import path from 'path'
 import ftp from 'basic-ftp'
 import { Readable } from 'stream'
 import streamBuffers from 'stream-buffers'
 import crypto from 'crypto'
+import os from 'os'
 
 // Custom APIs for renderer
 const api = {
+  os,
   fs,
+  fsSync,
   path,
   ftp,
   Readable,

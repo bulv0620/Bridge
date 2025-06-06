@@ -1,6 +1,8 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 interface WindowAPI {
+  os: typeof import('os')
   fs: typeof import('fs/promises')
+  fsSync: typeof import('fs')
   path: typeof import('path')
   ftp: typeof import('basic-ftp')
   Readable: typeof import('stream').Readable

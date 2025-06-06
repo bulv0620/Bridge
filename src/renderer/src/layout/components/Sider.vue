@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { MenuOption } from 'naive-ui'
-import { SyncAltOutlined, FolderCopyOutlined, DisplaySettingsFilled } from '@vicons/material'
+import { DriveFileMoveFilled, ExtensionFilled, SettingsApplicationsFilled } from '@vicons/material'
 import { NIcon } from 'naive-ui'
 import { computed, h, ref } from 'vue'
 import type { Component } from 'vue'
@@ -29,7 +29,7 @@ const menuOptions = computed<MenuOption[]>(() => {
           { default: () => t('views.fileSync.title') },
         ),
       key: '/',
-      icon: renderIcon(SyncAltOutlined),
+      icon: renderIcon(DriveFileMoveFilled),
     },
     {
       label: () =>
@@ -37,13 +37,13 @@ const menuOptions = computed<MenuOption[]>(() => {
           RouterLink,
           {
             to: {
-              path: '/tico-share',
+              path: '/plugin-center',
             },
           },
-          { default: () => t('views.fileShare.title') },
+          { default: () => t('views.pluginCenter.title') },
         ),
-      key: '/tico-share',
-      icon: renderIcon(FolderCopyOutlined),
+      key: '/plugin-center',
+      icon: renderIcon(ExtensionFilled),
     },
     {
       label: () =>
@@ -57,7 +57,7 @@ const menuOptions = computed<MenuOption[]>(() => {
           { default: () => t('views.setting.title') },
         ),
       key: '/setting',
-      icon: renderIcon(DisplaySettingsFilled),
+      icon: renderIcon(SettingsApplicationsFilled),
     },
   ]
 })

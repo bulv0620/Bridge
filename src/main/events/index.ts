@@ -1,5 +1,6 @@
 import { BrowserWindow, dialog, ipcMain, nativeTheme, Tray } from 'electron'
 import { updateTray } from '../utils/tray'
+import { checkPluginStatus, getPluginInfo, PluginInfo, runTask, stopTask } from '../utils/plugin'
 
 export function createEventHandler({
   mainWindow,
@@ -32,5 +33,25 @@ export function createEventHandler({
     } else {
       return result.filePaths[0] // 返回所选文件夹路径
     }
+  })
+
+  // 获取所有插件列表
+  ipcMain.handle('get-plugin-list', async () => {
+    return getPluginInfo()
+  })
+
+  // 启动插件
+  ipcMain.handle('start-plugin', async (_, pluginInfo: PluginInfo) => {
+    return await runTask(pluginInfo)
+  })
+
+  // 关闭插件
+  ipcMain.handle('stop-plugin', async (_, pluginInfo: PluginInfo) => {
+    return stopTask(pluginInfo)
+  })
+
+  // 检测插件是否在运行
+  ipcMain.handle('check-plugin-status', (_, pluginName: string) => {
+    return checkPluginStatus(pluginName)
   })
 }

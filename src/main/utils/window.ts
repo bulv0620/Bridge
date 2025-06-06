@@ -40,6 +40,7 @@ export function createCustomWindow(windowOption?: IWindowOptions): BrowserWindow
       symbolColor: nativeTheme.shouldUseDarkColors ? '#fff' : '#000',
       height: 32,
     },
+    icon: join(__dirname, '../../build/icon.ico'),
   })
 
   win.on('ready-to-show', () => {
