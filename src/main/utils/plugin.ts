@@ -71,7 +71,7 @@ export function getPluginInfo(): PluginInfo[] {
         plugin.platforms[platform] = {
           exec: execFile ? path.resolve(platformPath, execFile) : null,
           config: configFile ? path.resolve(platformPath, configFile) : null,
-          log: path.resolve(platformPath, 'log'),
+          log: path.resolve(platformPath, '.log'),
         }
       }
     }
