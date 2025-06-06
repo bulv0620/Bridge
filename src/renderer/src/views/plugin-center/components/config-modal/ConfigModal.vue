@@ -27,6 +27,7 @@ const open = (path: string) => {
 const readJsonFile = async (path: string) => {
   try {
     loading.value = true
+    configJson.value = ''
     const content = await fs.readFile(path, 'utf-8')
     configJson.value = content
   } catch (error) {

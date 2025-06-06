@@ -28,6 +28,7 @@ const open = (path: string) => {
 const getLogs = async () => {
   loading.value = true
   try {
+    log.value = ''
     log.value = await fs.readFile(logFilePath.value, 'utf-8')
 
     await nextTick()
