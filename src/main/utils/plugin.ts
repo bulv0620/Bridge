@@ -125,7 +125,6 @@ export function runTask(pluginInfo: PluginInfo): Promise<void> {
     console.log(`Executing: ${execPath}`)
 
     const child = spawn(execPath, [], {
-      shell: true, // 根据需要是否用shell运行，Windows下一般用true
       cwd: path.dirname(execPath), // ✅ 关键设置：工作目录=脚本目录
     })
 
