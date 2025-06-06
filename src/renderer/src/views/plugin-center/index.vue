@@ -35,7 +35,7 @@ const openConfigModal = (path: string) => {
 const filteredPlugins = computed(() => {
   if (!filterText.value.trim()) return plugins.value
   return plugins.value.filter((plugin) =>
-    plugin.name.toLowerCase().includes(filterText.value.toLowerCase()),
+    plugin.desc.title.toLowerCase().includes(filterText.value.toLowerCase()),
   )
 })
 

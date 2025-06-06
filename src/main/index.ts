@@ -33,6 +33,10 @@ app.whenReady().then(() => {
 })
 
 app.on('window-all-closed', () => {
-  stopAllTasks()
   app.quit()
+})
+
+app.on('before-quit', () => {
+  console.log('App is quitting, stopping all plugin tasks...')
+  stopAllTasks()
 })

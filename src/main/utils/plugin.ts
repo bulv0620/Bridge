@@ -65,7 +65,7 @@ export function getPluginInfo(): PluginInfo[] {
       const platformPath = path.join(pluginPath, platform)
       if (fs.existsSync(platformPath) && fs.statSync(platformPath).isDirectory()) {
         const files = fs.readdirSync(platformPath)
-        const execFile = files.find((file) => !file.endsWith('.json'))
+        const execFile = files.find((file) => file.startsWith('entry'))
         const configFile = files.find((file) => file === 'config.json')
 
         plugin.platforms[platform] = {
@@ -185,6 +185,7 @@ export function stopAllTasks(): void {
     const child = plugin.process
     spawn('taskkill', ['/PID', String(child.pid), '/T', '/F'])
   })
+  console.log('all stoped')
   pluginProcess.splice(0) // 清空当前执行的插件列表
 }
 
