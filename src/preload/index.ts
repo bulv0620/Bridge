@@ -4,7 +4,7 @@ import fs from 'fs/promises'
 import fsSync from 'fs'
 import path from 'path'
 import ftp from 'basic-ftp'
-import { Readable } from 'stream'
+import stream from 'stream'
 import streamBuffers from 'stream-buffers'
 import crypto from 'crypto'
 import os from 'os'
@@ -16,7 +16,7 @@ const api = {
   fsSync,
   path,
   ftp,
-  Readable,
+  stream,
   streamBuffers,
   crypto,
 }

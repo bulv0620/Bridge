@@ -1,6 +1,8 @@
 import { FileSystem, FileInfo, FileMetaData } from './FileSystem.adstract'
 
+const { Readable } = window.api.stream
 const fs = window.api.fs
+const fsSync = window.api.fsSync
 const path = window.api.path
 
 /**
@@ -73,6 +75,20 @@ export class LocalFileSystem extends FileSystem {
     const resolvedPath = this._resolve(filePath)
     await this.ensureDir(path.dirname(filePath))
     return fs.writeFile(resolvedPath, data)
+  }
+
+  async getFileStream(filePath: string): Promise<InstanceType<typeof Readable>> {
+    const resolved = this._resolve(filePath)
+    return fsSync.createReadStream(resolved)
+  }
+
+  async writeFileStream(filePath: string, source: InstanceType<typeof Readable>): Promise<void> {
+    await this.ensureDir(path.dirname(filePath))
+    const resolved = this._resolve(filePath)
+    const dest = fsSync.createWriteStream(resolved)
+    await new Promise<void>((resolve, reject) => {
+      source.pipe(dest).on('finish', resolve).on('error', reject)
+    })
   }
 
   async delFile(filePath: string): Promise<void> {

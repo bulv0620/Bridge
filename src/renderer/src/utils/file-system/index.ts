@@ -126,11 +126,11 @@ export async function syncFile(
 
     // 如果target文件存在则移动到source
     if (diffFile.target) {
-      const data = await targetFileSystem.getFile(diffFile.target.relativePath)
+      const data = await targetFileSystem.getFileStream(diffFile.target.relativePath)
       const meta = diffFile.target.meta
 
       // 写入文件数据
-      await sourceFileSystem.writeFile(diffFile.target.relativePath, data)
+      await sourceFileSystem.writeFileStream(diffFile.target.relativePath, data)
       // 将文件的元数据复制过去
       await sourceFileSystem.setMeta(diffFile.target.relativePath, meta)
     }
@@ -143,11 +143,11 @@ export async function syncFile(
 
     // 如果source文件存在则移动到target
     if (diffFile.source) {
-      const data = await sourceFileSystem.getFile(diffFile.source.relativePath)
+      const data = await sourceFileSystem.getFileStream(diffFile.source.relativePath)
       const meta = diffFile.source.meta
 
       // 写入文件数据
-      await targetFileSystem.writeFile(diffFile.source.relativePath, data)
+      await targetFileSystem.writeFileStream(diffFile.source.relativePath, data)
       // 将文件的元数据复制过去
       await targetFileSystem.setMeta(diffFile.source.relativePath, meta)
     }

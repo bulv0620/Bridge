@@ -5,7 +5,7 @@ interface WindowAPI {
   fsSync: typeof import('fs')
   path: typeof import('path')
   ftp: typeof import('basic-ftp')
-  Readable: typeof import('stream').Readable
+  stream: typeof import('stream')
   streamBuffers: typeof import('stream-buffers')
   crypto: typeof import('crypto')
   // Add any other APIs you want to expose here

@@ -1,8 +1,10 @@
 import { FileSystem, FileInfo, FileMetaData } from './FileSystem.adstract'
 import type { Client, AccessOptions } from 'basic-ftp'
+
 const path = window.api.path
 const ftp = window.api.ftp
-const Readable = window.api.Readable
+const stream = window.api.stream
+const { Readable } = stream
 const streamBuffers = window.api.streamBuffers
 
 /**
@@ -119,6 +121,24 @@ export class FtpFileSystem extends FileSystem {
     const stream = Readable.from(bufferData)
     await this.client.uploadFrom(stream, resolvedPath)
     return
+  }
+
+  async getFileStream(filePath: string): Promise<InstanceType<typeof Readable>> {
+    await this.connect()
+    const resolved = this._resolve(filePath)
+
+    const pass = new stream.PassThrough()
+
+    this.client.downloadTo(pass, resolved).catch((err) => pass.destroy(err))
+    return pass
+  }
+
+  async writeFileStream(filePath: string, source: InstanceType<typeof Readable>): Promise<void> {
+    await this.connect()
+    await this.ensureDir(path.dirname(filePath))
+    const resolved = this._resolve(filePath)
+
+    await this.client.uploadFrom(source, resolved)
   }
 
   async delFile(filePath: string): Promise<void> {

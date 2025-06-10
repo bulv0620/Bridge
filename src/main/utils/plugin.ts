@@ -149,13 +149,8 @@ export function runTask(pluginInfo: PluginInfo): Promise<void> {
       reject(err)
     })
 
-    child.on('message', (data) => {
-      console.log(data)
-    })
-
     child.on('exit', (code) => {
       const exitMessage = `Plugin '${pluginInfo.name}' exited with code ${code}\n`
-      console.log(exitMessage)
       logStream.write(exitMessage)
       logStream.end()
 

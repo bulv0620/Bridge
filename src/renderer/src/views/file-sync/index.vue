@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // #region imports
 import { SwapHorizontal, List, Pause, Play } from '@vicons/ionicons5'
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FolderWhiteListModal from './components/folder-white-list-modal/FolderWhiteListModal.vue'
 import FolderSelectionInput from './components/folder-selection-input/FolderSelectionInput.vue'
@@ -230,6 +230,7 @@ const handleStartSync = async () => {
         throw new Error(t('views.fileSync.syncConflict'))
       }
       await syncFile(processingItem, source, target)
+      await nextTick()
 
       diffTableData.value[i].status = EDiffStatus.success
       successCount++

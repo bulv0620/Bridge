@@ -1,3 +1,5 @@
+const { Readable } = window.api.stream
+
 /**
  * 文件元数据接口
  */
@@ -40,4 +42,6 @@ export abstract class FileSystem {
   abstract ensureDir(dirPath: string): Promise<void>
   abstract getMeta(filePath: string): Promise<FileMetaData>
   abstract setMeta(filePath: string, meta: FileMetaData): Promise<void>
+  abstract getFileStream(filePath: string): Promise<InstanceType<typeof Readable>>
+  abstract writeFileStream(filePath: string, source: InstanceType<typeof Readable>): Promise<void>
 }
