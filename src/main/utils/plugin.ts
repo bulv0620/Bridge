@@ -130,9 +130,6 @@ export function runTask(pluginInfo: PluginInfo): Promise<void> {
 
     const logStream = fs.createWriteStream(logPath, { flags: 'a' })
 
-    // 启动成功，立即 resolve
-    resolve()
-
     child.stdout.on('data', (data) => {
       const text = data.toString()
       console.log(`[STDOUT] ${text}`)
@@ -152,6 +149,10 @@ export function runTask(pluginInfo: PluginInfo): Promise<void> {
       reject(err)
     })
 
+    child.on('message', (data) => {
+      console.log(data)
+    })
+
     child.on('exit', (code) => {
       const exitMessage = `Plugin '${pluginInfo.name}' exited with code ${code}\n`
       console.log(exitMessage)
@@ -168,6 +169,9 @@ export function runTask(pluginInfo: PluginInfo): Promise<void> {
       name: pluginInfo.name,
       process: child,
     })
+
+    // 启动成功，立即 resolve
+    resolve()
   })
 }
 
@@ -190,4 +194,24 @@ export function stopAllTasks(): void {
 
 export function checkPluginStatus(name: string): Boolean {
   return !!pluginProcess.find((el) => el.name === name)
+}
+
+export function stopAllTasksAsync(): Promise<void> {
+  return new Promise((resolve) => {
+    const children = pluginProcess.map((p) => p.process)
+    if (children.length === 0) {
+      resolve()
+      return
+    }
+    let completed = 0
+    children.forEach((child) => {
+      spawn('taskkill', ['/F', '/T', '/PID', String(child.pid)]).on('exit', () => {
+        completed++
+        if (completed === children.length) {
+          pluginProcess.splice(0) // 清空任务
+          resolve()
+        }
+      })
+    })
+  })
 }

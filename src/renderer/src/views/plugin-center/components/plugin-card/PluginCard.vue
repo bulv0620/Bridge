@@ -46,7 +46,7 @@ const handleStartPlugin = async () => {
   try {
     await ipcRenderer.invoke('start-plugin', toRaw(props.plugin))
     // 等待插件启动完成
-    await delay(3000)
+    await delay(1000)
     handleCheckPluginStatus()
   } catch (error) {
     message.error((error as any).message)
@@ -60,7 +60,7 @@ const handleStopPlugin = async () => {
   try {
     await ipcRenderer.invoke('stop-plugin', toRaw(props.plugin))
     // 等待插件启动完成
-    await delay(3000)
+    await delay(1000)
     handleCheckPluginStatus()
   } catch (error) {
     message.error((error as any).message)

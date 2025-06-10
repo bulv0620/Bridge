@@ -3,7 +3,7 @@ import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { createCustomWindow } from './utils/window'
 import { createEventHandler } from './events/index'
 import { createTray } from './utils/tray'
-import { stopAllTasks } from './utils/plugin'
+import { stopAllTasksAsync } from './utils/plugin'
 
 const gotTheLock = app.requestSingleInstanceLock({ myKey: 'key' })
 if (!gotTheLock) {
@@ -36,7 +36,14 @@ app.on('window-all-closed', () => {
   app.quit()
 })
 
-app.on('before-quit', () => {
-  console.log('App is quitting, stopping all plugin tasks...')
-  stopAllTasks()
+let flagQuit = false
+app.on('before-quit', async (event) => {
+  if (!flagQuit) {
+    event.preventDefault() // 阻止默认退出
+    console.log('before-quit: stopping all plugin tasks...')
+    await stopAllTasksAsync() // 等待所有任务清理完成
+    console.log('before-quit: all stoped')
+    flagQuit = true
+    app.quit() // 继续退出流程
+  }
 })
