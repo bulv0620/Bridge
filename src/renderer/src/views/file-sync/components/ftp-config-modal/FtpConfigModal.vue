@@ -78,7 +78,14 @@ const rules = computed<FormRules>(() => ({
   ],
 }))
 
-const folderTree = ref<TreeOption[]>([])
+const folderTree = ref<TreeOption[]>([
+  {
+    label: '/(root)',
+    key: '/',
+    isLeaf: false,
+    children: [],
+  },
+])
 const currentPath = ref<string[]>([])
 
 const handleLoad = async (node: TreeOption) => {
@@ -137,7 +144,7 @@ const handleNext = async () => {
 
     const folderList = await ftpInstance.getFolder()
 
-    folderTree.value = folderList.map((label) => ({
+    folderTree.value[0].children = folderList.map((label) => ({
       key: `/${label}`,
       label,
       isLeaf: false,
@@ -236,6 +243,7 @@ defineExpose({
           :data="folderTree"
           selectable
           :on-load="handleLoad"
+          :default-expanded-keys="['/']"
         />
       </n-scrollbar>
       <n-form-item
