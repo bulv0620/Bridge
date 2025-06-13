@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import type { MenuOption } from 'naive-ui'
-import { DriveFileMoveFilled, ExtensionFilled, SettingsApplicationsFilled } from '@vicons/material'
+import {
+  DriveFileMoveFilled,
+  ArticleFilled,
+  ExtensionFilled,
+  SettingsApplicationsFilled,
+} from '@vicons/material'
 import { NIcon } from 'naive-ui'
 import { computed, h, ref } from 'vue'
 import type { Component } from 'vue'
@@ -37,6 +42,20 @@ const menuOptions = computed<MenuOption[]>(() => {
           RouterLink,
           {
             to: {
+              path: '/ftp-client',
+            },
+          },
+          { default: () => t('views.ftpClient.title') },
+        ),
+      key: '/ftp-client',
+      icon: renderIcon(ArticleFilled),
+    },
+    {
+      label: () =>
+        h(
+          RouterLink,
+          {
+            to: {
               path: '/plugin-center',
             },
           },
@@ -45,6 +64,7 @@ const menuOptions = computed<MenuOption[]>(() => {
       key: '/plugin-center',
       icon: renderIcon(ExtensionFilled),
     },
+
     {
       label: () =>
         h(

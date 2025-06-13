@@ -20,6 +20,7 @@ export interface FileInfo {
   filePath: string
   relativePath: string
   meta: FileMetaData
+  isDirectory: boolean
 }
 
 /**

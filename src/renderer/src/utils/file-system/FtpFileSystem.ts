@@ -22,12 +22,16 @@ export class FtpFileSystem extends FileSystem {
   ) {
     super(basePath)
     this.client = new ftp.Client()
-    this.client.ftp.verbose = true
+    this.client.ftp.verbose = false
     this.folderWhitelist = whiteList
   }
 
   protected _resolve(filePath: string): string {
     return path.posix.join(this.basePath, filePath.split(path.sep).join(path.posix.sep))
+  }
+
+  getName() {
+    return `${this.config.host}:${this.config.port}(${this.config.user})`
   }
 
   async validate(): Promise<boolean> {
@@ -62,8 +66,6 @@ export class FtpFileSystem extends FileSystem {
 
     const entries = await this.client.list(resolvedDir)
 
-    console.log(entries)
-
     for (const item of entries) {
       const fullPath = path.posix.join(resolvedDir, item.name)
 
@@ -77,6 +79,7 @@ export class FtpFileSystem extends FileSystem {
         filesList = filesList.concat(subFiles)
       } else {
         filesList.push({
+          isDirectory: item.isDirectory,
           fileName: item.name,
           size: item.size,
           timestamp: new Date(item.date),
@@ -93,7 +96,6 @@ export class FtpFileSystem extends FileSystem {
     }
     return filesList
   }
-
   async getFolder(dirPath: string = '') {
     await this.connect()
     const resolvedPath = this._resolve(dirPath)
@@ -101,6 +103,47 @@ export class FtpFileSystem extends FileSystem {
     return entries
       .filter((item) => item.name !== '.' && item.name !== '..' && item.isDirectory)
       .map((item) => item.name)
+  }
+
+  async listDir(dir: string = '') {
+    await this.connect()
+
+    const filesList: FileInfo[] = []
+    const resolvedDir = this._resolve(dir)
+    const entries = await this.client.list(resolvedDir)
+
+    for (const item of entries) {
+      const fullPath = path.posix.join(resolvedDir, item.name)
+
+      filesList.push({
+        isDirectory: item.isDirectory,
+        fileName: item.name,
+        size: item.size,
+        timestamp: new Date(item.date),
+        filePath: fullPath,
+        relativePath: this.basePath ? path.posix.relative(this.basePath, fullPath) : item.name,
+        meta: {
+          atime: new Date(item.date),
+          mtime: new Date(item.date),
+          mode: 0o644,
+          size: item.size,
+        },
+      })
+    }
+
+    filesList.sort((a, b) => {
+      if (a.isDirectory === b.isDirectory) return 0
+      return a.isDirectory ? -1 : 1
+    })
+
+    return filesList
+  }
+
+  async getFiles(dirPath: string = '') {
+    await this.connect()
+    const resolvedPath = this._resolve(dirPath)
+    const entries = await this.client.list(resolvedPath)
+    return entries.filter((item) => !item.isDirectory).map((item) => item.name)
   }
 
   async getFile(filePath: string): Promise<Buffer> {
