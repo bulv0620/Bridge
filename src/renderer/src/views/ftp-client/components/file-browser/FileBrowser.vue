@@ -1,22 +1,26 @@
 <script setup lang="ts">
-import { nextTick, ref, watch, h } from 'vue'
+import { nextTick, ref, watch, h, computed } from 'vue'
 import { FolderOpen, Refresh } from '@vicons/ionicons5'
 import { useFtp } from '@renderer/composables/ftp'
 import dayjs from 'dayjs'
 import { FileInfo } from '@renderer/utils/file-system/FileSystem.adstract'
 import FileNameWithIcon from './FileNameWithIcon.vue'
+import { useMessage } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
 
 const { currentInstance, currentInstancePath } = useFtp()
+const message = useMessage()
+const { t } = useI18n()
 
 const loading = ref(false)
 
 const data = ref<FileInfo[]>([])
-const columns = ref([
+const columns = computed(() => [
   {
     type: 'selection',
   },
   {
-    title: 'Name',
+    title: t('views.ftpClient.fileName'),
     key: 'fileName',
     ellipsis: { tooltip: true },
     sorter: (a: FileInfo, b: FileInfo) => {
@@ -33,7 +37,7 @@ const columns = ref([
     },
   },
   {
-    title: 'Date',
+    title: t('views.ftpClient.fileDate'),
     key: 'timestamp',
     ellipsis: { tooltip: true },
     sorter: (a: FileInfo, b: FileInfo) => {
@@ -47,7 +51,7 @@ const columns = ref([
     },
   },
   {
-    title: 'Size',
+    title: t('views.ftpClient.fileSize'),
     key: 'size',
     ellipsis: { tooltip: true },
     sorter: (a: FileInfo, b: FileInfo) => {
@@ -82,6 +86,12 @@ const getFiles = async () => {
 
     data.value = []
 
+    const valid = await currentInstance.value?.validate()
+    if (!valid) {
+      message.error(t('views.ftpClient.invalidInstance'))
+      return
+    }
+
     const result = await currentInstance.value?.listDir(currentInstancePath.value?.join('/'))
 
     if (result) {
@@ -90,6 +100,8 @@ const getFiles = async () => {
         key: crypto.randomUUID(),
       }))
     }
+
+    currentInstance.value?.disconnect()
   } catch (error) {
     console.error(error)
   } finally {
@@ -147,6 +159,7 @@ watch(
       size="small"
       :columns="columns"
       :data="data"
+      virtual-scroll
       flex-height
       :row-props="handleRowProps"
       style="height: 100%; user-select: none"

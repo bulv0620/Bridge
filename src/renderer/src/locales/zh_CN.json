@@ -133,7 +133,11 @@
       "ftpPasswordRequired": "FTP密码不能为空",
       "ftpInstanceExists": "FTP实例已存在",
       "create": "创建",
-      "emptyDesc": "点击创建一个FTP连接"
+      "emptyDesc": "点击创建一个FTP连接",
+      "invalidInstance": "当前会话不可用",
+      "fileName": "名称",
+      "fileDate": "日期",
+      "fileSize": "大小"
     },
     "pluginCenter": {
       "title": "插件中心",

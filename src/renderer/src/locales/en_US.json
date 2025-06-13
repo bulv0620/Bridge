@@ -133,7 +133,11 @@
       "ftpPasswordRequired": "FTP password is required",
       "ftpInstanceExists": "FTP instance already exists",
       "create": "Create",
-      "emptyDesc": "Create an FTP connection"
+      "emptyDesc": "Create an FTP connection",
+      "invalidInstance": "Invalid FTP instance",
+      "fileName": "Name",
+      "fileDate": "Date",
+      "fileSize": "Size"
     },
     "pluginCenter": {
       "title": "Plugin Center",
