@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { nextTick, ref, watch, h } from 'vue'
-import { FolderOpenOutline, Refresh } from '@vicons/ionicons5'
+import { FolderOpen, Refresh } from '@vicons/ionicons5'
 import { useFtp } from '@renderer/composables/ftp'
 import dayjs from 'dayjs'
 import { FileInfo } from '@renderer/utils/file-system/FileSystem.adstract'
@@ -132,7 +132,7 @@ watch(
           :key="path"
           @click="currentInstancePath.splice(index + 1)"
         >
-          <n-icon :component="FolderOpenOutline" /> {{ path || '(ROOT)' }}
+          <n-icon :component="FolderOpen" color="#f9a825" /> {{ path || '(ROOT)' }}
         </n-breadcrumb-item>
       </n-breadcrumb>
 

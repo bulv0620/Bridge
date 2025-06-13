@@ -1,47 +1,50 @@
 <script setup lang="ts">
 import {
-  FolderOutline,
-  DocumentOutline,
-  ImageOutline,
-  VideocamOutline,
-  MusicalNotesOutline,
-  CodeSlashOutline,
-  DocumentTextOutline,
+  Folder,
+  Document,
+  Image,
+  Videocam,
+  MusicalNotes,
+  CodeSlash,
+  DocumentText,
 } from '@vicons/ionicons5'
+import { computed } from 'vue'
 
 const props = defineProps<{
   fileName: string
   isDirectory: boolean
 }>()
 
-const getIcon = () => {
-  if (props.isDirectory) return FolderOutline
+const ext = computed(() => props.fileName.split('.').pop()?.toLowerCase() || '')
 
-  const ext = props.fileName.split('.').pop()?.toLowerCase() || ''
-
-  if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'].includes(ext)) {
-    return ImageOutline
-  }
-  if (['mp4', 'mkv', 'mov', 'avi', 'webm'].includes(ext)) {
-    return VideocamOutline
-  }
-  if (['mp3', 'wav', 'ogg', 'flac'].includes(ext)) {
-    return MusicalNotesOutline
-  }
-  if (['js', 'ts', 'vue', 'json', 'html', 'css', 'py', 'java', 'cpp'].includes(ext)) {
-    return CodeSlashOutline
-  }
-  if (['txt', 'md', 'log', 'doc', 'docx', 'pdf'].includes(ext)) {
-    return DocumentTextOutline
+const iconInfo = computed(() => {
+  if (props.isDirectory) {
+    return { icon: Folder, color: '#f9a825' } // amber
   }
 
-  return DocumentOutline
-}
+  if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'].includes(ext.value)) {
+    return { icon: Image, color: '#42a5f5' } // blue
+  }
+  if (['mp4', 'mkv', 'mov', 'avi', 'webm'].includes(ext.value)) {
+    return { icon: Videocam, color: '#ab47bc' } // purple
+  }
+  if (['mp3', 'wav', 'ogg', 'flac'].includes(ext.value)) {
+    return { icon: MusicalNotes, color: '#ef5350' } // red
+  }
+  if (['js', 'ts', 'vue', 'json', 'html', 'css', 'py', 'java', 'cpp'].includes(ext.value)) {
+    return { icon: CodeSlash, color: '#26a69a' } // teal
+  }
+  if (['txt', 'md', 'log', 'doc', 'docx', 'pdf'].includes(ext.value)) {
+    return { icon: DocumentText, color: '#5c6bc0' } // indigo
+  }
+
+  return { icon: Document, color: '#9e9e9e' } // grey
+})
 </script>
 
 <template>
   <div class="file-icon">
-    <n-icon size="18" class="file-icon__icon" :component="getIcon()" />
+    <n-icon size="18" class="file-icon__icon" :component="iconInfo.icon" :color="iconInfo.color" />
     <span class="file-icon__name">{{ fileName }}</span>
   </div>
 </template>
@@ -51,10 +54,6 @@ const getIcon = () => {
   display: flex;
   align-items: center;
   gap: 6px;
-
-  &__icon {
-    color: var(--n-text-color-disabled);
-  }
 
   &__name {
     word-break: break-all;
