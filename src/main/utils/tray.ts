@@ -1,9 +1,15 @@
-import { BrowserWindow, Tray, app, Menu } from 'electron'
-import icon from '../../../resources/icon.png?asset'
+import { BrowserWindow, Tray, app, Menu, nativeImage } from 'electron'
+import icon from '../../../resources/tray_icon.png?asset'
+import iconMac from '../../../resources/tray_icon_mac.png?asset'
 import { messages } from '../locales'
 
 export function createTray(mainWindow: BrowserWindow): Tray {
-  const tray = new Tray(icon)
+  let trayIcon = nativeImage.createFromPath(icon)
+  if (process.platform === 'darwin') {
+    trayIcon = nativeImage.createFromPath(iconMac).resize({ width: 20, height: 20 })
+    trayIcon.setTemplateImage(true)
+  }
+  const tray = new Tray(trayIcon)
 
   const contextMenu = Menu.buildFromTemplate([])
 
