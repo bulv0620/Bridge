@@ -110,7 +110,68 @@ export function diffFileListsUnified(sourceFiles: FileInfo[], targetFiles: FileI
 }
 
 /**
+ * 校验目标文件系统中是否有已存在同名称的文件
+ * @param {FileInfo} sourceFile - 源目录文件
+ * @param {FileSystem} targetFileSystem - 目标目录文件系统
+ * @returns {FileInfo[]} 返回目标目录中已存在的同名文件列表
+ */
+export async function getExistingFilesInTarget(
+  sourceFile: FileInfo,
+  targetFileSystem: FileSystem,
+): Promise<FileInfo[]> {
+  const existingFiles: FileInfo[] = []
+
+  const targetFile = await targetFileSystem.exists(sourceFile.relativePath)
+  if (targetFile) {
+    existingFiles.push(sourceFile)
+  }
+
+  return existingFiles
+}
+
+/**
+ * 将源端的文件写到目标端
+ * @param {FileInfo} sourceFile - 源目录文件
+ * @param {FileSystem} sourceFileSystem - 目标目录文件系统
+ * @param {FileSystem} targetFileSystem - 目标目录文件系统
+ * @returns {Promise<void>}
+ * @description
+ * - 如果目标文件已存在，则先删除目标端的同名文件。
+ * - 然后从源端读取文件数据，并将其写入目标端。
+ * - 最后将源端文件的元数据复制到目标端。
+ */
+export async function writeFileToTarget(
+  sourceFile: FileInfo,
+  sourceFileSystem: FileSystem,
+  targetFileSystem: FileSystem,
+): Promise<void> {
+  const targetFile = await targetFileSystem.exists(sourceFile.relativePath)
+  if (targetFile) {
+    // 如果目标文件已存在，则先删除
+    await targetFileSystem.delFile(sourceFile.relativePath)
+  }
+
+  const data = await sourceFileSystem.getFileStream(sourceFile.relativePath)
+  const meta = sourceFile.meta
+
+  // 写入文件数据
+  await targetFileSystem.writeFileStream(sourceFile.relativePath, data)
+  // 将文件的元数据复制过去
+  await targetFileSystem.setMeta(sourceFile.relativePath, meta)
+}
+
+/**
  * 通用文件同步函数
+ * 根据 diffFile 的 action 执行相应的文件同步操作
+ * @param {DiffFile} diffFile - 差异文件对象，包含源端和目标端的文件信息以及同步操作类型
+ * @param {FileSystem} sourceFileSystem - 源端文件系统实例
+ * @param {FileSystem} targetFileSystem - 目标端文件系统实例
+ * @returns {Promise<void>}
+ * @description
+ * - 如果 diffFile.action 是 toLeft，则表示需要将目标端的文件移动到源端。
+ * - 如果 diffFile.action 是 toRight，则表示需要将源端的文件移动到目标端。
+ * - 如果 diffFile.action 是 ignore，则表示忽略该文件，不进行任何操作。
+ * - 如果 diffFile.action 是 conflict，则表示存在冲突，需要手动处理。
  */
 export async function syncFile(
   diffFile: DiffFile,
