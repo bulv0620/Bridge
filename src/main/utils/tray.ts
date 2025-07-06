@@ -1,12 +1,12 @@
 import { BrowserWindow, Tray, app, Menu, nativeImage } from 'electron'
-import icon from '../../../resources/tray_icon.png?asset'
-import iconMac from '../../../resources/tray_icon_mac.png?asset'
+import icon from '../../../resources/icon.png?asset'
+import iconMac from '../../../resources/icon_plain.png?asset'
 import { messages } from '../locales'
 
 export function createTray(mainWindow: BrowserWindow): Tray {
   let trayIcon = nativeImage.createFromPath(icon)
   if (process.platform === 'darwin') {
-    trayIcon = nativeImage.createFromPath(iconMac).resize({ width: 20, height: 20 })
+    trayIcon = nativeImage.createFromPath(iconMac).resize({ width: 18, height: 18 })
     trayIcon.setTemplateImage(true)
   }
   const tray = new Tray(trayIcon)
