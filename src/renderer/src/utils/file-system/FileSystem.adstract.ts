@@ -45,4 +45,5 @@ export abstract class FileSystem {
   abstract setMeta(filePath: string, meta: FileMetaData): Promise<void>
   abstract getFileStream(filePath: string): Promise<InstanceType<typeof Readable>>
   abstract writeFileStream(filePath: string, source: InstanceType<typeof Readable>): Promise<void>
+  abstract exists(filePath: string): Promise<boolean>
 }

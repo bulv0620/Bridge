@@ -137,7 +137,9 @@
       "invalidInstance": "Invalid FTP instance",
       "fileName": "Name",
       "fileDate": "Date",
-      "fileSize": "Size"
+      "fileSize": "Size",
+      "uploadModalTitle": "Upload File",
+      "downloadModalTitle": "Download File"
     },
     "pluginCenter": {
       "title": "Plugin Center",

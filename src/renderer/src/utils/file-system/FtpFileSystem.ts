@@ -1,5 +1,16 @@
 import { FileSystem, FileInfo, FileMetaData } from './FileSystem.adstract'
 import type { Client, AccessOptions } from 'basic-ftp'
+// 忽略文件列表，按平台区分
+const IGNORE_FILES: Record<string, string[]> = {
+  darwin: ['.DS_Store'],
+  win32: ['desktop.ini'],
+}
+
+function shouldIgnoreFile(fileName: string): boolean {
+  const platform = process.platform
+  const ignoreList = IGNORE_FILES[platform] || []
+  return ignoreList.includes(fileName)
+}
 
 const path = window.api.path
 const ftp = window.api.ftp
@@ -69,11 +80,13 @@ export class FtpFileSystem extends FileSystem {
     for (const item of entries) {
       const fullPath = path.posix.join(resolvedDir, item.name)
 
+      if (shouldIgnoreFile(item.name)) {
+        continue
+      }
       if (item.isDirectory) {
         if (this.folderWhitelist.includes(item.name)) {
           continue
         }
-
         const subDir = path.posix.join(dir, item.name)
         const subFiles = await this.getAllFiles(subDir)
         filesList = filesList.concat(subFiles)
@@ -101,7 +114,13 @@ export class FtpFileSystem extends FileSystem {
     const resolvedPath = this._resolve(dirPath)
     const entries = await this.client.list(resolvedPath)
     return entries
-      .filter((item) => item.name !== '.' && item.name !== '..' && item.isDirectory)
+      .filter(
+        (item) =>
+          item.name !== '.' &&
+          item.name !== '..' &&
+          item.isDirectory &&
+          !shouldIgnoreFile(item.name),
+      )
       .map((item) => item.name)
   }
 
@@ -113,6 +132,9 @@ export class FtpFileSystem extends FileSystem {
     const entries = await this.client.list(resolvedDir)
 
     for (const item of entries) {
+      if (shouldIgnoreFile(item.name)) {
+        continue
+      }
       const fullPath = path.posix.join(resolvedDir, item.name)
 
       filesList.push({
@@ -143,7 +165,9 @@ export class FtpFileSystem extends FileSystem {
     await this.connect()
     const resolvedPath = this._resolve(dirPath)
     const entries = await this.client.list(resolvedPath)
-    return entries.filter((item) => !item.isDirectory).map((item) => item.name)
+    return entries
+      .filter((item) => !item.isDirectory && !shouldIgnoreFile(item.name))
+      .map((item) => item.name)
   }
 
   async getFile(filePath: string): Promise<Buffer> {
@@ -189,6 +213,21 @@ export class FtpFileSystem extends FileSystem {
     const resolvedPath = this._resolve(filePath)
     await this.client.remove(resolvedPath)
     return
+  }
+
+  async exists(filePath: string) {
+    await this.connect()
+    const resolvedPath = this._resolve(filePath)
+    try {
+      await this.client.size(resolvedPath)
+      return true
+    } catch (err: any) {
+      if (err.code === 550) {
+        // 550 means file not found
+        return false
+      }
+      throw err // rethrow other errors
+    }
   }
 
   async ensureDir(dirPath: string): Promise<void> {

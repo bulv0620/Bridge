@@ -79,7 +79,7 @@ const rules = computed<FormRules>(() => ({
   ],
 }))
 
-const select = () => {
+function select() {
   return new Promise<any>((resolve) => {
     ftpInstance = null
     model.value = {
@@ -93,7 +93,7 @@ const select = () => {
   })
 }
 
-const handlePositive = async () => {
+async function handlePositive() {
   await formRef.value?.validate()
   try {
     loading.value = true
@@ -133,7 +133,7 @@ const handlePositive = async () => {
   }
 }
 
-const handleNegative = () => {
+function handleNegative() {
   if (resolveRef.value) {
     resolveRef.value(null)
     resolveRef.value = null
@@ -160,7 +160,7 @@ defineExpose({
       :model="model"
       :rules="rules"
       label-placement="left"
-      label-width="86px"
+      label-width="90px"
       @submit.prevent
     >
       <n-form-item path="host" :label="$t('views.ftpClient.ftpHost')">

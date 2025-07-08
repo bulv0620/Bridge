@@ -88,7 +88,7 @@ const folderTree = ref<TreeOption[]>([
 ])
 const currentPath = ref<string[]>([])
 
-const handleLoad = async (node: TreeOption) => {
+async function handleLoad(node: TreeOption) {
   const folderList = await ftpInstance?.getFolder(node.key as string)
   node.children = folderList?.map((label) => ({
     label: label,
@@ -99,7 +99,7 @@ const handleLoad = async (node: TreeOption) => {
   ftpInstance?.disconnect()
 }
 
-const select = (initVal: FolderInfo) => {
+function select(initVal: FolderInfo) {
   return new Promise<any>((resolve) => {
     ftpInstance = null
     current.value = 1
@@ -123,7 +123,7 @@ const select = (initVal: FolderInfo) => {
   })
 }
 
-const handleNext = async () => {
+async function handleNext() {
   await formRef.value?.validate()
   try {
     loading.value = true
@@ -161,11 +161,11 @@ const handleNext = async () => {
   }
 }
 
-const handlePrev = async () => {
+async function handlePrev() {
   current.value = 1
 }
 
-const handlePositive = () => {
+function handlePositive() {
   if (resolveRef.value) {
     resolveRef.value({
       ftpConfig: model.value,
@@ -177,7 +177,7 @@ const handlePositive = () => {
   visible.value = false
 }
 
-const handleNegative = () => {
+function handleNegative() {
   if (resolveRef.value) {
     resolveRef.value(null)
     resolveRef.value = null
@@ -209,7 +209,7 @@ defineExpose({
       :model="model"
       :rules="rules"
       label-placement="left"
-      label-width="86px"
+      label-width="90px"
       @submit.prevent
     >
       <n-form-item path="host" :label="$t('views.fileSync.ftpHost')">

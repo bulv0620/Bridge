@@ -1,4 +1,15 @@
 import { FileSystem, FileInfo, FileMetaData } from './FileSystem.adstract'
+// 忽略文件列表，按平台区分
+const IGNORE_FILES: Record<string, string[]> = {
+  darwin: ['.DS_Store'],
+  win32: ['desktop.ini'],
+}
+
+function shouldIgnoreFile(fileName: string): boolean {
+  const platform = process.platform
+  const ignoreList = IGNORE_FILES[platform] || []
+  return ignoreList.includes(fileName)
+}
 
 const { Readable } = window.api.stream
 const fs = window.api.fs
@@ -36,6 +47,9 @@ export class LocalFileSystem extends FileSystem {
     const entries = await fs.readdir(resolvedDir, { withFileTypes: true })
 
     for (const entry of entries) {
+      if (shouldIgnoreFile(entry.name)) {
+        continue
+      }
       const fullPath = path.join(resolvedDir, entry.name)
 
       if (entry.isDirectory()) {
@@ -60,6 +74,7 @@ export class LocalFileSystem extends FileSystem {
             mode: stats.mode,
             size: stats.size,
           },
+          isDirectory: entry.isDirectory(),
         })
       }
     }
@@ -94,6 +109,20 @@ export class LocalFileSystem extends FileSystem {
   async delFile(filePath: string): Promise<void> {
     const resolvedPath = this._resolve(filePath)
     return fs.unlink(resolvedPath)
+  }
+
+  async exists(filePath: string) {
+    // 检查文件是否存在
+    const resolvedPath = this._resolve(filePath)
+    try {
+      await fs.access(resolvedPath)
+      return true
+    } catch (err: any) {
+      if (err.code === 'ENOENT') {
+        return false // 文件不存在
+      }
+      throw err // 其他错误抛出
+    }
   }
 
   async ensureDir(dirPath: string): Promise<void> {

@@ -55,7 +55,7 @@
       "contrast": "对比差异",
       "startSync": "开始同步",
       "stopSync": "停止同步",
-      "folderWhiteList": "白名单",
+      "folderWhiteList": "忽略文件夹",
       "folderWhiteListEmptyValue": "白名单不能存在空值",
       "sourceFolder": "源目录",
       "targetFolder": "目标目录",
@@ -137,7 +137,9 @@
       "invalidInstance": "当前会话不可用",
       "fileName": "名称",
       "fileDate": "日期",
-      "fileSize": "大小"
+      "fileSize": "大小",
+      "uploadModalTitle": "上传文件",
+      "downloadModalTitle": "下载文件"
     },
     "pluginCenter": {
       "title": "插件中心",

@@ -43,7 +43,7 @@ const iconInfo = computed(() => {
 </script>
 
 <template>
-  <div class="file-icon">
+  <div class="file-icon" :class="{ 'is-directory': isDirectory }">
     <n-icon size="18" class="file-icon__icon" :component="iconInfo.icon" :color="iconInfo.color" />
     <span class="file-icon__name">{{ fileName }}</span>
   </div>
@@ -54,6 +54,14 @@ const iconInfo = computed(() => {
   display: flex;
   align-items: center;
   gap: 6px;
+
+  &.is-directory {
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 
   &__name {
     word-break: break-all;

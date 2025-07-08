@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { nextTick, ref, watch, h, computed } from 'vue'
-import { FolderOpen, Refresh } from '@vicons/ionicons5'
+import { Refresh, CloudUploadOutline, CloudDownloadOutline } from '@vicons/ionicons5'
 import { useFtp } from '@renderer/composables/ftp'
 import dayjs from 'dayjs'
 import { FileInfo } from '@renderer/utils/file-system/FileSystem.adstract'
 import FileNameWithIcon from './FileNameWithIcon.vue'
 import { useMessage } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
+import FileBreadcrumb from './Breadcrumb.vue'
 
 const { currentInstance, currentInstancePath } = useFtp()
 const message = useMessage()
@@ -14,7 +15,9 @@ const { t } = useI18n()
 
 const loading = ref(false)
 
+// 文件列表数据
 const data = ref<FileInfo[]>([])
+// 列表列配置
 const columns = computed(() => [
   {
     type: 'selection',
@@ -33,6 +36,7 @@ const columns = computed(() => [
       return h(FileNameWithIcon, {
         fileName: row.fileName,
         isDirectory: row.isDirectory,
+        onClick: () => handleOpenFolder(row),
       })
     },
   },
@@ -66,7 +70,9 @@ const columns = computed(() => [
   },
 ])
 
-const formatFileSize = (size: number): string => {
+// 转换文件大小为可读格式
+// 例如：1024 -> 1.00 KB, 1048576 -> 1.00 MB
+function formatFileSize(size: number): string {
   if (isNaN(size) || size < 0) return '0 B'
 
   const units = ['B', 'KB', 'MB', 'GB']
@@ -80,7 +86,8 @@ const formatFileSize = (size: number): string => {
   return `${size.toFixed(2)} ${units[index]}`
 }
 
-const getFiles = async () => {
+// 获取当前目录下的文件列表
+async function getFiles() {
   try {
     loading.value = true
 
@@ -109,13 +116,8 @@ const getFiles = async () => {
   }
 }
 
-const handleRowProps = (row: FileInfo) => {
-  return {
-    ondblclick: () => handleRowDblClick(row),
-  }
-}
-
-const handleRowDblClick = (row: FileInfo) => {
+// 双击行时的处理逻辑
+function handleOpenFolder(row: FileInfo) {
   if (row.isDirectory) {
     currentInstancePath.value?.push(row.fileName)
   }
@@ -138,21 +140,25 @@ watch(
 <template>
   <div class="file-browser">
     <n-space justify="space-between">
-      <n-breadcrumb>
-        <n-breadcrumb-item
-          v-for="(path, index) in currentInstancePath"
-          :key="path"
-          @click="currentInstancePath.splice(index + 1)"
-        >
-          <n-icon :component="FolderOpen" color="#f9a825" /> {{ path || '(ROOT)' }}
-        </n-breadcrumb-item>
-      </n-breadcrumb>
+      <FileBreadcrumb></FileBreadcrumb>
 
-      <n-button size="small" circle @click="getFiles">
-        <template #icon>
-          <n-icon><Refresh /></n-icon>
-        </template>
-      </n-button>
+      <n-space>
+        <n-button size="small" circle @click="$emit('download')">
+          <template #icon>
+            <n-icon><CloudDownloadOutline /></n-icon>
+          </template>
+        </n-button>
+        <n-button size="small" circle @click="$emit('upload')">
+          <template #icon>
+            <n-icon><CloudUploadOutline /></n-icon>
+          </template>
+        </n-button>
+        <n-button size="small" circle :loading="loading" @click="getFiles">
+          <template #icon>
+            <n-icon><Refresh /></n-icon>
+          </template>
+        </n-button>
+      </n-space>
     </n-space>
     <n-data-table
       :loading="loading"
@@ -161,7 +167,6 @@ watch(
       :data="data"
       virtual-scroll
       flex-height
-      :row-props="handleRowProps"
       style="height: 100%; user-select: none"
     />
   </div>
