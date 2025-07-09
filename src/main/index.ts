@@ -19,6 +19,8 @@ app.whenReady().then(() => {
 
   const mainWindow = createCustomWindow({
     resizable: true,
+    minWidth: 880,
+    minHeight: 600,
   })
   mainWindow.on('close', (event) => {
     // 在关闭窗口时取消默认行为，隐藏窗口到托盘
@@ -28,8 +30,19 @@ app.whenReady().then(() => {
     }
   })
 
+  mainWindow.show()
+
   const tray = createTray(mainWindow)
   createEventHandler({ mainWindow, tray })
+
+  app.on('second-instance', (_event, _commandLine, _workingDirectory) => {
+    // 如果用户再次打开应用，显示主窗口
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore()
+      mainWindow.show()
+      mainWindow.focus()
+    }
+  })
 })
 
 app.on('window-all-closed', () => {

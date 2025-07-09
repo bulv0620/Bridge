@@ -11,7 +11,15 @@ export function createTray(mainWindow: BrowserWindow): Tray {
   }
   const tray = new Tray(trayIcon)
 
-  const contextMenu = Menu.buildFromTemplate([])
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: messages.en_US.tray.quit,
+      click: () => {
+        global.isQuiting = true
+        app.quit()
+      },
+    },
+  ])
 
   tray.setToolTip('My Electron App')
   tray.setContextMenu(contextMenu)
