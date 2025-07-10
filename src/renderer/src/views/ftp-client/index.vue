@@ -4,14 +4,11 @@ import { Cloud } from '@vicons/ionicons5'
 import Empty from './components/empty-state/EmptyState.vue'
 import FileBrowser from './components/file-browser/FileBrowser.vue'
 import FtpConfigModal from './components/ftp-config-modal/FtpConfigModal.vue'
-import FileDownloadModal from './components/file-download-modal/FileDownloadModal.vue'
-import FileUploadModal from './components/file-upload-modal/FileUploadModal.vue'
+
 import { FtpFileSystem } from '@renderer/utils/file-system'
 import { useFtp } from '@renderer/composables/ftp'
 
 const ftpConfigModalRef = ref<InstanceType<typeof FtpConfigModal> | null>(null)
-const fileUploadModalRef = ref<InstanceType<typeof FileUploadModal> | null>(null)
-const fileDownloadModalRef = ref<InstanceType<typeof FileDownloadModal> | null>(null)
 
 const { instanceNameList, currentInstanceName, removeFtpInstance, addFtpInstance } = useFtp()
 
@@ -21,14 +18,6 @@ async function handleAdd() {
   if (ftpInstance) {
     addFtpInstance(ftpInstance)
   }
-}
-
-function handleOpenUpload() {
-  fileUploadModalRef.value?.open()
-}
-
-function handleOpenDownload() {
-  fileDownloadModalRef.value?.open()
 }
 </script>
 
@@ -59,11 +48,9 @@ function handleOpenDownload() {
 
     <div class="ftp-client-content">
       <Empty v-if="!instanceNameList.length" @add="handleAdd"></Empty>
-      <FileBrowser v-else @upload="handleOpenUpload" @download="handleOpenDownload"></FileBrowser>
+      <FileBrowser v-else></FileBrowser>
     </div>
     <FtpConfigModal ref="ftpConfigModalRef" :instance-list="instanceNameList"></FtpConfigModal>
-    <FileDownloadModal ref="fileDownloadModalRef" />
-    <FileUploadModal ref="fileUploadModalRef" />
   </div>
 </template>
 

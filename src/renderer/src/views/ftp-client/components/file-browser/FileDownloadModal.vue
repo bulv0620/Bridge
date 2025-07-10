@@ -29,7 +29,7 @@ defineExpose({
     v-model:show="visible"
     :style="`width: 400px; max-width: 100%`"
     preset="card"
-    :title="$t('views.ftpClient.downloadModalTitle')"
+    :title="$t('views.ftpClient.download')"
     :on-after-leave="handleNegative"
     :mask-closable="false"
   >

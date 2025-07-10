@@ -138,8 +138,12 @@
       "fileName": "Name",
       "fileDate": "Date",
       "fileSize": "Size",
-      "uploadModalTitle": "Upload File",
-      "downloadModalTitle": "Download File"
+      "upload": "Upload",
+      "download": "Download",
+      "createFolder": "Create folder",
+      "delete": "Delete",
+      "refresh": "Refresh",
+      "uploadTip": "Click or drag files into this area"
     },
     "pluginCenter": {
       "title": "Plugin Center",

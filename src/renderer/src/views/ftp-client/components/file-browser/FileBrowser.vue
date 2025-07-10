@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { nextTick, ref, watch, h, computed } from 'vue'
-import { Refresh, CloudUploadOutline, CloudDownloadOutline } from '@vicons/ionicons5'
+import { Refresh, FolderOutline, TrashBinOutline } from '@vicons/ionicons5'
+import { FileDownloadOutlined, FileUploadOutlined } from '@vicons/material'
 import { useFtp } from '@renderer/composables/ftp'
 import dayjs from 'dayjs'
 import { FileInfo } from '@renderer/utils/file-system/FileSystem.adstract'
@@ -8,12 +9,17 @@ import FileNameWithIcon from './FileNameWithIcon.vue'
 import { useMessage } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 import FileBreadcrumb from './Breadcrumb.vue'
+import FileDownloadModal from './FileDownloadModal.vue'
+import FileUploadModal from './FileUploadModal.vue'
 
 const { currentInstance, currentInstancePath } = useFtp()
 const message = useMessage()
 const { t } = useI18n()
 
 const loading = ref(false)
+
+const fileUploadModalRef = ref<InstanceType<typeof FileUploadModal> | null>(null)
+const fileDownloadModalRef = ref<InstanceType<typeof FileDownloadModal> | null>(null)
 
 // 文件列表数据
 const data = ref<FileInfo[]>([])
@@ -123,6 +129,16 @@ function handleOpenFolder(row: FileInfo) {
   }
 }
 
+// 打开上传弹窗
+function handleOpenUpload() {
+  fileUploadModalRef.value?.open()
+}
+
+// 打开下载弹窗
+function handleOpenDownload() {
+  fileDownloadModalRef.value?.open()
+}
+
 watch(
   currentInstancePath,
   () => {
@@ -143,21 +159,45 @@ watch(
       <FileBreadcrumb></FileBreadcrumb>
 
       <n-space>
-        <n-button size="small" circle @click="$emit('download')">
-          <template #icon>
-            <n-icon><CloudDownloadOutline /></n-icon>
-          </template>
-        </n-button>
-        <n-button size="small" circle @click="$emit('upload')">
-          <template #icon>
-            <n-icon><CloudUploadOutline /></n-icon>
-          </template>
-        </n-button>
-        <n-button size="small" circle :loading="loading" @click="getFiles">
-          <template #icon>
-            <n-icon><Refresh /></n-icon>
-          </template>
-        </n-button>
+        <CommonButton
+          :tooltip="$t('views.ftpClient.download')"
+          :icon="FileDownloadOutlined"
+          :button-props="{ size: 'small', circle: true }"
+          placement="bottom"
+          delay="500"
+          @click="handleOpenDownload"
+        />
+        <CommonButton
+          :tooltip="$t('views.ftpClient.upload')"
+          :icon="FileUploadOutlined"
+          :button-props="{ size: 'small', circle: true }"
+          placement="bottom"
+          delay="500"
+          @click="handleOpenUpload"
+        />
+        <CommonButton
+          :tooltip="$t('views.ftpClient.createFolder')"
+          :icon="FolderOutline"
+          :button-props="{ size: 'small', circle: true }"
+          placement="bottom"
+          delay="500"
+        />
+        <CommonButton
+          :tooltip="$t('views.ftpClient.delete')"
+          :icon="TrashBinOutline"
+          :button-props="{ size: 'small', circle: true }"
+          placement="bottom"
+          delay="500"
+        />
+        <CommonButton
+          :tooltip="$t('views.ftpClient.refresh')"
+          :icon="Refresh"
+          :loading="loading"
+          :button-props="{ size: 'small', circle: true }"
+          placement="bottom"
+          delay="500"
+          @click="getFiles"
+        />
       </n-space>
     </n-space>
     <n-data-table
@@ -169,6 +209,8 @@ watch(
       flex-height
       style="height: 100%; user-select: none"
     />
+    <FileDownloadModal ref="fileDownloadModalRef" />
+    <FileUploadModal ref="fileUploadModalRef" />
   </div>
 </template>
 
