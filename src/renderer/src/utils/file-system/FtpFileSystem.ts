@@ -37,12 +37,12 @@ export class FtpFileSystem extends FileSystem {
     this.folderWhitelist = whiteList
   }
 
-  protected _resolve(filePath: string): string {
-    return path.posix.join(this.basePath, filePath.split(path.sep).join(path.posix.sep))
-  }
-
   getName() {
     return `${this.config.host}:${this.config.port}(${this.config.user})`
+  }
+
+  protected _resolve(filePath: string): string {
+    return path.posix.join(this.basePath, filePath.split(path.sep).join(path.posix.sep))
   }
 
   async validate(): Promise<boolean> {
@@ -109,6 +109,7 @@ export class FtpFileSystem extends FileSystem {
     }
     return filesList
   }
+
   async getFolder(dirPath: string = '') {
     await this.connect()
     const resolvedPath = this._resolve(dirPath)
@@ -161,15 +162,6 @@ export class FtpFileSystem extends FileSystem {
     return filesList
   }
 
-  async getFiles(dirPath: string = '') {
-    await this.connect()
-    const resolvedPath = this._resolve(dirPath)
-    const entries = await this.client.list(resolvedPath)
-    return entries
-      .filter((item) => !item.isDirectory && !shouldIgnoreFile(item.name))
-      .map((item) => item.name)
-  }
-
   async getFile(filePath: string): Promise<Buffer> {
     await this.connect()
     const resolvedPath = this._resolve(filePath)
@@ -213,6 +205,57 @@ export class FtpFileSystem extends FileSystem {
     const resolvedPath = this._resolve(filePath)
     await this.client.remove(resolvedPath)
     return
+  }
+
+  async delFolder(folderPath: string): Promise<void> {
+    await this.connect()
+    const resolvedPath = this._resolve(folderPath)
+
+    // 递归删除函数
+    const deleteRecursive = async (currentPath: string) => {
+      const entries = await this.client.list(currentPath)
+
+      for (const entry of entries) {
+        if (entry.name === '.' || entry.name === '..') continue
+
+        const fullPath = path.posix.join(currentPath, entry.name)
+
+        if (entry.isDirectory) {
+          await deleteRecursive(fullPath) // 递归删除子目录
+        } else {
+          await this.client.remove(fullPath) // 删除文件
+        }
+      }
+
+      // 删除空目录
+      await this.client.removeDir(currentPath)
+    }
+
+    await deleteRecursive(resolvedPath)
+  }
+
+  async createFolder(folderPath: string): Promise<void> {
+    await this.connect()
+    const resolvedPath = this._resolve(folderPath)
+
+    try {
+      // 尝试直接创建目标目录
+      await this.client.send(`MKD ${resolvedPath}`)
+    } catch (mkdirError: any) {
+      // 如果创建失败（通常因为父目录不存在），则递归创建整个路径
+      if (mkdirError.code === 550) {
+        // 递归创建父目录
+        const parentPath = path.posix.dirname(resolvedPath)
+        if (parentPath !== resolvedPath) {
+          // 防止无限递归
+          await this.createFolder(path.relative(this.basePath, parentPath))
+        }
+        // 再次尝试创建目标目录
+        await this.client.send(`MKD ${resolvedPath}`)
+      } else {
+        throw mkdirError
+      }
+    }
   }
 
   async exists(filePath: string) {
