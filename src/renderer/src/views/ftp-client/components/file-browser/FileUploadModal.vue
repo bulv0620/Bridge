@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { ArchiveOutline } from '@vicons/ionicons5'
+import { UploadCustomRequestOptions } from 'naive-ui'
+import { useFtp } from '@renderer/composables/ftp'
+
+const emit = defineEmits(['upload-finished'])
+
+const stream = window.api.stream
+
+const { currentInstance, currentInstancePath } = useFtp()
 
 const visible = ref(false)
 
@@ -10,6 +18,22 @@ function open() {
 
 function handleNegative() {
   visible.value = false
+}
+
+async function customRequest({ file, onFinish, onError }: UploadCustomRequestOptions) {
+  try {
+    const arrayBuffer = await file.file!.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
+    const fileStrem = stream.Readable.from(buffer)
+    const remotePath = `${currentInstancePath.value.join('/')}/${file.file!.name}`
+    await currentInstance.value?.writeFileStream(remotePath, fileStrem)
+    onFinish()
+    emit('upload-finished')
+    visible.value = false
+  } catch (error) {
+    console.log(error)
+    onError()
+  }
 }
 
 defineExpose({
@@ -26,12 +50,7 @@ defineExpose({
     :on-after-leave="handleNegative"
     :mask-closable="false"
   >
-    <n-upload
-      multiple
-      directory-dnd
-      action="https://www.mocky.io/v2/5e4bafc63100007100d8b70f"
-      :max="5"
-    >
+    <n-upload :custom-request="customRequest" :max="1">
       <n-upload-dragger>
         <div style="margin-bottom: 12px">
           <n-icon size="48" :depth="3">

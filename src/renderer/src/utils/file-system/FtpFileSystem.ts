@@ -49,7 +49,6 @@ export class FtpFileSystem extends FileSystem {
     try {
       await this.client.access(this.config)
       this.connected = true
-      await this.disconnect()
       return true
     } catch (err) {
       console.error('FTP connection failed:', err)

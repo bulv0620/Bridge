@@ -65,6 +65,10 @@ const iconInfo = computed(() => {
 
   &__name {
     word-break: break-all;
+    flex: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
   }
 }
 </style>

@@ -139,6 +139,7 @@
       "fileDate": "Date",
       "fileSize": "Size",
       "upload": "Upload",
+      "confirmOverwrite": "File already exists. Do you want to overwrite it?",
       "download": "Download",
       "createFolder": "Create folder",
       "inputFolderName": "Input Folder Name",

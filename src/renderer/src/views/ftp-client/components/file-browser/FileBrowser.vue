@@ -13,6 +13,7 @@ import FileDownloadModal from './FileDownloadModal.vue'
 import FileUploadModal from './FileUploadModal.vue'
 import FolderNameDialog from './FolderNameDialog.vue'
 import { dialogPromise } from '@renderer/utils/dialog'
+const stream = window.api.stream
 
 const { currentInstance, currentInstancePath } = useFtp()
 const message = useMessage()
@@ -21,6 +22,7 @@ const { t } = useI18n()
 
 const loading = ref(false)
 const delLoading = ref(false)
+const uploadLoading = ref(false)
 
 const fileUploadModalRef = ref<InstanceType<typeof FileUploadModal> | null>(null)
 const fileDownloadModalRef = ref<InstanceType<typeof FileDownloadModal> | null>(null)
@@ -138,8 +140,58 @@ function handleOpenFolder(row: FileInfo) {
 }
 
 // 打开上传弹窗
-function handleOpenUpload() {
-  fileUploadModalRef.value?.open()
+async function handleOpenUpload() {
+  try {
+    const file = await selectFile()
+
+    if (data.value.find((row) => row.fileName === file.name && !row.isDirectory)) {
+      await dialogPromise(dialog.warning, {
+        title: t('common.warning'),
+        content: t('views.ftpClient.confirmOverwrite'),
+        positiveText: t('common.confirm'),
+        negativeText: t('common.cancel'),
+      })
+    }
+    uploadLoading.value = true
+
+    const arrayBuffer = await file.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
+    const fileStrem = stream.Readable.from(buffer)
+    const remotePath = `${currentInstancePath.value.join('/')}/${file.name}`
+    await currentInstance.value?.writeFileStream(remotePath, fileStrem)
+
+    getFiles()
+  } catch (error) {
+    console.error(error)
+  } finally {
+    uploadLoading.value = false
+  }
+}
+
+// 选择文件
+function selectFile() {
+  return new Promise<File>((resolve, reject) => {
+    const input = document.createElement('input')
+    input.type = 'file'
+
+    input.addEventListener('change', () => {
+      if (!input.files || input.files.length === 0) {
+        reject(new Error('No file selected'))
+        return
+      }
+
+      const file = input.files[0]
+      resolve(file)
+    })
+
+    input.addEventListener('cancel', () => {
+      reject(new Error('File selection canceled'))
+    })
+
+    document.body.appendChild(input) // 确保输入框在 DOM 中
+    input.click()
+    document.body.removeChild(input) // 选择后移除输入框
+  })
 }
 
 // 打开下载弹窗
@@ -230,6 +282,7 @@ watch(
           :button-props="{ size: 'small', circle: true }"
           placement="bottom"
           :delay="500"
+          :loading="uploadLoading"
           @click="handleOpenUpload"
         />
         <CommonButton
@@ -271,7 +324,7 @@ watch(
       style="height: 100%; user-select: none"
     />
     <FileDownloadModal ref="fileDownloadModalRef" />
-    <FileUploadModal ref="fileUploadModalRef" />
+    <FileUploadModal ref="fileUploadModalRef" @upload-finished="getFiles" />
     <FolderNameDialog ref="folderNameDialogRef" />
   </div>
 </template>

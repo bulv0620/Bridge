@@ -139,6 +139,7 @@
       "fileDate": "日期",
       "fileSize": "大小",
       "upload": "上传",
+      "confirmOverwrite": "文件已存在,是否覆盖?",
       "download": "下载",
       "createFolder": "创建文件夹",
       "inputFolderName": "请输入文件夹名称",
