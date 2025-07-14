@@ -141,6 +141,7 @@
       "upload": "Upload",
       "download": "Download",
       "createFolder": "Create folder",
+      "inputFolderName": "Input Folder Name",
       "delete": "Delete",
       "refresh": "Refresh",
       "uploadTip": "Click or drag files into this area"

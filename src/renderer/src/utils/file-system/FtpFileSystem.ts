@@ -234,28 +234,14 @@ export class FtpFileSystem extends FileSystem {
     await deleteRecursive(resolvedPath)
   }
 
-  async createFolder(folderPath: string): Promise<void> {
+  async createFolder(parentPath: string, folderName: string): Promise<void> {
     await this.connect()
-    const resolvedPath = this._resolve(folderPath)
-
-    try {
-      // 尝试直接创建目标目录
-      await this.client.send(`MKD ${resolvedPath}`)
-    } catch (mkdirError: any) {
-      // 如果创建失败（通常因为父目录不存在），则递归创建整个路径
-      if (mkdirError.code === 550) {
-        // 递归创建父目录
-        const parentPath = path.posix.dirname(resolvedPath)
-        if (parentPath !== resolvedPath) {
-          // 防止无限递归
-          await this.createFolder(path.relative(this.basePath, parentPath))
-        }
-        // 再次尝试创建目标目录
-        await this.client.send(`MKD ${resolvedPath}`)
-      } else {
-        throw mkdirError
-      }
-    }
+    // 构建目标目录的相对路径
+    const folderRelative = path.posix.join(parentPath, folderName)
+    // 解析为 FTP 服务器上的绝对路径
+    const resolvedFolder = this._resolve(folderRelative)
+    // 确保目录存在（若不存在则创建），并保留工作目录用于后续操作
+    await this.client.ensureDir(resolvedFolder)
   }
 
   async exists(filePath: string) {

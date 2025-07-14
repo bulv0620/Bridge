@@ -11,6 +11,7 @@ import { useI18n } from 'vue-i18n'
 import FileBreadcrumb from './Breadcrumb.vue'
 import FileDownloadModal from './FileDownloadModal.vue'
 import FileUploadModal from './FileUploadModal.vue'
+import FolderNameDialog from './FolderNameDialog.vue'
 
 const { currentInstance, currentInstancePath } = useFtp()
 const message = useMessage()
@@ -20,6 +21,7 @@ const loading = ref(false)
 
 const fileUploadModalRef = ref<InstanceType<typeof FileUploadModal> | null>(null)
 const fileDownloadModalRef = ref<InstanceType<typeof FileDownloadModal> | null>(null)
+const folderNameDialogRef = ref<InstanceType<typeof FolderNameDialog> | null>(null)
 
 // 文件列表数据
 const data = ref<FileInfo[]>([])
@@ -139,6 +141,19 @@ function handleOpenDownload() {
   fileDownloadModalRef.value?.open()
 }
 
+// 创建文件夹
+async function handleCreateFolder() {
+  const name = await folderNameDialogRef.value?.open()
+
+  if (name) {
+    const path = currentInstancePath.value.join('/')
+
+    await currentInstance.value?.createFolder(path, name)
+
+    getFiles()
+  }
+}
+
 watch(
   currentInstancePath,
   () => {
@@ -164,7 +179,7 @@ watch(
           :icon="FileDownloadOutlined"
           :button-props="{ size: 'small', circle: true }"
           placement="bottom"
-          delay="500"
+          :delay="500"
           @click="handleOpenDownload"
         />
         <CommonButton
@@ -172,7 +187,7 @@ watch(
           :icon="FileUploadOutlined"
           :button-props="{ size: 'small', circle: true }"
           placement="bottom"
-          delay="500"
+          :delay="500"
           @click="handleOpenUpload"
         />
         <CommonButton
@@ -180,14 +195,15 @@ watch(
           :icon="FolderOutline"
           :button-props="{ size: 'small', circle: true }"
           placement="bottom"
-          delay="500"
+          :delay="500"
+          @click="handleCreateFolder"
         />
         <CommonButton
           :tooltip="$t('views.ftpClient.delete')"
           :icon="TrashBinOutline"
           :button-props="{ size: 'small', circle: true }"
           placement="bottom"
-          delay="500"
+          :delay="500"
         />
         <CommonButton
           :tooltip="$t('views.ftpClient.refresh')"
@@ -195,7 +211,7 @@ watch(
           :loading="loading"
           :button-props="{ size: 'small', circle: true }"
           placement="bottom"
-          delay="500"
+          :delay="500"
           @click="getFiles"
         />
       </n-space>
@@ -211,6 +227,7 @@ watch(
     />
     <FileDownloadModal ref="fileDownloadModalRef" />
     <FileUploadModal ref="fileUploadModalRef" />
+    <FolderNameDialog ref="folderNameDialogRef" />
   </div>
 </template>
 

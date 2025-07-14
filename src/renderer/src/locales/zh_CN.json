@@ -141,6 +141,7 @@
       "upload": "上传",
       "download": "下载",
       "createFolder": "创建文件夹",
+      "inputFolderName": "请输入文件夹名称",
       "delete": "删除",
       "refresh": "刷新",
       "uploadTip": "点击或者拖动文件到该区域来上传"
