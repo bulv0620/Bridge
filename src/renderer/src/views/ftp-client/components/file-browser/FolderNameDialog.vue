@@ -1,20 +1,37 @@
 <script setup lang="ts">
-import { NInput } from 'naive-ui'
+import { FormItemRule, NForm, NInput } from 'naive-ui'
 import { nextTick, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 
+const inputRef = ref<InstanceType<typeof NInput> | null>(null)
+const formRef = ref<InstanceType<typeof NForm> | null>(null)
+
 const loading = ref(false)
 const visible = ref(false)
 const resolveRef = ref<((value: string) => void) | null>(null)
-const nameText = ref('')
-
-const inputRef = ref<InstanceType<typeof NInput> | null>(null)
+const form = ref({
+  nameText: '',
+})
+const rules = {
+  nameText: [
+    {
+      required: true,
+      validator(_: FormItemRule, value: string) {
+        if (!value) {
+          return new Error(t('views.ftpClient.folderNameRequired'))
+        }
+        return true
+      },
+      trigger: ['input', 'blur'],
+    },
+  ],
+}
 
 function open() {
   visible.value = true
-  nameText.value = ''
+  form.value.nameText = ''
 
   nextTick(() => {
     inputRef.value?.focus()
@@ -26,8 +43,14 @@ function open() {
 }
 
 async function handlePositive() {
+  if (!form.value.nameText) {
+    return
+  }
+
+  await formRef.value?.validate()
+
+  resolveRef.value?.(form.value.nameText)
   visible.value = false
-  resolveRef.value?.(nameText.value)
 }
 
 function handleNegative() {
@@ -49,12 +72,16 @@ defineExpose({
     :on-after-leave="handleNegative"
     :mask-closable="false"
   >
-    <n-input
-      ref="inputRef"
-      v-model:value="nameText"
-      :placeholder="$t('views.ftpClient.inputFolderName')"
-      @keypress.enter="handlePositive"
-    ></n-input>
+    <n-form ref="formRef" :model="form" :rules="rules">
+      <n-form-item :show-label="false" path="nameText">
+        <n-input
+          ref="inputRef"
+          v-model:value="form.nameText"
+          :placeholder="$t('views.ftpClient.inputFolderName')"
+          @keypress.enter="handlePositive"
+        ></n-input>
+      </n-form-item>
+    </n-form>
 
     <template #footer>
       <n-flex>

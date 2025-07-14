@@ -147,7 +147,8 @@
       "noCheckedItem": "No Checked Item",
       "deleteConfirm": "The files cannot be restored after deletion. Do you confirm the deletion?",
       "refresh": "Refresh",
-      "uploadTip": "Click or drag files into this area"
+      "uploadTip": "Click or drag files into this area",
+      "folderNameRequired": "Folder name is required"
     },
     "pluginCenter": {
       "title": "Plugin Center",
