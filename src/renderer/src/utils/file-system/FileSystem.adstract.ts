@@ -14,6 +14,7 @@ export interface FileMetaData {
  * 文件信息接口
  */
 export interface FileInfo {
+  key?: string
   fileName: string
   size: number
   timestamp: Date

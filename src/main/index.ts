@@ -4,6 +4,7 @@ import { createCustomWindow } from './utils/window'
 import { createEventHandler } from './events/index'
 import { createTray } from './utils/tray'
 import { stopAllTasksAsync } from './utils/plugin'
+import { installExtension, VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 
 const gotTheLock = app.requestSingleInstanceLock({ myKey: 'key' })
 if (!gotTheLock) {
@@ -11,6 +12,10 @@ if (!gotTheLock) {
 }
 
 app.whenReady().then(() => {
+  installExtension(VUEJS_DEVTOOLS)
+    .then(() => console.log(`vue_devtools installed`))
+    .catch(() => console.error('vue_devtolls install failed'))
+
   electronApp.setAppUserModelId('com.electron')
 
   app.on('browser-window-created', (_, window) => {

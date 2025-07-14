@@ -6,18 +6,21 @@ import { useFtp } from '@renderer/composables/ftp'
 import dayjs from 'dayjs'
 import { FileInfo } from '@renderer/utils/file-system/FileSystem.adstract'
 import FileNameWithIcon from './FileNameWithIcon.vue'
-import { useMessage } from 'naive-ui'
+import { useDialog, useMessage } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 import FileBreadcrumb from './Breadcrumb.vue'
 import FileDownloadModal from './FileDownloadModal.vue'
 import FileUploadModal from './FileUploadModal.vue'
 import FolderNameDialog from './FolderNameDialog.vue'
+import { dialogPromise } from '@renderer/utils/dialog'
 
 const { currentInstance, currentInstancePath } = useFtp()
 const message = useMessage()
+const dialog = useDialog()
 const { t } = useI18n()
 
 const loading = ref(false)
+const delLoading = ref(false)
 
 const fileUploadModalRef = ref<InstanceType<typeof FileUploadModal> | null>(null)
 const fileDownloadModalRef = ref<InstanceType<typeof FileDownloadModal> | null>(null)
@@ -25,6 +28,8 @@ const folderNameDialogRef = ref<InstanceType<typeof FolderNameDialog> | null>(nu
 
 // 文件列表数据
 const data = ref<FileInfo[]>([])
+// 选中行
+const checkedRowKeys = ref([])
 // 列表列配置
 const columns = computed(() => [
   {
@@ -100,6 +105,7 @@ async function getFiles() {
     loading.value = true
 
     data.value = []
+    checkedRowKeys.value = []
 
     const valid = await currentInstance.value?.validate()
     if (!valid) {
@@ -154,6 +160,42 @@ async function handleCreateFolder() {
   }
 }
 
+// 删除选中的文件、文件夹
+async function handleDeleteCheckedItem() {
+  if (checkedRowKeys.value.length === 0) {
+    message.error(t('views.ftpClient.noCheckedItem'))
+    return
+  }
+  await dialogPromise(dialog.warning, {
+    title: t('common.warning'),
+    content: t('views.ftpClient.deleteConfirm'),
+    positiveText: t('common.confirm'),
+    negativeText: t('common.cancel'),
+  })
+
+  try {
+    delLoading.value = true
+    const checkedItems = checkedRowKeys.value.map((key) => {
+      return data.value.find((row) => row.key === key)
+    })
+
+    for (const item of checkedItems) {
+      if (!item) continue
+      if (item.isDirectory) {
+        await currentInstance.value?.delFolder(item.filePath)
+      } else {
+        await currentInstance.value?.delFile(item.filePath)
+      }
+    }
+
+    getFiles()
+  } catch (error) {
+    console.error(error)
+  } finally {
+    delLoading.value = false
+  }
+}
+
 watch(
   currentInstancePath,
   () => {
@@ -204,6 +246,8 @@ watch(
           :button-props="{ size: 'small', circle: true }"
           placement="bottom"
           :delay="500"
+          :loading="delLoading"
+          @click="handleDeleteCheckedItem"
         />
         <CommonButton
           :tooltip="$t('views.ftpClient.refresh')"
@@ -217,7 +261,8 @@ watch(
       </n-space>
     </n-space>
     <n-data-table
-      :loading="loading"
+      v-model:checked-row-keys="checkedRowKeys"
+      :loading="loading || delLoading"
       size="small"
       :columns="columns"
       :data="data"
