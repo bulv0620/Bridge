@@ -28,7 +28,7 @@ export class FtpFileSystem extends FileSystem {
 
   constructor(
     private config: AccessOptions,
-    basePath: string = '',
+    basePath: string = '/',
     whiteList: string[] = [],
   ) {
     super(basePath)

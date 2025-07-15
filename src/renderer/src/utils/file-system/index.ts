@@ -110,26 +110,6 @@ export function diffFileListsUnified(sourceFiles: FileInfo[], targetFiles: FileI
 }
 
 /**
- * 校验目标文件系统中是否有已存在同名称的文件
- * @param {FileInfo} sourceFile - 源目录文件
- * @param {FileSystem} targetFileSystem - 目标目录文件系统
- * @returns {FileInfo[]} 返回目标目录中已存在的同名文件列表
- */
-export async function getExistingFilesInTarget(
-  sourceFile: FileInfo,
-  targetFileSystem: FileSystem,
-): Promise<FileInfo[]> {
-  const existingFiles: FileInfo[] = []
-
-  const targetFile = await targetFileSystem.exists(sourceFile.relativePath)
-  if (targetFile) {
-    existingFiles.push(sourceFile)
-  }
-
-  return existingFiles
-}
-
-/**
  * 将源端的文件写到目标端
  * @param {FileInfo} sourceFile - 源目录文件
  * @param {FileSystem} sourceFileSystem - 目标目录文件系统

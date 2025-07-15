@@ -14,6 +14,7 @@ import FileUploadModal from './FileUploadModal.vue'
 import FolderNameDialog from './FolderNameDialog.vue'
 import { dialogPromise } from '@renderer/utils/dialog'
 const stream = window.api.stream
+const ipcRenderer = window.electron.ipcRenderer
 
 const { currentInstance, currentInstancePath } = useFtp()
 const message = useMessage()
@@ -195,8 +196,40 @@ function selectFile() {
 }
 
 // 打开下载弹窗
-function handleOpenDownload() {
-  fileDownloadModalRef.value?.open()
+async function handleOpenDownload() {
+  if (checkedRowKeys.value.length === 0) {
+    message.error(t('views.ftpClient.noCheckedItem'))
+    return
+  }
+  const checkedItems = checkedRowKeys.value.map((key) => {
+    return data.value.find((row) => row.key === key)
+  })
+
+  const downloadFiles: FileInfo[] = []
+
+  for (const item of checkedItems) {
+    if (!item) return
+    if (item.isDirectory) {
+      const files = await currentInstance.value?.getAllFiles(item.filePath)
+      downloadFiles.push(...files!)
+    } else {
+      downloadFiles.push(item)
+    }
+  }
+
+  await currentInstance.value?.disconnect()
+
+  if (downloadFiles.length === 0) {
+    message.error(t('views.ftpClient.noFile'))
+    return
+  }
+
+  // 选择下载路径
+  const path = await ipcRenderer.invoke('select-folder')
+
+  if (path) {
+    fileDownloadModalRef.value?.open(downloadFiles, path, currentInstancePath.value.join('/'))
+  }
 }
 
 // 创建文件夹

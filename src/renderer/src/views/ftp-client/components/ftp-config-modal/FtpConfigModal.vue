@@ -110,7 +110,7 @@ async function handlePositive() {
       return
     }
 
-    ftpInstance = new FtpFileSystem(model.value)
+    ftpInstance = new FtpFileSystem(model.value, '/')
     const bool = await ftpInstance.validate()
     if (!bool) {
       message.error(t('views.ftpClient.ftpConnFailed'))
