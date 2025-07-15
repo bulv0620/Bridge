@@ -34,7 +34,8 @@
     "loading": "加载中",
     "noData": "无数据",
     "noResult": "无结果",
-    "remember": "记住选择"
+    "remember": "记住选择",
+    "complete": "完成"
   },
   "views": {
     "fileSync": {

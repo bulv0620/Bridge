@@ -34,6 +34,9 @@ const percentage = computed(() => {
 const currentDownloadFile = computed(() => {
   return downloadFiles.value[currentDownloadIndex.value] || null
 })
+const complete = computed(() => {
+  return currentDownloadIndex.value === downloadFiles.value.length
+})
 
 function open(files: FileInfo[], path: string, ftpPath: string) {
   downloadFiles.value = files
@@ -131,10 +134,9 @@ defineExpose({
     :mask-closable="false"
     :esc-key-closable="false"
   >
-    <n-text :type="errorFlag ? 'error' : ''">{{ currentDownloadFile?.fileName }}</n-text>
     <n-progress
       :processing="loading"
-      :status="errorFlag ? 'error' : 'success'"
+      :status="errorFlag ? 'error' : complete ? 'success' : 'info'"
       type="line"
       :percentage="percentage"
     >
@@ -142,6 +144,8 @@ defineExpose({
         {{ currentDownloadIndex }} / {{ downloadFiles.length }}
       </n-text>
     </n-progress>
+    <n-text :type="errorFlag ? 'error' : ''">{{ currentDownloadFile?.fileName }}</n-text>
+    <n-text v-if="complete" type="success">{{ $t('common.complete') }}</n-text>
 
     <template #footer>
       <n-flex>

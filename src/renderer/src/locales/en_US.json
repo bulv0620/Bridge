@@ -34,7 +34,8 @@
     "loading": "Loading",
     "noData": "No Data",
     "noResult": "No Result",
-    "remember": "Remember"
+    "remember": "Remember",
+    "complete": "Complete"
   },
   "views": {
     "fileSync": {
