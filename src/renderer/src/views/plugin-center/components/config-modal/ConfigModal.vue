@@ -72,13 +72,13 @@ defineExpose({
 <template>
   <n-modal
     v-model:show="visible"
-    style="width: 520px"
+    style="width: 620px"
     preset="card"
     :title="$t('views.pluginCenter.config')"
     :on-after-leave="handleNegative"
     :mask-closable="false"
   >
-    <CodeEditor v-model:value="configJson" height="300px"></CodeEditor>
+    <CodeEditor v-model:value="configJson" height="320px"></CodeEditor>
     <template #footer>
       <n-flex>
         <n-button size="small" type="primary" :loading="loading" @click="confirm">

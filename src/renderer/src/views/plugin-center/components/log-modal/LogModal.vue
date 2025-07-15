@@ -74,13 +74,14 @@ defineExpose({
 <template>
   <n-modal
     v-model:show="visible"
-    style="width: 400px"
+    style="width: 620px"
     preset="card"
     :title="$t('views.pluginCenter.logs')"
     :on-after-leave="handleNegative"
     :mask-closable="false"
   >
-    <n-log ref="logRef" :log="log" :loading="loading" trim />
+    <n-log ref="logRef" :log="log" :loading="loading" trim :font-size="12" />
+
     <template #footer>
       <n-flex>
         <n-button size="small" @click="handleClearLog">
