@@ -35,6 +35,23 @@ const resourcesPath = process.env.NODE_ENV === 'development' ? devResourcesPath 
 // 当前执行的插件列表
 const pluginProcess: PluginProcess[] = []
 
+// 通用的进程终止函数
+function killProcess(pid: number) {
+  const platformName = os.platform()
+
+  if (platformName === 'win32') {
+    // Windows 使用 taskkill
+    spawn('taskkill', ['/PID', String(pid), '/T', '/F'])
+  } else {
+    // macOS / Linux 使用 kill 命令
+    try {
+      process.kill(pid, 'SIGTERM') // 或 'SIGKILL' 更强制
+    } catch (err) {
+      console.warn(`Failed to kill process ${pid}:`, err)
+    }
+  }
+}
+
 /**
  * 获取所有插件接口
  * @returns 插件信息
@@ -174,17 +191,16 @@ export function stopTask(pluginInfo: PluginInfo): void {
   const index = pluginProcess.findIndex((el) => el.name === pluginInfo.name)
   if (index > -1) {
     const child = pluginProcess[index].process
-    spawn('taskkill', ['/PID', String(child.pid), '/T', '/F'])
+    killProcess(child.pid!)
   }
 }
 
 export function stopAllTasks(): void {
   pluginProcess.forEach((plugin) => {
-    const child = plugin.process
-    spawn('taskkill', ['/PID', String(child.pid), '/T', '/F'])
+    killProcess(plugin.process.pid!)
   })
-  console.log('all stoped')
-  pluginProcess.splice(0) // 清空当前执行的插件列表
+  console.log('all stopped')
+  pluginProcess.splice(0)
 }
 
 export function checkPluginStatus(name: string): Boolean {
@@ -198,15 +214,31 @@ export function stopAllTasksAsync(): Promise<void> {
       resolve()
       return
     }
+
     let completed = 0
+    const total = children.length
+
     children.forEach((child) => {
-      spawn('taskkill', ['/F', '/T', '/PID', String(child.pid)]).on('exit', () => {
+      const done = () => {
         completed++
-        if (completed === children.length) {
-          pluginProcess.splice(0) // 清空任务
+        if (completed === total) {
+          pluginProcess.splice(0)
           resolve()
         }
-      })
+      }
+
+      const platformName = os.platform()
+
+      if (platformName === 'win32') {
+        spawn('taskkill', ['/F', '/T', '/PID', String(child.pid)]).on('exit', done)
+      } else {
+        try {
+          process.kill(child.pid!, 'SIGTERM')
+        } catch (err) {
+          console.warn(`Failed to kill process ${child.pid}:`, err)
+        }
+        done()
+      }
     })
   })
 }

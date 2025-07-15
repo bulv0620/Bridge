@@ -35,8 +35,7 @@ def load_config():
     except json.JSONDecodeError:
         raise Exception("Invalid configuration file format")
 
-# Main program
-if __name__ == "__main__":
+def main():
     # Load configuration
     config = load_config()
 
@@ -69,3 +68,7 @@ if __name__ == "__main__":
     # Start server
     server = FTPServer((config["FTP_HOST"], config["FTP_PORT"]), handler)
     server.serve_forever(timeout=1)
+
+# Main program
+if __name__ == "__main__":
+    main()
