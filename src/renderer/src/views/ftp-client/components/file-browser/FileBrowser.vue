@@ -148,7 +148,7 @@ async function handleOpenUpload() {
     if (data.value.find((row) => row.fileName === file.name && !row.isDirectory)) {
       await dialogPromise(dialog.warning, {
         title: t('common.warning'),
-        content: t('views.ftpClient.confirmOverwrite'),
+        content: t('views.ftpClient.confirmOverwrite', { fileName: file.name }),
         positiveText: t('common.confirm'),
         negativeText: t('common.cancel'),
       })

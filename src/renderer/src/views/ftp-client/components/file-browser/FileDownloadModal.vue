@@ -5,11 +5,15 @@ import { FileInfo } from '@renderer/utils/file-system/FileSystem.adstract'
 import { useMessage } from 'naive-ui'
 import { computed, nextTick, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import ConfirmOverwriteDialog from './ConfirmOverwriteDialog.vue'
+
 const path = window.api.path
 
 const { t } = useI18n()
 const message = useMessage()
 const { currentInstance } = useFtp()
+
+const confirmOverwriteDialogRef = ref<InstanceType<typeof ConfirmOverwriteDialog> | null>(null)
 
 const loading = ref(false)
 const visible = ref(false)
@@ -20,7 +24,8 @@ const currentFtpPath = ref('/')
 const currentDownloadIndex = ref(0)
 const errorFlag = ref(false)
 const stopFlag = ref(false)
-const coverFlag = ref(false)
+
+const conflictHandleType = ref<'' | 'ignore' | 'cover'>('')
 
 const percentage = computed(() => {
   if (downloadFiles.value.length === 0) return 0
@@ -41,7 +46,7 @@ function open(files: FileInfo[], path: string, ftpPath: string) {
 
   errorFlag.value = false
   stopFlag.value = false
-  coverFlag.value = false
+  conflictHandleType.value = ''
 
   download()
 }
@@ -56,9 +61,30 @@ async function download() {
       const downloadToPath = path.posix.relative(currentFtpPath.value, file.filePath)
 
       const exist = await localFileSystem.exists(downloadToPath)
-      if (exist && !coverFlag.value) {
-        // 文件已存在是否覆盖
-        await localFileSystem.delFile(downloadToPath)
+      if (exist) {
+        if (!conflictHandleType.value) {
+          // 无记录的操作选项
+          const [confirmFlag, rememberFlag] = await confirmOverwriteDialogRef.value!.open(
+            file.fileName,
+          )
+
+          // 记住选择
+          if (rememberFlag) {
+            conflictHandleType.value = confirmFlag ? 'cover' : 'ignore'
+          }
+
+          if (confirmFlag) {
+            await localFileSystem.delFile(downloadToPath)
+          } else {
+            currentDownloadIndex.value++
+            continue
+          }
+        } else if (conflictHandleType.value === 'ignore') {
+          currentDownloadIndex.value++
+          continue
+        } else if (conflictHandleType.value === 'cover') {
+          await localFileSystem.delFile(downloadToPath)
+        }
       }
 
       const stream = await currentInstance.value!.getFileStream(file.relativePath)
@@ -98,7 +124,7 @@ defineExpose({
 <template>
   <n-modal
     v-model:show="visible"
-    :style="`width: 400px; max-width: 100%`"
+    :style="`width: 500px; max-width: 100%`"
     preset="card"
     :title="$t('views.ftpClient.download')"
     :on-after-leave="handleCancel"
@@ -124,5 +150,6 @@ defineExpose({
         </n-button>
       </n-flex>
     </template>
+    <ConfirmOverwriteDialog ref="confirmOverwriteDialogRef"></ConfirmOverwriteDialog>
   </n-modal>
 </template>
