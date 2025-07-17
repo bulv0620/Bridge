@@ -293,10 +293,55 @@ watch(
     deep: true,
   },
 )
+
+const isDragging = ref(false)
+let dragCounter = 0
+
+function onDragEnter(e: DragEvent) {
+  e.preventDefault()
+  dragCounter++
+  isDragging.value = true
+}
+
+function onDragOver(e: DragEvent) {
+  e.preventDefault()
+}
+
+function onDragLeave() {
+  dragCounter--
+  if (dragCounter <= 0) {
+    isDragging.value = false
+  }
+}
+
+function onDrop(e: DragEvent) {
+  e.preventDefault()
+  isDragging.value = false
+  dragCounter = 0
+
+  const files = e.dataTransfer?.files
+  if (files?.length) {
+    uploadFiles(files)
+  }
+}
+function uploadFiles(files) {
+  Array.from(files).forEach((file: any) => {
+    console.log('上传文件:', file.name)
+    // 这里可以调用你的上传逻辑，比如 axios 上传等
+  })
+}
 </script>
 
 <template>
-  <div class="file-browser">
+  <div
+    class="file-browser"
+    :class="{ active: isDragging }"
+    @dragenter.prevent="onDragEnter"
+    @dragover.prevent="onDragOver"
+    @dragleave.prevent="onDragLeave"
+    @drop.prevent="onDrop"
+  >
+    <div v-if="isDragging" class="overlay">释放上传</div>
     <n-space justify="space-between">
       <FileBreadcrumb></FileBreadcrumb>
 
@@ -369,5 +414,21 @@ watch(
   display: flex;
   flex-direction: column;
   gap: 12px;
+
+  .overlay {
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 18px;
+    z-index: 10;
+  }
 }
 </style>
