@@ -145,30 +145,71 @@ export function runTask(pluginInfo: PluginInfo): Promise<void> {
       cwd: path.dirname(execPath), // ✅ 关键设置：工作目录=脚本目录
     })
 
-    const logStream = fs.createWriteStream(logPath, { flags: 'a' })
+    let logStream = fs.createWriteStream(logPath, { flags: 'a' })
+    let currentLogLines = 0
+
+    // 计算当前数据的行数
+    function countLines(data: string): number {
+      return (data.match(/\n/g)?.length || 0) + 1
+    }
+
+    // 日志轮转
+    function rotateLogFile() {
+      try {
+        logStream.end() // 关闭当前流
+        const content = fs.readFileSync(logPath, 'utf8')
+        const lines = content.split('\n')
+        if (lines.length > 3000) {
+          const newLines = lines.slice(-3000)
+          fs.writeFileSync(logPath, newLines.join('\n'))
+          currentLogLines = newLines.length // 重置计数器
+        }
+        // 重新打开日志流
+        logStream = fs.createWriteStream(logPath, { flags: 'a' })
+        return logStream
+      } catch (err) {
+        console.error('Error rotating log file:', err)
+        return null
+      }
+    }
+
+    // 写日志并每1000行或者超过3000行时轮转日志
+    function writeLog(logText: string) {
+      logStream.write(logText)
+
+      const newLines = countLines(logText)
+      currentLogLines += newLines
+
+      if (currentLogLines >= 3000 || (currentLogLines % 1000 === 0 && currentLogLines > 0)) {
+        const newStrem = rotateLogFile()
+        if (newStrem) {
+          logStream = newStrem
+        }
+      }
+    }
 
     child.stdout.on('data', (data) => {
       const text = data.toString()
       console.log(`[STDOUT] ${text}`)
-      logStream.write(`[STDOUT] ${text}`)
+      writeLog(`[STDOUT] ${text}`)
     })
 
     child.stderr.on('data', (data) => {
       const text = data.toString()
       console.error(`[STDERR] ${text}`)
-      logStream.write(`[STDERR] ${text}`)
+      writeLog(`[STDERR] ${text}`)
     })
 
     child.on('error', (err) => {
       console.error(`[ERROR] ${err.message}`)
-      logStream.write(`[ERROR] ${err.message}\n`)
+      writeLog(`[ERROR] ${err.message}\n`)
       logStream.end()
       reject(err)
     })
 
     child.on('exit', (code) => {
       const exitMessage = `Plugin '${pluginInfo.name}' exited with code ${code}\n`
-      logStream.write(exitMessage)
+      writeLog(exitMessage)
       logStream.end()
 
       const index = pluginProcess.findIndex((el) => el.name === pluginInfo.name)
