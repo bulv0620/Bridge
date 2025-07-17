@@ -15,7 +15,6 @@ export function createTray(mainWindow: BrowserWindow): Tray {
     {
       label: messages.en_US.tray.quit,
       click: () => {
-        global.isQuiting = true
         app.quit()
       },
     },
@@ -47,7 +46,6 @@ export function updateTray(tray: Tray, lang: string, options: { mainWindow: Brow
     {
       label: messages[lang].tray.quit,
       click: () => {
-        global.isQuiting = true
         app.quit()
       },
     },

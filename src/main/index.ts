@@ -28,8 +28,8 @@ app.whenReady().then(() => {
     minHeight: 600,
   })
   mainWindow.on('close', (event) => {
-    // 在关闭窗口时取消默认行为，隐藏窗口到托盘
-    if (!global.isQuiting) {
+    if (!global.flagQuit) {
+      // 在关闭窗口时取消默认行为，隐藏窗口到托盘
       event.preventDefault()
       mainWindow.hide()
     }
@@ -48,20 +48,16 @@ app.whenReady().then(() => {
       mainWindow.focus()
     }
   })
-})
 
-app.on('window-all-closed', () => {
-  app.quit()
-})
-
-let flagQuit = false
-app.on('before-quit', async (event) => {
-  if (!flagQuit) {
-    event.preventDefault() // 阻止默认退出
-    console.log('before-quit: stopping all plugin tasks...')
-    await stopAllTasksAsync() // 等待所有任务清理完成
-    console.log('before-quit: all stoped')
-    flagQuit = true
-    app.quit() // 继续退出流程
-  }
+  app.on('before-quit', async (event) => {
+    if (!global.flagQuit) {
+      event.preventDefault() // 阻止默认退出
+      console.log('before-quit: stopping all plugin tasks...')
+      await stopAllTasksAsync() // 等待所有任务清理完成
+      console.log('before-quit: all stoped')
+      global.flagQuit = true
+      tray.destroy()
+      app.quit() // 继续退出流程
+    }
+  })
 })
