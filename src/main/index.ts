@@ -3,7 +3,7 @@ import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { createCustomWindow } from './utils/window'
 import { createEventHandler } from './events/index'
 import { createTray } from './utils/tray'
-import { stopAllTasksAsync } from './utils/plugin'
+import { stopAllTasks, scanOrphanPlugins, scanOrphanPluginsWin } from './utils/plugin'
 import { installExtension, VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 
 const gotTheLock = app.requestSingleInstanceLock({ myKey: 'key' })
@@ -12,6 +12,12 @@ if (!gotTheLock) {
 }
 
 app.whenReady().then(() => {
+  if (process.platform === 'win32') {
+    scanOrphanPluginsWin()
+  } else {
+    scanOrphanPlugins()
+  }
+
   installExtension(VUEJS_DEVTOOLS)
     .then(() => console.log(`vue_devtools installed`))
     .catch(() => console.error('vue_devtolls install failed'))
@@ -53,7 +59,7 @@ app.whenReady().then(() => {
     if (!global.flagQuit) {
       event.preventDefault() // 阻止默认退出
       console.log('before-quit: stopping all plugin tasks...')
-      await stopAllTasksAsync() // 等待所有任务清理完成
+      await stopAllTasks() // 等待所有任务清理完成
       console.log('before-quit: all stoped')
       global.flagQuit = true
       tray.destroy()

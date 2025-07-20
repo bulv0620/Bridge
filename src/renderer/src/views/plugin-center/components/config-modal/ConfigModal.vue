@@ -32,6 +32,7 @@ const readJsonFile = async (path: string) => {
     configJson.value = content
   } catch (error) {
     message.error(t('views.pluginCenter.readConfigError'))
+    visible.value = false
   } finally {
     loading.value = false
   }

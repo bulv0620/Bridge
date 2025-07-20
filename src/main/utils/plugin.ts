@@ -1,12 +1,12 @@
 import path from 'path'
 import fs from 'fs'
-import { ChildProcess, spawn } from 'child_process'
+import { execSync, spawn } from 'child_process'
 import * as os from 'os'
 
 export interface PlatformInfo {
   exec: string | null
   config: string | null
-  log: string
+  log: string | null
 }
 
 export interface PluginInfo {
@@ -22,7 +22,7 @@ export interface PluginInfo {
 
 export interface PluginProcess {
   name: string
-  process: ChildProcess
+  pid?: number
 }
 
 // 开发环境路径（Vite 的 public 目录）
@@ -37,18 +37,36 @@ const pluginProcess: PluginProcess[] = []
 
 // 通用的进程终止函数
 function killProcess(pid: number) {
-  const platformName = os.platform()
+  return new Promise<void>((resolve, reject) => {
+    // const platformName = os.platform()
 
-  if (platformName === 'win32') {
-    // Windows 使用 taskkill
-    spawn('taskkill', ['/PID', String(pid), '/T', '/F'])
-  } else {
-    // macOS / Linux 使用 kill 命令
+    // if (platformName === 'win32') {
+    //   // Windows 使用 taskkill
+    //   const killProcess = spawn('taskkill', ['/PID', String(pid), '/T', '/F'])
+    //   killProcess.on('exit', resolve)
+    //   killProcess.on('error', reject)
+    // } else {
+    //   // macOS / Linux 使用 kill 命令
     try {
       process.kill(pid, 'SIGTERM') // 或 'SIGKILL' 更强制
+      resolve()
     } catch (err) {
       console.warn(`Failed to kill process ${pid}:`, err)
+      reject(err)
     }
+    // }
+  })
+}
+
+// 通用的进程检查函数
+function isProcessAlive(pid: number) {
+  try {
+    process.kill(pid, 0)
+    return true
+  } catch (err: any) {
+    // ESRCH: No such process
+    // EPERM: Process exists, but no permission to send signal
+    return err.code === 'EPERM' ? true : false
   }
 }
 
@@ -83,12 +101,13 @@ export function getPluginInfo(): PluginInfo[] {
       if (fs.existsSync(platformPath) && fs.statSync(platformPath).isDirectory()) {
         const files = fs.readdirSync(platformPath)
         const execFile = files.find((file) => file.startsWith('entry'))
-        const configFile = files.find((file) => file === 'config.json')
 
         plugin.platforms[platform] = {
           exec: execFile ? path.resolve(platformPath, execFile) : null,
-          config: configFile ? path.resolve(platformPath, configFile) : null,
-          log: path.resolve(platformPath, '.log'),
+          config: plugin.desc['configPath']
+            ? path.resolve(platformPath, plugin.desc['configPath'])
+            : null,
+          log: plugin.desc['logPath'] ? path.resolve(platformPath, plugin.desc['logPath']) : null,
         }
       }
     }
@@ -99,6 +118,11 @@ export function getPluginInfo(): PluginInfo[] {
   return result
 }
 
+/**
+ * 运行插件
+ * @param pluginInfo
+ * @returns
+ */
 export function runTask(pluginInfo: PluginInfo): Promise<void> {
   return new Promise((resolve, reject) => {
     if (pluginProcess.find((el) => el.name === pluginInfo.name)) {
@@ -126,101 +150,17 @@ export function runTask(pluginInfo: PluginInfo): Promise<void> {
     }
 
     const execPath = path.resolve(platformInfo.exec)
-    const logPath = path.resolve(platformInfo.log)
-
-    try {
-      if (!fs.existsSync(logPath)) {
-        fs.mkdirSync(path.dirname(logPath), { recursive: true })
-        fs.writeFileSync(logPath, '', { flag: 'w' })
-      }
-    } catch (err) {
-      reject(new Error(`Failed to create log file: ${(err as Error).message}`))
-      return
-    }
 
     console.log(`Running plugin: ${pluginInfo.name}`)
     console.log(`Executing: ${execPath}`)
 
-    const child = spawn(execPath, [], {
-      cwd: path.dirname(execPath), // ✅ 关键设置：工作目录=脚本目录
-    })
-
-    let logStream = fs.createWriteStream(logPath, { flags: 'a' })
-    let currentLogLines = 0
-
-    // 计算当前数据的行数
-    function countLines(data: string): number {
-      return (data.match(/\n/g)?.length || 0) + 1
-    }
-
-    // 日志轮转
-    function rotateLogFile() {
-      try {
-        logStream.end() // 关闭当前流
-        const content = fs.readFileSync(logPath, 'utf8')
-        const lines = content.split('\n')
-        if (lines.length > 3000) {
-          const newLines = lines.slice(-3000)
-          fs.writeFileSync(logPath, newLines.join('\n'))
-          currentLogLines = newLines.length // 重置计数器
-        }
-        // 重新打开日志流
-        logStream = fs.createWriteStream(logPath, { flags: 'a' })
-        return logStream
-      } catch (err) {
-        console.error('Error rotating log file:', err)
-        return null
-      }
-    }
-
-    // 写日志并每1000行或者超过3000行时轮转日志
-    function writeLog(logText: string) {
-      logStream.write(logText)
-
-      const newLines = countLines(logText)
-      currentLogLines += newLines
-
-      if (currentLogLines >= 3000 || (currentLogLines % 1000 === 0 && currentLogLines > 0)) {
-        const newStrem = rotateLogFile()
-        if (newStrem) {
-          logStream = newStrem
-        }
-      }
-    }
-
-    child.stdout.on('data', (data) => {
-      const text = data.toString()
-      console.log(`[STDOUT] ${text}`)
-      writeLog(`[STDOUT] ${text}`)
-    })
-
-    child.stderr.on('data', (data) => {
-      const text = data.toString()
-      console.error(`[STDERR] ${text}`)
-      writeLog(`[STDERR] ${text}`)
-    })
-
-    child.on('error', (err) => {
-      console.error(`[ERROR] ${err.message}`)
-      writeLog(`[ERROR] ${err.message}\n`)
-      logStream.end()
-      reject(err)
-    })
-
-    child.on('exit', (code) => {
-      const exitMessage = `Plugin '${pluginInfo.name}' exited with code ${code}\n`
-      writeLog(exitMessage)
-      logStream.end()
-
-      const index = pluginProcess.findIndex((el) => el.name === pluginInfo.name)
-      if (index > -1) {
-        pluginProcess.splice(index, 1)
-      }
+    const child = spawn(execPath, [`--plugin-name=${pluginInfo.name}`], {
+      cwd: path.dirname(execPath), // 工作目录=脚本目录
     })
 
     pluginProcess.push({
       name: pluginInfo.name,
-      process: child,
+      pid: child.pid,
     })
 
     // 启动成功，立即 resolve
@@ -228,58 +168,87 @@ export function runTask(pluginInfo: PluginInfo): Promise<void> {
   })
 }
 
-export function stopTask(pluginInfo: PluginInfo): void {
+/**
+ * 停止运行插件
+ * @param pluginInfo
+ */
+export async function stopTask(pluginInfo: PluginInfo) {
   const index = pluginProcess.findIndex((el) => el.name === pluginInfo.name)
   if (index > -1) {
-    const child = pluginProcess[index].process
-    killProcess(child.pid!)
+    await killProcess(pluginProcess[index].pid!)
+    pluginProcess.splice(index, 1)
   }
 }
 
-export function stopAllTasks(): void {
-  pluginProcess.forEach((plugin) => {
-    killProcess(plugin.process.pid!)
-  })
-  console.log('all stopped')
-  pluginProcess.splice(0)
-}
-
+/**
+ * 检查插件的运行状态
+ * @param name
+ * @returns
+ */
 export function checkPluginStatus(name: string): Boolean {
-  return !!pluginProcess.find((el) => el.name === name)
+  const p = pluginProcess.find((el) => el.name === name)
+
+  if (!p) return false
+  return isProcessAlive(p.pid!)
 }
 
-export function stopAllTasksAsync(): Promise<void> {
-  return new Promise((resolve) => {
-    const children = pluginProcess.map((p) => p.process)
-    if (children.length === 0) {
-      resolve()
-      return
+/**
+ * 结束所有插件Promise返回
+ * @returns
+ */
+export async function stopAllTasks() {
+  for (const p of pluginProcess) {
+    await killProcess(p.pid!)
+  }
+}
+
+/**
+ * 扫描插件进程
+ */
+export function scanOrphanPlugins(): void {
+  // 列出所有进程及其命令行
+  const output = execSync('ps -eo pid=,args=').toString()
+  output.split('\n').forEach((line) => {
+    const [pidStr, ...cmdParts] = line.trim().split(/\s+/)
+    const pid = parseInt(pidStr, 10)
+    const cmd = cmdParts.join(' ')
+    // 如果命令行里出现我们加的 --plugin-name
+    const match = cmd.match(/--plugin-name=(\S+)/)
+    if (match) {
+      const name = match[1]
+      // 如果还没管理，就 push 进 pluginProcess
+      if (!pluginProcess.find((p) => p.pid === pid)) {
+        pluginProcess.push({
+          name,
+          pid: pid,
+        })
+        console.log(`Recovered plugin ${name} (pid=${pid})`)
+      }
     }
+  })
+}
 
-    let completed = 0
-    const total = children.length
-
-    children.forEach((child) => {
-      const done = () => {
-        completed++
-        if (completed === total) {
-          pluginProcess.splice(0)
-          resolve()
-        }
+/**
+ * 扫描插件进程
+ */
+export function scanOrphanPluginsWin(): void {
+  const output = execSync('wmic process get ProcessId,CommandLine /FORMAT:csv').toString()
+  // 每行 CSV 格式：Node,CommandLine,ProcessId
+  output.split('\r\n').forEach((line) => {
+    if (!line) return
+    const cols = line.split(',')
+    const cmd = cols[1] || ''
+    const pid = parseInt(cols[2], 10)
+    const match = cmd.match(/--plugin-name=(\S+)/)
+    if (match) {
+      const name = match[1]
+      if (!pluginProcess.find((p) => p.pid === pid)) {
+        pluginProcess.push({
+          name,
+          pid: pid,
+        })
+        console.log(`Recovered plugin ${name} (pid=${pid})`)
       }
-
-      const platformName = os.platform()
-
-      if (platformName === 'win32') {
-        spawn('taskkill', ['/F', '/T', '/PID', String(child.pid)]).on('exit', done)
-      } else {
-        try {
-          process.kill(child.pid!, 'SIGTERM')
-        } catch (err) {
-          console.warn(`Failed to kill process ${child.pid}:`, err)
-        }
-        done()
-      }
-    })
+    }
   })
 }

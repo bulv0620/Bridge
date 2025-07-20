@@ -38,6 +38,7 @@ const getLogs = async () => {
     }
   } catch (error) {
     message.error(t('views.pluginCenter.logFileReadError'))
+    visible.value = false
   } finally {
     loading.value = false
   }
