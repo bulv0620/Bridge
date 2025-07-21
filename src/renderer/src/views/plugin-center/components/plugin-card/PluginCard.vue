@@ -177,7 +177,7 @@ onMounted(() => {
             circle
             type="info"
             size="small"
-            :disabled="!isAvailable"
+            :disabled="!isAvailable || !plugin.desc['configPath']"
             @click="handleShowConfig"
           >
             <template #icon>
@@ -195,7 +195,7 @@ onMounted(() => {
             circle
             type="warning"
             size="small"
-            :disabled="!isAvailable"
+            :disabled="!isAvailable || !plugin.desc['logPath']"
             @click="handleShowLog"
           >
             <template #icon>

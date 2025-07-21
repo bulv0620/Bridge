@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { dialogPromise } from '@renderer/utils/dialog'
 import { useDialog, useMessage } from 'naive-ui'
-import { ref } from 'vue'
+import { nextTick, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import CodeEditor from '@renderer/components/CodeEditor.vue'
 
@@ -22,6 +22,7 @@ const configJson = ref('')
 const open = (filePath: string) => {
   configFilePath.value = filePath
   language.value = path.extname(filePath).slice(1)
+
   readJsonFile(filePath)
 }
 
@@ -30,9 +31,11 @@ const readJsonFile = async (path: string) => {
     loading.value = true
     configJson.value = ''
     const content = await fs.readFile(path, 'utf-8')
-    configJson.value = content
-
     visible.value = true
+
+    await nextTick()
+
+    configJson.value = content
   } catch (error) {
     message.error(t('views.pluginCenter.readConfigError'))
     visible.value = false

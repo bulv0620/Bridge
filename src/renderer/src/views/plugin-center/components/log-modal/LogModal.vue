@@ -28,14 +28,13 @@ const getLogs = async () => {
   try {
     log.value = ''
     log.value = await fs.readFile(logFilePath.value, 'utf-8')
+    visible.value = true
 
     await nextTick()
 
     if (logRef.value) {
       logRef.value.scrollTo({ position: 'bottom' })
     }
-
-    visible.value = true
   } catch (error) {
     message.error(t('views.pluginCenter.logFileReadError'))
     visible.value = false
