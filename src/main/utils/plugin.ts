@@ -38,23 +38,23 @@ const pluginProcess: PluginProcess[] = []
 // 通用的进程终止函数
 function killProcess(pid: number) {
   return new Promise<void>((resolve, reject) => {
-    // const platformName = os.platform()
+    const platformName = os.platform()
 
-    // if (platformName === 'win32') {
-    //   // Windows 使用 taskkill
-    //   const killProcess = spawn('taskkill', ['/PID', String(pid), '/T', '/F'])
-    //   killProcess.on('exit', resolve)
-    //   killProcess.on('error', reject)
-    // } else {
-    //   // macOS / Linux 使用 kill 命令
-    try {
-      process.kill(pid, 'SIGTERM') // 或 'SIGKILL' 更强制
-      resolve()
-    } catch (err) {
-      console.warn(`Failed to kill process ${pid}:`, err)
-      reject(err)
+    if (platformName === 'win32') {
+      // Windows 使用 taskkill
+      const killProcess = spawn('taskkill', ['/PID', String(pid), '/T', '/F'])
+      killProcess.on('exit', resolve)
+      killProcess.on('error', reject)
+    } else {
+      // macOS / Linux 使用 kill 命令
+      try {
+        process.kill(pid, 'SIGTERM') // 或 'SIGKILL' 更强制
+        resolve()
+      } catch (err) {
+        console.warn(`Failed to kill process ${pid}:`, err)
+        reject(err)
+      }
     }
-    // }
   })
 }
 

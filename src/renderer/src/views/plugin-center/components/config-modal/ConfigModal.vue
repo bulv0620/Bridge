@@ -6,6 +6,7 @@ import { useI18n } from 'vue-i18n'
 import CodeEditor from '@renderer/components/CodeEditor.vue'
 
 const fs = window.api.fs
+const path = window.api.path
 
 const { t } = useI18n()
 const message = useMessage()
@@ -14,14 +15,14 @@ const dialog = useDialog()
 const loading = ref(false)
 const visible = ref(false)
 
+const language = ref('json')
 const configFilePath = ref('')
 const configJson = ref('')
 
-const open = (path: string) => {
-  visible.value = true
-
-  configFilePath.value = path
-  readJsonFile(path)
+const open = (filePath: string) => {
+  configFilePath.value = filePath
+  language.value = path.extname(filePath).slice(1)
+  readJsonFile(filePath)
 }
 
 const readJsonFile = async (path: string) => {
@@ -30,6 +31,8 @@ const readJsonFile = async (path: string) => {
     configJson.value = ''
     const content = await fs.readFile(path, 'utf-8')
     configJson.value = content
+
+    visible.value = true
   } catch (error) {
     message.error(t('views.pluginCenter.readConfigError'))
     visible.value = false
@@ -79,7 +82,7 @@ defineExpose({
     :on-after-leave="handleNegative"
     :mask-closable="false"
   >
-    <CodeEditor v-model:value="configJson" height="320px"></CodeEditor>
+    <CodeEditor v-model:value="configJson" :language="language" height="320px"></CodeEditor>
     <template #footer>
       <n-flex>
         <n-button size="small" type="primary" :loading="loading" @click="confirm">

@@ -18,8 +18,6 @@ const log = ref('')
 const logRef = ref<any>(null)
 
 const open = (path: string) => {
-  visible.value = true
-
   logFilePath.value = path.trim()
 
   getLogs()
@@ -36,6 +34,8 @@ const getLogs = async () => {
     if (logRef.value) {
       logRef.value.scrollTo({ position: 'bottom' })
     }
+
+    visible.value = true
   } catch (error) {
     message.error(t('views.pluginCenter.logFileReadError'))
     visible.value = false
