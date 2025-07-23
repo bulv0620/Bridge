@@ -42,6 +42,7 @@ const columns = computed(() => [
     title: t('views.ftpClient.fileName'),
     key: 'fileName',
     ellipsis: { tooltip: true },
+    resizable: true,
     sorter: (a: FileInfo, b: FileInfo) => {
       if (a.isDirectory !== b.isDirectory) {
         return a.isDirectory ? -1 : 1
@@ -60,6 +61,7 @@ const columns = computed(() => [
     title: t('views.ftpClient.fileDate'),
     key: 'timestamp',
     ellipsis: { tooltip: true },
+    resizable: true,
     sorter: (a: FileInfo, b: FileInfo) => {
       if (a.isDirectory !== b.isDirectory) {
         return a.isDirectory ? -1 : 1
@@ -73,6 +75,7 @@ const columns = computed(() => [
   {
     title: t('views.ftpClient.fileSize'),
     key: 'size',
+    width: 170,
     ellipsis: { tooltip: true },
     sorter: (a: FileInfo, b: FileInfo) => {
       if (a.isDirectory !== b.isDirectory) {
@@ -399,7 +402,7 @@ function uploadFiles(files) {
       :data="data"
       virtual-scroll
       flex-height
-      style="height: 100%; user-select: none"
+      style="height: 100%"
     />
     <FileDownloadModal ref="fileDownloadModalRef" />
     <FileUploadModal ref="fileUploadModalRef" @upload-finished="getFiles" />

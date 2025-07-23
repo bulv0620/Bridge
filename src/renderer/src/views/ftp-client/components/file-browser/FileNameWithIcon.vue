@@ -45,7 +45,12 @@ const iconInfo = computed(() => {
 <template>
   <div class="file-icon" :class="{ 'is-directory': isDirectory }">
     <n-icon size="18" class="file-icon__icon" :component="iconInfo.icon" :color="iconInfo.color" />
-    <span class="file-icon__name">{{ fileName }}</span>
+    <n-tooltip placement="bottom" :delay="800">
+      <template #trigger>
+        <span class="file-icon__name">{{ fileName }}</span>
+      </template>
+      {{ fileName }}
+    </n-tooltip>
   </div>
 </template>
 
