@@ -11,6 +11,7 @@ import { useI18n } from 'vue-i18n'
 import FileBreadcrumb from './Breadcrumb.vue'
 import FileDownloadModal from './FileDownloadModal.vue'
 import FileUploadModal from './FileUploadModal.vue'
+import FileDeleteModal from './FileDeleteModal.vue'
 import FolderNameDialog from './FolderNameDialog.vue'
 import { dialogPromise } from '@renderer/utils/dialog'
 const stream = window.api.stream
@@ -22,11 +23,11 @@ const dialog = useDialog()
 const { t } = useI18n()
 
 const loading = ref(false)
-const delLoading = ref(false)
 const uploadLoading = ref(false)
 
 const fileUploadModalRef = ref<InstanceType<typeof FileUploadModal> | null>(null)
 const fileDownloadModalRef = ref<InstanceType<typeof FileDownloadModal> | null>(null)
+const fileDeleteModalRef = ref<InstanceType<typeof FileDeleteModal> | null>(null)
 const folderNameDialogRef = ref<InstanceType<typeof FolderNameDialog> | null>(null)
 
 // 文件列表数据
@@ -261,27 +262,11 @@ async function handleDeleteCheckedItem() {
     negativeText: t('common.cancel'),
   })
 
-  try {
-    delLoading.value = true
-    const checkedItems = checkedRowKeys.value.map((key) => {
-      return data.value.find((row) => row.key === key)
-    })
+  const checkedItems = checkedRowKeys.value.map((key) => {
+    return data.value.find((row) => row.key === key)!
+  })
 
-    for (const item of checkedItems) {
-      if (!item) continue
-      if (item.isDirectory) {
-        await currentInstance.value?.delFolder(item.filePath)
-      } else {
-        await currentInstance.value?.delFile(item.filePath)
-      }
-    }
-
-    getFiles()
-  } catch (error) {
-    console.error(error)
-  } finally {
-    delLoading.value = false
-  }
+  fileDeleteModalRef.value?.open(checkedItems)
 }
 
 watch(
@@ -380,7 +365,6 @@ function uploadFiles(files) {
           :button-props="{ size: 'small', circle: true }"
           placement="bottom"
           :delay="500"
-          :loading="delLoading"
           @click="handleDeleteCheckedItem"
         />
         <CommonButton
@@ -396,7 +380,7 @@ function uploadFiles(files) {
     </n-space>
     <n-data-table
       v-model:checked-row-keys="checkedRowKeys"
-      :loading="loading || delLoading"
+      :loading="loading"
       size="small"
       :columns="columns"
       :data="data"
@@ -405,6 +389,7 @@ function uploadFiles(files) {
       style="height: 100%"
     />
     <FileDownloadModal ref="fileDownloadModalRef" />
+    <FileDeleteModal ref="fileDeleteModalRef" @refresh="getFiles" />
     <FileUploadModal ref="fileUploadModalRef" @upload-finished="getFiles" />
     <FolderNameDialog ref="folderNameDialogRef" />
   </div>

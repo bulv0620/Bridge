@@ -5,6 +5,8 @@ import { useMessage } from 'naive-ui'
 import { computed, nextTick, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+const emits = defineEmits(['refresh'])
+
 const { t } = useI18n()
 const message = useMessage()
 const { currentInstance } = useFtp()
@@ -17,8 +19,6 @@ const currentDelIndex = ref(0)
 
 const errorFlag = ref(false)
 const stopFlag = ref(false)
-
-const conflictHandleType = ref<'' | 'ignore' | 'cover'>('')
 
 const percentage = computed(() => {
   if (delFiles.value.length === 0) return 0
@@ -39,7 +39,8 @@ function open(files: FileInfo[]) {
 
   errorFlag.value = false
   stopFlag.value = false
-  conflictHandleType.value = ''
+
+  currentDelIndex.value = 0
 
   doDel()
 }
@@ -54,6 +55,7 @@ async function doDel() {
       } else {
         await currentInstance.value?.delFile(file.filePath)
       }
+      await wait(50)
 
       currentDelIndex.value++
 
@@ -73,6 +75,15 @@ async function doDel() {
     message.success(t('views.ftpClient.deleteComplete'))
   }
   currentInstance.value?.disconnect()
+  emits('refresh')
+}
+
+function wait(ms) {
+  return new Promise<void>((resolve) => {
+    setTimeout(() => {
+      resolve()
+    }, ms)
+  })
 }
 
 function handleCancel() {
