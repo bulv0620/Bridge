@@ -84,7 +84,7 @@ const delay = (ms: number) => {
 }
 
 const handleShowLog = () => {
-  let logPath: string
+  let logPath: string | null
 
   const platform = os.platform()
   if (platform === 'darwin') {

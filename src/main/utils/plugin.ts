@@ -154,9 +154,13 @@ export function runTask(pluginInfo: PluginInfo): Promise<void> {
     console.log(`Running plugin: ${pluginInfo.name}`)
     console.log(`Executing: ${execPath}`)
 
-    const child = spawn(execPath, [`--plugin-name=${pluginInfo.name}`], {
-      cwd: path.dirname(execPath), // 工作目录=脚本目录
-    })
+    const child = spawn(
+      execPath,
+      [`--plugin-name=${pluginInfo.name}`, ...pluginInfo.desc['cliArgs']],
+      {
+        cwd: path.dirname(execPath), // 工作目录=脚本目录
+      },
+    )
 
     pluginProcess.push({
       name: pluginInfo.name,

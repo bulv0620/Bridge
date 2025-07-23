@@ -1,7 +1,7 @@
 export interface PlatformInfo {
   exec: string | null
   config: string | null
-  log: string
+  log: string | null
 }
 
 export interface PluginInfo {
