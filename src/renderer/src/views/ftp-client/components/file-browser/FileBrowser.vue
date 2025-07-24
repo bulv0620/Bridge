@@ -14,7 +14,8 @@ import FileUploadModal from './FileUploadModal.vue'
 import FileDeleteModal from './FileDeleteModal.vue'
 import FolderNameDialog from './FolderNameDialog.vue'
 import { dialogPromise } from '@renderer/utils/dialog'
-const stream = window.api.stream
+import { PushOutline } from '@vicons/ionicons5'
+
 const ipcRenderer = window.electron.ipcRenderer
 
 const { currentInstance, currentInstancePath } = useFtp()
@@ -23,7 +24,6 @@ const dialog = useDialog()
 const { t } = useI18n()
 
 const loading = ref(false)
-const uploadLoading = ref(false)
 
 const fileUploadModalRef = ref<InstanceType<typeof FileUploadModal> | null>(null)
 const fileDownloadModalRef = ref<InstanceType<typeof FileDownloadModal> | null>(null)
@@ -146,38 +146,18 @@ function handleOpenFolder(row: FileInfo) {
 
 // 打开上传弹窗
 async function handleOpenUpload() {
-  try {
-    const file = await selectFile()
-
-    if (data.value.find((row) => row.fileName === file.name && !row.isDirectory)) {
-      await dialogPromise(dialog.warning, {
-        title: t('common.warning'),
-        content: t('views.ftpClient.confirmOverwrite', { fileName: file.name }),
-        positiveText: t('common.confirm'),
-        negativeText: t('common.cancel'),
-      })
-    }
-    uploadLoading.value = true
-
-    const arrayBuffer = await file.arrayBuffer()
-    const buffer = Buffer.from(arrayBuffer)
-    const fileStrem = stream.Readable.from(buffer)
-    const remotePath = `${currentInstancePath.value.join('/')}/${file.name}`
-    await currentInstance.value?.writeFileStream(remotePath, fileStrem)
-
-    getFiles()
-  } catch (error) {
-    console.error(error)
-  } finally {
-    uploadLoading.value = false
+  const files = await selectFiles()
+  if (files.length > 0) {
+    fileUploadModalRef.value?.open(files, data.value)
   }
 }
 
 // 选择文件
-function selectFile() {
-  return new Promise<File>((resolve, reject) => {
+function selectFiles() {
+  return new Promise<FileList>((resolve, reject) => {
     const input = document.createElement('input')
     input.type = 'file'
+    input.multiple = true
 
     input.addEventListener('change', () => {
       if (!input.files || input.files.length === 0) {
@@ -185,17 +165,17 @@ function selectFile() {
         return
       }
 
-      const file = input.files[0]
-      resolve(file)
+      const files = input.files
+      resolve(files)
     })
 
     input.addEventListener('cancel', () => {
       reject(new Error('File selection canceled'))
     })
 
-    document.body.appendChild(input) // 确保输入框在 DOM 中
+    document.body.appendChild(input)
     input.click()
-    document.body.removeChild(input) // 选择后移除输入框
+    document.body.removeChild(input)
   })
 }
 
@@ -282,6 +262,7 @@ watch(
   },
 )
 
+// #region 拖拽上传
 const isDragging = ref(false)
 let dragCounter = 0
 
@@ -312,12 +293,12 @@ function onDrop(e: DragEvent) {
     uploadFiles(files)
   }
 }
-function uploadFiles(files) {
-  Array.from(files).forEach((file: any) => {
-    console.log('上传文件:', file.name)
-    // 这里可以调用你的上传逻辑，比如 axios 上传等
-  })
+function uploadFiles(files: FileList) {
+  if (files.length > 0) {
+    fileUploadModalRef.value?.open(files, data.value)
+  }
 }
+// #endregion
 </script>
 
 <template>
@@ -329,7 +310,12 @@ function uploadFiles(files) {
     @dragleave.prevent="onDragLeave"
     @drop.prevent="onDrop"
   >
-    <div v-if="isDragging" class="overlay">释放上传</div>
+    <div v-if="isDragging" class="overlay">
+      <n-icon size="80">
+        <PushOutline />
+      </n-icon>
+      <div>{{ $t('views.ftpClient.dropHere') }}</div>
+    </div>
     <n-space justify="space-between">
       <FileBreadcrumb></FileBreadcrumb>
 
@@ -348,7 +334,6 @@ function uploadFiles(files) {
           :button-props="{ size: 'small', circle: true }"
           placement="bottom"
           :delay="500"
-          :loading="uploadLoading"
           @click="handleOpenUpload"
         />
         <CommonButton
@@ -390,7 +375,7 @@ function uploadFiles(files) {
     />
     <FileDownloadModal ref="fileDownloadModalRef" />
     <FileDeleteModal ref="fileDeleteModalRef" @refresh="getFiles" />
-    <FileUploadModal ref="fileUploadModalRef" @upload-finished="getFiles" />
+    <FileUploadModal ref="fileUploadModalRef" @refresh="getFiles" />
     <FolderNameDialog ref="folderNameDialogRef" />
   </div>
 </template>
@@ -412,10 +397,13 @@ function uploadFiles(files) {
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.3);
     display: flex;
+    gap: 8px;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     color: white;
-    font-size: 18px;
+    font-size: 24px;
+    font-weight: bold;
     z-index: 10;
   }
 }
