@@ -22,14 +22,9 @@ const { currentInstance, currentInstancePath } = useFtp()
 const message = useMessage()
 const dialog = useDialog()
 const { t } = useI18n()
-
 const loading = ref(false)
 
-const fileUploadModalRef = ref<InstanceType<typeof FileUploadModal> | null>(null)
-const fileDownloadModalRef = ref<InstanceType<typeof FileDownloadModal> | null>(null)
-const fileDeleteModalRef = ref<InstanceType<typeof FileDeleteModal> | null>(null)
-const folderNameDialogRef = ref<InstanceType<typeof FolderNameDialog> | null>(null)
-
+// #region 文件查询相关
 // 文件列表数据
 const data = ref<FileInfo[]>([])
 // 选中行
@@ -143,42 +138,65 @@ function handleOpenFolder(row: FileInfo) {
     currentInstancePath.value?.push(row.fileName)
   }
 }
+// #endregion
+
+// #region 文件上传相关
+const fileUploadModalRef = ref<InstanceType<typeof FileUploadModal> | null>(null)
 
 // 打开上传弹窗
 async function handleOpenUpload() {
-  const files = await selectFiles()
-  if (files.length > 0) {
-    fileUploadModalRef.value?.open(files, data.value)
+  const files = await ipcRenderer.invoke('select-paths')
+  console.log(files)
+
+  // const files = await selectFiles()
+  // if (files.length > 0) {
+  //   fileUploadModalRef.value?.open(files, data.value)
+  // }
+}
+// #endregion
+
+// #region 拖拽上传
+const isDragging = ref(false)
+let dragCounter = 0
+
+function onDragEnter(e: DragEvent) {
+  e.preventDefault()
+  dragCounter++
+  isDragging.value = true
+}
+
+function onDragOver(e: DragEvent) {
+  e.preventDefault()
+}
+
+function onDragLeave() {
+  dragCounter--
+  if (dragCounter <= 0) {
+    isDragging.value = false
   }
 }
 
-// 选择文件
-function selectFiles() {
-  return new Promise<FileList>((resolve, reject) => {
-    const input = document.createElement('input')
-    input.type = 'file'
-    input.multiple = true
+function onDrop(e: DragEvent) {
+  e.preventDefault()
+  isDragging.value = false
+  dragCounter = 0
 
-    input.addEventListener('change', () => {
-      if (!input.files || input.files.length === 0) {
-        reject(new Error('No file selected'))
-        return
-      }
+  const files = e.dataTransfer?.files
 
-      const files = input.files
-      resolve(files)
-    })
-
-    input.addEventListener('cancel', () => {
-      reject(new Error('File selection canceled'))
-    })
-
-    document.body.appendChild(input)
-    input.click()
-    document.body.removeChild(input)
-  })
+  if (files?.length) {
+    uploadFiles(Array.from(files).map((f) => f.path))
+  }
 }
+function uploadFiles(files: string[]) {
+  console.log(files)
+  // if (files.length > 0) {
+  //   fileUploadModalRef.value?.open(files, data.value)
+  // }
+}
+// #endregion
 
+// #region 文件下载相关
+const fileDownloadModalRef = ref<InstanceType<typeof FileDownloadModal> | null>(null)
 // 打开下载弹窗
 async function handleOpenDownload() {
   if (checkedRowKeys.value.length === 0) {
@@ -215,7 +233,10 @@ async function handleOpenDownload() {
     fileDownloadModalRef.value?.open(downloadFiles, path, currentInstancePath.value.join('/'))
   }
 }
+// #endregion
 
+// #region 创建文件夹相关
+const folderNameDialogRef = ref<InstanceType<typeof FolderNameDialog> | null>(null)
 // 创建文件夹
 async function handleCreateFolder() {
   const name = await folderNameDialogRef.value?.open()
@@ -228,7 +249,10 @@ async function handleCreateFolder() {
     getFiles()
   }
 }
+// #endregion
 
+// #region 删除相关
+const fileDeleteModalRef = ref<InstanceType<typeof FileDeleteModal> | null>(null)
 // 删除选中的文件、文件夹
 async function handleDeleteCheckedItem() {
   if (checkedRowKeys.value.length === 0) {
@@ -248,6 +272,7 @@ async function handleDeleteCheckedItem() {
 
   fileDeleteModalRef.value?.open(checkedItems)
 }
+// #endregion
 
 watch(
   currentInstancePath,
@@ -261,44 +286,6 @@ watch(
     deep: true,
   },
 )
-
-// #region 拖拽上传
-const isDragging = ref(false)
-let dragCounter = 0
-
-function onDragEnter(e: DragEvent) {
-  e.preventDefault()
-  dragCounter++
-  isDragging.value = true
-}
-
-function onDragOver(e: DragEvent) {
-  e.preventDefault()
-}
-
-function onDragLeave() {
-  dragCounter--
-  if (dragCounter <= 0) {
-    isDragging.value = false
-  }
-}
-
-function onDrop(e: DragEvent) {
-  e.preventDefault()
-  isDragging.value = false
-  dragCounter = 0
-
-  const files = e.dataTransfer?.files
-  if (files?.length) {
-    uploadFiles(files)
-  }
-}
-function uploadFiles(files: FileList) {
-  if (files.length > 0) {
-    fileUploadModalRef.value?.open(files, data.value)
-  }
-}
-// #endregion
 </script>
 
 <template>

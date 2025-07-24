@@ -35,6 +35,15 @@ export function createEventHandler({
     }
   })
 
+  // 监听渲染进程的请求并返回多路径
+  ipcMain.handle('select-paths', async () => {
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+      properties: ['openFile', 'openDirectory', 'multiSelections'],
+    })
+    if (canceled) return []
+    return filePaths
+  })
+
   // 获取所有插件列表
   ipcMain.handle('get-plugin-list', async () => {
     return getPluginInfo()
