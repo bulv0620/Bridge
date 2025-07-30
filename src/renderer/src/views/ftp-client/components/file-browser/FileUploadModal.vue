@@ -5,8 +5,10 @@ import { useMessage } from 'naive-ui'
 import { computed, nextTick, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ConfirmOverwriteDialog from './ConfirmOverwriteDialog.vue'
+import { LocalFileSystem } from '@renderer/utils/file-system'
 
-const stream = window.api.stream
+const fs = window.api.fsSync
+const path = window.api.path
 
 const emits = defineEmits(['refresh'])
 
@@ -19,8 +21,7 @@ const confirmOverwriteDialogRef = ref<InstanceType<typeof ConfirmOverwriteDialog
 const loading = ref(false)
 const visible = ref(false)
 
-const uploadFiles = ref<FileList>([] as any)
-const browserFileList = ref<FileInfo[]>([])
+const fileList = ref<FileInfo[]>([])
 
 const currentUploadIndex = ref(0)
 const errorFlag = ref(false)
@@ -29,19 +30,47 @@ const stopFlag = ref(false)
 const conflictHandleType = ref<'' | 'ignore' | 'cover'>('')
 
 const percentage = computed(() => {
-  if (uploadFiles.value.length === 0) return 0
-  return Math.round((currentUploadIndex.value / uploadFiles.value.length) * 100)
+  if (fileList.value.length === 0) return 0
+  return Math.round((currentUploadIndex.value / fileList.value.length) * 100)
 })
 const currentDownloadFile = computed(() => {
-  return uploadFiles.value[currentUploadIndex.value] || null
+  return fileList.value[currentUploadIndex.value] || null
 })
 const complete = computed(() => {
-  return currentUploadIndex.value === uploadFiles.value.length
+  return currentUploadIndex.value === fileList.value.length
 })
 
-async function open(files: FileList, fileList: FileInfo[]) {
-  uploadFiles.value = files
-  browserFileList.value = fileList
+async function open(pathList: string[]) {
+  fileList.value = []
+
+  for (const filePath of pathList) {
+    const stats = fs.statSync(filePath)
+    const dirname = path.dirname(filePath)
+    const basename = path.basename(filePath)
+
+    if (stats.isDirectory()) {
+      const localFileSystem = new LocalFileSystem(dirname)
+
+      const files = await localFileSystem.getAllFiles(basename)
+
+      fileList.value.push(...files)
+    } else {
+      fileList.value.push({
+        fileName: basename,
+        size: stats.size,
+        timestamp: stats.mtime,
+        filePath: filePath,
+        relativePath: basename,
+        meta: {
+          atime: stats.atime,
+          mtime: stats.mtime,
+          mode: stats.mode,
+          size: stats.size,
+        },
+        isDirectory: false,
+      })
+    }
+  }
 
   currentUploadIndex.value = 0
 
@@ -57,15 +86,19 @@ async function open(files: FileList, fileList: FileInfo[]) {
 }
 
 async function upload() {
-  for (const file of uploadFiles.value) {
+  for (const file of fileList.value) {
     if (stopFlag.value) break
-    const remotePath = `${currentInstancePath.value.join('/')}/${file.name}`
     try {
-      const exist = browserFileList.value.find((f) => f.fileName === file.name && !f.isDirectory)
+      const remotePath = currentInstancePath.value.join('/')
+      const relativePath = path.join(remotePath, file.relativePath)
+
+      const exist = await currentInstance.value!.exists(relativePath)
       if (exist) {
         if (!conflictHandleType.value) {
           // 无记录的操作选项
-          const [confirmFlag, rememberFlag] = await confirmOverwriteDialogRef.value!.open(file.name)
+          const [confirmFlag, rememberFlag] = await confirmOverwriteDialogRef.value!.open(
+            file.fileName,
+          )
 
           // 记住选择
           if (rememberFlag) {
@@ -73,7 +106,7 @@ async function upload() {
           }
 
           if (confirmFlag) {
-            await currentInstance.value!.delFile(remotePath)
+            await currentInstance.value!.delFile(relativePath)
           } else {
             currentUploadIndex.value++
             continue
@@ -82,14 +115,12 @@ async function upload() {
           currentUploadIndex.value++
           continue
         } else if (conflictHandleType.value === 'cover') {
-          await currentInstance.value!.delFile(remotePath)
+          await currentInstance.value!.delFile(relativePath)
         }
       }
 
-      const arrayBuffer = await file.arrayBuffer()
-      const buffer = Buffer.from(arrayBuffer)
-      const fileStrem = stream.Readable.from(buffer)
-      await currentInstance.value!.writeFileStream(remotePath, fileStrem)
+      const stream = fs.createReadStream(file.filePath)
+      await currentInstance.value!.writeFileStream(relativePath, stream)
 
       currentUploadIndex.value++
 
@@ -138,10 +169,10 @@ defineExpose({
       :percentage="percentage"
     >
       <n-text :type="errorFlag ? 'error' : ''">
-        {{ currentUploadIndex }} / {{ uploadFiles.length }}
+        {{ currentUploadIndex }} / {{ fileList.length }}
       </n-text>
     </n-progress>
-    <n-text :type="errorFlag ? 'error' : ''">{{ currentDownloadFile?.name }}</n-text>
+    <n-text :type="errorFlag ? 'error' : ''">{{ currentDownloadFile?.fileName }}</n-text>
     <n-text v-if="complete" type="success">{{ $t('common.complete') }}</n-text>
 
     <template #footer>

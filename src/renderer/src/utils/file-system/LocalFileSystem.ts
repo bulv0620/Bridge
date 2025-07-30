@@ -42,7 +42,7 @@ export class LocalFileSystem extends FileSystem {
   }
 
   async getAllFiles(dir: string = ''): Promise<FileInfo[]> {
-    let filesList: FileInfo[] = []
+    let fileList: FileInfo[] = []
     const resolvedDir = this._resolve(dir)
     const entries = await fs.readdir(resolvedDir, { withFileTypes: true })
 
@@ -59,10 +59,10 @@ export class LocalFileSystem extends FileSystem {
 
         const subDir = path.join(dir, entry.name)
         const subFiles = await this.getAllFiles(subDir)
-        filesList = filesList.concat(subFiles)
+        fileList = fileList.concat(subFiles)
       } else if (entry.isFile()) {
         const stats = await fs.stat(fullPath)
-        filesList.push({
+        fileList.push({
           fileName: entry.name,
           size: stats.size,
           timestamp: stats.mtime,
@@ -78,7 +78,7 @@ export class LocalFileSystem extends FileSystem {
         })
       }
     }
-    return filesList
+    return fileList
   }
 
   async getFile(filePath: string): Promise<Buffer> {

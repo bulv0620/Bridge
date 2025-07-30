@@ -146,12 +146,10 @@ const fileUploadModalRef = ref<InstanceType<typeof FileUploadModal> | null>(null
 // 打开上传弹窗
 async function handleOpenUpload() {
   const files = await ipcRenderer.invoke('select-paths')
-  console.log(files)
 
-  // const files = await selectFiles()
-  // if (files.length > 0) {
-  //   fileUploadModalRef.value?.open(files, data.value)
-  // }
+  if (files.length > 0) {
+    fileUploadModalRef.value?.open(files)
+  }
 }
 // #endregion
 
@@ -187,11 +185,11 @@ function onDrop(e: DragEvent) {
     uploadFiles(Array.from(files).map((f) => f.path))
   }
 }
+
 function uploadFiles(files: string[]) {
-  console.log(files)
-  // if (files.length > 0) {
-  //   fileUploadModalRef.value?.open(files, data.value)
-  // }
+  if (files.length > 0) {
+    fileUploadModalRef.value?.open(files)
+  }
 }
 // #endregion
 
