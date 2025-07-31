@@ -61,7 +61,9 @@ const iconInfo = computed(() => {
     cursor: pointer;
 
     &:hover {
-      text-decoration: underline;
+      :deep(.n-ellipsis) {
+        text-decoration: underline !important;
+      }
     }
   }
 
