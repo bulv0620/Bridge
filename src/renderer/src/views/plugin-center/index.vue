@@ -21,9 +21,10 @@ const logModalRef = ref<InstanceType<typeof LogModal> | null>(null)
 const configModalRef = ref<InstanceType<typeof ConfigModal> | null>(null)
 
 const openLogModal = (path: string) => {
-  if (logModalRef.value) {
-    logModalRef.value.open(path)
-  }
+  // if (logModalRef.value) {
+  //   logModalRef.value.open(path)
+  // }
+  ipcRenderer.invoke('open-path', path)
 }
 
 const openConfigModal = (path: string) => {

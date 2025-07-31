@@ -1,4 +1,4 @@
-import { BrowserWindow, dialog, ipcMain, nativeTheme, Tray } from 'electron'
+import { BrowserWindow, dialog, ipcMain, nativeTheme, shell, Tray } from 'electron'
 import { updateTray } from '../utils/tray'
 import { checkPluginStatus, getPluginInfo, PluginInfo, runTask, stopTask } from '../utils/plugin'
 
@@ -62,5 +62,10 @@ export function createEventHandler({
   // 检测插件是否在运行
   ipcMain.handle('check-plugin-status', (_, pluginName: string) => {
     return checkPluginStatus(pluginName)
+  })
+
+  // 检测插件是否在运行
+  ipcMain.handle('open-path', (_, path: string) => {
+    return shell.openPath(path)
   })
 }
