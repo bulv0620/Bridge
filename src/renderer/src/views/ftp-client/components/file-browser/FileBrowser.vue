@@ -22,6 +22,7 @@ const { currentInstance, currentInstancePath } = useFtp()
 const message = useMessage()
 const dialog = useDialog()
 const { t } = useI18n()
+const uploadLoading = ref(false)
 const loading = ref(false)
 
 // #region 文件查询相关
@@ -147,8 +148,15 @@ const fileUploadModalRef = ref<InstanceType<typeof FileUploadModal> | null>(null
 async function handleOpenUpload() {
   const files = await ipcRenderer.invoke('select-paths')
 
-  if (files.length > 0) {
-    fileUploadModalRef.value?.open(files)
+  uploadLoading.value = true
+  try {
+    if (files.length > 0) {
+      await fileUploadModalRef.value?.open(files)
+    }
+  } catch (error) {
+    console.error(error)
+  } finally {
+    uploadLoading.value = false
   }
 }
 // #endregion
@@ -186,9 +194,16 @@ function onDrop(e: DragEvent) {
   }
 }
 
-function uploadFiles(files: string[]) {
-  if (files.length > 0) {
-    fileUploadModalRef.value?.open(files)
+async function uploadFiles(files: string[]) {
+  try {
+    uploadLoading.value = true
+    if (files.length > 0) {
+      await fileUploadModalRef.value?.open(files)
+    }
+  } catch (error) {
+    console.error(error)
+  } finally {
+    uploadLoading.value = false
   }
 }
 // #endregion
@@ -317,6 +332,7 @@ watch(
           :tooltip="$t('views.ftpClient.upload')"
           :icon="FileUploadOutlined"
           :button-props="{ size: 'small', circle: true }"
+          :loading="uploadLoading"
           placement="bottom"
           :delay="500"
           @click="handleOpenUpload"

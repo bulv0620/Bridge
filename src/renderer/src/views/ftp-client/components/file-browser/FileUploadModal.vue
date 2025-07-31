@@ -172,8 +172,10 @@ defineExpose({
         {{ currentUploadIndex }} / {{ fileList.length }}
       </n-text>
     </n-progress>
-    <n-text :type="errorFlag ? 'error' : ''">{{ currentDownloadFile?.fileName }}</n-text>
     <n-text v-if="complete" type="success">{{ $t('common.complete') }}</n-text>
+    <n-ellipsis v-else :type="errorFlag ? 'error' : ''" style="width: 100%">
+      {{ currentDownloadFile?.fileName }}
+    </n-ellipsis>
 
     <template #footer>
       <n-flex>

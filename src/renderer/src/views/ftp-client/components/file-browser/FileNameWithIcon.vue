@@ -45,12 +45,9 @@ const iconInfo = computed(() => {
 <template>
   <div class="file-icon" :class="{ 'is-directory': isDirectory }">
     <n-icon size="18" class="file-icon__icon" :component="iconInfo.icon" :color="iconInfo.color" />
-    <n-tooltip placement="bottom" :delay="800">
-      <template #trigger>
-        <span class="file-icon__name">{{ fileName }}</span>
-      </template>
-      {{ fileName }}
-    </n-tooltip>
+    <div class="file-icon__name">
+      <n-ellipsis style="width: 100%">{{ fileName }}</n-ellipsis>
+    </div>
   </div>
 </template>
 
@@ -71,8 +68,6 @@ const iconInfo = computed(() => {
   &__name {
     word-break: break-all;
     flex: 1;
-    text-overflow: ellipsis;
-    white-space: nowrap;
     overflow: hidden;
   }
 }
