@@ -3,7 +3,7 @@ import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { createCustomWindow } from './utils/window'
 import { createEventHandler } from './events/index'
 import { createTray } from './utils/tray'
-import { stopAllTasks, scanOrphanPlugins, scanOrphanPluginsWin } from './utils/plugin'
+import { stopAllTasks } from './utils/plugin'
 import { installExtension, VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 
 const gotTheLock = app.requestSingleInstanceLock({ myKey: 'key' })
@@ -12,12 +12,6 @@ if (!gotTheLock) {
 }
 
 app.whenReady().then(() => {
-  if (process.platform === 'win32') {
-    scanOrphanPluginsWin()
-  } else {
-    scanOrphanPlugins()
-  }
-
   installExtension(VUEJS_DEVTOOLS)
     .then(() => console.log(`vue_devtools installed`))
     .catch(() => console.error('vue_devtolls install failed'))

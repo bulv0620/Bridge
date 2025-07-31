@@ -1,6 +1,6 @@
 import path from 'path'
 import fs from 'fs'
-import { execSync, spawn } from 'child_process'
+import { spawn } from 'child_process'
 import * as os from 'os'
 
 export interface PlatformInfo {
@@ -154,13 +154,9 @@ export function runTask(pluginInfo: PluginInfo): Promise<void> {
     console.log(`Running plugin: ${pluginInfo.name}`)
     console.log(`Executing: ${execPath}`)
 
-    const child = spawn(
-      execPath,
-      [`--plugin-name=${pluginInfo.name}`, ...pluginInfo.desc['cliArgs']],
-      {
-        cwd: path.dirname(execPath), // 工作目录=脚本目录
-      },
-    )
+    const child = spawn(execPath, [...pluginInfo.desc['cliArgs']], {
+      cwd: path.dirname(execPath), // 工作目录=脚本目录
+    })
 
     pluginProcess.push({
       name: pluginInfo.name,
@@ -204,55 +200,4 @@ export async function stopAllTasks() {
   for (const p of pluginProcess) {
     await killProcess(p.pid!)
   }
-}
-
-/**
- * 扫描插件进程
- */
-export function scanOrphanPlugins(): void {
-  // 列出所有进程及其命令行
-  const output = execSync('ps -eo pid=,args=').toString()
-  output.split('\n').forEach((line) => {
-    const [pidStr, ...cmdParts] = line.trim().split(/\s+/)
-    const pid = parseInt(pidStr, 10)
-    const cmd = cmdParts.join(' ')
-    // 如果命令行里出现我们加的 --plugin-name
-    const match = cmd.match(/--plugin-name=(\S+)/)
-    if (match) {
-      const name = match[1]
-      // 如果还没管理，就 push 进 pluginProcess
-      if (!pluginProcess.find((p) => p.pid === pid)) {
-        pluginProcess.push({
-          name,
-          pid: pid,
-        })
-        console.log(`Recovered plugin ${name} (pid=${pid})`)
-      }
-    }
-  })
-}
-
-/**
- * 扫描插件进程
- */
-export function scanOrphanPluginsWin(): void {
-  const output = execSync('wmic process get ProcessId,CommandLine /FORMAT:csv').toString()
-  // 每行 CSV 格式：Node,CommandLine,ProcessId
-  output.split('\r\n').forEach((line) => {
-    if (!line) return
-    const cols = line.split(',')
-    const cmd = cols[1] || ''
-    const pid = parseInt(cols[2], 10)
-    const match = cmd.match(/--plugin-name=(\S+)/)
-    if (match) {
-      const name = match[1]
-      if (!pluginProcess.find((p) => p.pid === pid)) {
-        pluginProcess.push({
-          name,
-          pid: pid,
-        })
-        console.log(`Recovered plugin ${name} (pid=${pid})`)
-      }
-    }
-  })
 }
