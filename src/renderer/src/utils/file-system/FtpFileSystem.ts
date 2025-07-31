@@ -210,27 +210,7 @@ export class FtpFileSystem extends FileSystem {
     await this.connect()
     const resolvedPath = this._resolve(folderPath)
 
-    // 递归删除函数
-    const deleteRecursive = async (currentPath: string) => {
-      const entries = await this.client.list(currentPath)
-
-      for (const entry of entries) {
-        if (entry.name === '.' || entry.name === '..') continue
-
-        const fullPath = path.posix.join(currentPath, entry.name)
-
-        if (entry.isDirectory) {
-          await deleteRecursive(fullPath) // 递归删除子目录
-        } else {
-          await this.client.remove(fullPath) // 删除文件
-        }
-      }
-
-      // 删除空目录
-      await this.client.removeDir(currentPath)
-    }
-
-    await deleteRecursive(resolvedPath)
+    await this.client.removeDir(resolvedPath)
   }
 
   async createFolder(parentPath: string, folderName: string): Promise<void> {
