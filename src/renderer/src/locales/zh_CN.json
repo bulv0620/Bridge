@@ -163,6 +163,9 @@
       "uploadTip": "点击或者拖动文件到该区域来上传",
       "folderNameRequired": "文件夹名称不能为空"
     },
+    "downloader": {
+      "title": "下载器"
+    },
     "pluginCenter": {
       "title": "插件中心",
       "description": "插件中心",

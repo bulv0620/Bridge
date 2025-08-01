@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import type { MenuOption } from 'naive-ui'
 import {
-  DriveFileMoveFilled,
-  ArticleFilled,
-  ExtensionFilled,
-  SettingsApplicationsFilled,
-} from '@vicons/material'
+  FolderSwap20Regular,
+  AppsAddIn20Regular,
+  Settings20Regular,
+  CloudArrowDown20Regular,
+  FolderGlobe20Regular,
+} from '@vicons/fluent'
 import { NIcon } from 'naive-ui'
 import { computed, h, ref } from 'vue'
 import type { Component } from 'vue'
@@ -34,7 +35,7 @@ const menuOptions = computed<MenuOption[]>(() => {
           { default: () => t('views.fileSync.title') },
         ),
       key: '/',
-      icon: renderIcon(DriveFileMoveFilled),
+      icon: renderIcon(FolderSwap20Regular),
     },
     {
       label: () =>
@@ -48,7 +49,21 @@ const menuOptions = computed<MenuOption[]>(() => {
           { default: () => t('views.ftpClient.title') },
         ),
       key: '/ftp-client',
-      icon: renderIcon(ArticleFilled),
+      icon: renderIcon(FolderGlobe20Regular),
+    },
+    {
+      label: () =>
+        h(
+          RouterLink,
+          {
+            to: {
+              path: '/downloader',
+            },
+          },
+          { default: () => t('views.downloader.title') },
+        ),
+      key: '/downloader',
+      icon: renderIcon(CloudArrowDown20Regular),
     },
     {
       label: () =>
@@ -62,7 +77,7 @@ const menuOptions = computed<MenuOption[]>(() => {
           { default: () => t('views.pluginCenter.title') },
         ),
       key: '/plugin-center',
-      icon: renderIcon(ExtensionFilled),
+      icon: renderIcon(AppsAddIn20Regular),
     },
 
     {
@@ -77,7 +92,7 @@ const menuOptions = computed<MenuOption[]>(() => {
           { default: () => t('views.setting.title') },
         ),
       key: '/setting',
-      icon: renderIcon(SettingsApplicationsFilled),
+      icon: renderIcon(Settings20Regular),
     },
   ]
 })

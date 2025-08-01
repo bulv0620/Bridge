@@ -163,6 +163,9 @@
       "uploadTip": "Click or drag files into this area",
       "folderNameRequired": "Folder name is required"
     },
+    "downloader": {
+      "title": "Downloader"
+    },
     "pluginCenter": {
       "title": "Plugin Center",
       "description": "Plugin Center",
