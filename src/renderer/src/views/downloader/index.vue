@@ -3,12 +3,19 @@ import { useAria2 } from '@renderer/composables/aria2'
 import SettingDrawer from './components/setting-drawer/SettingDrawer.vue'
 import TaskBrowser from './components/task-browser/TaskBrowser.vue'
 import { onActivated, onDeactivated, onMounted, ref, watch } from 'vue'
-import { formatBytesPerSecond } from '@renderer/utils/aria2/utils'
+import { formatBytesPerSecond } from '@renderer/utils/format'
 import { Add, Pause, Play, SettingsOutline, TrashBinOutline } from '@vicons/ionicons5'
+import CreateTaskModal from './components/create-task-modal/CreateTaskModal.vue'
+import { useMessage } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
 
-const { startPolling, stopPolling, isConnected, globalStats } = useAria2()
+const message = useMessage()
+const { t } = useI18n()
+
+const { aria2, startPolling, stopPolling, isConnected, globalStats } = useAria2()
 
 const showSettingDrawer = ref(false)
+const showCreateTaskModal = ref(false)
 
 onActivated(() => {
   startPolling(1000)
@@ -29,6 +36,14 @@ watch(isConnected, (connected) => {
     stopPolling()
   }
 })
+
+function handleCreateTask() {
+  if (!aria2.value || !isConnected.value) {
+    message.warning(t('views.downloader.pleaseConnectFirst'))
+    return
+  }
+  showCreateTaskModal.value = true
+}
 </script>
 
 <template>
@@ -41,6 +56,7 @@ watch(isConnected, (connected) => {
           :button-props="{ size: 'small', circle: true, type: 'primary' }"
           placement="bottom"
           :delay="500"
+          @click="handleCreateTask"
         />
         <CommonButton
           :tooltip="$t('views.downloader.startTask')"
@@ -94,6 +110,7 @@ watch(isConnected, (connected) => {
     </div>
   </div>
   <SettingDrawer v-model:show="showSettingDrawer"></SettingDrawer>
+  <CreateTaskModal v-model:show="showCreateTaskModal"></CreateTaskModal>
 </template>
 
 <style lang="less" scoped>

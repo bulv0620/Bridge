@@ -1,9 +1,14 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, h, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { List, DownloadOutline, TimeOutline, FlagOutline } from '@vicons/ionicons5'
+import { useAria2 } from '@renderer/composables/aria2'
+import { NEllipsis, NProgress, NTag } from 'naive-ui'
+import { formatBytes, formatBytesPerSecond, formatTimeLeft } from '@renderer/utils/format'
+import { Aria2Status } from '@renderer/utils/aria2/aria2-types'
 
 const { t } = useI18n()
+const { activeTasks, waitingTasks, stoppedTasks } = useAria2()
 
 const activeTab = ref('downloading')
 const tabOptions = computed(() => [
@@ -14,15 +19,129 @@ const tabOptions = computed(() => [
 ])
 
 const columns = computed(() => [
+  { type: 'selection' },
   {
-    type: 'selection',
+    key: 'name',
+    title: t('views.downloader.taskName'),
+    width: 160,
+    render(row: Aria2Status) {
+      return h(
+        NEllipsis,
+        { style: { maxWidth: '100%', fontSize: '12px' } },
+        {
+          default: () =>
+            `[${row.files?.length || 0}] ${row.files?.[0]?.path?.split('/').pop() || '未知文件名'}`,
+        },
+      )
+    },
   },
-  { key: 'name', title: t('views.downloader.taskName'), width: '30%' },
-  { key: 'status', title: t('views.downloader.taskStatus'), width: '20%' },
-  { key: 'progress', title: t('views.downloader.taskProgress'), width: '50%' },
+  {
+    key: 'status',
+    title: t('views.downloader.taskStatus'),
+    width: 110,
+    render(row) {
+      const statusMap = {
+        active: { type: 'success', label: t('views.downloader.downloading') },
+        waiting: { type: 'warning', label: t('views.downloader.waiting') },
+        complete: { type: 'info', label: t('views.downloader.completed') },
+        paused: { type: 'default', label: t('views.downloader.paused') },
+        error: { type: 'error', label: t('views.downloader.error') },
+        removed: { type: 'error', label: t('views.downloader.removed') },
+      }
+      const info = statusMap[row.status] || { type: 'default', label: row.status }
+      return h(NTag, { type: info.type, size: 'small' }, { default: () => info.label })
+    },
+  },
+  {
+    key: 'progress',
+    title: t('views.downloader.taskProgress'),
+    render(row: Aria2Status) {
+      return h(NProgress, {
+        type: 'line',
+        percentage: getTaskPercentage(row),
+        height: 12,
+        indicatorPlacement: 'inside',
+      })
+    },
+  },
+  {
+    key: 'size',
+    title: t('views.downloader.taskSize'),
+    width: 150,
+    render(row: Aria2Status) {
+      return h(
+        NEllipsis,
+        { style: { maxWidth: '100%', fontSize: '12px' } },
+        {
+          default: () => getTaskSize(row),
+        },
+      )
+    },
+  },
+  {
+    key: 'speed',
+    title: t('views.downloader.taskSpeed'),
+    width: 100,
+    render(row: Aria2Status) {
+      return h(
+        NEllipsis,
+        { style: { maxWidth: '100%', fontSize: '12px' } },
+        {
+          default: () => getTaskSpeed(row),
+        },
+      )
+    },
+  },
+  {
+    key: 'time',
+    title: t('views.downloader.taskTimeLeft'),
+    width: 90,
+    render(row: Aria2Status) {
+      return h(
+        NEllipsis,
+        { style: { maxWidth: '100%', fontSize: '12px' } },
+        {
+          default: () => getTaskTimeLeft(row),
+        },
+      )
+    },
+  },
 ])
 
-const data = []
+const data = computed(() => {
+  if (activeTab.value === 'all') {
+    return [...activeTasks.value, ...waitingTasks.value, ...stoppedTasks.value]
+  }
+  if (activeTab.value === 'downloading') {
+    return activeTasks.value
+  }
+  if (activeTab.value === 'waiting') {
+    return waitingTasks.value
+  }
+  if (activeTab.value === 'completed') {
+    return stoppedTasks.value
+  }
+  return []
+})
+
+function getTaskPercentage(row: Aria2Status) {
+  if (Number(row.totalLength) === 0) return 0
+  return Math.floor((Number(row.completedLength) / Number(row.totalLength)) * 100)
+}
+
+function getTaskSize(row: Aria2Status) {
+  return `${formatBytes(Number(row.completedLength))}/${formatBytes(Number(row.totalLength))}`
+}
+
+function getTaskSpeed(row: Aria2Status) {
+  return formatBytesPerSecond(Number(row.downloadSpeed))
+}
+
+function getTaskTimeLeft(row: Aria2Status) {
+  if (Number(row.downloadSpeed) === 0 || Number(row.totalLength) === 0) return '-'
+  const remaining = Number(row.totalLength) - Number(row.completedLength)
+  return formatTimeLeft(remaining / Number(row.downloadSpeed))
+}
 </script>
 
 <template>
@@ -55,6 +174,7 @@ const data = []
         virtual-scroll
         flex-height
         style="height: 100%"
+        :row-key="(row: Aria2Status) => row.gid"
       />
     </div>
   </div>

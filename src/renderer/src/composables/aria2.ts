@@ -6,18 +6,17 @@ const isConnected = ref(false)
 const aria2 = ref<Aria2Client | null>(null)
 
 const activeTasks = ref<Aria2Status[]>([])
+const waitingTasks = ref<Aria2Status[]>([])
+const stoppedTasks = ref<Aria2Status[]>([])
 const globalStats = ref<Aria2GlobalStat | null>(null)
+
 let timer: ReturnType<typeof setInterval> | null = null
 
 async function testConnection() {
   if (aria2.value) {
     const flag = await aria2.value.testConnection()
-    if (flag) {
-      isConnected.value = true
-      return
-    }
-    isConnected.value = false
-    throw new Error('Failed to connect to Aria2')
+    isConnected.value = flag
+    if (!flag) throw new Error('Failed to connect to Aria2')
   } else {
     throw new Error('Aria2 client is not initialized')
   }
@@ -25,33 +24,34 @@ async function testConnection() {
 
 async function fetchStats() {
   if (!aria2.value) return
-  try {
-    const active = await aria2.value.tellActive([
-      'gid',
-      'totalLength',
-      'completedLength',
-      'downloadSpeed',
-      'status',
-      'files',
-    ])
-    const stats = await aria2.value.getGlobalStat()
-    activeTasks.value = active
-    globalStats.value = stats
 
-    console.log(stats, active)
+  try {
+    const keys = ['gid', 'totalLength', 'completedLength', 'downloadSpeed', 'status', 'files']
+
+    const [active, waiting, stopped, stats] = await Promise.all([
+      aria2.value.tellActive(keys),
+      aria2.value.tellWaiting(0, 100, keys), // 可根据需要增加数量上限
+      aria2.value.tellStopped(0, 100, keys),
+      aria2.value.getGlobalStat(),
+    ])
+
+    activeTasks.value = active
+    waitingTasks.value = waiting
+    stoppedTasks.value = stopped
+    globalStats.value = stats
   } catch (error) {
     isConnected.value = false
     console.warn('[Aria2Polling] Error while polling:', error)
   }
 }
 
-const startPolling = (interval: number) => {
+function startPolling(interval: number) {
   if (timer || !aria2.value) return
   timer = setInterval(fetchStats, interval)
   fetchStats()
 }
 
-const stopPolling = () => {
+function stopPolling() {
   if (timer) {
     clearInterval(timer)
     timer = null
@@ -63,6 +63,8 @@ export function useAria2() {
     aria2,
     isConnected,
     activeTasks,
+    waitingTasks,
+    stoppedTasks,
     globalStats,
     testConnection,
     fetchStats,
