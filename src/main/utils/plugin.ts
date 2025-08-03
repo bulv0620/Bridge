@@ -158,6 +158,13 @@ export function runTask(pluginInfo: PluginInfo): Promise<void> {
       cwd: path.dirname(execPath), // 工作目录=脚本目录
     })
 
+    child.on('exit', () => {
+      const index = pluginProcess.findIndex((el) => el.pid === child.pid)
+      if (index > -1) {
+        pluginProcess.splice(index, 1)
+      }
+    })
+
     pluginProcess.push({
       name: pluginInfo.name,
       pid: child.pid,

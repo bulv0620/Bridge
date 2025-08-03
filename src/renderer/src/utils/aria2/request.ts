@@ -1,3 +1,5 @@
+import { Aria2GlobalOption, Aria2GlobalStat, Aria2Status } from './aria2-types'
+
 interface Aria2Options {
   /**
    * The full URL of the aria2 RPC service, e.g., http://localhost:6800/jsonrpc
@@ -56,6 +58,18 @@ export class Aria2Client {
   }
 
   /**
+   * Test if the connection to aria2 RPC is working
+   */
+  async testConnection(): Promise<boolean> {
+    try {
+      await this.rpcRequest('aria2.getVersion')
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  /**
    * Add a new download by URI(s)
    */
   addUri(uris: string[], options: Record<string, any> = {}): Promise<string> {
@@ -86,14 +100,14 @@ export class Aria2Client {
   /**
    * Tell status of a specific download
    */
-  tellStatus(gid: string, keys: string[] = []): Promise<Record<string, any>> {
+  tellStatus(gid: string, keys: string[] = []): Promise<Aria2Status> {
     return this.rpcRequest('aria2.tellStatus', [gid, keys])
   }
 
   /**
    * Get a list of active downloads
    */
-  tellActive(keys: string[] = []): Promise<Record<string, any>[]> {
+  tellActive(keys: string[] = []): Promise<Aria2Status[]> {
     return this.rpcRequest('aria2.tellActive', [keys])
   }
 
@@ -102,7 +116,7 @@ export class Aria2Client {
    * @param offset Start position
    * @param num Number of entries
    */
-  tellWaiting(offset: number, num: number, keys: string[] = []): Promise<Record<string, any>[]> {
+  tellWaiting(offset: number, num: number, keys: string[] = []): Promise<Aria2Status[]> {
     return this.rpcRequest('aria2.tellWaiting', [offset, num, keys])
   }
 
@@ -111,22 +125,29 @@ export class Aria2Client {
    * @param offset Start position
    * @param num Number of entries
    */
-  tellStopped(offset: number, num: number, keys: string[] = []): Promise<Record<string, any>[]> {
+  tellStopped(offset: number, num: number, keys: string[] = []): Promise<Aria2Status[]> {
     return this.rpcRequest('aria2.tellStopped', [offset, num, keys])
   }
 
   /**
    * Change global options, e.g., max-concurrent-downloads
    */
-  changeGlobalOption(options: Record<string, any>): Promise<Record<string, any>> {
+  changeGlobalOption(options: Partial<Aria2GlobalOption>): Promise<Record<string, any>> {
     return this.rpcRequest('aria2.changeGlobalOption', [options])
   }
 
   /**
    * Get global options
    */
-  getGlobalOption(): Promise<Record<string, any>> {
+  getGlobalOption(): Promise<Aria2GlobalOption> {
     return this.rpcRequest('aria2.getGlobalOption')
+  }
+
+  /**
+   * Get global statistics like download/upload speed
+   */
+  getGlobalStat(): Promise<Aria2GlobalStat> {
+    return this.rpcRequest('aria2.getGlobalStat')
   }
 
   /**

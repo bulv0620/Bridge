@@ -1,71 +1,99 @@
 <script setup lang="ts">
-import { Aria2Client } from '@renderer/utils/aria2-request'
+import { useAria2 } from '@renderer/composables/aria2'
+import SettingDrawer from './components/setting-drawer/SettingDrawer.vue'
+import TaskBrowser from './components/task-browser/TaskBrowser.vue'
+import { onActivated, onDeactivated, onMounted, ref, watch } from 'vue'
+import { formatBytesPerSecond } from '@renderer/utils/aria2/utils'
+import { Add, Pause, Play, SettingsOutline, TrashBinOutline } from '@vicons/ionicons5'
 
-async function getOptions() {
-  const client = new Aria2Client({ url: 'http://localhost:6800/jsonrpc', token: 'bulv' })
-  const res = await client.getGlobalOption()
-  console.log(res)
-}
+const { startPolling, stopPolling, isConnected, globalStats } = useAria2()
 
-const columns = [
-  {
-    title: '文件名',
-    key: '文件名',
-  },
-  {
-    title: '大小',
-    key: '大小',
-  },
-  {
-    title: '进度',
-    key: '进度',
-  },
-  {
-    title: '剩余时间',
-    key: '剩余时间',
-  },
-  {
-    title: '下载速度',
-    key: '下载速度',
-  },
-]
+const showSettingDrawer = ref(false)
 
-const data = []
+onActivated(() => {
+  startPolling(1000)
+})
+
+onDeactivated(() => {
+  stopPolling()
+})
+
+onMounted(() => {
+  startPolling(1000)
+})
+
+watch(isConnected, (connected) => {
+  if (connected) {
+    startPolling(1000)
+  } else {
+    stopPolling()
+  }
+})
 </script>
 
 <template>
-  <div class="downloader">
+  <div id="setting-drawer-target" class="downloader">
     <div class="header">
-      <n-button size="small">新建任务</n-button>
-      <n-button size="small">开始</n-button>
-      <n-button size="small">暂停</n-button>
-      <n-button size="small">删除</n-button>
-      <n-button size="small" style="margin-left: auto">设置</n-button>
-    </div>
-    <n-divider style="margin: 0"></n-divider>
-    <div class="main">
-      <div class="tabs">
-        <n-tag>全部</n-tag>
-        <n-tag>正在下载</n-tag>
-        <n-tag>等待</n-tag>
-        <n-tag>已完成</n-tag>
-        <n-button size="small" style="margin-left: auto">刷新</n-button>
-      </div>
-
-      <div class="table">
-        <n-data-table
-          size="small"
-          :columns="columns"
-          :data="data"
-          virtual-scroll
-          flex-height
-          style="height: 100%"
+      <n-space>
+        <CommonButton
+          :tooltip="$t('views.downloader.createTask')"
+          :icon="Add"
+          :button-props="{ size: 'small', circle: true, type: 'primary' }"
+          placement="bottom"
+          :delay="500"
         />
-      </div>
+        <CommonButton
+          :tooltip="$t('views.downloader.startTask')"
+          :icon="Play"
+          :button-props="{ size: 'small', circle: true }"
+          placement="bottom"
+          :delay="500"
+        />
+        <CommonButton
+          :tooltip="$t('views.downloader.pauseTask')"
+          :icon="Pause"
+          :button-props="{ size: 'small', circle: true }"
+          placement="bottom"
+          :delay="500"
+        />
+        <CommonButton
+          :tooltip="$t('views.downloader.removeTask')"
+          :icon="TrashBinOutline"
+          :button-props="{ size: 'small', circle: true }"
+          placement="bottom"
+          :delay="500"
+        />
+      </n-space>
+      <CommonButton
+        :tooltip="$t('views.downloader.setting')"
+        :icon="SettingsOutline"
+        :button-props="{ size: 'small', circle: true }"
+        placement="bottom"
+        :delay="500"
+        @click="showSettingDrawer = true"
+      />
     </div>
     <n-divider style="margin: 0"></n-divider>
-    <div class="footer">上传: 100KB 下载: 100KB</div>
+    <TaskBrowser></TaskBrowser>
+    <n-divider style="margin: 0"></n-divider>
+    <div class="footer">
+      <n-tag v-if="isConnected" size="small" type="success">
+        {{ $t('views.downloader.connected') }}
+      </n-tag>
+      <n-tag v-else size="small" type="error">{{ $t('views.downloader.disconnected') }}</n-tag>
+      <n-space style="font-size: 14px">
+        <span>
+          {{ $t('views.downloader.uploadSpeed') }}:
+          {{ formatBytesPerSecond(globalStats?.uploadSpeed || 0) }}
+        </span>
+        <span>
+          {{ $t('views.downloader.downloadSpeed') }}:
+          {{ formatBytesPerSecond(globalStats?.downloadSpeed || 0) }}
+        </span>
+      </n-space>
+    </div>
   </div>
+  <SettingDrawer v-model:show="showSettingDrawer"></SettingDrawer>
 </template>
 
 <style lang="less" scoped>
@@ -78,32 +106,15 @@ const data = []
   .header {
     padding: 16px;
     display: flex;
-    gap: 8px;
-  }
-
-  .main {
-    flex: 1;
-    overflow: hidden;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-
-    .tabs {
-      display: flex;
-      gap: 8px;
-    }
-
-    .table {
-      flex: 1;
-      overflow: hidden;
-    }
+    justify-content: space-between;
   }
 
   .footer {
     padding: 16px;
     display: flex;
     gap: 8px;
+    justify-content: space-between;
+    align-items: center;
   }
 }
 </style>
