@@ -5,6 +5,7 @@ import { createEventHandler } from './events/index'
 import { createTray } from './utils/tray'
 import { stopAllTasks } from './utils/plugin'
 import { installExtension, VUEJS_DEVTOOLS } from 'electron-devtools-installer'
+import { ClipboardWatcher } from './utils/ClipboardWatcher'
 
 const gotTheLock = app.requestSingleInstanceLock({ myKey: 'key' })
 if (!gotTheLock) {
@@ -21,6 +22,10 @@ app.whenReady().then(() => {
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
+
+  // 监听剪切板
+  const watcher = new ClipboardWatcher()
+  watcher.start(1000)
 
   const mainWindow = createCustomWindow({
     resizable: true,
