@@ -28,6 +28,13 @@ export class Aria2Client {
   }
 
   /**
+   * 获取url信息
+   */
+  getUrl() {
+    return this.url
+  }
+
+  /**
    * 向 aria2 发送通用 JSON-RPC 请求（带超时控制）
    */
   private async rpcRequest(method: string, params: any[] = []): Promise<any> {
