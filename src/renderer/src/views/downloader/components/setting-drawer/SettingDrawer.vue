@@ -159,7 +159,14 @@ watch(activeTab, (tab) => {
               <n-form-item :label="t('views.downloader.dir')">
                 <n-input-group>
                   <n-input v-model:value="settingsForm.dir" />
-                  <n-button :loading="applyingSettings" @click="selectFolder">
+                  <n-button
+                    v-if="
+                      connectionForm.host.includes('localhost') ||
+                      connectionForm.host.includes('127.0.0.1')
+                    "
+                    :loading="applyingSettings"
+                    @click="selectFolder"
+                  >
                     <template #icon>
                       <n-icon> <FolderOutline /> </n-icon>
                     </template>
