@@ -89,9 +89,7 @@ async function applySettings() {
 async function fetchLatestTracker() {
   fetchingTracker.value = true
   try {
-    const res = await fetch(
-      'https://raw.githubusercontent.com/XIU2/TrackersListCollection/master/all_aria2.txt',
-    )
+    const res = await fetch('https://cf.trackerslist.com/best_aria2.txt')
     const text = await res.text()
     settingsForm.btTracker = text.replace(/\n+/g, ',')
     message.success(t('views.downloader.trackerSuccess'))
@@ -114,6 +112,12 @@ watch(isConnected, (connected) => {
     activeTab.value = 'connection'
   }
 })
+
+watch(activeTab, (tab) => {
+  if (tab === 'settings') {
+    loadSettings()
+  }
+})
 </script>
 
 <template>
@@ -126,104 +130,106 @@ watch(isConnected, (connected) => {
     to="#setting-drawer-target"
   >
     <n-drawer-content :title="t('views.downloader.settingTitle')" :closable="true">
-      <n-tabs v-model:value="activeTab">
-        <n-tab-pane name="connection" :tab="t('views.downloader.tabConnection')">
-          <n-form label-placement="left" label-width="100">
-            <n-form-item :label="t('views.downloader.rpcAddress')">
-              <n-input
-                v-model:value="connectionForm.host"
-                placeholder="http://localhost:6800/jsonrpc"
-              />
-            </n-form-item>
-            <n-form-item :label="t('views.downloader.token')">
-              <n-input
-                v-model:value="connectionForm.token"
-                :placeholder="t('views.downloader.tokenPlaceholder')"
-              />
-            </n-form-item>
-            <n-form-item>
-              <n-button type="primary" :loading="connecting" @click="connectToAria2">
-                {{ t('views.downloader.connect') }}
-              </n-button>
-            </n-form-item>
-          </n-form>
-        </n-tab-pane>
+      <n-scrollbar style="height: 100%; width: calc(100% - 18px); padding-right: 18px">
+        <n-tabs v-model:value="activeTab">
+          <n-tab-pane name="connection" :tab="t('views.downloader.tabConnection')">
+            <n-form label-placement="left" label-width="100">
+              <n-form-item :label="t('views.downloader.rpcAddress')">
+                <n-input
+                  v-model:value="connectionForm.host"
+                  placeholder="http://localhost:6800/jsonrpc"
+                />
+              </n-form-item>
+              <n-form-item :label="t('views.downloader.token')">
+                <n-input
+                  v-model:value="connectionForm.token"
+                  :placeholder="t('views.downloader.tokenPlaceholder')"
+                />
+              </n-form-item>
+              <n-form-item>
+                <n-button type="primary" :loading="connecting" @click="connectToAria2">
+                  {{ t('views.downloader.connect') }}
+                </n-button>
+              </n-form-item>
+            </n-form>
+          </n-tab-pane>
 
-        <n-tab-pane v-if="isConnected" name="settings" :tab="t('views.downloader.tabSettings')">
-          <n-form label-placement="left" label-width="150">
-            <n-form-item :label="t('views.downloader.dir')">
-              <n-input-group>
-                <n-input v-model:value="settingsForm.dir" />
-                <n-button :loading="applyingSettings" @click="selectFolder">
-                  <template #icon>
-                    <n-icon> <FolderOutline /> </n-icon>
-                  </template>
-                </n-button>
-              </n-input-group>
-            </n-form-item>
-            <n-form-item :label="t('views.downloader.maxConcurrent')">
-              <n-input-number
-                v-model:value="settingsForm.maxConcurrentDownloads"
-                style="width: 100%"
-                :min="1"
-                :max="64"
-              />
-            </n-form-item>
-            <n-form-item :label="t('views.downloader.split')">
-              <n-input-number
-                v-model:value="settingsForm.split"
-                style="width: 100%"
-                :min="1"
-                :max="64"
-              />
-            </n-form-item>
-            <n-form-item :label="t('views.downloader.maxConnection')">
-              <n-input-number
-                v-model:value="settingsForm.maxConnectionPerServer"
-                style="width: 100%"
-                :min="1"
-                :max="16"
-              />
-            </n-form-item>
-            <n-form-item :label="t('views.downloader.downloadLimit')">
-              <n-input-number
-                v-model:value="settingsForm.maxOverallDownloadLimit"
-                style="width: 100%"
-                :min="0"
-                :placeholder="t('views.downloader.noLimit')"
-              />
-            </n-form-item>
-            <n-form-item :label="t('views.downloader.uploadLimit')">
-              <n-input-number
-                v-model:value="settingsForm.maxOverallUploadLimit"
-                style="width: 100%"
-                :min="0"
-                :placeholder="t('views.downloader.noLimit')"
-              />
-            </n-form-item>
-            <n-form-item :label="t('views.downloader.enableDHT')">
-              <n-switch v-model:value="settingsForm.enableDHT" />
-            </n-form-item>
-            <n-form-item :label="t('views.downloader.btTracker')">
-              <n-input
-                v-model:value="settingsForm.btTracker"
-                type="textarea"
-                :placeholder="t('views.downloader.trackerPlaceholder')"
-              />
-            </n-form-item>
-            <n-form-item>
-              <n-space>
-                <n-button type="primary" :loading="applyingSettings" @click="applySettings">
-                  {{ t('views.downloader.apply') }}
-                </n-button>
-                <n-button tertiary :loading="fetchingTracker" @click="fetchLatestTracker">
-                  {{ t('views.downloader.fetchTracker') }}
-                </n-button>
-              </n-space>
-            </n-form-item>
-          </n-form>
-        </n-tab-pane>
-      </n-tabs>
+          <n-tab-pane v-if="isConnected" name="settings" :tab="t('views.downloader.tabSettings')">
+            <n-form label-placement="left" label-width="160">
+              <n-form-item :label="t('views.downloader.dir')">
+                <n-input-group>
+                  <n-input v-model:value="settingsForm.dir" />
+                  <n-button :loading="applyingSettings" @click="selectFolder">
+                    <template #icon>
+                      <n-icon> <FolderOutline /> </n-icon>
+                    </template>
+                  </n-button>
+                </n-input-group>
+              </n-form-item>
+              <n-form-item :label="t('views.downloader.maxConcurrent')">
+                <n-input-number
+                  v-model:value="settingsForm.maxConcurrentDownloads"
+                  style="width: 100%"
+                  :min="1"
+                  :max="64"
+                />
+              </n-form-item>
+              <n-form-item :label="t('views.downloader.split')">
+                <n-input-number
+                  v-model:value="settingsForm.split"
+                  style="width: 100%"
+                  :min="1"
+                  :max="64"
+                />
+              </n-form-item>
+              <n-form-item :label="t('views.downloader.maxConnection')">
+                <n-input-number
+                  v-model:value="settingsForm.maxConnectionPerServer"
+                  style="width: 100%"
+                  :min="1"
+                  :max="16"
+                />
+              </n-form-item>
+              <n-form-item :label="t('views.downloader.downloadLimit')">
+                <n-input-number
+                  v-model:value="settingsForm.maxOverallDownloadLimit"
+                  style="width: 100%"
+                  :min="0"
+                  :placeholder="t('views.downloader.noLimit')"
+                />
+              </n-form-item>
+              <n-form-item :label="t('views.downloader.uploadLimit')">
+                <n-input-number
+                  v-model:value="settingsForm.maxOverallUploadLimit"
+                  style="width: 100%"
+                  :min="0"
+                  :placeholder="t('views.downloader.noLimit')"
+                />
+              </n-form-item>
+              <n-form-item :label="t('views.downloader.enableDHT')">
+                <n-switch v-model:value="settingsForm.enableDHT" />
+              </n-form-item>
+              <n-form-item :label="t('views.downloader.btTracker')">
+                <n-input
+                  v-model:value="settingsForm.btTracker"
+                  type="textarea"
+                  :placeholder="t('views.downloader.trackerPlaceholder')"
+                />
+              </n-form-item>
+              <n-form-item>
+                <n-space>
+                  <n-button type="primary" :loading="applyingSettings" @click="applySettings">
+                    {{ t('views.downloader.apply') }}
+                  </n-button>
+                  <n-button tertiary :loading="fetchingTracker" @click="fetchLatestTracker">
+                    {{ t('views.downloader.fetchTracker') }}
+                  </n-button>
+                </n-space>
+              </n-form-item>
+            </n-form>
+          </n-tab-pane>
+        </n-tabs>
+      </n-scrollbar>
     </n-drawer-content>
   </n-drawer>
 </template>

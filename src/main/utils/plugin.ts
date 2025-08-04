@@ -156,6 +156,19 @@ export function runTask(pluginInfo: PluginInfo): Promise<void> {
 
     const child = spawn(execPath, [...pluginInfo.desc['cliArgs']], {
       cwd: path.dirname(execPath), // 工作目录=脚本目录
+      stdio: ['ignore', 'pipe', 'pipe'], // 拦截stdout/stderr
+    })
+
+    child.stdout.on('data', (data) => {
+      console.log(`stdout: ${data}`)
+    })
+
+    child.stderr.on('data', (data) => {
+      console.error(`stderr: ${data}`)
+    })
+
+    child.on('close', (code) => {
+      console.log(`child process exited with code ${code}`)
     })
 
     child.on('exit', () => {

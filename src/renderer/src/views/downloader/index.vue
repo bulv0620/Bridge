@@ -2,20 +2,144 @@
 import { useAria2 } from '@renderer/composables/aria2'
 import SettingDrawer from './components/setting-drawer/SettingDrawer.vue'
 import TaskBrowser from './components/task-browser/TaskBrowser.vue'
-import { onActivated, onDeactivated, onMounted, ref, watch } from 'vue'
+import { onActivated, onDeactivated, onMounted, ref } from 'vue'
 import { formatBytesPerSecond } from '@renderer/utils/format'
-import { Add, Pause, Play, SettingsOutline, TrashBinOutline } from '@vicons/ionicons5'
+import { Add, Pause, Play, SettingsOutline, Stop, TrashBinOutline } from '@vicons/ionicons5'
 import CreateTaskModal from './components/create-task-modal/CreateTaskModal.vue'
-import { useMessage } from 'naive-ui'
+import { useDialog, useMessage } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
+import { dialogPromise } from '@renderer/utils/dialog'
 
 const message = useMessage()
+const dialog = useDialog()
 const { t } = useI18n()
 
-const { aria2, startPolling, stopPolling, isConnected, globalStats } = useAria2()
+const { aria2, startPolling, stopPolling, isConnected, globalStats, checkedRowKeys, checkedTasks } =
+  useAria2()
 
 const showSettingDrawer = ref(false)
 const showCreateTaskModal = ref(false)
+
+const startLoading = ref(false)
+const pauseLoading = ref(false)
+const stopLoading = ref(false)
+const removeLoading = ref(false)
+
+function handleCreateTask() {
+  if (!aria2.value || !isConnected.value) {
+    message.warning(t('views.downloader.pleaseConnectFirst'))
+    return
+  }
+  showCreateTaskModal.value = true
+}
+
+async function handleStartTask() {
+  if (!checkedTasks.value.length) return
+
+  const toStart = checkedTasks.value.filter(
+    (task) => task.status === 'paused' || task.status === 'waiting',
+  )
+  if (!toStart.length) {
+    message.info(t('views.downloader.noTaskToStart'))
+    return
+  }
+
+  try {
+    startLoading.value = true
+    await Promise.all(toStart.map((task) => aria2.value?.unpause(task.gid)))
+    message.success(t('views.downloader.startSuccess'))
+  } catch (err) {
+    message.error(t('views.downloader.startFailed'))
+  } finally {
+    startLoading.value = false
+    checkedRowKeys.value = []
+  }
+}
+
+async function handlePauseTask() {
+  if (!checkedTasks.value.length) return
+
+  const toPause = checkedTasks.value.filter((task) => task.status === 'active')
+  if (!toPause.length) {
+    message.info(t('views.downloader.noTaskToPause'))
+    return
+  }
+
+  try {
+    pauseLoading.value = true
+    await Promise.all(toPause.map((task) => aria2.value?.pause(task.gid)))
+    message.success(t('views.downloader.pauseSuccess'))
+  } catch (err) {
+    message.error(t('views.downloader.pauseFailed'))
+  } finally {
+    pauseLoading.value = false
+    checkedRowKeys.value = []
+  }
+}
+
+async function handleStopTask() {
+  if (!checkedTasks.value.length) return
+
+  const activeStates = ['active', 'waiting', 'paused']
+  const tasksToStop = checkedTasks.value.filter((task) => activeStates.includes(task.status))
+
+  if (!tasksToStop.length) {
+    message.info(t('views.downloader.noTaskToStop'))
+    return
+  }
+
+  await dialogPromise(dialog.warning, {
+    title: t('common.warning'),
+    content: t('views.downloader.stopConfirm'),
+    positiveText: t('common.confirm'),
+    negativeText: t('common.cancel'),
+  })
+
+  try {
+    stopLoading.value = true
+
+    await Promise.all(tasksToStop.map((task) => aria2.value?.remove(task.gid)))
+
+    message.success(t('views.downloader.stopSuccess'))
+  } catch (err) {
+    message.error(t('views.downloader.stopFailed'))
+  } finally {
+    stopLoading.value = false
+    checkedRowKeys.value = []
+  }
+}
+
+async function handleRemoveTask() {
+  if (!checkedTasks.value.length) return
+
+  const removableStates = ['complete', 'error', 'removed']
+  const tasksToRemove = checkedTasks.value.filter((task) => removableStates.includes(task.status))
+
+  if (!tasksToRemove.length) {
+    message.info(t('views.downloader.noTaskToRemove'))
+    return
+  }
+
+  await dialogPromise(dialog.warning, {
+    title: t('common.warning'),
+    content: t('views.downloader.removeConfirm'),
+    positiveText: t('common.confirm'),
+    negativeText: t('common.cancel'),
+  })
+
+  try {
+    removeLoading.value = true
+
+    await Promise.all(tasksToRemove.map((task) => aria2.value?.removeDownloadResult(task.gid)))
+
+    message.success(t('views.downloader.removeSuccess'))
+  } catch (err) {
+    message.error(t('views.downloader.removeFailed'))
+  } finally {
+    removeLoading.value = false
+    checkedRowKeys.value = []
+  }
+}
 
 onActivated(() => {
   startPolling(1000)
@@ -28,22 +152,6 @@ onDeactivated(() => {
 onMounted(() => {
   startPolling(1000)
 })
-
-watch(isConnected, (connected) => {
-  if (connected) {
-    startPolling(1000)
-  } else {
-    stopPolling()
-  }
-})
-
-function handleCreateTask() {
-  if (!aria2.value || !isConnected.value) {
-    message.warning(t('views.downloader.pleaseConnectFirst'))
-    return
-  }
-  showCreateTaskModal.value = true
-}
 </script>
 
 <template>
@@ -61,23 +169,39 @@ function handleCreateTask() {
         <CommonButton
           :tooltip="$t('views.downloader.startTask')"
           :icon="Play"
-          :button-props="{ size: 'small', circle: true }"
+          :button-props="{ size: 'small', circle: true, loading: startLoading }"
           placement="bottom"
           :delay="500"
+          :disabled="checkedTasks.length === 0"
+          @click="handleStartTask"
         />
         <CommonButton
           :tooltip="$t('views.downloader.pauseTask')"
           :icon="Pause"
-          :button-props="{ size: 'small', circle: true }"
+          :button-props="{ size: 'small', circle: true, loading: pauseLoading }"
           placement="bottom"
           :delay="500"
+          :disabled="checkedTasks.length === 0"
+          @click="handlePauseTask"
         />
+        <CommonButton
+          :tooltip="$t('views.downloader.stopTask')"
+          :icon="Stop"
+          :button-props="{ size: 'small', circle: true, loading: stopLoading }"
+          placement="bottom"
+          :delay="500"
+          :disabled="checkedTasks.length === 0"
+          @click="handleStopTask"
+        />
+
         <CommonButton
           :tooltip="$t('views.downloader.removeTask')"
           :icon="TrashBinOutline"
-          :button-props="{ size: 'small', circle: true }"
+          :button-props="{ size: 'small', circle: true, loading: removeLoading }"
           placement="bottom"
           :delay="500"
+          :disabled="checkedTasks.length === 0"
+          @click="handleRemoveTask"
         />
       </n-space>
       <CommonButton

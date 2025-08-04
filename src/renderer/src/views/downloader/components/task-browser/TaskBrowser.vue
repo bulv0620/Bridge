@@ -8,7 +8,7 @@ import { formatBytes, formatBytesPerSecond, formatTimeLeft } from '@renderer/uti
 import { Aria2Status } from '@renderer/utils/aria2/aria2-types'
 
 const { t } = useI18n()
-const { activeTasks, waitingTasks, stoppedTasks } = useAria2()
+const { activeTasks, waitingTasks, stoppedTasks, checkedRowKeys } = useAria2()
 
 const activeTab = ref('downloading')
 const tabOptions = computed(() => [
@@ -30,7 +30,7 @@ const columns = computed(() => [
         { style: { maxWidth: '100%', fontSize: '12px' } },
         {
           default: () =>
-            `[${row.files?.length || 0}] ${row.files?.[0]?.path?.split('/').pop() || '未知文件名'}`,
+            `[${row.files?.length || 0}] ${row.files?.[0]?.path?.split('/').pop() || t('views.downloader.unknown')}`,
         },
       )
     },
@@ -39,7 +39,7 @@ const columns = computed(() => [
     key: 'status',
     title: t('views.downloader.taskStatus'),
     width: 110,
-    render(row) {
+    render(row: Aria2Status) {
       const statusMap = {
         active: { type: 'success', label: t('views.downloader.downloading') },
         waiting: { type: 'warning', label: t('views.downloader.waiting') },
@@ -47,9 +47,19 @@ const columns = computed(() => [
         paused: { type: 'default', label: t('views.downloader.paused') },
         error: { type: 'error', label: t('views.downloader.error') },
         removed: { type: 'error', label: t('views.downloader.removed') },
+        seeding: { type: 'success', label: t('views.downloader.seeding') },
       }
-      const info = statusMap[row.status] || { type: 'default', label: row.status }
-      return h(NTag, { type: info.type, size: 'small' }, { default: () => info.label })
+      let info
+      if (
+        row.status === 'active' &&
+        Number(row.totalLength) > 0 &&
+        row.completedLength === row.totalLength
+      ) {
+        info = statusMap['seeding']
+      } else {
+        info = statusMap[row.status] || { type: 'default', label: row.status }
+      }
+      return h(NTag, { type: info.type as any, size: 'small' }, { default: () => info.label })
     },
   },
   {
@@ -168,6 +178,7 @@ function getTaskTimeLeft(row: Aria2Status) {
 
     <div class="table">
       <n-data-table
+        v-model:checked-row-keys="checkedRowKeys"
         size="small"
         :columns="columns"
         :data="data"

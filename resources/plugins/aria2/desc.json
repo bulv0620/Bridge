@@ -2,6 +2,5 @@
   "title": "Aria2 Server",
   "summary": "Aria2 is a lightweight download utility that supports HTTP(S), FTP, SFTP, BitTorrent, and Metalink.",
   "configPath": "./aria2.conf",
-  "logPath": "./aria2.log",
   "cliArgs": ["--conf-path=aria2.conf"]
 }

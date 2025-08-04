@@ -59,7 +59,7 @@ const handleSubmit = async () => {
       v-model:value="urlInput"
       type="textarea"
       :placeholder="t('views.downloader.urlInputPlaceholder')"
-      :autosize="{ minRows: 4, maxRows: 10 }"
+      :rows="5"
     />
 
     <template #footer>

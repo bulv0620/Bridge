@@ -1,6 +1,6 @@
 import { Aria2Client } from '@renderer/utils/aria2/request'
 import { Aria2GlobalStat, Aria2Status } from '@renderer/utils/aria2/aria2-types'
-import { ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 const isConnected = ref(false)
 const aria2 = ref<Aria2Client | null>(null)
@@ -9,6 +9,16 @@ const activeTasks = ref<Aria2Status[]>([])
 const waitingTasks = ref<Aria2Status[]>([])
 const stoppedTasks = ref<Aria2Status[]>([])
 const globalStats = ref<Aria2GlobalStat | null>(null)
+
+const allTasks = computed(() => {
+  return [...activeTasks.value, ...waitingTasks.value, ...stoppedTasks.value]
+})
+
+// 选中行的 GID 列表
+const checkedRowKeys = ref<string[]>([])
+const checkedTasks = computed(() => {
+  return allTasks.value.filter((task) => checkedRowKeys.value.includes(task.gid))
+})
 
 let timer: ReturnType<typeof setInterval> | null = null
 
@@ -26,7 +36,15 @@ async function fetchStats() {
   if (!aria2.value) return
 
   try {
-    const keys = ['gid', 'totalLength', 'completedLength', 'downloadSpeed', 'status', 'files']
+    const keys = [
+      'gid',
+      'totalLength',
+      'completedLength',
+      'downloadSpeed',
+      'status',
+      'files',
+      'seeder',
+    ]
 
     const [active, waiting, stopped, stats] = await Promise.all([
       aria2.value.tellActive(keys),
@@ -37,7 +55,7 @@ async function fetchStats() {
 
     activeTasks.value = active
     waitingTasks.value = waiting
-    stoppedTasks.value = stopped
+    stoppedTasks.value = stopped.reverse()
     globalStats.value = stats
   } catch (error) {
     isConnected.value = false
@@ -46,7 +64,7 @@ async function fetchStats() {
 }
 
 function startPolling(interval: number) {
-  if (timer || !aria2.value) return
+  if (timer || !aria2.value || !isConnected.value) return
   timer = setInterval(fetchStats, interval)
   fetchStats()
 }
@@ -58,6 +76,18 @@ function stopPolling() {
   }
 }
 
+watch(isConnected, (connected) => {
+  if (connected) {
+    startPolling(1000)
+  } else {
+    stopPolling()
+    activeTasks.value = []
+    waitingTasks.value = []
+    stoppedTasks.value = []
+    globalStats.value = null
+  }
+})
+
 export function useAria2() {
   return {
     aria2,
@@ -65,6 +95,9 @@ export function useAria2() {
     activeTasks,
     waitingTasks,
     stoppedTasks,
+    allTasks,
+    checkedRowKeys,
+    checkedTasks,
     globalStats,
     testConnection,
     fetchStats,
