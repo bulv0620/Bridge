@@ -23,10 +23,6 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // 监听剪切板
-  const watcher = new ClipboardWatcher()
-  watcher.start(1000)
-
   const mainWindow = createCustomWindow({
     resizable: true,
     minWidth: 880,
@@ -43,7 +39,9 @@ app.whenReady().then(() => {
   mainWindow.show()
 
   const tray = createTray(mainWindow)
-  createEventHandler({ mainWindow, tray })
+  // 监听剪切板
+  const clipboardWatcher = new ClipboardWatcher(mainWindow)
+  createEventHandler({ mainWindow, tray, clipboardWatcher })
 
   app.on('second-instance', (_event, _commandLine, _workingDirectory) => {
     // 如果用户再次打开应用，显示主窗口

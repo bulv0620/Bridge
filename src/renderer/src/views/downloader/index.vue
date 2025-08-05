@@ -2,23 +2,27 @@
 import { useAria2 } from '@renderer/composables/aria2'
 import SettingDrawer from './components/setting-drawer/SettingDrawer.vue'
 import TaskBrowser from './components/task-browser/TaskBrowser.vue'
-import { onActivated, onDeactivated, onMounted, ref } from 'vue'
+import { onActivated, onDeactivated, onMounted, ref, watch } from 'vue'
 import { formatBytesPerSecond } from '@renderer/utils/format'
 import { Add, Pause, Play, SettingsOutline, Stop, TrashBinOutline } from '@vicons/ionicons5'
 import CreateTaskModal from './components/create-task-modal/CreateTaskModal.vue'
 import { useDialog, useMessage } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 import { dialogPromise } from '@renderer/utils/dialog'
+import { useRoute, useRouter } from 'vue-router'
 
 const message = useMessage()
 const dialog = useDialog()
 const { t } = useI18n()
+const route = useRoute()
+const router = useRouter()
 
 const { aria2, startPolling, stopPolling, isConnected, globalStats, checkedRowKeys, checkedTasks } =
   useAria2()
 
+const createTaskModalRef = ref<InstanceType<typeof CreateTaskModal> | null>(null)
+
 const showSettingDrawer = ref(false)
-const showCreateTaskModal = ref(false)
 
 const startLoading = ref(false)
 const pauseLoading = ref(false)
@@ -30,7 +34,7 @@ function handleCreateTask() {
     message.warning(t('views.downloader.pleaseConnectFirst'))
     return
   }
-  showCreateTaskModal.value = true
+  createTaskModalRef.value?.open()
 }
 
 async function handleStartTask() {
@@ -152,6 +156,20 @@ onDeactivated(() => {
 onMounted(() => {
   startPolling(1000)
 })
+
+watch(
+  () => route.query.url,
+  (url: any) => {
+    if (url) {
+      createTaskModalRef.value?.open(url)
+
+      router.replace({
+        path: router.currentRoute.value.path,
+        query: {},
+      })
+    }
+  },
+)
 </script>
 
 <template>
@@ -234,7 +252,7 @@ onMounted(() => {
     </div>
   </div>
   <SettingDrawer v-model:show="showSettingDrawer"></SettingDrawer>
-  <CreateTaskModal v-model:show="showCreateTaskModal"></CreateTaskModal>
+  <CreateTaskModal ref="createTaskModalRef"></CreateTaskModal>
 </template>
 
 <style lang="less" scoped>

@@ -1,25 +1,23 @@
-import { clipboard } from 'electron'
+import { BrowserWindow, clipboard } from 'electron'
 
 /**
  * 监听系统剪贴板中的磁力链接（magnet:?xt=urn:btih:...）
- * 用于快速捕获用户复制的 BT 链接，便于调试或自动添加任务
- *
- * 使用示例：
- * const watcher = new ClipboardWatcher()
- * watcher.start()
- * // ...
- * watcher.stop()
  */
 export class ClipboardWatcher {
   private timer: NodeJS.Timeout | null = null
-  private lastText: string = ''
+  private mainWindow: BrowserWindow
+
+  constructor(mainWindow: BrowserWindow) {
+    this.mainWindow = mainWindow
+  }
 
   /**
    * 启动监听，每秒读取剪贴板内容
    */
-  start(intervalMs = 1000): void {
+  start(intervalMs?: number): void {
+    clipboard.clear()
     if (this.timer) return
-    this.timer = setInterval(this.checkClipboard, intervalMs)
+    this.timer = setInterval(this.checkClipboard, intervalMs || 1000)
   }
 
   /**
@@ -32,15 +30,30 @@ export class ClipboardWatcher {
     }
   }
 
+  /**
+   * 监听状态
+   */
+  getStatus(): Boolean {
+    return !!this.timer
+  }
+
   private checkClipboard = (): void => {
     try {
       const txt = clipboard.readText().trim()
-      if (txt && txt !== this.lastText) {
-        this.lastText = txt
+      if (txt) {
+        const pattern =
+          /(^magnet:\?xt=urn:btih:[a-fA-F0-9]{32,40})|(^https?:\/\/\S+\.torrent)(?:[?#].*)?$/i
 
-        // 简单识别 BT 链接：magnet:?xt=urn:btih:
-        if (/^magnet:\?xt=urn:btih:[a-fA-F0-9]{32,40}/.test(txt)) {
-          console.log('[ClipboardWatcher] 检测到 Magnet 链接:', txt)
+        if (pattern.test(txt)) {
+          this.mainWindow.show()
+          this.mainWindow.setAlwaysOnTop(true)
+          this.mainWindow.setAlwaysOnTop(false)
+          this.mainWindow.focus()
+
+          // console.log('检测到下载链接: ' + txt)
+          this.mainWindow.webContents.send('clipboard-magnet', txt)
+
+          clipboard.clear()
         }
       }
     } catch (e) {

@@ -7,11 +7,11 @@ import FtpClient from '@renderer/views/ftp-client/index.vue'
 import Downloader from '@renderer/views/downloader/index.vue'
 
 const routes = [
-  { path: '/', component: FileSync },
-  { path: '/plugin-center', component: PluginCenter },
-  { path: '/setting', component: Setting },
-  { path: '/ftp-client', component: FtpClient },
-  { path: '/downloader', component: Downloader },
+  { name: 'fileSync', path: '/', component: FileSync },
+  { name: 'pluginCenter', path: '/plugin-center', component: PluginCenter },
+  { name: 'setting', path: '/setting', component: Setting },
+  { name: 'ftpClient', path: '/ftp-client', component: FtpClient },
+  { name: 'downloader', path: '/downloader', component: Downloader },
 ]
 
 const router = createRouter({

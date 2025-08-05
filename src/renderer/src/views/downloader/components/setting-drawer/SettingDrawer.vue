@@ -49,6 +49,9 @@ const settingsForm = reactive({
   maxOverallUploadLimit: 0,
   enableDHT: true,
   btTracker: '',
+
+  // other settings
+  enableUrlWatcher: false,
 })
 
 async function loadSettings() {
@@ -62,6 +65,10 @@ async function loadSettings() {
   settingsForm.maxOverallUploadLimit = parseInt(options['max-overall-upload-limit'])
   settingsForm.enableDHT = options['enable-dht'] === 'true'
   settingsForm.btTracker = options['bt-tracker'] || ''
+}
+
+async function loadLocalSettings() {
+  settingsForm.enableUrlWatcher = await ipcRenderer.invoke('get-clipboard-watcher-status')
 }
 
 async function applySettings() {
@@ -110,6 +117,8 @@ async function selectFolder() {
 watch(isConnected, (connected) => {
   if (!connected) {
     activeTab.value = 'connection'
+
+    ipcRenderer.invoke('close-clipboard-watcher')
   }
 })
 
@@ -117,7 +126,32 @@ watch(activeTab, (tab) => {
   if (tab === 'settings') {
     loadSettings()
   }
+  if (tab === 'localSettings') {
+    loadLocalSettings()
+  }
 })
+
+watch(showDrawer, (show) => {
+  if (show) {
+    if (activeTab.value === 'settings') {
+      loadSettings()
+    }
+    if (activeTab.value === 'localSettings') {
+      loadLocalSettings()
+    }
+  }
+})
+
+watch(
+  () => settingsForm.enableUrlWatcher,
+  (enable) => {
+    if (enable) {
+      ipcRenderer.invoke('open-clipboard-watcher')
+    } else {
+      ipcRenderer.invoke('close-clipboard-watcher')
+    }
+  },
+)
 </script>
 
 <template>
@@ -231,6 +265,21 @@ watch(activeTab, (tab) => {
                     {{ t('views.downloader.fetchTracker') }}
                   </n-button>
                 </n-space>
+              </n-form-item>
+            </n-form>
+          </n-tab-pane>
+
+          <n-tab-pane
+            v-if="
+              (isConnected && aria2?.getUrl().includes('localhost')) ||
+              aria2?.getUrl().includes('127.0.0.1')
+            "
+            name="localSettings"
+            :tab="t('views.downloader.tabLocalSettings')"
+          >
+            <n-form label-placement="left" label-width="150">
+              <n-form-item :label="t('views.downloader.enableUrlWatcher')">
+                <n-switch v-model:value="settingsForm.enableUrlWatcher" />
               </n-form-item>
             </n-form>
           </n-tab-pane>

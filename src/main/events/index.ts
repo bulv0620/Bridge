@@ -1,13 +1,16 @@
 import { BrowserWindow, dialog, ipcMain, nativeTheme, shell, Tray } from 'electron'
 import { updateTray } from '../utils/tray'
 import { checkPluginStatus, getPluginInfo, PluginInfo, runTask, stopTask } from '../utils/plugin'
+import { ClipboardWatcher } from '../utils/ClipboardWatcher'
 
 export function createEventHandler({
   mainWindow,
   tray,
+  clipboardWatcher,
 }: {
   mainWindow: BrowserWindow
   tray: Tray
+  clipboardWatcher: ClipboardWatcher
 }) {
   // 设置APP主题模式
   ipcMain.handle('switch-theme', (_, type: 'light' | 'dark' | 'system') => {
@@ -67,5 +70,20 @@ export function createEventHandler({
   // 检测插件是否在运行
   ipcMain.handle('open-path', (_, path: string) => {
     return shell.openPath(path)
+  })
+
+  // 启动监听
+  ipcMain.handle('open-clipboard-watcher', () => {
+    clipboardWatcher.start(2000)
+  })
+
+  // 关闭监听
+  ipcMain.handle('close-clipboard-watcher', () => {
+    clipboardWatcher.stop()
+  })
+
+  // 获取监听状态
+  ipcMain.handle('get-clipboard-watcher-status', () => {
+    return clipboardWatcher.getStatus()
   })
 }

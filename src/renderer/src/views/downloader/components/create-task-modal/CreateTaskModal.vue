@@ -1,29 +1,32 @@
 <script setup lang="ts">
-import { nextTick, ref, watch } from 'vue'
+import { nextTick, ref } from 'vue'
 import { NInput, useMessage } from 'naive-ui'
 import { useAria2 } from '@renderer/composables/aria2'
 import { useI18n } from 'vue-i18n'
-
-const show = defineModel<boolean>('show', { default: false })
 
 const { aria2 } = useAria2()
 const message = useMessage()
 const { t } = useI18n()
 
+const show = ref(false)
 const urlInput = ref('')
 const loading = ref(false)
 const inputRef = ref<InstanceType<typeof NInput> | null>(null)
 
-watch(show, (newVal) => {
-  if (newVal) {
+function open(url?: string) {
+  show.value = true
+  if (url) {
+    urlInput.value = url
+  } else {
     urlInput.value = ''
-    nextTick(() => {
-      inputRef.value?.focus()
-    })
   }
-})
 
-const handleSubmit = async () => {
+  nextTick(() => {
+    inputRef.value?.focus()
+  })
+}
+
+async function handleSubmit() {
   const urls = urlInput.value
     .split('\n')
     .map((u) => u.trim())
@@ -45,6 +48,8 @@ const handleSubmit = async () => {
     loading.value = false
   }
 }
+
+defineExpose({ open })
 </script>
 
 <template>
