@@ -51,3 +51,39 @@ export interface Aria2GlobalOption {
   'bt-tracker'?: string
   [key: string]: string | undefined
 }
+
+export interface IAria2Client {
+  getUrl(): string
+
+  rpcRequest(method: string, params?: any[]): Promise<any>
+
+  testConnection(): Promise<boolean>
+
+  addUri(uris: string[], options?: Record<string, any>): Promise<string>
+
+  remove(gid: string): Promise<string>
+
+  removeDownloadResult(gid: string): Promise<string>
+
+  pause(gid: string): Promise<string>
+
+  unpause(gid: string): Promise<string>
+
+  tellStatus(gid: string, keys?: string[]): Promise<Aria2Status>
+
+  tellActive(keys?: string[]): Promise<Aria2Status[]>
+
+  tellWaiting(offset: number, num: number, keys?: string[]): Promise<Aria2Status[]>
+
+  tellStopped(offset: number, num: number, keys?: string[]): Promise<Aria2Status[]>
+
+  changeGlobalOption(options: Partial<Aria2GlobalOption>): Promise<Record<string, any>>
+
+  getGlobalOption(): Promise<Aria2GlobalOption>
+
+  getGlobalStat(): Promise<Aria2GlobalStat>
+
+  shutdown(): Promise<void>
+
+  forceShutdown(): Promise<void>
+}

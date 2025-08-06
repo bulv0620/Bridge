@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import * as monaco from 'monaco-editor'
-import { useTheme } from '@renderer/composables/theme'
+import { useTheme } from '@renderer/composables/setting/useTheme'
 
 const props = defineProps({
   language: {

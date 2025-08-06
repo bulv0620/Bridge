@@ -1,9 +1,8 @@
-import { Aria2Client } from '@renderer/utils/aria2/request'
-import { Aria2GlobalStat, Aria2Status } from '@renderer/utils/aria2/aria2-types'
+import { Aria2GlobalStat, Aria2Status, IAria2Client } from '@renderer/utils/aria2/Aria2Types'
 import { computed, ref, watch } from 'vue'
 
 const isConnected = ref(false)
-const aria2 = ref<Aria2Client | null>(null)
+const aria2 = ref<IAria2Client | null>(null)
 
 const activeTasks = ref<Aria2Status[]>([])
 const waitingTasks = ref<Aria2Status[]>([])

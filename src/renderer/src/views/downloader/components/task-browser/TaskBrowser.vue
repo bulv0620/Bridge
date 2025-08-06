@@ -2,10 +2,10 @@
 import { computed, h, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { List, DownloadOutline, TimeOutline, FlagOutline } from '@vicons/ionicons5'
-import { useAria2 } from '@renderer/composables/aria2'
+import { useAria2 } from '@renderer/composables/downloader/useAria2'
 import { NEllipsis, NProgress, NTag } from 'naive-ui'
 import { formatBytes, formatBytesPerSecond, formatTimeLeft } from '@renderer/utils/format'
-import { Aria2Status } from '@renderer/utils/aria2/aria2-types'
+import { Aria2Status } from '@renderer/utils/aria2/Aria2Types'
 
 const { t } = useI18n()
 const { activeTasks, waitingTasks, stoppedTasks, checkedRowKeys } = useAria2()

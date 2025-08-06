@@ -1,55 +1,11 @@
 <script setup lang="ts">
-import { nextTick, ref } from 'vue'
-import { NInput, useMessage } from 'naive-ui'
-import { useAria2 } from '@renderer/composables/aria2'
+import { NInput } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
+import { useCreateDownloadTaskModal } from '@renderer/composables/downloader/useCreateDownloadTaskModal'
 
-const { aria2 } = useAria2()
-const message = useMessage()
 const { t } = useI18n()
 
-const show = ref(false)
-const urlInput = ref('')
-const loading = ref(false)
-const inputRef = ref<InstanceType<typeof NInput> | null>(null)
-
-function open(url?: string) {
-  show.value = true
-  if (url) {
-    urlInput.value = url
-  } else {
-    urlInput.value = ''
-  }
-
-  nextTick(() => {
-    inputRef.value?.focus()
-  })
-}
-
-async function handleSubmit() {
-  const urls = urlInput.value
-    .split('\n')
-    .map((u) => u.trim())
-    .filter((u) => !!u)
-  if (!urls.length) {
-    message.warning(t('views.downloader.enterValidUrl'))
-    return
-  }
-
-  try {
-    loading.value = true
-    await aria2.value?.addUri(urls)
-    message.success(t('views.downloader.taskAdded'))
-    show.value = false
-    urlInput.value = ''
-  } catch (err) {
-    message.error(t('views.downloader.taskAddFailed'))
-  } finally {
-    loading.value = false
-  }
-}
-
-defineExpose({ open })
+const { show, urlInput, loading, inputRef, submitDownloadTask } = useCreateDownloadTaskModal()
 </script>
 
 <template>
@@ -70,7 +26,7 @@ defineExpose({ open })
     <template #footer>
       <n-space justify="end">
         <n-button @click="show = false">{{ t('common.cancel') }}</n-button>
-        <n-button type="primary" :loading="loading" @click="handleSubmit">
+        <n-button type="primary" :loading="loading" @click="submitDownloadTask">
           {{ t('common.confirm') }}
         </n-button>
       </n-space>

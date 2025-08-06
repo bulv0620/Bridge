@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { useLang } from './composables/lang'
-import { useTheme } from './composables/theme'
+import { useLang } from './composables/setting/useLang'
+import { useTheme } from './composables/setting/useTheme'
 import layout from './layout/layout.vue'
 
 const ipcRenderer = window.electron.ipcRenderer

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTheme } from '@renderer/composables/theme'
+import { useTheme } from '@renderer/composables/setting/useTheme'
 
 const { currentTheme } = useTheme()
 </script>

@@ -1,13 +1,3 @@
-/**
- * FTP 实例管理模块
- *
- * 封装了对 FTP 连接实例的增删、切换、路径管理等功能，
- * 并通过组合式 API 提供响应式状态，便于在 Vue 组件中统一管理和调用。
- *
- * 主要导出 useFtp 钩子，包含：
- * - 当前实例、实例名、路径、实例列表
- * - 新增/移除实例方法
- */
 import { FtpFileSystem } from '@renderer/utils/file-system'
 import { computed, ref } from 'vue'
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { languageOptions } from '@renderer/locales'
-import { EThemeType, useTheme } from '@renderer/composables/theme'
+import { EThemeType, useTheme } from '@renderer/composables/setting/useTheme'
 import { computed } from 'vue'
 import { dialogPromise } from '@renderer/utils/dialog'
 import { useDialog } from 'naive-ui'

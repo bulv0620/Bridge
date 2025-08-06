@@ -1,4 +1,4 @@
-import { Aria2GlobalOption, Aria2GlobalStat, Aria2Status } from './aria2-types'
+import { Aria2GlobalOption, Aria2GlobalStat, Aria2Status } from './Aria2Types'
 
 interface Aria2Options {
   /**
@@ -19,7 +19,7 @@ interface Aria2Request {
 }
 
 export class Aria2Client {
-  private url: string
+  public url: string
   private token?: string
 
   constructor(options: Aria2Options) {
@@ -37,7 +37,7 @@ export class Aria2Client {
   /**
    * 向 aria2 发送通用 JSON-RPC 请求（带超时控制）
    */
-  private async rpcRequest(method: string, params: any[] = []): Promise<any> {
+  async rpcRequest(method: string, params: any[] = []): Promise<any> {
     const rpc: Aria2Request = {
       jsonrpc: '2.0',
       id: Date.now().toString(),

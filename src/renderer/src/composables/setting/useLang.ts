@@ -2,7 +2,6 @@ import { useI18n } from 'vue-i18n'
 import { computed, watch } from 'vue'
 import { zhCN, dateZhCN, enUS, dateEnUS } from 'naive-ui'
 
-// 只在app.vue中使用，否则会导致多次监听
 export const useLang = () => {
   const { locale } = useI18n()
   const ipcRenderer = window.electron.ipcRenderer

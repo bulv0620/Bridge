@@ -1,167 +1,24 @@
 <script setup lang="ts">
-import { useAria2 } from '@renderer/composables/aria2'
 import SettingDrawer from './components/setting-drawer/SettingDrawer.vue'
-import TaskBrowser from './components/task-browser/TaskBrowser.vue'
-import { onActivated, onDeactivated, onMounted, ref, watch } from 'vue'
-import { formatBytesPerSecond } from '@renderer/utils/format'
-import { Add, Pause, Play, SettingsOutline, Stop, TrashBinOutline } from '@vicons/ionicons5'
 import CreateTaskModal from './components/create-task-modal/CreateTaskModal.vue'
-import { useDialog, useMessage } from 'naive-ui'
-import { useI18n } from 'vue-i18n'
-import { dialogPromise } from '@renderer/utils/dialog'
+import DownloadToolbar from './components/download-toolbar/DownloadToolbar.vue'
+import DownloadStatus from './components/download-status/DownloadStatus.vue'
+import TaskListTab from './components/task-list-tab/TaskListTab.vue'
+import TaskList from './components/task-list/TaskList.vue'
 import { useRoute, useRouter } from 'vue-router'
+import { watch } from 'vue'
+import { useCreateDownloadTaskModal } from '@renderer/composables/downloader/useCreateDownloadTaskModal'
 
-const message = useMessage()
-const dialog = useDialog()
-const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 
-const { aria2, startPolling, stopPolling, isConnected, globalStats, checkedRowKeys, checkedTasks } =
-  useAria2()
-
-const createTaskModalRef = ref<InstanceType<typeof CreateTaskModal> | null>(null)
-
-const showSettingDrawer = ref(false)
-
-const startLoading = ref(false)
-const pauseLoading = ref(false)
-const stopLoading = ref(false)
-const removeLoading = ref(false)
-
-function handleCreateTask() {
-  if (!aria2.value || !isConnected.value) {
-    message.warning(t('views.downloader.pleaseConnectFirst'))
-    return
-  }
-  createTaskModalRef.value?.open()
-}
-
-async function handleStartTask() {
-  if (!checkedTasks.value.length) return
-
-  const toStart = checkedTasks.value.filter(
-    (task) => task.status === 'paused' || task.status === 'waiting',
-  )
-  if (!toStart.length) {
-    message.info(t('views.downloader.noTaskToStart'))
-    return
-  }
-
-  try {
-    startLoading.value = true
-    await Promise.all(toStart.map((task) => aria2.value?.unpause(task.gid)))
-    message.success(t('views.downloader.startSuccess'))
-  } catch (err) {
-    message.error(t('views.downloader.startFailed'))
-  } finally {
-    startLoading.value = false
-    checkedRowKeys.value = []
-  }
-}
-
-async function handlePauseTask() {
-  if (!checkedTasks.value.length) return
-
-  const toPause = checkedTasks.value.filter((task) => task.status === 'active')
-  if (!toPause.length) {
-    message.info(t('views.downloader.noTaskToPause'))
-    return
-  }
-
-  try {
-    pauseLoading.value = true
-    await Promise.all(toPause.map((task) => aria2.value?.pause(task.gid)))
-    message.success(t('views.downloader.pauseSuccess'))
-  } catch (err) {
-    message.error(t('views.downloader.pauseFailed'))
-  } finally {
-    pauseLoading.value = false
-    checkedRowKeys.value = []
-  }
-}
-
-async function handleStopTask() {
-  if (!checkedTasks.value.length) return
-
-  const activeStates = ['active', 'waiting', 'paused']
-  const tasksToStop = checkedTasks.value.filter((task) => activeStates.includes(task.status))
-
-  if (!tasksToStop.length) {
-    message.info(t('views.downloader.noTaskToStop'))
-    return
-  }
-
-  await dialogPromise(dialog.warning, {
-    title: t('common.warning'),
-    content: t('views.downloader.stopConfirm'),
-    positiveText: t('common.confirm'),
-    negativeText: t('common.cancel'),
-  })
-
-  try {
-    stopLoading.value = true
-
-    await Promise.all(tasksToStop.map((task) => aria2.value?.remove(task.gid)))
-
-    message.success(t('views.downloader.stopSuccess'))
-  } catch (err) {
-    message.error(t('views.downloader.stopFailed'))
-  } finally {
-    stopLoading.value = false
-    checkedRowKeys.value = []
-  }
-}
-
-async function handleRemoveTask() {
-  if (!checkedTasks.value.length) return
-
-  const removableStates = ['complete', 'error', 'removed']
-  const tasksToRemove = checkedTasks.value.filter((task) => removableStates.includes(task.status))
-
-  if (!tasksToRemove.length) {
-    message.info(t('views.downloader.noTaskToRemove'))
-    return
-  }
-
-  await dialogPromise(dialog.warning, {
-    title: t('common.warning'),
-    content: t('views.downloader.removeConfirm'),
-    positiveText: t('common.confirm'),
-    negativeText: t('common.cancel'),
-  })
-
-  try {
-    removeLoading.value = true
-
-    await Promise.all(tasksToRemove.map((task) => aria2.value?.removeDownloadResult(task.gid)))
-
-    message.success(t('views.downloader.removeSuccess'))
-  } catch (err) {
-    message.error(t('views.downloader.removeFailed'))
-  } finally {
-    removeLoading.value = false
-    checkedRowKeys.value = []
-  }
-}
-
-onActivated(() => {
-  startPolling(1000)
-})
-
-onDeactivated(() => {
-  stopPolling()
-})
-
-onMounted(() => {
-  startPolling(1000)
-})
+const { openCreateTaskModal } = useCreateDownloadTaskModal()
 
 watch(
   () => route.query.url,
   (url: any) => {
     if (url) {
-      createTaskModalRef.value?.open(url)
+      openCreateTaskModal(url)
 
       router.replace({
         path: router.currentRoute.value.path,
@@ -175,83 +32,19 @@ watch(
 <template>
   <div id="setting-drawer-target" class="downloader">
     <div class="header">
-      <n-space>
-        <CommonButton
-          :tooltip="$t('views.downloader.createTask')"
-          :icon="Add"
-          :button-props="{ size: 'small', circle: true, type: 'primary' }"
-          placement="bottom"
-          :delay="500"
-          @click="handleCreateTask"
-        />
-        <CommonButton
-          :tooltip="$t('views.downloader.startTask')"
-          :icon="Play"
-          :button-props="{ size: 'small', circle: true, loading: startLoading }"
-          placement="bottom"
-          :delay="500"
-          :disabled="checkedTasks.length === 0"
-          @click="handleStartTask"
-        />
-        <CommonButton
-          :tooltip="$t('views.downloader.pauseTask')"
-          :icon="Pause"
-          :button-props="{ size: 'small', circle: true, loading: pauseLoading }"
-          placement="bottom"
-          :delay="500"
-          :disabled="checkedTasks.length === 0"
-          @click="handlePauseTask"
-        />
-        <CommonButton
-          :tooltip="$t('views.downloader.stopTask')"
-          :icon="Stop"
-          :button-props="{ size: 'small', circle: true, loading: stopLoading }"
-          placement="bottom"
-          :delay="500"
-          :disabled="checkedTasks.length === 0"
-          @click="handleStopTask"
-        />
-
-        <CommonButton
-          :tooltip="$t('views.downloader.removeTask')"
-          :icon="TrashBinOutline"
-          :button-props="{ size: 'small', circle: true, loading: removeLoading }"
-          placement="bottom"
-          :delay="500"
-          :disabled="checkedTasks.length === 0"
-          @click="handleRemoveTask"
-        />
-      </n-space>
-      <CommonButton
-        :tooltip="$t('views.downloader.setting')"
-        :icon="SettingsOutline"
-        :button-props="{ size: 'small', circle: true }"
-        placement="bottom"
-        :delay="500"
-        @click="showSettingDrawer = true"
-      />
+      <DownloadToolbar></DownloadToolbar>
     </div>
     <n-divider style="margin: 0"></n-divider>
-    <TaskBrowser></TaskBrowser>
+    <div class="main">
+      <TaskListTab></TaskListTab>
+      <TaskList></TaskList>
+    </div>
     <n-divider style="margin: 0"></n-divider>
     <div class="footer">
-      <n-tag v-if="isConnected" size="small" type="success">
-        {{ $t('views.downloader.connected') }}
-      </n-tag>
-      <n-tag v-else size="small" type="error">{{ $t('views.downloader.disconnected') }}</n-tag>
-      <n-space style="font-size: 14px">
-        <span>
-          {{ $t('views.downloader.uploadSpeed') }}:
-          {{ formatBytesPerSecond(globalStats?.uploadSpeed || 0) }}
-        </span>
-        <span>
-          {{ $t('views.downloader.downloadSpeed') }}:
-          {{ formatBytesPerSecond(globalStats?.downloadSpeed || 0) }}
-        </span>
-      </n-space>
+      <DownloadStatus></DownloadStatus>
     </div>
   </div>
-  <SettingDrawer v-model:show="showSettingDrawer"></SettingDrawer>
+  <SettingDrawer></SettingDrawer>
   <CreateTaskModal ref="createTaskModalRef"></CreateTaskModal>
 </template>
 
@@ -266,6 +59,15 @@ watch(
     padding: 16px;
     display: flex;
     justify-content: space-between;
+  }
+
+  .main {
+    flex: 1;
+    overflow: hidden;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
   }
 
   .footer {
