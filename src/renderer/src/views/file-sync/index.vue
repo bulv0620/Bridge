@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { SwapHorizontal, List, Pause, Play } from '@vicons/ionicons5'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { NIcon } from 'naive-ui'
 import FolderWhiteListModal from './components/folder-white-list-modal/FolderWhiteListModal.vue'
@@ -9,7 +9,7 @@ import DiffDataTable from './components/diff-data-table/DiffDataTable.vue'
 import PlanControl from './components/plan-control/PlanControl.vue'
 import FtpConfigModal from './components/ftp-config-modal/FtpConfigModal.vue'
 import { useDiffList } from '@renderer/composables/file-sync/useDiffList'
-import { DiffFile, useSyncTool } from '@renderer/composables/file-sync/useSyncTool'
+import { DiffFile, ESyncType, useSyncTool } from '@renderer/composables/file-sync/useSyncTool'
 import { useFolderWhiteList } from '@renderer/composables/file-sync/useFolderWhiteList'
 import { useSyncForm } from '@renderer/composables/file-sync/useSyncForm'
 import { useFileDiff } from '@renderer/composables/file-sync/useFileDiff'
@@ -24,11 +24,19 @@ const { t } = useI18n()
 const { loading, diffTableData, processing, hasWaitingFile } = useDiffList()
 const { getDiffAction } = useSyncTool()
 const { whiteList: folderWhiteList, openWhiteListModal } = useFolderWhiteList()
-const { sourceFolder, targetFolder, syncType, syncOptions, percentage, pauseFlag } = useSyncForm()
+const { sourceFolder, targetFolder, syncType, percentage, pauseFlag } = useSyncForm()
 const { startDiff } = useFileDiff()
 const { syncProgressTxt, startSync, pauseSync } = useFileSync()
 
 const planName = ref(t('views.fileSync.newPlan'))
+
+const syncOptions = computed(() => {
+  return [
+    { label: t('views.fileSync.mirrorSync'), value: ESyncType.mirror },
+    { label: t('views.fileSync.twoWaySync'), value: ESyncType.twoWay },
+    { label: t('views.fileSync.incrementalSync'), value: ESyncType.increment },
+  ]
+})
 
 watch(syncType, (type) => {
   diffTableData.value.forEach((diffFile: DiffFile) => {
@@ -56,8 +64,6 @@ watch(
 <template>
   <div class="file-sync">
     <div class="container">
-      <!-- 方案栏 -->
-
       <PlanControl
         v-model:plan-name="planName"
         v-model:source-folder="sourceFolder"
@@ -67,7 +73,6 @@ watch(
         :processing="processing"
       ></PlanControl>
 
-      <!-- 目录选择栏 -->
       <n-flex :wrap="false">
         <FolderSelectionInput
           v-model:value="sourceFolder"
@@ -101,7 +106,6 @@ watch(
         ></FolderSelectionInput>
       </n-flex>
 
-      <!-- 同步操作栏 -->
       <n-flex :wrap="false" align="center">
         <n-select
           v-model:value="syncType"
