@@ -1,119 +1,17 @@
 <script setup lang="ts">
+import {
+  PluginCardEmits,
+  PluginCardProps,
+  usePluginCard,
+} from '@renderer/composables/plugin-center/usePluginCard'
 import { Play, Settings, DocumentText, Stop } from '@vicons/ionicons5'
-import { PluginInfo } from '../../types'
-import { ref, onMounted, toRaw, computed } from 'vue'
-import { useMessage } from 'naive-ui'
 
-const fs = window.api.fsSync
-const os = window.api.os
-const ipcRenderer = window.electron.ipcRenderer
+const props = defineProps<PluginCardProps>()
 
-const props = defineProps<{
-  plugin: PluginInfo
-}>()
+const emits = defineEmits<PluginCardEmits>()
 
-const emits = defineEmits<{
-  (e: 'log', path: string): void
-  (e: 'config', path: string): void
-}>()
-
-const loading = ref(false)
-const isRunning = ref(false)
-
-const message = useMessage()
-
-const isAvailable = computed(() => {
-  const platform = os.platform()
-
-  if (platform === 'darwin') {
-    return !!props.plugin.platforms.mac
-  } else if (platform === 'win32') {
-    return !!props.plugin.platforms.win
-  } else if (platform === 'linux') {
-    return !!props.plugin.platforms.linux
-  } else {
-    return false
-  }
-})
-
-const getImgData = (filePath: string) => {
-  const b64data = fs.readFileSync(filePath).toString('base64')
-  return 'data:image/png;base64,' + b64data
-}
-
-const handleStartPlugin = async () => {
-  loading.value = true
-  try {
-    await ipcRenderer.invoke('start-plugin', toRaw(props.plugin))
-    // 等待插件启动完成
-    await delay(1000)
-    handleCheckPluginStatus()
-  } catch (error) {
-    message.error((error as any).message)
-  } finally {
-    loading.value = false
-  }
-}
-
-const handleStopPlugin = async () => {
-  loading.value = true
-  try {
-    await ipcRenderer.invoke('stop-plugin', toRaw(props.plugin))
-    // 等待插件启动完成
-    await delay(1000)
-    handleCheckPluginStatus()
-  } catch (error) {
-    message.error((error as any).message)
-  } finally {
-    loading.value = false
-  }
-}
-
-const handleCheckPluginStatus = async () => {
-  const result = await ipcRenderer.invoke('check-plugin-status', props.plugin.name)
-
-  isRunning.value = result
-}
-
-const delay = (ms: number) => {
-  return new Promise<void>((resolve) => {
-    setTimeout(() => {
-      resolve()
-    }, ms)
-  })
-}
-
-const handleShowLog = () => {
-  let logPath: string | null
-
-  const platform = os.platform()
-  if (platform === 'darwin') {
-    logPath = props.plugin.platforms.mac!.log
-  } else if (platform === 'win32') {
-    logPath = props.plugin.platforms.win!.log
-  } else if (platform === 'linux') {
-    logPath = props.plugin.platforms.linux!.log
-  }
-  emits('log', logPath!)
-}
-
-const handleShowConfig = () => {
-  let configPath: string
-
-  const platform = os.platform()
-  if (platform === 'darwin') {
-    configPath = props.plugin.platforms.mac!.config!
-  } else if (platform === 'win32') {
-    configPath = props.plugin.platforms.win!.config!
-  } else if (platform === 'linux') {
-    configPath = props.plugin.platforms.linux!.config!
-  }
-  emits('config', configPath!)
-}
-
-onMounted(() => {
-  handleCheckPluginStatus()
-})
+const { loading, running, isAvailable, getImgData, startPlugin, stopPlugin, showLog, showConfig } =
+  usePluginCard(props, emits)
 </script>
 
 <template>
@@ -131,7 +29,7 @@ onMounted(() => {
     </div>
     <n-divider style="margin: 12px 0" />
     <div class="plugin-item__option">
-      <n-tooltip v-if="isRunning" trigger="hover" placement="bottom" :delay="500">
+      <n-tooltip v-if="running" trigger="hover" placement="bottom" :delay="500">
         <template #trigger>
           <n-button
             :loading="loading"
@@ -141,7 +39,7 @@ onMounted(() => {
             type="error"
             size="small"
             :disabled="!isAvailable"
-            @click="handleStopPlugin"
+            @click="stopPlugin"
           >
             <template #icon>
               <n-icon><Stop /></n-icon>
@@ -160,7 +58,7 @@ onMounted(() => {
             type="success"
             size="small"
             :disabled="!isAvailable"
-            @click="handleStartPlugin"
+            @click="startPlugin"
           >
             <template #icon>
               <n-icon><Play /></n-icon>
@@ -178,7 +76,7 @@ onMounted(() => {
             type="info"
             size="small"
             :disabled="!isAvailable || !plugin.desc['configPath']"
-            @click="handleShowConfig"
+            @click="showConfig"
           >
             <template #icon>
               <n-icon><Settings /></n-icon>
@@ -196,7 +94,7 @@ onMounted(() => {
             type="warning"
             size="small"
             :disabled="!isAvailable || !plugin.desc['logPath']"
-            @click="handleShowLog"
+            @click="showLog"
           >
             <template #icon>
               <n-icon><DocumentText /></n-icon>

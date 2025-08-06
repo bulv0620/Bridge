@@ -1,55 +1,15 @@
 <script setup lang="ts">
-import { ref, computed, onActivated } from 'vue'
-import { Search } from '@vicons/ionicons5'
+import { Search, Refresh } from '@vicons/ionicons5'
 import PluginCard from './components/plugin-card/PluginCard.vue'
-import { PluginInfo } from './types'
-import { Refresh } from '@vicons/ionicons5'
-import LogModal from './components/log-modal/LogModal.vue'
 import ConfigModal from './components/config-modal/ConfigModal.vue'
-
-const ipcRenderer = window.electron.ipcRenderer
+import { usePluginList } from '@renderer/composables/plugin-center/usePluginList'
 
 defineOptions({
   name: 'PluginCenter',
 })
 
-const plugins = ref<PluginInfo[]>([])
-const filterText = ref('')
-const loading = ref(false)
-
-const logModalRef = ref<InstanceType<typeof LogModal> | null>(null)
-const configModalRef = ref<InstanceType<typeof ConfigModal> | null>(null)
-
-const openLogModal = (path: string) => {
-  // if (logModalRef.value) {
-  //   logModalRef.value.open(path)
-  // }
-  ipcRenderer.invoke('open-path', path)
-}
-
-const openConfigModal = (path: string) => {
-  if (configModalRef.value) {
-    configModalRef.value.open(path)
-  }
-}
-
-const filteredPlugins = computed(() => {
-  if (!filterText.value.trim()) return plugins.value
-  return plugins.value.filter((plugin) =>
-    plugin.desc.title.toLowerCase().includes(filterText.value.toLowerCase()),
-  )
-})
-
-onActivated(() => {
-  handleRefresh()
-})
-
-const handleRefresh = async () => {
-  loading.value = true
-  plugins.value = []
-  const result = await ipcRenderer.invoke('get-plugin-list').finally(() => (loading.value = false))
-  plugins.value = result
-}
+const { loading, filterText, filteredPlugins, refreshPluginList, openLogModal, openConfigModal } =
+  usePluginList()
 </script>
 
 <template>
@@ -67,7 +27,7 @@ const handleRefresh = async () => {
           </template>
         </n-input>
 
-        <n-button circle :loading="loading" @click="handleRefresh">
+        <n-button circle :loading="loading" @click="refreshPluginList">
           <template #icon>
             <n-icon><Refresh /></n-icon>
           </template>
@@ -90,8 +50,7 @@ const handleRefresh = async () => {
         <n-empty v-else class="empty" :description="$t('views.pluginCenter.emptyText')"> </n-empty>
       </n-scrollbar>
     </div>
-    <LogModal ref="logModalRef"></LogModal>
-    <ConfigModal ref="configModalRef"></ConfigModal>
+    <ConfigModal></ConfigModal>
   </div>
 </template>
 

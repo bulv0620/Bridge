@@ -9,6 +9,10 @@ import { useRoute, useRouter } from 'vue-router'
 import { watch } from 'vue'
 import { useCreateDownloadTaskModal } from '@renderer/composables/downloader/useCreateDownloadTaskModal'
 
+defineOptions({
+  name: 'Downloader',
+})
+
 const route = useRoute()
 const router = useRouter()
 
