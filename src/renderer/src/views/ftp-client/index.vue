@@ -1,59 +1,48 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { Cloud } from '@vicons/ionicons5'
+import FtpClientTab from './components/ftp-client-tab/FtpClientTab.vue'
 import Empty from './components/empty-state/EmptyState.vue'
-import FileBrowser from './components/file-browser/FileBrowser.vue'
-import FtpConfigModal from './components/ftp-config-modal/FtpConfigModal.vue'
+import FtpConnectModal from './components/ftp-connect-modal/FtpConnectModal.vue'
+import FileDeleteModal from './components/file-delete-modal/FileDeleteModal.vue'
+import FileDownloadModal from './components/file-download-modal/FileDownloadModal.vue'
+import FileUploadModal from './components/file-upload-modal/FileUploadModal.vue'
+import ConfirmOverwriteDialog from './components/confirm-overwrite-dialog/ConfirmOverwriteDialog.vue'
+import FolderNameDialog from './components/folder-name-dialog/FolderNameDialog.vue'
+import FileList from './components/file-list/FileList.vue'
+import FileBreadcrumb from './components/file-breadcrumb/FileBreadcrumb.vue'
+import FileToolbar from './components/file-toolbar/FileToolbar.vue'
 
-import { FtpFileSystem } from '@renderer/utils/file-system'
 import { useFtpClient } from '@renderer/composables/ftp-client/useFtpClient'
+import { useFtpConnectModal } from '@renderer/composables/ftp-client/useFtpConnectModal'
 
 defineOptions({
   name: 'FtpClient',
 })
-const ftpConfigModalRef = ref<InstanceType<typeof FtpConfigModal> | null>(null)
 
-const { instanceNameList, currentInstanceName, removeFtpInstance, addFtpInstance } = useFtpClient()
-
-async function handleAdd() {
-  const ftpInstance: FtpFileSystem = await ftpConfigModalRef.value?.select()
-
-  if (ftpInstance) {
-    addFtpInstance(ftpInstance)
-  }
-}
+const { instanceNameList } = useFtpClient()
+const { openFtpConnectModal } = useFtpConnectModal()
 </script>
 
 <template>
   <div class="ftp-client">
-    <n-tabs
-      v-model:value="currentInstanceName"
-      type="card"
-      closable
-      addable
-      tab-style="min-width: 80px;"
-      size="small"
-      class="custom-tabs"
-      @close="removeFtpInstance"
-      @add="handleAdd"
-    >
-      <n-tab-pane v-for="item in instanceNameList" :key="item" :name="item">
-        <template #tab>
-          <n-icon style="margin-right: 8px">
-            <Cloud />
-          </n-icon>
-          <span>{{ item }}</span>
-        </template>
-      </n-tab-pane>
-      <template #prefix> <span></span> </template>
-      <template #suffix> <span></span> </template>
-    </n-tabs>
+    <FtpClientTab></FtpClientTab>
 
     <div class="ftp-client-content">
-      <Empty v-if="!instanceNameList.length" @add="handleAdd"></Empty>
-      <FileBrowser v-else></FileBrowser>
+      <Empty v-if="!instanceNameList.length" @add="openFtpConnectModal"></Empty>
+
+      <div v-else class="file-browser">
+        <n-space justify="space-between">
+          <FileBreadcrumb></FileBreadcrumb>
+          <FileToolbar></FileToolbar>
+        </n-space>
+        <FileList></FileList>
+      </div>
     </div>
-    <FtpConfigModal ref="ftpConfigModalRef" :instance-list="instanceNameList"></FtpConfigModal>
+    <FtpConnectModal></FtpConnectModal>
+    <FileDeleteModal></FileDeleteModal>
+    <FileDownloadModal></FileDownloadModal>
+    <FileUploadModal></FileUploadModal>
+    <ConfirmOverwriteDialog></ConfirmOverwriteDialog>
+    <FolderNameDialog></FolderNameDialog>
   </div>
 </template>
 
@@ -65,6 +54,14 @@ async function handleAdd() {
 
   .ftp-client-content {
     height: calc(100% - 34px);
+
+    .file-browser {
+      height: calc(100% - 24px);
+      padding: 12px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
   }
 
   :deep(.n-tab-pane) {
