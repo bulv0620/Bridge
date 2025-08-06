@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { EDiffAction, EDiffStatus } from '@renderer/utils/file-system'
+import { EDiffAction, EDiffStatus } from '@renderer/composables/file-sync/useSyncTool'
 import { ArrowBack, ArrowForward, Help, Remove, Checkmark, Close } from '@vicons/ionicons5'
 import { NIcon } from 'naive-ui'
 import { Component, computed, h } from 'vue'

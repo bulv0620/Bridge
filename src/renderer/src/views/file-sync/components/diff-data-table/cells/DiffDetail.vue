@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { DiffFile } from '@renderer/utils/file-system'
 import dayjs from 'dayjs'
 import { useI18n } from 'vue-i18n'
+import { DiffFile } from '@renderer/composables/file-sync/useSyncTool'
 
 const props = defineProps<{
   diffFile: DiffFile

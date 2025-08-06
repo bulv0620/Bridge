@@ -30,3 +30,15 @@ export function formatBytesPerSecond(bytesPerSecond: string | number): string {
 
   return `${value.toFixed(2)} ${units[index]}`
 }
+
+export function formatTimeDifference(ms: number): string {
+  const totalSeconds = Math.floor(ms / 1000)
+  const hours = Math.floor(totalSeconds / 3600)
+  const minutes = Math.floor((totalSeconds % 3600) / 60)
+  const seconds = totalSeconds % 60
+
+  function pad(n: number) {
+    return n.toString().padStart(2, '0')
+  }
+  return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
+}

@@ -1,59 +1,21 @@
 <script setup lang="ts">
-import { DiffFile } from '@renderer/utils/file-system'
-import { computed, h, reactive, ref } from 'vue'
+import { computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
-import DiffTypeTag from './DiffTypeTag.vue'
-import DiffActionButton from './DiffActionButton.vue'
-import DiffDetail from './DiffDetail.vue'
-import { DataTableBaseColumn, DataTableFilterState } from 'naive-ui'
-
-const props = withDefaults(
-  defineProps<{
-    loading: boolean
-    processing: boolean
-  }>(),
-  {
-    loading: false,
-    processing: false,
-  },
-)
+import DiffTypeTag from './cells/DiffTypeTag.vue'
+import DiffActionButton from './cells/DiffActionButton.vue'
+import DiffDetail from './cells/DiffDetail.vue'
+import { useDiffList } from '@renderer/composables/file-sync/useDiffList'
+import { DiffFile } from '@renderer/composables/file-sync/useSyncTool'
 
 const { t } = useI18n()
 
-const diffTableData = defineModel<DiffFile[]>('data')
-const diffTypeColumn = reactive({
-  title: computed(() => t('views.fileSync.diffType')),
-  key: 'diffType',
-  align: 'center',
-  width: 140,
-  filterOptionValues: [],
-  filterOptions: [
-    {
-      label: t('views.fileSync.onlySource'),
-      value: 'onlySource',
-    },
-    {
-      label: t('views.fileSync.onlyTarget'),
-      value: 'onlyTarget',
-    },
-    {
-      label: t('views.fileSync.conflict'),
-      value: 'conflict',
-    },
-  ],
-  filter(value: string, row: DiffFile) {
-    return row.diffType === value
-  },
-  render(row: DiffFile) {
-    return h(DiffTypeTag, {
-      diffType: row.diffType,
-    })
-  },
-})
+const { loading, processing, diffTableData, filterOptionValues, tableRef, handleUpdateFilter } =
+  useDiffList()
+
 const columns = computed(() => [
   {
     type: 'expand',
-    expandable: () => !props.processing,
+    expandable: () => !processing.value,
     renderExpand: (row: DiffFile) => {
       return h(DiffDetail, { diffFile: row })
     },
@@ -67,7 +29,35 @@ const columns = computed(() => [
       return index + 1
     },
   },
-  diffTypeColumn,
+  {
+    title: t('views.fileSync.diffType'),
+    key: 'diffType',
+    align: 'center',
+    width: 140,
+    filterOptionValues: filterOptionValues.value,
+    filterOptions: [
+      {
+        label: t('views.fileSync.onlySource'),
+        value: 'onlySource',
+      },
+      {
+        label: t('views.fileSync.onlyTarget'),
+        value: 'onlyTarget',
+      },
+      {
+        label: t('views.fileSync.conflict'),
+        value: 'conflict',
+      },
+    ],
+    filter(value: string, row: DiffFile) {
+      return row.diffType === value
+    },
+    render(row: DiffFile) {
+      return h(DiffTypeTag, {
+        diffType: row.diffType,
+      })
+    },
+  },
   {
     title: t('views.fileSync.sourceFile'),
     key: 'sourceFileName',
@@ -100,7 +90,7 @@ const columns = computed(() => [
     render(row: DiffFile) {
       return h(DiffActionButton, {
         status: row.status!,
-        processing: props.processing,
+        processing: processing.value,
         action: row.action,
         'onUpdate:action': (val) => {
           row.action = val
@@ -109,25 +99,6 @@ const columns = computed(() => [
     },
   },
 ])
-
-const tableRef = ref<any>()
-const scrollTo = (index: number) => {
-  tableRef.value?.scrollTo({ index })
-}
-
-const clearFilter = () => {
-  diffTypeColumn.filterOptionValues = []
-}
-
-const handleUpdateFilter = (filters: DataTableFilterState, sourceColumn: DataTableBaseColumn) => {
-  console.log(filters)
-  diffTypeColumn.filterOptionValues = filters[sourceColumn.key] as any
-}
-
-defineExpose({
-  scrollTo,
-  clearFilter,
-})
 </script>
 
 <template>

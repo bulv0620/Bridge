@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { EDiffType } from '@renderer/utils/file-system'
+import { EDiffType } from '@renderer/composables/file-sync/useSyncTool'
 import { computed } from 'vue'
 
 const props = defineProps<{

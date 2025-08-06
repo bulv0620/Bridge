@@ -1,16 +1,15 @@
 <script setup lang="ts">
 import { FileTrayFull, Document, Save } from '@vicons/ionicons5'
 import { FiberNewOutlined, FiberManualRecordFilled } from '@vicons/material'
-import { FolderInfo } from '../folder-selection-input/FolderSelectionInput.vue'
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useDialog, useMessage } from 'naive-ui'
 import { dialogPromise } from '@renderer/utils/dialog'
 import { deepClone, deepEqual } from '@renderer/utils/object'
-import { ESyncType } from '@renderer/utils/file-system'
 import PlanNameModal from './PlanNameModal.vue'
 import PlanManageModal from './PlanManageModal.vue'
 import PlanNameEditor from './PlanNameEditor.vue'
+import { ESyncType, FolderInfo } from '@renderer/composables/file-sync/useSyncTool'
 
 withDefaults(
   defineProps<{

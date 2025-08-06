@@ -1,16 +1,11 @@
 <script setup lang="ts">
 import { FolderOutline } from '@vicons/ionicons5'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import FtpConfigModal, { FtpConfig } from '../ftp-config-modal/FtpConfigModal.vue'
+import { FolderInfo } from '@renderer/composables/file-sync/useSyncTool'
+import { useFtpConfigModal } from '@renderer/composables/file-sync/useFtpConfigModal'
 
 const ipcRenderer = window.electron.ipcRenderer
-
-export interface FolderInfo {
-  type: 'local' | 'ftp' | ''
-  path: string
-  ftpConfig?: FtpConfig
-}
 
 const props = withDefaults(
   defineProps<{
@@ -20,8 +15,9 @@ const props = withDefaults(
   {},
 )
 
+const { openFtpConfigModal } = useFtpConfigModal()
+
 const value = defineModel<FolderInfo>('value', { required: true })
-const ftpConfigModalRef = ref<InstanceType<typeof FtpConfigModal> | null>(null)
 
 const { t } = useI18n()
 
@@ -52,7 +48,7 @@ const handleSelect = async (key: string) => {
       value.value.ftpConfig = undefined
     }
   } else if (key === 'ftp') {
-    const conf = await ftpConfigModalRef.value?.select(value.value)
+    const conf = await openFtpConfigModal(value.value)
     if (!conf) return
     value.value.type = 'ftp'
     value.value.path = conf.path
@@ -78,5 +74,4 @@ const handleSelect = async (key: string) => {
       </n-button>
     </n-dropdown>
   </n-input-group>
-  <FtpConfigModal ref="ftpConfigModalRef"></FtpConfigModal>
 </template>

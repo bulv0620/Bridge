@@ -1,193 +1,22 @@
 <script setup lang="ts">
-import { FormRules, NForm, TreeOption, useMessage } from 'naive-ui'
-import { computed, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { FtpFileSystem } from '@renderer/utils/file-system'
-import { FolderInfo } from '../folder-selection-input/FolderSelectionInput.vue'
+import { useFtpConfigModal } from '@renderer/composables/file-sync/useFtpConfigModal'
 
-export interface FtpConfig {
-  host: string
-  port: number
-  user: string
-  password: string
-}
-
-const { t } = useI18n()
-const message = useMessage()
-
-let ftpInstance: FtpFileSystem | null = null
-
-const loading = ref(false)
-const visible = ref(false)
-
-watch(visible, (val) => {
-  if (!val && ftpInstance) {
-    ftpInstance.disconnect()
-  }
-})
-
-const formRef = ref<InstanceType<typeof NForm> | null>(null)
-const resolveRef = ref<((value: any) => void) | null>(null)
-const current = ref(1)
-const currentStatus = ref('process')
-const model = ref<FtpConfig>({
-  host: '',
-  port: 21,
-  user: '',
-  password: '',
-})
-const rules = computed<FormRules>(() => ({
-  host: [
-    {
-      trigger: ['change'],
-      validator(_, value) {
-        if (!value) {
-          return new Error(t('views.fileSync.ftpHostRequired'))
-        }
-        const reg =
-          /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
-        if (!reg.test(value)) {
-          return new Error(t('views.fileSync.ftpHostFormat'))
-        }
-        return true
-      },
-    },
-  ],
-  port: [
-    {
-      type: 'number',
-      min: 1,
-      max: 65535,
-      trigger: ['change'],
-      message: t('views.fileSync.ftpPortRange'),
-    },
-  ],
-  user: [
-    {
-      required: true,
-      trigger: ['change'],
-      message: t('views.fileSync.ftpUserRequired'),
-    },
-  ],
-  password: [
-    {
-      required: true,
-      trigger: ['change'],
-      message: t('views.fileSync.ftpPasswordRequired'),
-    },
-  ],
-}))
-
-const folderTree = ref<TreeOption[]>([
-  {
-    label: '/(root)',
-    key: '/',
-    isLeaf: false,
-    children: [],
-  },
-])
-const currentPath = ref<string[]>([])
-
-async function handleLoad(node: TreeOption) {
-  const folderList = await ftpInstance?.getFolder(node.key as string)
-  node.children = folderList?.map((label) => ({
-    label: label,
-    key: `${node.key}/${label}`,
-    isLeaf: false,
-  }))
-
-  ftpInstance?.disconnect()
-}
-
-function select(initVal: FolderInfo) {
-  return new Promise<any>((resolve) => {
-    ftpInstance = null
-    current.value = 1
-    model.value = {
-      host: '',
-      port: 21,
-      user: '',
-      password: '',
-    }
-    visible.value = true
-    resolveRef.value = resolve
-
-    if (initVal.type && initVal.type === 'ftp' && initVal.ftpConfig) {
-      model.value.host = initVal.ftpConfig.host
-      model.value.port = initVal.ftpConfig.port
-      model.value.user = initVal.ftpConfig.user
-      model.value.password = initVal.ftpConfig.password
-
-      handleNext()
-    }
-  })
-}
-
-async function handleNext() {
-  await formRef.value?.validate()
-  try {
-    loading.value = true
-
-    if (ftpInstance) {
-      ftpInstance.disconnect()
-    }
-    ftpInstance = null
-
-    ftpInstance = new FtpFileSystem(model.value)
-    const bool = await ftpInstance.validate()
-    if (!bool) {
-      message.error(t('views.fileSync.ftpConnFailed'))
-      return
-    }
-
-    current.value = 2
-
-    const folderList = await ftpInstance.getFolder()
-
-    folderTree.value[0].children = folderList.map((label) => ({
-      key: `/${label}`,
-      label,
-      isLeaf: false,
-    }))
-    currentPath.value = []
-
-    ftpInstance.disconnect()
-  } catch (error) {
-    // 连接失败
-    console.error(error)
-    message.error(t('views.fileSync.ftpConnFailed'))
-  } finally {
-    loading.value = false
-  }
-}
-
-async function handlePrev() {
-  current.value = 1
-}
-
-function handlePositive() {
-  if (resolveRef.value) {
-    resolveRef.value({
-      ftpConfig: model.value,
-      path: currentPath.value[0] || '/',
-      type: 'ftp',
-    })
-    resolveRef.value = null
-  }
-  visible.value = false
-}
-
-function handleNegative() {
-  if (resolveRef.value) {
-    resolveRef.value(null)
-    resolveRef.value = null
-  }
-  visible.value = false
-}
-
-defineExpose({
-  select,
-})
+const {
+  loading,
+  visible,
+  formRef,
+  current,
+  currentStatus,
+  model,
+  folderTree,
+  currentPath,
+  rules,
+  handleLoad,
+  handleNext,
+  handlePrev,
+  confirmConfig,
+  closeModal,
+} = useFtpConfigModal()
 </script>
 
 <template>
@@ -196,7 +25,7 @@ defineExpose({
     :style="`width: 400px; max-width: 100%`"
     preset="card"
     :title="$t('views.fileSync.ftpConfig')"
-    :on-after-leave="handleNegative"
+    :on-after-leave="closeModal"
     :mask-closable="false"
   >
     <n-steps :current="current" :status="currentStatus" size="small" style="margin-bottom: 24px">
@@ -264,7 +93,7 @@ defineExpose({
           :loading="loading"
           @click="handleNext"
         >
-          {{ t('common.next') }}
+          {{ $t('common.next') }}
         </n-button>
         <n-button
           v-if="current === 2"
@@ -273,19 +102,19 @@ defineExpose({
           :loading="loading"
           @click="handlePrev"
         >
-          {{ t('common.prev') }}
+          {{ $t('common.prev') }}
         </n-button>
         <n-button
           v-if="current === 2"
           type="primary"
           size="small"
           :loading="loading"
-          @click="handlePositive"
+          @click="confirmConfig"
         >
-          {{ t('common.confirm') }}
+          {{ $t('common.confirm') }}
         </n-button>
         <n-button size="small" @click="visible = false">
-          {{ t('common.cancel') }}
+          {{ $t('common.cancel') }}
         </n-button>
       </n-flex>
     </template>
