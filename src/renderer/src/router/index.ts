@@ -3,7 +3,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import FileSync from '@renderer/views/file-sync/index.vue'
 import PluginCenter from '@renderer/views/plugin-center/index.vue'
 import Setting from '@renderer/views/setting/index.vue'
-import FtpClient from '@renderer/views/ftp-client/index.vue'
+import FtpClient from '@renderer/views/ftp-client2/index.vue'
 import Downloader from '@renderer/views/downloader/index.vue'
 
 const routes = [

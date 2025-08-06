@@ -6,11 +6,14 @@ import FileBrowser from './components/file-browser/FileBrowser.vue'
 import FtpConfigModal from './components/ftp-config-modal/FtpConfigModal.vue'
 
 import { FtpFileSystem } from '@renderer/utils/file-system'
-import { useFtp } from '@renderer/composables/ftp'
+import { useFtpClient } from '@renderer/composables/ftp-client/useFtpClient'
 
+defineOptions({
+  name: 'FtpClient',
+})
 const ftpConfigModalRef = ref<InstanceType<typeof FtpConfigModal> | null>(null)
 
-const { instanceNameList, currentInstanceName, removeFtpInstance, addFtpInstance } = useFtp()
+const { instanceNameList, currentInstanceName, removeFtpInstance, addFtpInstance } = useFtpClient()
 
 async function handleAdd() {
   const ftpInstance: FtpFileSystem = await ftpConfigModalRef.value?.select()

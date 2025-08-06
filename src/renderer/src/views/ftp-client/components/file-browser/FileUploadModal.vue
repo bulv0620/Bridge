@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useFtp } from '@renderer/composables/ftp'
+import { useFtpClient } from '@renderer/composables/ftp-client/useFtpClient'
 import { FileInfo } from '@renderer/utils/file-system/FileSystem.adstract'
 import { useMessage } from 'naive-ui'
 import { computed, nextTick, ref } from 'vue'
@@ -14,7 +14,7 @@ const emits = defineEmits(['refresh'])
 
 const { t } = useI18n()
 const message = useMessage()
-const { currentInstance, currentInstancePath } = useFtp()
+const { currentInstance, currentInstancePath } = useFtpClient()
 
 const confirmOverwriteDialogRef = ref<InstanceType<typeof ConfirmOverwriteDialog> | null>(null)
 

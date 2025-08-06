@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useFtp } from '@renderer/composables/ftp'
+import { useFtpClient } from '@renderer/composables/ftp-client/useFtpClient'
 import { LocalFileSystem } from '@renderer/utils/file-system'
 import { FileInfo } from '@renderer/utils/file-system/FileSystem.adstract'
 import { useMessage } from 'naive-ui'
@@ -11,7 +11,7 @@ const path = window.api.path
 
 const { t } = useI18n()
 const message = useMessage()
-const { currentInstance } = useFtp()
+const { currentInstance } = useFtpClient()
 
 const confirmOverwriteDialogRef = ref<InstanceType<typeof ConfirmOverwriteDialog> | null>(null)
 

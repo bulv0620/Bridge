@@ -2,7 +2,7 @@
 import { nextTick, ref, watch, h, computed } from 'vue'
 import { Refresh, FolderOutline, TrashBinOutline } from '@vicons/ionicons5'
 import { FileDownloadOutlined, FileUploadOutlined } from '@vicons/material'
-import { useFtp } from '@renderer/composables/ftp'
+import { useFtpClient } from '@renderer/composables/ftp-client/useFtpClient'
 import dayjs from 'dayjs'
 import { FileInfo } from '@renderer/utils/file-system/FileSystem.adstract'
 import FileNameWithIcon from './FileNameWithIcon.vue'
@@ -18,7 +18,7 @@ import { PushOutline } from '@vicons/ionicons5'
 
 const ipcRenderer = window.electron.ipcRenderer
 
-const { currentInstance, currentInstancePath } = useFtp()
+const { currentInstance, currentInstancePath } = useFtpClient()
 const message = useMessage()
 const dialog = useDialog()
 const { t } = useI18n()
