@@ -6,11 +6,14 @@ import DiffActionButton from './cells/DiffActionButton.vue'
 import DiffDetail from './cells/DiffDetail.vue'
 import { useDiffList } from '@renderer/composables/file-sync/useDiffList'
 import { DiffFile } from '@renderer/composables/file-sync/useSyncTool'
+import { useFileDiff } from '@renderer/composables/file-sync/useFileDiff'
+import { useFileSync } from '@renderer/composables/file-sync/useFileSync'
 
 const { t } = useI18n()
 
-const { loading, processing, diffTableData, filterOptionValues, tableRef, handleUpdateFilter } =
-  useDiffList()
+const { diffTableData, filterOptionValues, tableRef, handleUpdateFilter } = useDiffList()
+const { diffLoading } = useFileDiff()
+const { processing } = useFileSync()
 
 const columns = computed(() => [
   {
@@ -104,7 +107,7 @@ const columns = computed(() => [
 <template>
   <n-data-table
     ref="tableRef"
-    :loading="loading"
+    :loading="diffLoading"
     size="small"
     virtual-scroll
     :columns="columns"

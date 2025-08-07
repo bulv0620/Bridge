@@ -3,6 +3,7 @@ import { Search, Refresh } from '@vicons/ionicons5'
 import PluginCard from './components/plugin-card/PluginCard.vue'
 import ConfigModal from './components/config-modal/ConfigModal.vue'
 import { usePluginList } from '@renderer/composables/plugin-center/usePluginList'
+import { onActivated } from 'vue'
 
 defineOptions({
   name: 'PluginCenter',
@@ -10,6 +11,10 @@ defineOptions({
 
 const { loading, filterText, filteredPlugins, refreshPluginList, openLogModal, openConfigModal } =
   usePluginList()
+
+onActivated(() => {
+  refreshPluginList()
+})
 </script>
 
 <template>

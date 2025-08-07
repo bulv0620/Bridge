@@ -14,11 +14,11 @@ export const i18n = createI18n({
 
 export const languageOptions = [
   {
-    label: '中文',
-    value: 'zh_CN',
-  },
-  {
     label: 'English',
     value: 'en_US',
+  },
+  {
+    label: '中文',
+    value: 'zh_CN',
   },
 ]

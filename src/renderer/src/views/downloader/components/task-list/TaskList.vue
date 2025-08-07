@@ -2,7 +2,6 @@
 import { computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { NProgress, NTag } from 'naive-ui'
-import { Aria2Status } from '@renderer/utils/aria2/Aria2Types'
 import { DownloadTaskInfo, useTaskList } from '@renderer/composables/downloader/useTaskList'
 
 const { t } = useI18n()
@@ -78,7 +77,7 @@ const columns = computed(() => [
       virtual-scroll
       flex-height
       style="height: 100%"
-      :row-key="(row: Aria2Status) => row.gid"
+      :row-key="(row: DownloadTaskInfo) => row.gid"
     />
   </div>
 </template>

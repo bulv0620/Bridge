@@ -1,8 +1,54 @@
 <script setup lang="ts">
 import { useFtpConnectModal } from '@renderer/composables/ftp-client/useFtpConnectModal'
+import { FormRules } from 'naive-ui'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-const { visible, loading, formRef, connectConfigForm, rules, connect, closeModal } =
-  useFtpConnectModal()
+const { visible, loading, formRef, connectConfigForm, connect, closeModal } = useFtpConnectModal()
+
+const { t } = useI18n()
+
+const rules = computed<FormRules>(() => ({
+  host: [
+    {
+      trigger: ['change'],
+      validator(_, value) {
+        if (!value) {
+          return new Error(t('views.ftpClient.ftpHostRequired'))
+        }
+        const reg =
+          /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
+        if (!reg.test(value)) {
+          return new Error(t('views.ftpClient.ftpHostFormat'))
+        }
+        return true
+      },
+    },
+  ],
+  port: [
+    {
+      type: 'number',
+      min: 1,
+      max: 65535,
+      trigger: ['change'],
+      message: t('views.ftpClient.ftpPortRange'),
+    },
+  ],
+  user: [
+    {
+      required: true,
+      trigger: ['change'],
+      message: t('views.ftpClient.ftpUserRequired'),
+    },
+  ],
+  password: [
+    {
+      required: true,
+      trigger: ['change'],
+      message: t('views.ftpClient.ftpPasswordRequired'),
+    },
+  ],
+}))
 </script>
 
 <template>

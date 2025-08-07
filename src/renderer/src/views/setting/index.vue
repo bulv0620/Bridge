@@ -3,8 +3,7 @@ import { useI18n } from 'vue-i18n'
 import { languageOptions } from '@renderer/locales'
 import { EThemeType, useTheme } from '@renderer/composables/setting/useTheme'
 import { computed } from 'vue'
-import { dialogPromise } from '@renderer/utils/dialog'
-import { useDialog } from 'naive-ui'
+import { useDiscreteApi } from '@renderer/composables/discrete-api/useDiscreteApi'
 
 defineOptions({
   name: 'Setting',
@@ -12,7 +11,7 @@ defineOptions({
 
 const { locale, t } = useI18n()
 const { themeMode } = useTheme()
-const dialog = useDialog()
+const { confirm } = useDiscreteApi()
 
 const themeOptions = computed(() => [
   { label: t('theme.system'), value: 'system' },
@@ -21,13 +20,13 @@ const themeOptions = computed(() => [
 ])
 
 const handleReset = async () => {
-  await dialogPromise(dialog.info, {
+  await confirm('info', {
     title: t('common.info'),
     content: t('views.setting.resetConfirm'),
     positiveText: t('common.confirm'),
     negativeText: t('common.cancel'),
   })
-  locale.value = 'zh_CN'
+  locale.value = 'en_US'
   themeMode.value = EThemeType.SYSTEM
 }
 </script>

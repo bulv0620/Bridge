@@ -22,38 +22,42 @@ const { createTask, startTasks, pauseTasks, stopTasks, removeTasks } = useDownlo
     <CommonButton
       :tooltip="$t('views.downloader.startTask')"
       :icon="Play"
-      :button-props="{ size: 'small', circle: true, loading: startLoading }"
+      :button-props="{ size: 'small', circle: true }"
       placement="bottom"
       :delay="500"
       :disabled="checkedTasks.length === 0"
+      :loading="startLoading"
       @click="startTasks"
     />
     <CommonButton
       :tooltip="$t('views.downloader.pauseTask')"
       :icon="Pause"
-      :button-props="{ size: 'small', circle: true, loading: pauseLoading }"
+      :button-props="{ size: 'small', circle: true }"
       placement="bottom"
       :delay="500"
       :disabled="checkedTasks.length === 0"
+      :loading="pauseLoading"
       @click="pauseTasks"
     />
     <CommonButton
       :tooltip="$t('views.downloader.stopTask')"
       :icon="Stop"
-      :button-props="{ size: 'small', circle: true, loading: stopLoading }"
+      :button-props="{ size: 'small', circle: true }"
       placement="bottom"
       :delay="500"
       :disabled="checkedTasks.length === 0"
+      :loading="stopLoading"
       @click="stopTasks"
     />
 
     <CommonButton
       :tooltip="$t('views.downloader.removeTask')"
       :icon="TrashBinOutline"
-      :button-props="{ size: 'small', circle: true, loading: removeLoading }"
+      :button-props="{ size: 'small', circle: true }"
       placement="bottom"
       :delay="500"
       :disabled="checkedTasks.length === 0"
+      :loading="removeLoading"
       @click="removeTasks"
     />
   </n-space>

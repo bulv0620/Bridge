@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { PlanInfo } from '@renderer/composables/file-sync/usePlanManage'
 import { computed } from 'vue'
-import { PlanInfo } from './PlanControl.vue'
 import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{

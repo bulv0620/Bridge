@@ -1,13 +1,40 @@
-import { useMessage } from 'naive-ui'
+import { i18n } from '@renderer/locales'
 import { ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { useDiscreteApi } from '../discrete-api/useDiscreteApi'
+
+const { t } = i18n.global
+const { message } = useDiscreteApi()
 
 const visible = ref(false)
 
-const whiteList = ref<string[]>([])
+const folderWhiteList = ref<string[]>([])
 const editingWhiteList = ref<string[]>([])
 
 const showAlert = ref<boolean>(true)
+
+function closeAlert() {
+  localStorage.setItem('hideWhiteListInfo', '1')
+}
+
+function openWhiteListModal() {
+  editingWhiteList.value = folderWhiteList.value.map((el) => el)
+  visible.value = true
+}
+
+function confirmWhiteList() {
+  if (editingWhiteList.value.some((item) => item.trim() === '')) {
+    message.error(t('views.fileSync.folderWhiteListEmptyValue'))
+    return
+  }
+
+  folderWhiteList.value = editingWhiteList.value
+
+  visible.value = false
+}
+
+function closeModal() {
+  visible.value = false
+}
 
 watch(visible, (val) => {
   if (val && localStorage.getItem('hideWhiteListInfo')) {
@@ -16,36 +43,9 @@ watch(visible, (val) => {
 })
 
 export function useFolderWhiteList() {
-  const { t } = useI18n()
-  const message = useMessage()
-
-  function closeAlert() {
-    localStorage.setItem('hideWhiteListInfo', '1')
-  }
-
-  function openWhiteListModal() {
-    editingWhiteList.value = whiteList.value.map((el) => el)
-    visible.value = true
-  }
-
-  function confirmWhiteList() {
-    if (editingWhiteList.value.some((item) => item.trim() === '')) {
-      message.error(t('views.fileSync.folderWhiteListEmptyValue'))
-      return
-    }
-
-    whiteList.value = editingWhiteList.value
-
-    visible.value = false
-  }
-
-  function closeModal() {
-    visible.value = false
-  }
-
   return {
     visible,
-    whiteList,
+    folderWhiteList,
     editingWhiteList,
     showAlert,
     closeAlert,
