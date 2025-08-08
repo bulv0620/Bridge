@@ -20,6 +20,7 @@ export default defineConfig({
       vue(),
       (monacoEditorPlugin as any).default({
         languageWorkers: ['editorWorkerService', 'json', 'typescript'],
+        customDistPath: () => resolve(__dirname, 'out/renderer/monacoeditorwork'),
       }),
     ],
   },
