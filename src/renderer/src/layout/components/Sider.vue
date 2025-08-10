@@ -6,6 +6,7 @@ import {
   Settings20Regular,
   CloudArrowDown20Regular,
   FolderGlobe20Regular,
+  BoxArrowLeft20Regular,
 } from '@vicons/fluent'
 import { NIcon } from 'naive-ui'
 import { computed, h, ref } from 'vue'
@@ -64,6 +65,20 @@ const menuOptions = computed<MenuOption[]>(() => {
         ),
       key: '/downloader',
       icon: renderIcon(CloudArrowDown20Regular),
+    },
+    {
+      label: () =>
+        h(
+          RouterLink,
+          {
+            to: {
+              path: '/share-hub',
+            },
+          },
+          { default: () => t('views.shareHub.title') },
+        ),
+      key: '/share-hub',
+      icon: renderIcon(BoxArrowLeft20Regular),
     },
     {
       label: () =>

@@ -5,6 +5,7 @@ import PluginCenter from '@renderer/views/plugin-center/index.vue'
 import Setting from '@renderer/views/setting/index.vue'
 import FtpClient from '@renderer/views/ftp-client/index.vue'
 import Downloader from '@renderer/views/downloader/index.vue'
+import ShareHub from '@renderer/views/share-hub/index.vue'
 
 const routes = [
   { name: 'fileSync', path: '/', component: FileSync },
@@ -12,6 +13,7 @@ const routes = [
   { name: 'setting', path: '/setting', component: Setting },
   { name: 'ftpClient', path: '/ftp-client', component: FtpClient },
   { name: 'downloader', path: '/downloader', component: Downloader },
+  { name: 'shareHub', path: '/share-hub', component: ShareHub },
 ]
 
 const router = createRouter({

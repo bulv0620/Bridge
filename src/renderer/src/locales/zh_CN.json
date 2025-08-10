@@ -237,6 +237,9 @@
       "noTaskToRemove": "没有可删除的任务",
       "unknown": "未知文件"
     },
+    "shareHub": {
+      "title": "文件分享"
+    },
     "pluginCenter": {
       "title": "插件中心",
       "description": "插件中心",

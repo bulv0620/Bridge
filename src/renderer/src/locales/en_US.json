@@ -237,6 +237,9 @@
       "noTaskToRemove": "No task to remove",
       "unknown": "unknown"
     },
+    "shareHub": {
+      "title": "Share Hub"
+    },
     "pluginCenter": {
       "title": "Plugin Center",
       "description": "Plugin Center",
