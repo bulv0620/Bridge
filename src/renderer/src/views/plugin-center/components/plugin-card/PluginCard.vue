@@ -25,7 +25,7 @@ const { loading, running, isAvailable, getImgData, startPlugin, stopPlugin, show
         <n-ellipsis
           :line-clamp="2"
           :tooltip="{ placement: 'bottom', width: 350 }"
-          style="font-size: 12px"
+          style="font-size: 12px; height: 42px"
         >
           {{ plugin.desc.summary }}
         </n-ellipsis>
@@ -114,7 +114,7 @@ const { loading, running, isAvailable, getImgData, startPlugin, stopPlugin, show
 <style lang="less" scoped>
 .plugin-item {
   width: 100%;
-  height: 150px;
+  height: 160px;
   border-radius: 3px;
 
   .plugin-item__info {
