@@ -38,7 +38,7 @@ onActivated(() => {
       </n-button>
     </div>
 
-    <n-scrollbar style="height: 100% - 34px">
+    <n-scrollbar style="flex: 1; overflow: auto">
       <n-grid
         v-if="filteredPlugins.length > 0"
         :x-gap="12"
