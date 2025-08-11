@@ -23,6 +23,7 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.0",
     "@electron-toolkit/utils": "^3.0.0",
+    "@vueuse/core": "^13.6.0",
     "basic-ftp": "^5.0.5",
     "dayjs": "^1.11.13",
     "monaco-editor": "^0.52.2",

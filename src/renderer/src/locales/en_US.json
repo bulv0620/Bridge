@@ -238,7 +238,12 @@
       "unknown": "unknown"
     },
     "shareHub": {
-      "title": "Share Hub"
+      "title": "Share Hub",
+      "upload": "Upload",
+      "download": "Download",
+      "remove": "Remove",
+      "setting":"Setting",
+      "emptyText": "No File"
     },
     "pluginCenter": {
       "title": "Plugin Center",

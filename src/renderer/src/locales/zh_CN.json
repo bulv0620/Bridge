@@ -238,7 +238,12 @@
       "unknown": "未知文件"
     },
     "shareHub": {
-      "title": "文件分享"
+      "title": "文件分享",
+      "upload": "上传",
+      "download": "下载",
+      "remove": "删除",
+      "setting":"设置",
+      "emptyText": "无共享文件"
     },
     "pluginCenter": {
       "title": "插件中心",
