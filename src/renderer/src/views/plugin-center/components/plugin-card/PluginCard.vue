@@ -15,7 +15,7 @@ const { loading, running, isAvailable, getImgData, startPlugin, stopPlugin, show
 </script>
 
 <template>
-  <n-card class="plugin-item" hoverable>
+  <n-card class="plugin-item">
     <div class="plugin-item__info">
       <img class="icon" :src="getImgData(plugin.iconPath)" />
       <div class="text">
@@ -29,80 +29,73 @@ const { loading, running, isAvailable, getImgData, startPlugin, stopPlugin, show
     </div>
     <n-divider style="margin: 12px 0" />
     <div class="plugin-item__option">
-      <n-tooltip v-if="running" trigger="hover" placement="bottom" :delay="500">
-        <template #trigger>
-          <n-button
-            :loading="loading"
-            strong
-            secondary
-            circle
-            type="error"
-            size="small"
-            :disabled="!isAvailable"
-            @click="stopPlugin"
-          >
-            <template #icon>
-              <n-icon><Stop /></n-icon>
-            </template>
-          </n-button>
-        </template>
-        {{ $t('views.pluginCenter.stop') }}
-      </n-tooltip>
-      <n-tooltip v-else trigger="hover" placement="bottom" :delay="500">
-        <template #trigger>
-          <n-button
-            :loading="loading"
-            strong
-            secondary
-            circle
-            type="success"
-            size="small"
-            :disabled="!isAvailable"
-            @click="startPlugin"
-          >
-            <template #icon>
-              <n-icon><Play /></n-icon>
-            </template>
-          </n-button>
-        </template>
-        {{ $t('views.pluginCenter.run') }}
-      </n-tooltip>
-      <n-tooltip trigger="hover" placement="bottom" :delay="500">
-        <template #trigger>
-          <n-button
-            strong
-            secondary
-            circle
-            type="info"
-            size="small"
-            :disabled="!isAvailable || !plugin.desc['configPath']"
-            @click="showConfig"
-          >
-            <template #icon>
-              <n-icon><Settings /></n-icon>
-            </template>
-          </n-button>
-        </template>
-        {{ $t('views.pluginCenter.config') }}
-      </n-tooltip>
-      <n-tooltip trigger="hover" placement="bottom" :delay="500">
-        <template #trigger>
-          <n-button
-            strong
-            secondary
-            circle
-            type="warning"
-            size="small"
-            :disabled="!isAvailable || !plugin.desc['logPath']"
-            @click="showLog"
-          >
-            <template #icon>
-              <n-icon><DocumentText /></n-icon>
-            </template>
-          </n-button>
-        </template>
-        {{ $t('views.pluginCenter.viewLog') }}
-      </n-tooltip>
+      <CommonButton
+        v-if="running"
+        :tooltip="$t('views.pluginCenter.stop')"
+        :icon="Stop"
+        :button-props="{
+          size: 'small',
+          circle: true,
+          strong: true,
+          secondary: true,
+          type: 'error',
+        }"
+        placement="bottom"
+        :delay="500"
+        :loading="loading"
+        :disabled="!isAvailable"
+        @click="stopPlugin"
+      />
+
+      <CommonButton
+        v-else
+        :tooltip="$t('views.pluginCenter.run')"
+        :icon="Play"
+        :button-props="{
+          size: 'small',
+          circle: true,
+          strong: true,
+          secondary: true,
+          type: 'success',
+        }"
+        placement="bottom"
+        :delay="500"
+        :loading="loading"
+        :disabled="!isAvailable"
+        @click="startPlugin"
+      />
+
+      <CommonButton
+        :tooltip="$t('views.pluginCenter.config')"
+        :icon="Settings"
+        :button-props="{
+          size: 'small',
+          circle: true,
+          strong: true,
+          secondary: true,
+          type: 'info',
+        }"
+        placement="bottom"
+        :delay="500"
+        :disabled="!isAvailable || !plugin.desc['configPath']"
+        @click="showConfig"
+      />
+
+      <CommonButton
+        :tooltip="$t('views.pluginCenter.viewLog')"
+        :icon="DocumentText"
+        :button-props="{
+          size: 'small',
+          circle: true,
+          strong: true,
+          secondary: true,
+          type: 'warning',
+        }"
+        placement="bottom"
+        :delay="500"
+        :disabled="!isAvailable || !plugin.desc['logPath']"
+        @click="showLog"
+      />
 
       <n-tag v-if="isAvailable" type="success" class="tag" size="small">
         {{ $t('views.pluginCenter.available') }}
