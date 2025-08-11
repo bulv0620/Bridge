@@ -22,9 +22,13 @@ const { loading, running, isAvailable, getImgData, startPlugin, stopPlugin, show
         <p class="title">
           {{ plugin.desc.title }}
         </p>
-        <n-text depth="2" class="summary" :title="plugin.desc.summary">
+        <n-ellipsis
+          :line-clamp="2"
+          :tooltip="{ placement: 'bottom', width: 350 }"
+          style="font-size: 12px"
+        >
           {{ plugin.desc.summary }}
-        </n-text>
+        </n-ellipsis>
       </div>
     </div>
     <n-divider style="margin: 12px 0" />
@@ -134,18 +138,6 @@ const { loading, running, isAvailable, getImgData, startPlugin, stopPlugin, show
         text-overflow: ellipsis;
         white-space: nowrap;
         margin-bottom: 2px;
-      }
-
-      .summary {
-        font-size: 12px;
-        line-height: normal;
-        display: -webkit-box;
-        line-clamp: 2;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        height: 32px;
       }
     }
   }
