@@ -19,42 +19,40 @@ onActivated(() => {
 
 <template>
   <div class="plugin-center">
-    <div class="container">
-      <div class="top">
-        <n-input
-          v-model:value="filterText"
-          style="width: 200px"
-          type="text"
-          :placeholder="$t('views.pluginCenter.searchPlaceholder')"
-        >
-          <template #suffix>
-            <n-icon :component="Search" />
-          </template>
-        </n-input>
+    <div class="top">
+      <n-input
+        v-model:value="filterText"
+        style="width: 200px"
+        type="text"
+        :placeholder="$t('views.pluginCenter.searchPlaceholder')"
+      >
+        <template #suffix>
+          <n-icon :component="Search" />
+        </template>
+      </n-input>
 
-        <n-button circle :loading="loading" @click="refreshPluginList">
-          <template #icon>
-            <n-icon><Refresh /></n-icon>
-          </template>
-        </n-button>
-      </div>
-
-      <n-scrollbar style="height: 100% - 34px">
-        <n-grid
-          v-if="filteredPlugins.length > 0"
-          :x-gap="12"
-          :y-gap="8"
-          cols="1 s:2 m:3 xl:4"
-          responsive="screen"
-        >
-          <n-grid-item v-for="(plugin, index) in filteredPlugins" :key="index">
-            <PluginCard :plugin="plugin" @log="openLogModal" @config="openConfigModal"></PluginCard>
-          </n-grid-item>
-        </n-grid>
-
-        <n-empty v-else class="empty" :description="$t('views.pluginCenter.emptyText')"> </n-empty>
-      </n-scrollbar>
+      <n-button circle :loading="loading" @click="refreshPluginList">
+        <template #icon>
+          <n-icon><Refresh /></n-icon>
+        </template>
+      </n-button>
     </div>
+
+    <n-scrollbar style="height: 100% - 34px">
+      <n-grid
+        v-if="filteredPlugins.length > 0"
+        :x-gap="12"
+        :y-gap="8"
+        cols="1 s:2 m:3 xl:4"
+        responsive="screen"
+      >
+        <n-grid-item v-for="(plugin, index) in filteredPlugins" :key="index">
+          <PluginCard :plugin="plugin" @log="openLogModal" @config="openConfigModal"></PluginCard>
+        </n-grid-item>
+      </n-grid>
+
+      <n-empty v-else class="empty" :description="$t('views.pluginCenter.emptyText')"> </n-empty>
+    </n-scrollbar>
     <ConfigModal></ConfigModal>
   </div>
 </template>
@@ -63,26 +61,22 @@ onActivated(() => {
 .plugin-center {
   padding: 18px;
   height: calc(100vh - 69px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
 
-  .container {
-    height: 100%;
+  .top {
     display: flex;
-    flex-direction: column;
     gap: 12px;
-    position: relative;
+    align-items: center;
+  }
 
-    .top {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .empty {
-      position: absolute;
-      left: 50%;
-      top: 35%;
-      transform: translateX(-50%);
-    }
+  .empty {
+    position: absolute;
+    left: 50%;
+    top: 35%;
+    transform: translateX(-50%);
   }
 }
 </style>
