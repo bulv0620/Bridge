@@ -22,9 +22,9 @@ const { loading, running, isAvailable, getImgData, startPlugin, stopPlugin, show
         <p class="title">
           {{ plugin.desc.title }}
         </p>
-        <p class="summary" :title="plugin.desc.summary">
+        <n-text depth="2" class="summary" :title="plugin.desc.summary">
           {{ plugin.desc.summary }}
-        </p>
+        </n-text>
       </div>
     </div>
     <n-divider style="margin: 12px 0" />
