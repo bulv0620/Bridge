@@ -5,7 +5,7 @@ import { useSharedFileList } from '@renderer/composables/share-hub/useSharedFile
 import { useDropZone } from '@vueuse/core'
 import DropZoneOverlay from '@renderer/components/DropZoneOverlay.vue'
 
-const { sharedFiles, addShare } = useSharedFileList()
+const { validSharedFileList, addShare } = useSharedFileList()
 
 const dropZoneRef = useTemplateRef('dropZoneRef')
 const { isOverDropZone } = useDropZone(dropZoneRef, {
@@ -25,13 +25,13 @@ function onDrop(files: File[] | null) {
     <DropZoneOverlay :show="isOverDropZone"></DropZoneOverlay>
     <n-scrollbar style="height: 100%">
       <n-grid
-        v-if="sharedFiles.length > 0"
+        v-if="validSharedFileList.length > 0"
         :x-gap="12"
         :y-gap="8"
         cols="2 s:3 m:4 xl:5"
         responsive="screen"
       >
-        <n-grid-item v-for="(file, index) in sharedFiles" :key="index">
+        <n-grid-item v-for="(file, index) in validSharedFileList" :key="index">
           <FileCard :file="file"></FileCard>
         </n-grid-item>
       </n-grid>

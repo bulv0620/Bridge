@@ -1,4 +1,5 @@
-import { ref } from 'vue'
+import { useNow } from '@vueuse/core'
+import { computed, ref } from 'vue'
 
 const crypto = window.api.crypto
 const fs = window.api.fsSync
@@ -13,7 +14,13 @@ export interface SharedFileInfo {
   consumableCount: number
 }
 
-const sharedFiles = ref<SharedFileInfo[]>([])
+const now = useNow({ interval: 1000 })
+
+const sharedFileList = ref<SharedFileInfo[]>([])
+
+const validSharedFileList = computed(() => {
+  return sharedFileList.value.filter((f) => f.exp > now.value.getTime())
+})
 
 function addShare(files: File[]) {
   for (const f of files) {
@@ -27,7 +34,7 @@ function addShare(files: File[]) {
       type = f.name.split('.').pop()?.toLowerCase() || ''
     }
 
-    sharedFiles.value.push({
+    sharedFileList.value.push({
       uuid: crypto.randomUUID(),
       type,
       fileName: f.name,
@@ -41,7 +48,8 @@ function addShare(files: File[]) {
 
 export function useSharedFileList() {
   return {
-    sharedFiles,
+    sharedFileList,
+    validSharedFileList,
     addShare,
   }
 }
