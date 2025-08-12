@@ -7,6 +7,8 @@ import { usePlanNameDialog } from './usePlanNameDialog'
 import { i18n } from '@renderer/locales'
 import { useDiscreteApi } from '../discrete-api/useDiscreteApi'
 
+const crypto = window.api.crypto
+
 export interface PlanInfo {
   planId: string
   planName: string

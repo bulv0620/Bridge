@@ -35,7 +35,8 @@
     "noData": "无数据",
     "noResult": "无结果",
     "remember": "记住选择",
-    "complete": "完成"
+    "complete": "完成",
+    "dropHere": "释放上传"
   },
   "views": {
     "fileSync": {

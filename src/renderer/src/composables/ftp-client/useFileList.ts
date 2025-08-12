@@ -4,6 +4,8 @@ import { FileInfo } from '@renderer/utils/file-system/FileSystem.adstract'
 import { useDiscreteApi } from '../discrete-api/useDiscreteApi'
 import { i18n } from '@renderer/locales'
 
+const crypto = window.api.crypto
+
 const { message } = useDiscreteApi()
 const { t } = i18n.global
 const { currentInstance, currentInstancePath } = useFtpClient()

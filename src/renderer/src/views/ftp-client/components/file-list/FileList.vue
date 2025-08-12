@@ -6,9 +6,10 @@ import FileNameWithIcon from './cells/FileNameWithIcon.vue'
 import { formatBytes } from '@renderer/utils/format'
 import { useI18n } from 'vue-i18n'
 import { useFileList } from '@renderer/composables/ftp-client/useFileList'
-import { PushOutline } from '@vicons/ionicons5'
+
 import { useDropZone } from '@vueuse/core'
 import { useFileUploadModal } from '@renderer/composables/ftp-client/useFileUploadModal'
+import DropZoneOverlay from '@renderer/components/DropZoneOverlay.vue'
 
 const { t } = useI18n()
 
@@ -100,12 +101,7 @@ watch(
 
 <template>
   <div ref="dropZoneRef" class="file-list">
-    <div v-if="isOverDropZone" class="overlay">
-      <n-icon size="80">
-        <PushOutline />
-      </n-icon>
-      <div>{{ $t('views.ftpClient.dropHere') }}</div>
-    </div>
+    <DropZoneOverlay :show="isOverDropZone"></DropZoneOverlay>
     <n-data-table
       v-model:checked-row-keys="checkedRowKeys"
       :loading="loading"
@@ -124,25 +120,5 @@ watch(
   flex: 1;
   overflow: hidden;
   position: relative;
-
-  .overlay {
-    pointer-events: none;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.3);
-    border-radius: 2px;
-    display: flex;
-    gap: 8px;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    font-size: 24px;
-    font-weight: bold;
-    z-index: 10;
-  }
 }
 </style>
