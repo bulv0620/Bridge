@@ -16,4 +16,11 @@ declare global {
     electron: ElectronAPI
     api: WindowAPI
   }
+
+  interface HrefToPageParam {
+    to: string
+    query?: {
+      [key: string]: any
+    }
+  }
 }

@@ -36,8 +36,6 @@ app.whenReady().then(() => {
     }
   })
 
-  mainWindow.show()
-
   const tray = createTray(mainWindow)
   // 监听剪切板
   const clipboardWatcher = new ClipboardWatcher(mainWindow)

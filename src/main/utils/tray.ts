@@ -37,12 +37,61 @@ export function createTray(mainWindow: BrowserWindow): Tray {
 export function updateTray(tray: Tray, lang: string, options: { mainWindow: BrowserWindow }) {
   const contextMenu = Menu.buildFromTemplate([
     {
-      label: messages[lang].tray.show,
+      label: messages[lang].tray.fileSync,
       click: () => {
+        options.mainWindow.webContents.send('href-to-page', {
+          to: 'FileSync',
+        })
         options.mainWindow.show()
       },
     },
-    // { type: 'separator' },
+    {
+      label: messages[lang].tray.ftpClient,
+      click: () => {
+        options.mainWindow.webContents.send('href-to-page', {
+          to: 'FtpClient',
+        })
+        options.mainWindow.show()
+      },
+    },
+    {
+      label: messages[lang].tray.downloader,
+      click: () => {
+        options.mainWindow.webContents.send('href-to-page', {
+          to: 'Downloader',
+        })
+        options.mainWindow.show()
+      },
+    },
+    {
+      label: messages[lang].tray.shareHub,
+      click: () => {
+        options.mainWindow.webContents.send('href-to-page', {
+          to: 'ShareHub',
+        })
+        options.mainWindow.show()
+      },
+    },
+    { type: 'separator' },
+    {
+      label: messages[lang].tray.pluginCenter,
+      click: () => {
+        options.mainWindow.webContents.send('href-to-page', {
+          to: 'PluginCenter',
+        })
+        options.mainWindow.show()
+      },
+    },
+    {
+      label: messages[lang].tray.setting,
+      click: () => {
+        options.mainWindow.webContents.send('href-to-page', {
+          to: 'Setting',
+        })
+        options.mainWindow.show()
+      },
+    },
+    { type: 'separator' },
     {
       label: messages[lang].tray.quit,
       click: () => {

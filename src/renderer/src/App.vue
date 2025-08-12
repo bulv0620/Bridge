@@ -10,12 +10,10 @@ const { themeConfig } = useTheme()
 const { naiveLocale, naiveDateLocale } = useLang()
 const router = useRouter()
 
-ipcRenderer.on('clipboard-magnet', (_event, url) => {
+ipcRenderer.on('href-to-page', (_event, data: HrefToPageParam) => {
   router.push({
-    name: 'downloader',
-    query: {
-      url,
-    },
+    name: data.to,
+    query: data.query,
   })
 })
 </script>

@@ -1,5 +1,11 @@
 {
   "tray": {
+    "fileSync": "文件同步",
+    "ftpClient": "FTP会话",
+    "downloader": "下载器",
+    "shareHub": "文件分享",
+    "pluginCenter": "插件中心",
+    "setting": "设置",
     "show": "显示",
     "quit": "退出"
   }

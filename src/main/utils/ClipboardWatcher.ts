@@ -51,7 +51,12 @@ export class ClipboardWatcher {
           this.mainWindow.focus()
 
           // console.log('检测到下载链接: ' + txt)
-          this.mainWindow.webContents.send('clipboard-magnet', txt)
+          this.mainWindow.webContents.send('href-to-page', {
+            to: 'Downloader',
+            query: {
+              url: txt,
+            },
+          })
 
           clipboard.clear()
         }
