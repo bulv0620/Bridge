@@ -55,7 +55,7 @@
       "planNameDuplicate": "Plan name already exists",
       "deletePlanConfirm": "Delete this plan?",
       "noChange": "No change",
-      "contrast": "Contrast Difference",
+      "contrast": "Contrast",
       "startSync": "Start Sync",
       "stopSync": "Stop Sync",
       "folderWhiteList": "Folder White List",
@@ -112,7 +112,10 @@
       "syncSummary": "Elapsed {time}, successfully synced {success} files, and {failure} failed",
       "sourceInvalid": "Source Invalid",
       "targetInvalid": "Target Invalid",
-      "needRecompare": "Re-comparison is required after modifying the whitelist"
+      "needRecompare": "Re-comparison is required after modifying the whitelist",
+      "noDiffFile": "No difference files",
+      "createOrSelectPlan": "Select or create a plan",
+      "selectPlan": "Select"
     },
     "ftpClient": {
       "title": "Ftp Client",
@@ -243,14 +246,12 @@
       "upload": "Upload",
       "download": "Download",
       "remove": "Remove",
-      "setting":"Setting",
-      "emptyText": "No File"
+      "setting":"Setting"
     },
     "pluginCenter": {
       "title": "Plugin Center",
       "description": "Plugin Center",
       "searchPlaceholder": "Enter keywords",
-      "emptyText": "No Plugin",
       "run": "Run",
       "stop": "Stop",
       "config": "Config",

@@ -8,12 +8,17 @@ import { useDiffList } from '@renderer/composables/file-sync/useDiffList'
 import { DiffFile } from '@renderer/composables/file-sync/useSyncTool'
 import { useFileDiff } from '@renderer/composables/file-sync/useFileDiff'
 import { useFileSync } from '@renderer/composables/file-sync/useFileSync'
+import { useSyncForm } from '@renderer/composables/file-sync/useSyncForm'
+import { SwapHorizontal, AlbumsOutline } from '@vicons/ionicons5'
+import { usePlanManage } from '@renderer/composables/file-sync/usePlanManage'
 
 const { t } = useI18n()
 
+const { sourceFolder, targetFolder } = useSyncForm()
 const { diffTableData, filterOptionValues, tableRef, handleUpdateFilter } = useDiffList()
-const { diffLoading } = useFileDiff()
+const { diffLoading, startDiff } = useFileDiff()
 const { processing } = useFileSync()
+const { openPlanManageModal } = usePlanManage()
 
 const columns = computed(() => [
   {
@@ -102,12 +107,19 @@ const columns = computed(() => [
     },
   },
 ])
+
+const emptyText = computed(() => {
+  if (sourceFolder.value.path && targetFolder.value.path) {
+    return t('views.fileSync.noDiffFile')
+  } else {
+    return t('views.fileSync.createOrSelectPlan')
+  }
+})
 </script>
 
 <template>
   <n-data-table
     ref="tableRef"
-    :loading="diffLoading"
     size="small"
     virtual-scroll
     :columns="columns"
@@ -115,5 +127,29 @@ const columns = computed(() => [
     flex-height
     style="height: 100%"
     @update:filters="handleUpdateFilter"
-  />
+  >
+    <template #empty>
+      <n-empty :description="emptyText">
+        <template #icon>
+          <n-icon>
+            <SwapHorizontal v-if="sourceFolder.path && targetFolder.path" />
+            <AlbumsOutline v-else></AlbumsOutline>
+          </n-icon>
+        </template>
+        <template #extra>
+          <n-button
+            v-if="sourceFolder.path && targetFolder.path"
+            size="small"
+            :disabled="diffLoading"
+            @click="startDiff"
+          >
+            {{ $t('views.fileSync.contrast') }}
+          </n-button>
+          <n-button v-else size="small" @click="openPlanManageModal">
+            {{ $t('views.fileSync.selectPlan') }}
+          </n-button>
+        </template>
+      </n-empty>
+    </template>
+  </n-data-table>
 </template>

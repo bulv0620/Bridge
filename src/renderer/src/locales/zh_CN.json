@@ -112,7 +112,10 @@
       "syncSummary": "耗时 {time} 秒，同步成功 {success} 个，失败 {failure} 个",
       "sourceInvalid": "源目录校验失败",
       "targetInvalid": "目标目录校验失败",
-      "needRecompare": "修改白名单后需重新对比"
+      "needRecompare": "修改白名单后需重新对比",
+      "noDiffFile": "没有发现差异文件",
+      "createOrSelectPlan": "选择或创建一个同步方案",
+      "selectPlan": "选择方案"
     },
     "ftpClient": {
       "title": "FTP会话",
@@ -243,14 +246,12 @@
       "upload": "上传",
       "download": "下载",
       "remove": "删除",
-      "setting":"设置",
-      "emptyText": "无共享文件"
+      "setting":"设置"
     },
     "pluginCenter": {
       "title": "插件中心",
       "description": "插件中心",
       "searchPlaceholder": "请输入关键词",
-      "emptyText": "找不到插件",
       "run": "启动",
       "stop": "停止",
       "config": "配置参数",
