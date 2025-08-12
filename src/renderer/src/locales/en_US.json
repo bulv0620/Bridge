@@ -245,7 +245,8 @@
       "upload": "Upload",
       "download": "Download",
       "remove": "Remove",
-      "setting":"Setting"
+      "setting":"Setting",
+      "noSharedFile": "No shared files found"
     },
     "pluginCenter": {
       "title": "Plugin Center",

@@ -36,7 +36,7 @@ function onDrop(files: File[] | null) {
         </n-grid-item>
       </n-grid>
 
-      <n-empty v-else class="empty" :description="$t('views.shareHub.emptyText')"> </n-empty>
+      <n-empty v-else class="empty" :description="$t('views.shareHub.noSharedFile')"> </n-empty>
     </n-scrollbar>
   </div>
 </template>
