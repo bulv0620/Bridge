@@ -237,7 +237,8 @@
       "noTaskToPause": "No task to pause",
       "noTaskToStop": "No task to stop",
       "noTaskToRemove": "No task to remove",
-      "unknown": "unknown"
+      "unknown": "unknown",
+      "noTask": "No Task"
     },
     "shareHub": {
       "title": "Share Hub",

@@ -3,10 +3,14 @@ import { Add, Pause, Play, SettingsOutline, Stop, TrashBinOutline } from '@vicon
 import { useDownloaderActions } from '@renderer/composables/downloader/useDownloaderAction'
 import { useDownloader } from '@renderer/composables/downloader/useDownloader'
 import { useSettingDrawer } from '@renderer/composables/downloader/useSettingDrawer'
+import { useAria2 } from '@renderer/composables/downloader/useAria2'
+import { useCreateDownloadTaskModal } from '@renderer/composables/downloader/useCreateDownloadTaskModal'
 
 const { showSettingDrawer } = useSettingDrawer()
-const { checkedTasks, startLoading, pauseLoading, stopLoading, removeLoading } = useDownloader()
-const { createTask, startTasks, pauseTasks, stopTasks, removeTasks } = useDownloaderActions()
+const { checkedTasks } = useAria2()
+const { startLoading, pauseLoading, stopLoading, removeLoading } = useDownloader()
+const { startTasks, pauseTasks, stopTasks, removeTasks } = useDownloaderActions()
+const { openCreateTaskModal } = useCreateDownloadTaskModal()
 </script>
 
 <template>
@@ -17,7 +21,7 @@ const { createTask, startTasks, pauseTasks, stopTasks, removeTasks } = useDownlo
       :button-props="{ size: 'small', circle: true, type: 'primary' }"
       placement="bottom"
       :delay="500"
-      @click="createTask"
+      @click="openCreateTaskModal()"
     />
     <CommonButton
       :tooltip="$t('views.downloader.startTask')"

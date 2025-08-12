@@ -237,7 +237,8 @@
       "noTaskToPause": "没有可暂停的任务",
       "noTaskToStop": "没有可结束的任务",
       "noTaskToRemove": "没有可删除的任务",
-      "unknown": "未知文件"
+      "unknown": "未知文件",
+      "noTask": "当前列表为空"
     },
     "shareHub": {
       "title": "文件分享",

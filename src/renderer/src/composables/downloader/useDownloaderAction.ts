@@ -1,16 +1,15 @@
 import { useDownloader } from './useDownloader'
 
-import { useCreateDownloadTaskModal } from './useCreateDownloadTaskModal'
 import { useDiscreteApi } from '../discrete-api/useDiscreteApi'
 import { i18n } from '@renderer/locales'
+import { useAria2 } from './useAria2'
 
 const { t } = i18n.global
 const { confirm, message } = useDiscreteApi()
 
+const { aria2, checkedRowKeys } = useAria2()
+
 const {
-  aria2,
-  isConnected,
-  checkedRowKeys,
   toStartTasks,
   toPauseTasks,
   toStopTasks,
@@ -20,15 +19,6 @@ const {
   stopLoading,
   removeLoading,
 } = useDownloader()
-
-const { openCreateTaskModal } = useCreateDownloadTaskModal()
-
-function createTask() {
-  if (!aria2.value || !isConnected.value) {
-    return
-  }
-  openCreateTaskModal()
-}
 
 async function startTasks() {
   if (!toStartTasks.value.length) {
@@ -118,7 +108,6 @@ async function removeTasks() {
 
 export function useDownloaderActions() {
   return {
-    createTask,
     startTasks,
     pauseTasks,
     stopTasks,

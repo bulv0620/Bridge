@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { useAria2 } from '@renderer/composables/downloader/useAria2'
 
-const { aria2, isConnected, globalStats, checkedRowKeys, checkedTasks } = useAria2()
+const { checkedTasks } = useAria2()
 
 const startLoading = ref(false)
 const pauseLoading = ref(false)
@@ -24,11 +24,6 @@ const toRemoveTasks = computed(() => {
 
 export function useDownloader() {
   return {
-    aria2,
-    isConnected,
-    globalStats,
-    checkedRowKeys,
-    checkedTasks,
     startLoading,
     pauseLoading,
     stopLoading,

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { formatBytesPerSecond } from '@renderer/utils/format'
-import { useDownloader } from '@renderer/composables/downloader/useDownloader'
+import { useAria2 } from '@renderer/composables/downloader/useAria2'
 
-const { isConnected, globalStats } = useDownloader()
+const { isConnected, globalStats } = useAria2()
 </script>
 
 <template>

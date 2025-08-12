@@ -3,10 +3,14 @@ import { computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { NProgress, NTag } from 'naive-ui'
 import { DownloadTaskInfo, useTaskList } from '@renderer/composables/downloader/useTaskList'
+import { useAria2 } from '@renderer/composables/downloader/useAria2'
+import { useCreateDownloadTaskModal } from '@renderer/composables/downloader/useCreateDownloadTaskModal'
 
 const { t } = useI18n()
 
-const { tableData, checkedRowKeys } = useTaskList()
+const { isConnected } = useAria2()
+const { tableData, checkedRowKeys, activeTaskListTab } = useTaskList()
+const { openCreateTaskModal } = useCreateDownloadTaskModal()
 
 const columns = computed(() => [
   { type: 'selection' },
@@ -78,7 +82,21 @@ const columns = computed(() => [
       flex-height
       style="height: 100%"
       :row-key="(row: DownloadTaskInfo) => row.gid"
-    />
+    >
+      <template #empty>
+        <n-empty :description="$t('views.downloader.noTask')">
+          <template #extra>
+            <n-button
+              v-if="isConnected && ['all', 'downloading'].includes(activeTaskListTab)"
+              size="small"
+              @click="openCreateTaskModal()"
+            >
+              {{ $t('views.downloader.createTask') }}
+            </n-button>
+          </template>
+        </n-empty>
+      </template>
+    </n-data-table>
   </div>
 </template>
 
