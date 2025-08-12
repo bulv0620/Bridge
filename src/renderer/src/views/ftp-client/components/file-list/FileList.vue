@@ -1,17 +1,25 @@
 <script setup lang="ts">
 import dayjs from 'dayjs'
-import { nextTick, watch, h, computed } from 'vue'
+import { nextTick, watch, h, computed, useTemplateRef } from 'vue'
 import { FileInfo } from '@renderer/utils/file-system/FileSystem.adstract'
 import FileNameWithIcon from './cells/FileNameWithIcon.vue'
 import { formatBytes } from '@renderer/utils/format'
 import { useI18n } from 'vue-i18n'
 import { useFileList } from '@renderer/composables/ftp-client/useFileList'
 import { PushOutline } from '@vicons/ionicons5'
-import { useDropFiles } from '@renderer/composables/ftp-client/useDropFile'
+import { useDropZone } from '@vueuse/core'
+import { useFileUploadModal } from '@renderer/composables/ftp-client/useFileUploadModal'
 
 const { t } = useI18n()
 
-const { isDragging, onDragEnter, onDragOver, onDragLeave, onDrop } = useDropFiles()
+const { openFileUploadModal } = useFileUploadModal()
+
+const dropZoneRef = useTemplateRef('dropZoneRef')
+const { isOverDropZone } = useDropZone(dropZoneRef, {
+  onDrop,
+  multiple: true,
+})
+
 const { currentInstancePath, loading, fileList, checkedRowKeys, getFiles, openFolder } =
   useFileList()
 
@@ -70,6 +78,12 @@ const columns = computed(() => [
   },
 ])
 
+function onDrop(files: File[] | null) {
+  if (files && files.length > 0) {
+    openFileUploadModal(files.map((el) => el.path))
+  }
+}
+
 watch(
   currentInstancePath,
   () => {
@@ -85,15 +99,8 @@ watch(
 </script>
 
 <template>
-  <div
-    class="file-list"
-    :class="{ active: isDragging }"
-    @dragenter.prevent="onDragEnter"
-    @dragover.prevent="onDragOver"
-    @dragleave.prevent="onDragLeave"
-    @drop.prevent="onDrop"
-  >
-    <div v-if="isDragging" class="overlay">
+  <div ref="dropZoneRef" class="file-list">
+    <div v-if="isOverDropZone" class="overlay">
       <n-icon size="80">
         <PushOutline />
       </n-icon>
