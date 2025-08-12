@@ -42,7 +42,7 @@ const {
       @click="handleCreateFolder"
     />
     <CommonButton
-      :tooltip="$t('views.ftpClient.delete')"
+      :tooltip="$t('common.delete')"
       :icon="TrashBinOutline"
       :button-props="{ size: 'small', circle: true }"
       placement="bottom"
@@ -50,7 +50,7 @@ const {
       @click="handleDeleteCheckedItem"
     />
     <CommonButton
-      :tooltip="$t('views.ftpClient.refresh')"
+      :tooltip="$t('common.refresh')"
       :icon="Refresh"
       :loading="fileListLoading"
       :button-props="{ size: 'small', circle: true }"

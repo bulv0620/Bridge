@@ -6,7 +6,6 @@ import FileNameWithIcon from './cells/FileNameWithIcon.vue'
 import { formatBytes } from '@renderer/utils/format'
 import { useI18n } from 'vue-i18n'
 import { useFileList } from '@renderer/composables/ftp-client/useFileList'
-
 import { useDropZone } from '@vueuse/core'
 import { useFileUploadModal } from '@renderer/composables/ftp-client/useFileUploadModal'
 import DropZoneOverlay from '@renderer/components/DropZoneOverlay.vue'
@@ -111,7 +110,17 @@ watch(
       virtual-scroll
       flex-height
       style="height: 100%"
-    />
+    >
+      <template #empty>
+        <n-empty :description="$t('views.ftpClient.noFile')">
+          <template #extra>
+            <n-button size="small" :disabled="loading" @click="getFiles">
+              {{ $t('common.refresh') }}
+            </n-button>
+          </template>
+        </n-empty>
+      </template>
+    </n-data-table>
   </div>
 </template>
 
