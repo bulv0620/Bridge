@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Albums, Document, Save } from '@vicons/ionicons5'
+import { FileTrayFull, Document, Save } from '@vicons/ionicons5'
 import { onMounted } from 'vue'
 import { deepClone } from '@renderer/utils/object'
 import { usePlanManage } from '@renderer/composables/file-sync/usePlanManage'
@@ -53,7 +53,7 @@ onMounted(() => {
     />
     <CommonButton
       :tooltip="$t('views.fileSync.savedPlans')"
-      :icon="Albums"
+      :icon="FileTrayFull"
       :button-props="{ size: 'small', circle: true }"
       placement="bottom"
       :delay="500"

@@ -9,7 +9,7 @@ import { DiffFile } from '@renderer/composables/file-sync/useSyncTool'
 import { useFileDiff } from '@renderer/composables/file-sync/useFileDiff'
 import { useFileSync } from '@renderer/composables/file-sync/useFileSync'
 import { useSyncForm } from '@renderer/composables/file-sync/useSyncForm'
-import { SwapHorizontal, AlbumsOutline } from '@vicons/ionicons5'
+import { SwapHorizontal, FileTrayFull } from '@vicons/ionicons5'
 import { usePlanManage } from '@renderer/composables/file-sync/usePlanManage'
 
 const { t } = useI18n()
@@ -133,7 +133,7 @@ const emptyText = computed(() => {
         <template #icon>
           <n-icon>
             <SwapHorizontal v-if="sourceFolder.path && targetFolder.path" />
-            <AlbumsOutline v-else></AlbumsOutline>
+            <FileTrayFull v-else></FileTrayFull>
           </n-icon>
         </template>
         <template #extra>
