@@ -50,7 +50,7 @@ const { openFtpConnectModal } = useFtpConnectModal()
 .ftp-client {
   padding: 6px 0;
   overflow: hidden;
-  height: calc(100vh - 45px);
+  height: calc(100vh - 12px);
 
   .ftp-client-content {
     height: calc(100% - 34px);

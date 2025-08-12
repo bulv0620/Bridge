@@ -34,7 +34,6 @@ export function createCustomWindow(windowOption?: IWindowOptions): BrowserWindow
     },
     parent: windowOption?.parent,
     modal: windowOption?.modal,
-    titleBarStyle: 'hidden',
     ...(process.platform !== 'darwin'
       ? {
           titleBarOverlay: {
@@ -63,11 +62,6 @@ export function createCustomWindow(windowOption?: IWindowOptions): BrowserWindow
   }
 
   const themeUpdateHandler = () => {
-    if (process.platform !== 'darwin' && win.setTitleBarOverlay) {
-      win.setTitleBarOverlay({
-        symbolColor: nativeTheme.shouldUseDarkColors ? '#fff' : '#000',
-      })
-    }
     win.webContents.send('switch-theme', nativeTheme.themeSource)
   }
   nativeTheme.on('updated', themeUpdateHandler)

@@ -82,7 +82,7 @@ const mockFiles = ref([
 <style lang="less" scoped>
 .shareHub {
   width: 100%;
-  height: calc(100vh - 33px);
+  height: 100vh;
   display: flex;
   flex-direction: column;
 

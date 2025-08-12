@@ -60,7 +60,7 @@ onActivated(() => {
 <style scoped lang="less">
 .plugin-center {
   padding: 18px;
-  height: calc(100vh - 69px);
+  height: calc(100vh - 36px);
   display: flex;
   flex-direction: column;
   gap: 12px;

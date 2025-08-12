@@ -69,7 +69,7 @@ watch(
 <style lang="less" scoped>
 .file-sync {
   padding: 18px;
-  height: calc(100vh - 69px);
+  height: calc(100vh - 36px);
 
   .container {
     height: 100%;

@@ -55,7 +55,7 @@ watch(
 <style lang="less" scoped>
 .downloader {
   width: 100%;
-  height: calc(100vh - 33px);
+  height: 100vh;
   display: flex;
   flex-direction: column;
 
