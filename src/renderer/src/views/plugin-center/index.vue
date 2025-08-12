@@ -51,7 +51,7 @@ onActivated(() => {
         </n-grid-item>
       </n-grid>
 
-      <n-empty v-else class="empty" :description="$t('views.pluginCenter.emptyText')"> </n-empty>
+      <n-empty v-else class="empty" :description="$t('views.pluginCenter.noPlugin')"> </n-empty>
     </n-scrollbar>
     <ConfigModal></ConfigModal>
   </div>

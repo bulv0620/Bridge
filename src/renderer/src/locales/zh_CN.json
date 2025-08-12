@@ -265,7 +265,8 @@
       "readConfigError": "读取配置文件失败",
       "configFileSaveConfirm": "是否保存配置文件?",
       "configFileSaveError": "配置文件保存失败",
-      "configFileSaved": "配置文件已保存"
+      "configFileSaved": "配置文件已保存",
+      "noPlugin": "没有找到插件"
     },
     "setting": {
       "title": "设置",

@@ -265,7 +265,8 @@
       "readConfigError": "Failed to read config file",
       "configFileSaveConfirm": "Save the config file?",
       "configFileSaveError": "Failed to save config file",
-      "configFileSaved": "Config file saved"
+      "configFileSaved": "Config file saved",
+      "noPlugin": "No Plugin Found"
     },
     "setting": {
       "title": "Settings",
