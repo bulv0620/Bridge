@@ -7,7 +7,7 @@ import { useAria2 } from '@renderer/composables/downloader/useAria2'
 import { useCreateDownloadTaskModal } from '@renderer/composables/downloader/useCreateDownloadTaskModal'
 
 const { showSettingDrawer } = useSettingDrawer()
-const { checkedTasks } = useAria2()
+const { checkedTasks, aria2, isConnected } = useAria2()
 const { startLoading, pauseLoading, stopLoading, removeLoading } = useDownloader()
 const { startTasks, pauseTasks, stopTasks, removeTasks } = useDownloaderActions()
 const { openCreateTaskModal } = useCreateDownloadTaskModal()
@@ -21,6 +21,7 @@ const { openCreateTaskModal } = useCreateDownloadTaskModal()
       :button-props="{ size: 'small', circle: true, type: 'primary' }"
       placement="bottom"
       :delay="500"
+      :disabled="!aria2 || !isConnected"
       @click="openCreateTaskModal()"
     />
     <CommonButton
