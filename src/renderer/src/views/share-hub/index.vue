@@ -2,6 +2,8 @@
 import ShareToolbar from './components/share-toolbar/ShareToolbar.vue'
 import FileList from './components/file-list/FileList.vue'
 import SettingDrawer from './components/setting-drawer/SettingDrawer.vue'
+import OnlineDevicePopover from './components/online-device-popover/OnlineDevicePopover.vue'
+import TransferPopover from './components/transfer-popover/TransferPopover.vue'
 
 defineOptions({
   name: 'ShareHub',
@@ -18,7 +20,10 @@ defineOptions({
     <FileList></FileList>
 
     <n-divider style="margin: 0"></n-divider>
-    <div class="footer">footer</div>
+    <div class="footer">
+      <OnlineDevicePopover></OnlineDevicePopover>
+      <TransferPopover></TransferPopover>
+    </div>
   </div>
   <SettingDrawer></SettingDrawer>
 </template>
@@ -38,6 +43,8 @@ defineOptions({
 
   .footer {
     padding: 16px;
+    display: flex;
+    justify-content: space-between;
   }
 }
 </style>

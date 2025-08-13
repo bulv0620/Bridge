@@ -249,7 +249,12 @@
       "noSharedFile": "没有被共享的文件",
       "settingTitle": "设置",
       "enableSharing": "启用分享",
-      "showMyFiles": "显示我的文件"
+      "showMyFiles": "显示我的文件",
+      "onlineDevice": "在线设备",
+      "deviceList": "设备列表",
+      "noDevice": "没有在线的设备",
+      "transferTasks": "传输任务",
+      "transferTaskList": "任务列表"
     },
     "pluginCenter": {
       "title": "插件中心",

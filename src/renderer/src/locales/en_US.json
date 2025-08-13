@@ -249,7 +249,12 @@
       "noSharedFile": "No shared files found",
       "settingTitle": "Setting",
       "enableSharing": "Enable Sharing",
-      "showMyFiles": "Show My Files"
+      "showMyFiles": "Show My Files",
+      "onlineDevice": "Online Devices",
+      "deviceList": "Devices",
+      "noDevice": "No online devices",
+      "transferTasks": "Transfer Tasks",
+      "transferTaskList": "Tasks"
     },
     "pluginCenter": {
       "title": "Plugin Center",
