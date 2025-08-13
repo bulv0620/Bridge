@@ -246,7 +246,10 @@
       "download": "Download",
       "remove": "Remove",
       "setting":"Setting",
-      "noSharedFile": "No shared files found"
+      "noSharedFile": "No shared files found",
+      "settingTitle": "Setting",
+      "enableSharing": "Enable Sharing",
+      "showMyFiles": "Show My Files"
     },
     "pluginCenter": {
       "title": "Plugin Center",

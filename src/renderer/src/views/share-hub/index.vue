@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ShareToolbar from './components/share-toolbar/ShareToolbar.vue'
 import FileList from './components/file-list/FileList.vue'
+import SettingDrawer from './components/setting-drawer/SettingDrawer.vue'
 
 defineOptions({
   name: 'ShareHub',
@@ -8,7 +9,7 @@ defineOptions({
 </script>
 
 <template>
-  <div class="shareHub">
+  <div id="share-hub-drawer-target" class="shareHub">
     <div class="header">
       <ShareToolbar></ShareToolbar>
     </div>
@@ -19,6 +20,7 @@ defineOptions({
     <n-divider style="margin: 0"></n-divider>
     <div class="footer">footer</div>
   </div>
+  <SettingDrawer></SettingDrawer>
 </template>
 
 <style lang="less" scoped>

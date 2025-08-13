@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import { useSettingDrawer } from '@renderer/composables/share-hub/useSettingDrawer'
 import { SettingsOutline, TrashBinOutline } from '@vicons/ionicons5'
 import { FileDownloadOutlined, FileUploadOutlined } from '@vicons/material'
+
+const { openSettingDrawer } = useSettingDrawer()
 </script>
 
 <template>
@@ -33,5 +36,6 @@ import { FileDownloadOutlined, FileUploadOutlined } from '@vicons/material'
     :button-props="{ size: 'small', circle: true }"
     placement="bottom"
     :delay="500"
+    @click="openSettingDrawer"
   />
 </template>
