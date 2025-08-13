@@ -34,7 +34,7 @@ watch(
 </script>
 
 <template>
-  <div id="setting-drawer-target" class="downloader">
+  <div id="downloader-drawer-target" class="downloader">
     <div class="header">
       <DownloadToolbar></DownloadToolbar>
     </div>

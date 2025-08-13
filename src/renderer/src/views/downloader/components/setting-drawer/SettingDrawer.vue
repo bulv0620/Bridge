@@ -70,7 +70,7 @@ watch(
     placement="right"
     :trap-focus="false"
     :block-scroll="false"
-    to="#setting-drawer-target"
+    to="#downloader-drawer-target"
   >
     <n-drawer-content :title="$t('views.downloader.settingTitle')" :closable="true">
       <n-scrollbar style="height: 100%; width: calc(100% - 18px); padding-right: 18px">
