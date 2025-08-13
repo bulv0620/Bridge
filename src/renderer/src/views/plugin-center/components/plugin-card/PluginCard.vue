@@ -24,7 +24,7 @@ const { loading, running, isAvailable, getImgData, startPlugin, stopPlugin, show
         </p>
         <n-ellipsis
           :line-clamp="2"
-          :tooltip="{ placement: 'bottom', width: 350 }"
+          :tooltip="{ delay: 500, placement: 'bottom-start', width: 350 }"
           style="font-size: 12px; height: 42px"
         >
           {{ plugin.desc.summary }}
