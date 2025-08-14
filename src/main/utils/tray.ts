@@ -2,6 +2,7 @@ import { BrowserWindow, Tray, app, Menu, nativeImage } from 'electron'
 import icon from '../../../resources/icon.png?asset'
 import iconMac from '../../../resources/icon_plain.png?asset'
 import { messages } from '../locales'
+import { getWindow } from './window'
 
 let tray: Tray | null = null
 
@@ -9,7 +10,7 @@ export function getTray() {
   return tray
 }
 
-export function createTray(mainWindow: BrowserWindow): Tray {
+export function createTray(): Tray {
   let trayIcon = nativeImage.createFromPath(icon)
   if (process.platform === 'darwin') {
     trayIcon = nativeImage.createFromPath(iconMac).resize({ width: 18, height: 18 })
@@ -29,13 +30,10 @@ export function createTray(mainWindow: BrowserWindow): Tray {
   tray.setToolTip('My Electron App')
   tray.setContextMenu(contextMenu)
 
-  tray.on('click', () => {
-    showMainWindow()
-  })
-
-  const showMainWindow = () => {
+  tray.on('double-click', () => {
+    const mainWindow = getWindow('main')
     mainWindow.show()
-  }
+  })
 
   return tray
 }

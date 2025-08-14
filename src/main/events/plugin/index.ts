@@ -1,4 +1,4 @@
-import { IpcMainEvent, shell } from 'electron'
+import { IpcMainInvokeEvent, shell } from 'electron'
 import { PluginManager } from './utils/PluginManager'
 import path from 'path'
 import fs from 'fs'
@@ -9,26 +9,26 @@ export async function getPluginList() {
   return pluginManager.getPluginList()
 }
 
-export async function startPlugin(_: IpcMainEvent, pluginInfo: PluginInfo) {
+export async function startPlugin(_: IpcMainInvokeEvent, pluginInfo: PluginInfo) {
   return await pluginManager.runTask(pluginInfo)
 }
 
-export async function stopPlugin(_: IpcMainEvent, pluginInfo: PluginInfo) {
+export async function stopPlugin(_: IpcMainInvokeEvent, pluginInfo: PluginInfo) {
   return pluginManager.stopTask(pluginInfo)
 }
 
-export async function checkPluginStatus(_: IpcMainEvent, pluginName: string) {
+export async function checkPluginStatus(_: IpcMainInvokeEvent, pluginName: string) {
   return pluginManager.checkPluginStatus(pluginName)
 }
 
-export async function openPluginLog(_: IpcMainEvent, pluginName: string) {
+export async function openPluginLog(_: IpcMainInvokeEvent, pluginName: string) {
   const logPath = pluginManager.getPluginLogPath(pluginName)
   if (logPath) {
     shell.openPath(logPath)
   }
 }
 
-export async function getPluginConfig(_: IpcMainEvent, pluginName: string) {
+export async function getPluginConfig(_: IpcMainInvokeEvent, pluginName: string) {
   const configPath = pluginManager.getPluginConfigPath(pluginName)
 
   if (!configPath) throw new Error('Config Path Not Found')
@@ -39,7 +39,7 @@ export async function getPluginConfig(_: IpcMainEvent, pluginName: string) {
   return { language, content }
 }
 
-export async function savePluginConfig(_: IpcMainEvent, pluginName: string, content: string) {
+export async function savePluginConfig(_: IpcMainInvokeEvent, pluginName: string, content: string) {
   const configPath = pluginManager.getPluginConfigPath(pluginName)
 
   if (!configPath) throw new Error('Config Path Not Found')
@@ -47,11 +47,11 @@ export async function savePluginConfig(_: IpcMainEvent, pluginName: string, cont
   return fs.promises.writeFile(configPath, content, 'utf-8')
 }
 
-export async function checkSupport(_: IpcMainEvent, pluginName: string) {
+export async function checkSupport(_: IpcMainInvokeEvent, pluginName: string) {
   return pluginManager.checkPlatformSupport(pluginName)
 }
 
-export async function getImageData(_: IpcMainEvent, pluginName: string) {
+export async function getImageData(_: IpcMainInvokeEvent, pluginName: string) {
   const imagePath = pluginManager.getPluginImagePath(pluginName)
 
   if (!imagePath) throw new Error('Image Path Not Found')

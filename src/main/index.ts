@@ -36,9 +36,8 @@ app.whenReady().then(() => {
     }
   })
 
-  const tray = createTray(mainWindow)
+  const tray = createTray()
   createEventHandler({ mainWindow, tray })
-
   registerAllEvents()
 
   app.on('second-instance', (_event, _commandLine, _workingDirectory) => {
