@@ -1,11 +1,15 @@
 import { ipcMain } from 'electron'
 import * as themeEvents from './theme'
 import * as langEvents from './lang'
+import * as fileEvents from './file'
+import * as clipboardEvents from './clipboard'
 
 // 事件映射
 export const eventsMap = {
   theme: themeEvents,
   lang: langEvents,
+  file: fileEvents,
+  clipboard: clipboardEvents,
 }
 
 export const handlerKeys: string[] = []

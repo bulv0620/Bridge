@@ -4,8 +4,6 @@ import { useAria2 } from '@renderer/composables/downloader/useAria2'
 import { i18n } from '@renderer/locales'
 import { useDiscreteApi } from '../discrete-api/useDiscreteApi'
 
-const ipcRenderer = window.electron.ipcRenderer
-
 const { t } = i18n.global
 const { message } = useDiscreteApi()
 const { aria2, testConnection } = useAria2()
@@ -65,7 +63,7 @@ async function loadSettings() {
 }
 
 async function loadLocalSettings() {
-  settingsForm.enableUrlWatcher = await ipcRenderer.invoke('get-clipboard-watcher-status')
+  settingsForm.enableUrlWatcher = await window.ipc.clipboard.getMagnetWatcherStatus()
 }
 
 async function applySettings() {
@@ -105,7 +103,7 @@ async function fetchLatestTracker() {
 }
 
 async function selectFolder() {
-  const path = await ipcRenderer.invoke('select-folder')
+  const path = await window.ipc.file.selectFolder()
   if (path) {
     settingsForm.dir = path
   }

@@ -5,7 +5,6 @@ import { createEventHandler } from './events/index'
 import { createTray } from './utils/tray'
 import { stopAllTasks } from './utils/plugin'
 import { installExtension, VUEJS_DEVTOOLS } from 'electron-devtools-installer'
-import { ClipboardWatcher } from './utils/ClipboardWatcher'
 import { registerAllEvents } from './events/eventLoader'
 
 const gotTheLock = app.requestSingleInstanceLock({ myKey: 'key' })
@@ -38,9 +37,7 @@ app.whenReady().then(() => {
   })
 
   const tray = createTray(mainWindow)
-  // 监听剪切板
-  const clipboardWatcher = new ClipboardWatcher(mainWindow)
-  createEventHandler({ mainWindow, tray, clipboardWatcher })
+  createEventHandler({ mainWindow, tray })
 
   registerAllEvents()
 

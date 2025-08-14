@@ -3,7 +3,6 @@ import { FolderOutline } from '@vicons/ionicons5'
 import { useSettingDrawer } from '@renderer/composables/downloader/useSettingDrawer'
 import { useAria2 } from '@renderer/composables/downloader/useAria2'
 import { watch } from 'vue'
-const ipcRenderer = window.electron.ipcRenderer
 
 const { aria2, isConnected } = useAria2()
 
@@ -27,7 +26,7 @@ watch(isConnected, (connected) => {
   if (!connected) {
     activeTab.value = 'connection'
 
-    ipcRenderer.invoke('close-clipboard-watcher')
+    window.ipc.clipboard.stopMagnetWatcher()
   }
 })
 
@@ -55,9 +54,9 @@ watch(
   () => settingsForm.enableUrlWatcher,
   (enable) => {
     if (enable) {
-      ipcRenderer.invoke('open-clipboard-watcher')
+      window.ipc.clipboard.startMagnetWatcher()
     } else {
-      ipcRenderer.invoke('close-clipboard-watcher')
+      window.ipc.clipboard.stopMagnetWatcher()
     }
   },
 )

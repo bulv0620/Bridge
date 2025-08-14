@@ -1,15 +1,11 @@
-import { BrowserWindow, clipboard } from 'electron'
+import { clipboard } from 'electron'
+import { getWindow } from '../../../utils/window'
 
 /**
  * 监听系统剪贴板中的磁力链接（magnet:?xt=urn:btih:...）
  */
-export class ClipboardWatcher {
+export class MagnetWatcher {
   private timer: NodeJS.Timeout | null = null
-  private mainWindow: BrowserWindow
-
-  constructor(mainWindow: BrowserWindow) {
-    this.mainWindow = mainWindow
-  }
 
   /**
    * 启动监听，每秒读取剪贴板内容
@@ -33,7 +29,7 @@ export class ClipboardWatcher {
   /**
    * 监听状态
    */
-  getStatus(): Boolean {
+  getStatus(): boolean {
     return !!this.timer
   }
 
@@ -45,13 +41,14 @@ export class ClipboardWatcher {
           /(^magnet:\?xt=urn:btih:[a-fA-F0-9]{32,40})|(^https?:\/\/\S+\.torrent)(?:[?#].*)?$/i
 
         if (pattern.test(txt)) {
-          this.mainWindow.show()
-          this.mainWindow.setAlwaysOnTop(true)
-          this.mainWindow.setAlwaysOnTop(false)
-          this.mainWindow.focus()
+          const mainWindow = getWindow('main')
+          mainWindow.show()
+          mainWindow.setAlwaysOnTop(true)
+          mainWindow.setAlwaysOnTop(false)
+          mainWindow.focus()
 
           // console.log('检测到下载链接: ' + txt)
-          this.mainWindow.webContents.send('href-to-page', {
+          mainWindow.webContents.send('href-to-page', {
             to: 'Downloader',
             query: {
               url: txt,
