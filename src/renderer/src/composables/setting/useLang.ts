@@ -15,7 +15,7 @@ export const useLang = () => {
   watch(
     locale,
     (lang) => {
-      ipcRenderer.invoke('switch-lang', lang)
+      window.ipc.lang.change(lang)
       localStorage.setItem('lang', lang)
     },
     { immediate: true },

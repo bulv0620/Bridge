@@ -1,4 +1,6 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
+import { IpcApi } from './ipc'
+
 interface WindowAPI {
   os: typeof import('os')
   fs: typeof import('fs/promises')
@@ -15,12 +17,6 @@ declare global {
   interface Window {
     electron: ElectronAPI
     api: WindowAPI
-  }
-
-  interface HrefToPageParam {
-    to: string
-    query?: {
-      [key: string]: any
-    }
+    ipc: IpcApi
   }
 }

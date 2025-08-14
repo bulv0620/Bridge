@@ -1,30 +1,15 @@
-import { BrowserWindow, dialog, ipcMain, nativeTheme, shell, Tray } from 'electron'
-import { updateTray } from '../utils/tray'
+import { BrowserWindow, dialog, ipcMain, shell, Tray } from 'electron'
 import { checkPluginStatus, getPluginInfo, PluginInfo, runTask, stopTask } from '../utils/plugin'
 import { ClipboardWatcher } from '../utils/ClipboardWatcher'
 
 export function createEventHandler({
   mainWindow,
-  tray,
   clipboardWatcher,
 }: {
   mainWindow: BrowserWindow
   tray: Tray
   clipboardWatcher: ClipboardWatcher
 }) {
-  // 设置APP主题模式
-  ipcMain.handle('switch-theme', (_, type: 'light' | 'dark' | 'system') => {
-    nativeTheme.themeSource = type
-  })
-
-  // 设置APP语言更新tray
-  ipcMain.handle('switch-lang', (_, lang: string) => {
-    BrowserWindow.getAllWindows().forEach((win) => {
-      win.webContents.send('switch-lang', lang)
-    })
-    updateTray(tray, lang, { mainWindow })
-  })
-
   // 监听渲染进程的请求并返回文件夹路径
   ipcMain.handle('select-folder', async () => {
     const result = await dialog.showOpenDialog(mainWindow, {

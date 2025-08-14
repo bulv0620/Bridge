@@ -3,13 +3,19 @@ import icon from '../../../resources/icon.png?asset'
 import iconMac from '../../../resources/icon_plain.png?asset'
 import { messages } from '../locales'
 
+let tray: Tray | null = null
+
+export function getTray() {
+  return tray
+}
+
 export function createTray(mainWindow: BrowserWindow): Tray {
   let trayIcon = nativeImage.createFromPath(icon)
   if (process.platform === 'darwin') {
     trayIcon = nativeImage.createFromPath(iconMac).resize({ width: 18, height: 18 })
     trayIcon.setTemplateImage(true)
   }
-  const tray = new Tray(trayIcon)
+  tray = new Tray(trayIcon)
 
   const contextMenu = Menu.buildFromTemplate([
     {

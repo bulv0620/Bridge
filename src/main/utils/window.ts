@@ -3,19 +3,16 @@ import { is } from '@electron-toolkit/utils'
 import { join } from 'path'
 import icon from '../../../resources/icon.png?asset'
 
-export interface IWindowOptions {
-  width?: number
-  height?: number
-  minWidth?: number
-  minHeight?: number
-  hideMenuBar?: boolean
-  location?: string
-  parent?: BrowserWindow
-  modal?: boolean
-  resizable?: boolean
+const windowInstances = new Map()
+
+export function getWindow(name: string) {
+  return windowInstances.get(name)
 }
 
-export function createCustomWindow(windowOption?: IWindowOptions): BrowserWindow {
+export function createCustomWindow(
+  name: string,
+  windowOption?: CreateWindowOptions,
+): BrowserWindow {
   const win = new BrowserWindow({
     width: windowOption?.width || 990,
     height: windowOption?.height || 660,
@@ -45,6 +42,9 @@ export function createCustomWindow(windowOption?: IWindowOptions): BrowserWindow
       : {}),
     icon: join(__dirname, '../../build/icon.ico'),
   })
+
+  // 缓存win实例
+  windowInstances.set(name, win)
 
   win.on('ready-to-show', () => {
     win.show()

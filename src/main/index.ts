@@ -6,6 +6,7 @@ import { createTray } from './utils/tray'
 import { stopAllTasks } from './utils/plugin'
 import { installExtension, VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import { ClipboardWatcher } from './utils/ClipboardWatcher'
+import { registerAllEvents } from './events/eventLoader'
 
 const gotTheLock = app.requestSingleInstanceLock({ myKey: 'key' })
 if (!gotTheLock) {
@@ -23,7 +24,7 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  const mainWindow = createCustomWindow({
+  const mainWindow = createCustomWindow('main', {
     resizable: true,
     minWidth: 880,
     minHeight: 600,
@@ -40,6 +41,8 @@ app.whenReady().then(() => {
   // 监听剪切板
   const clipboardWatcher = new ClipboardWatcher(mainWindow)
   createEventHandler({ mainWindow, tray, clipboardWatcher })
+
+  registerAllEvents()
 
   app.on('second-instance', (_event, _commandLine, _workingDirectory) => {
     // 如果用户再次打开应用，显示主窗口

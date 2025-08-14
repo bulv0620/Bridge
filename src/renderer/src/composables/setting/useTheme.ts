@@ -19,7 +19,7 @@ watch(
   (theme: EThemeType) => {
     themeMode.value = theme
     localStorage.setItem('theme', theme)
-    ipcRenderer.invoke('switch-theme', theme)
+    window.ipc.theme.change(theme)
   },
   { immediate: true },
 )
