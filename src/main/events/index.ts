@@ -1,5 +1,4 @@
-import { BrowserWindow, dialog, ipcMain, shell, Tray } from 'electron'
-import { checkPluginStatus, getPluginInfo, PluginInfo, runTask, stopTask } from '../utils/plugin'
+import { BrowserWindow, dialog, ipcMain, Tray } from 'electron'
 
 export function createEventHandler({ mainWindow }: { mainWindow: BrowserWindow; tray: Tray }) {
   // 监听渲染进程的请求并返回文件夹路径
@@ -22,30 +21,5 @@ export function createEventHandler({ mainWindow }: { mainWindow: BrowserWindow; 
     })
     if (canceled) return []
     return filePaths
-  })
-
-  // 获取所有插件列表
-  ipcMain.handle('get-plugin-list', async () => {
-    return getPluginInfo()
-  })
-
-  // 启动插件
-  ipcMain.handle('start-plugin', async (_, pluginInfo: PluginInfo) => {
-    return await runTask(pluginInfo)
-  })
-
-  // 关闭插件
-  ipcMain.handle('stop-plugin', async (_, pluginInfo: PluginInfo) => {
-    return stopTask(pluginInfo)
-  })
-
-  // 检测插件是否在运行
-  ipcMain.handle('check-plugin-status', (_, pluginName: string) => {
-    return checkPluginStatus(pluginName)
-  })
-
-  // 检测插件是否在运行
-  ipcMain.handle('open-path', (_, path: string) => {
-    return shell.openPath(path)
   })
 }

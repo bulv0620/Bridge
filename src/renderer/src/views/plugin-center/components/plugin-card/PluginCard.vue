@@ -1,23 +1,17 @@
 <script setup lang="ts">
-import {
-  PluginCardEmits,
-  PluginCardProps,
-  usePluginCard,
-} from '@renderer/composables/plugin-center/usePluginCard'
+import { PluginCardProps, usePluginCard } from '@renderer/composables/plugin-center/usePluginCard'
 import { Play, Settings, DocumentText, Stop } from '@vicons/ionicons5'
 
 const props = defineProps<PluginCardProps>()
 
-const emits = defineEmits<PluginCardEmits>()
-
-const { loading, running, isAvailable, getImgData, startPlugin, stopPlugin, showLog, showConfig } =
-  usePluginCard(props, emits)
+const { loading, running, isAvailable, imageData, startPlugin, stopPlugin, showLog, showConfig } =
+  usePluginCard(props)
 </script>
 
 <template>
   <n-card class="plugin-item">
     <div class="plugin-item__info">
-      <img class="icon" :src="getImgData(plugin.iconPath)" />
+      <img class="icon" :src="imageData" />
       <div class="text">
         <p class="title">
           {{ plugin.desc.title }}

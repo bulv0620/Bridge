@@ -1,9 +1,6 @@
-import { nextTick, ref } from 'vue'
+import { ref } from 'vue'
 import { useDiscreteApi } from '../discrete-api/useDiscreteApi'
 import { i18n } from '@renderer/locales'
-
-const fs = window.api.fs
-const path = window.api.path
 
 const { confirm, message } = useDiscreteApi()
 const { t } = i18n.global
@@ -11,26 +8,21 @@ const { t } = i18n.global
 const loading = ref(false)
 const visible = ref(false)
 
+const name = ref('')
 const language = ref('json')
-const configFilePath = ref('')
 const configJson = ref('')
 
-function openPluginConfigModal(filePath: string) {
-  configFilePath.value = filePath
-  language.value = path.extname(filePath).slice(1)
-
-  readJsonFile(filePath)
-}
-
-async function readJsonFile(path: string) {
+async function openPluginConfigModal(pluginName: string) {
+  if (loading.value) return
   try {
     loading.value = true
     configJson.value = ''
-    const content = await fs.readFile(path, 'utf-8')
+    const { language: lang, content } = await window.ipc.plugin.getPluginConfig(pluginName)
+
     visible.value = true
 
-    await nextTick()
-
+    name.value = pluginName
+    language.value = lang
     configJson.value = content
   } catch (error) {
     message.error(t('views.pluginCenter.readConfigError'))
@@ -53,7 +45,9 @@ async function saveConfig() {
   try {
     loading.value = true
 
-    await fs.writeFile(configFilePath.value, configJson.value, 'utf-8')
+    // 保存
+    await window.ipc.plugin.savePluginConfig(name.value, configJson.value)
+
     message.success(t('views.pluginCenter.configFileSaved'))
     visible.value = false
   } catch (error) {
@@ -72,7 +66,6 @@ export function usePluginConfigModal() {
     loading,
     visible,
     language,
-    configFilePath,
     configJson,
     openPluginConfigModal,
     saveConfig,

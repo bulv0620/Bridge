@@ -3,9 +3,9 @@ import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { createCustomWindow } from './utils/window'
 import { createEventHandler } from './events/index'
 import { createTray } from './utils/tray'
-import { stopAllTasks } from './utils/plugin'
 import { installExtension, VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import { registerAllEvents } from './events/eventLoader'
+import { stopAll } from './events/plugin'
 
 const gotTheLock = app.requestSingleInstanceLock({ myKey: 'key' })
 if (!gotTheLock) {
@@ -54,7 +54,7 @@ app.whenReady().then(() => {
     if (!global.flagQuit) {
       event.preventDefault() // 阻止默认退出
       console.log('before-quit: stopping all plugin tasks...')
-      await stopAllTasks() // 等待所有任务清理完成
+      await stopAll()
       console.log('before-quit: all stoped')
       global.flagQuit = true
       tray.destroy()

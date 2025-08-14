@@ -9,8 +9,7 @@ defineOptions({
   name: 'PluginCenter',
 })
 
-const { loading, filterText, filteredPlugins, refreshPluginList, openLogModal, openConfigModal } =
-  usePluginList()
+const { loading, filterText, filteredPlugins, refreshPluginList } = usePluginList()
 
 onActivated(() => {
   refreshPluginList()
@@ -47,7 +46,7 @@ onActivated(() => {
         responsive="screen"
       >
         <n-grid-item v-for="(plugin, index) in filteredPlugins" :key="index">
-          <PluginCard :plugin="plugin" @log="openLogModal" @config="openConfigModal"></PluginCard>
+          <PluginCard :plugin="plugin"></PluginCard>
         </n-grid-item>
       </n-grid>
 

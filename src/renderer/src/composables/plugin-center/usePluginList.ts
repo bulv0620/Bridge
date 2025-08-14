@@ -1,10 +1,5 @@
 import { ref, computed } from 'vue'
-import { usePluginConfigModal } from '@renderer/composables/plugin-center/usePluginConfigModal'
 import { PluginInfo } from '@renderer/composables/plugin-center/usePluginCard'
-
-const ipcRenderer = window.electron.ipcRenderer
-
-const { openPluginConfigModal } = usePluginConfigModal()
 
 const plugins = ref<PluginInfo[]>([])
 const filterText = ref('')
@@ -17,19 +12,17 @@ const filteredPlugins = computed(() => {
   )
 })
 
-function openLogModal(path: string) {
-  ipcRenderer.invoke('open-path', path)
-}
-
-function openConfigModal(path: string) {
-  openPluginConfigModal(path)
-}
-
 async function refreshPluginList() {
   loading.value = true
   plugins.value = []
-  const result = await ipcRenderer.invoke('get-plugin-list').finally(() => (loading.value = false))
-  plugins.value = result
+  try {
+    const result = await window.ipc.plugin.getPluginList()
+    plugins.value = result
+  } catch (error) {
+    console.error(error)
+  } finally {
+    loading.value = false
+  }
 }
 
 export function usePluginList() {
@@ -38,8 +31,6 @@ export function usePluginList() {
     filterText,
     loading,
     filteredPlugins,
-    openLogModal,
-    openConfigModal,
     refreshPluginList,
   }
 }
