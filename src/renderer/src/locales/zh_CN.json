@@ -117,6 +117,9 @@
       "createOrSelectPlan": "选择或创建一个同步方案",
       "selectPlan": "选择方案"
     },
+    "fileSyncV2": {
+      "title": "文件同步V2"
+    },
     "ftpClient": {
       "title": "FTP会话",
       "description": "FTP会话",

@@ -44,6 +44,20 @@ const menuOptions = computed<MenuOption[]>(() => {
           RouterLink,
           {
             to: {
+              path: '/v2',
+            },
+          },
+          { default: () => t('views.fileSyncV2.title') },
+        ),
+      key: '/v2',
+      icon: renderIcon(FolderSwap20Regular),
+    },
+    {
+      label: () =>
+        h(
+          RouterLink,
+          {
+            to: {
               path: '/ftp-client',
             },
           },

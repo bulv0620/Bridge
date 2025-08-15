@@ -117,6 +117,9 @@
       "createOrSelectPlan": "Select or create a plan",
       "selectPlan": "Select"
     },
+    "fileSyncV2": {
+      "title": "Sync V2"
+    },
     "ftpClient": {
       "title": "Ftp Client",
       "description": "Ftp Client",

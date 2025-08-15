@@ -38,8 +38,19 @@ declare interface FileInfo {
   timestamp: Date
   filePath: string
   relativePath: string
-  meta: FileMetaData
+  meta?: FileMetaData
   isDirectory: boolean
+}
+
+declare interface DiffInfo {
+  id: string
+  fileName: string
+  isDirectory: boolean
+  type: 'onlySource' | 'onlyTarget' | 'conflict'
+  action: 'toLeft' | 'toRight' | 'ignore'
+  sourceFile?: FileInfo | null
+  targetFile?: FileInfo | null
+  children?: DiffInfo[]
 }
 
 // 文件系统抽象类
