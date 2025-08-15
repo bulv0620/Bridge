@@ -4,6 +4,7 @@ import * as langEvents from './lang'
 import * as fileEvents from './file'
 import * as clipboardEvents from './clipboard'
 import * as pluginEvents from './plugin'
+import * as syncEvents from './sync'
 
 // 事件映射
 export const eventsMap = {
@@ -12,6 +13,7 @@ export const eventsMap = {
   file: fileEvents,
   clipboard: clipboardEvents,
   plugin: pluginEvents,
+  sync: syncEvents,
 }
 
 export const handlerKeys: string[] = []
