@@ -118,7 +118,28 @@
       "selectPlan": "Select"
     },
     "fileSyncV2": {
-      "title": "Sync V2"
+      "title": "Sync V2",
+      "newPlan": "New Plan",
+      "savePlan": "Save Plan",
+      "savedPlans": "Saved Plans",
+      "newPlanConfirm": "The current plan information will be remade. Do you want to continue?",
+      "syncSource": "Sync Source",
+      "syncDestination": "Sync Destination",
+      "notSelected": "Not Selected",
+      "compare": "Compare",
+      "startSync": "Start",
+      "pauseSync": "Pause",
+      "stop": "Stop",
+      "ignoredFolders": "Ignored Folders",
+      "mirror": "Mirror",
+      "incremental": "Incremental",
+      "bidirectional": "Bidirectional",
+      "fileName": "Name",
+      "leftSize": "L Size",
+      "rightSize": "R Size",
+      "leftDate": "L Date",
+      "rightDate": "R Date",
+      "resolution": "Resolution"
     },
     "ftpClient": {
       "title": "Ftp Client",

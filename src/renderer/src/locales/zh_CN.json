@@ -118,7 +118,28 @@
       "selectPlan": "选择方案"
     },
     "fileSyncV2": {
-      "title": "文件同步V2"
+      "title": "文件同步V2",
+      "newPlan": "新方案",
+      "savePlan": "保存当前方案",
+      "savedPlans": "已保存方案",
+      "newPlanConfirm": "当前方案信息将重制，是否继续?",
+      "syncSource": "同步源",
+      "syncDestination": "同步目标",
+      "notSelected": "未选择",
+      "compare": "对比",
+      "startSync": "开始",
+      "pauseSync": "暂停",
+      "stop": "结束",
+      "ignoredFolders": "忽略文件夹",
+      "mirror": "镜像同步",
+      "incremental": "增量同步",
+      "bidirectional": "双向同步",
+      "fileName": "文件名",
+      "leftSize": "L 大小",
+      "rightSize": "R 大小",
+      "leftDate": "L 日期",
+      "rightDate": "R 日期",
+      "resolution": "操作"
     },
     "ftpClient": {
       "title": "FTP会话",

@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { useFileList } from '@renderer/composables/file-sync-v2/useFileList'
-import FileList from './file-list/FileList.vue'
 import { mockDiffFileList } from '@renderer/composables/file-sync-v2/mock'
+import FileList from './file-list/FileList.vue'
+import EditableTitle from './editable-title/EditableTitle.vue'
+import PlanToolbar from './plan-toolbar/PlanToolbar.vue'
+import SyncForm from './sync-form/SyncForm.vue'
+import SyncToolbar from './sync-toolbar/SyncToolbar.vue'
+import { onMounted } from 'vue'
 
 defineOptions({
   name: 'FileSyncV2',
@@ -12,29 +17,30 @@ const { diffFileList } = useFileList()
 function getMockTableData() {
   diffFileList.value = JSON.parse(JSON.stringify(mockDiffFileList))
 }
+
+onMounted(() => {
+  getMockTableData()
+})
 </script>
 
 <template>
   <div class="file-sync">
     <div class="header">
-      <div class="title-editor">title</div>
-      <div class="plan-toolbar">plan</div>
+      <EditableTitle></EditableTitle>
+      <PlanToolbar></PlanToolbar>
     </div>
     <n-divider style="margin: 0"></n-divider>
 
     <div class="main">
-      <div class="form">form</div>
-      <div class="toolbar">
-        toobar
-        <n-button @click="getMockTableData">test</n-button>
-      </div>
+      <SyncForm></SyncForm>
+      <SyncToolbar></SyncToolbar>
       <div class="table">
         <FileList></FileList>
       </div>
     </div>
 
     <n-divider style="margin: 0"></n-divider>
-    <div class="footer">waiting</div>
+    <div class="footer">0/0</div>
   </div>
 </template>
 
@@ -49,6 +55,7 @@ function getMockTableData() {
     padding: 16px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
   }
 
   .main {
@@ -56,18 +63,6 @@ function getMockTableData() {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-
-    .form {
-      padding: 16px;
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .toolbar {
-      padding: 16px;
-      display: flex;
-      justify-content: space-between;
-    }
 
     .table {
       padding: 16px;

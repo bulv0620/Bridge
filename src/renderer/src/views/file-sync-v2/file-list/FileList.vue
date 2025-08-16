@@ -1,18 +1,20 @@
 <script setup lang="ts">
-import { h } from 'vue'
+import { computed, h } from 'vue'
 import { type DataTableColumns } from 'naive-ui'
 import FileNameWithIcon from './cells/FileNameWithIcon.vue'
 import SyncTypeAction from './cells/SyncTypeAction.vue'
 import { useFileList } from '@renderer/composables/file-sync-v2/useFileList'
 import { formatBytes } from '@renderer/utils/format'
 import dayjs from 'dayjs'
+import { useI18n } from 'vue-i18n'
 
-const { expandedRowKeys, diffFileList, diffFileTableRef, getCellProps, getRowClassName } =
-  useFileList()
+const { t } = useI18n()
 
-const columns: DataTableColumns<DiffInfo> = [
+const { expandedRowKeys, diffFileList, getCellProps, getRowClassName } = useFileList()
+
+const columns = computed<DataTableColumns<FileDifference>>(() => [
   {
-    title: 'fileName',
+    title: t('views.fileSyncV2.fileName'),
     key: 'fileName',
     fixed: 'left',
     minWidth: 200,
@@ -25,77 +27,76 @@ const columns: DataTableColumns<DiffInfo> = [
     },
   },
   {
-    title: 'L Size',
+    title: t('views.fileSyncV2.leftSize'),
     key: 'LSize',
     width: 120,
     align: 'right',
     render(row) {
-      return row.isDirectory ? '-' : row.sourceFile ? formatBytes(row.sourceFile.size) : ''
+      return row.isDirectory ? '-' : row.source ? formatBytes(row.source.size) : ''
     },
     cellProps: (row) => getCellProps(row, 'source'),
   },
   {
-    title: 'L Date',
+    title: t('views.fileSyncV2.leftDate'),
     key: 'LDate',
     minWidth: 200,
     align: 'right',
     render(row) {
       return row.isDirectory
         ? '-'
-        : row.sourceFile
-          ? dayjs(row.sourceFile.timestamp).format('YYYY-MM-DD HH:mm:ss')
+        : row.source
+          ? dayjs(row.source.timestamp).format('YYYY-MM-DD HH:mm:ss')
           : ''
     },
     cellProps: (row) => getCellProps(row, 'source'),
   },
   {
-    title: 'action',
-    key: 'action',
+    title: t('views.fileSyncV2.resolution'),
+    key: 'resolution',
     width: 120,
     align: 'center',
     render(row) {
       return h(SyncTypeAction, {
-        type: row.action,
+        type: row.resolution,
         isDirectory: row.isDirectory,
-        'onUpdate:type': (type) => (row.action = type),
+        'onUpdate:type': (type) => (row.resolution = type),
       })
     },
   },
   {
-    title: 'R Size',
+    title: t('views.fileSyncV2.rightSize'),
     key: 'RSize',
     width: 120,
     align: 'right',
     render(row) {
-      return row.isDirectory ? '-' : row.targetFile ? formatBytes(row.targetFile.size) : ''
+      return row.isDirectory ? '-' : row.target ? formatBytes(row.target.size) : ''
     },
     cellProps: (row) => getCellProps(row, 'target'),
   },
   {
-    title: 'R Date',
+    title: t('views.fileSyncV2.rightDate'),
     key: 'RDate',
     minWidth: 200,
     align: 'right',
     render(row) {
       return row.isDirectory
         ? '-'
-        : row.targetFile
-          ? dayjs(row.targetFile.timestamp).format('YYYY-MM-DD HH:mm:ss')
+        : row.target
+          ? dayjs(row.target.timestamp).format('YYYY-MM-DD HH:mm:ss')
           : ''
     },
     cellProps: (row) => getCellProps(row, 'target'),
   },
-]
+])
 </script>
 
 <template>
   <n-data-table
-    ref="diffFileTableRef"
     v-model:expanded-row-keys="expandedRowKeys"
     size="small"
     :columns="columns"
     :data="diffFileList"
-    :row-key="(row: DiffInfo) => row.id"
+    :row-key="(row: FileDifference) => row.id"
     flex-height
     scroll-x="min-content"
     style="height: 100%; width: 100%"

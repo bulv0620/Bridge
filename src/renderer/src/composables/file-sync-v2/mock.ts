@@ -1,11 +1,11 @@
-export const mockDiffFileList: DiffInfo[] = [
+export const mockDiffFileList: FileDifference[] = [
   {
     id: '1',
     fileName: 'root',
     isDirectory: true,
-    type: 'conflict',
-    action: 'toRight',
-    sourceFile: {
+    difference: 'conflict',
+    resolution: 'toRight',
+    source: {
       key: 'source-root',
       fileName: 'root',
       size: 0,
@@ -14,7 +14,7 @@ export const mockDiffFileList: DiffInfo[] = [
       relativePath: '',
       isDirectory: true,
     },
-    targetFile: {
+    target: {
       key: 'target-root',
       fileName: 'root',
       size: 0,
@@ -28,9 +28,9 @@ export const mockDiffFileList: DiffInfo[] = [
         id: '1-1',
         fileName: 'only_on_left.txt',
         isDirectory: false,
-        type: 'onlySource',
-        action: 'toRight',
-        sourceFile: {
+        difference: 'onlySource',
+        resolution: 'toRight',
+        source: {
           key: 'source-only_on_left.txt',
           fileName: 'only_on_left.txt',
           size: 1024,
@@ -39,17 +39,17 @@ export const mockDiffFileList: DiffInfo[] = [
           relativePath: 'only_on_left.txt',
           isDirectory: false,
         },
-        targetFile: null,
+        target: null,
         children: [],
       },
       {
         id: '1-2',
         fileName: 'only_on_right.log',
         isDirectory: false,
-        type: 'onlyTarget',
-        action: 'toRight',
-        sourceFile: null,
-        targetFile: {
+        difference: 'onlyTarget',
+        resolution: 'toRight',
+        source: null,
+        target: {
           key: 'target-only_on_right.log',
           fileName: 'only_on_right.log',
           size: 2048,
@@ -64,9 +64,9 @@ export const mockDiffFileList: DiffInfo[] = [
         id: '1-3',
         fileName: 'conflict_dir',
         isDirectory: true,
-        type: 'conflict',
-        action: 'toRight',
-        sourceFile: {
+        difference: 'conflict',
+        resolution: 'toRight',
+        source: {
           key: 'source-conflict_dir',
           fileName: 'conflict_dir',
           size: 0,
@@ -75,7 +75,7 @@ export const mockDiffFileList: DiffInfo[] = [
           relativePath: 'conflict_dir',
           isDirectory: true,
         },
-        targetFile: {
+        target: {
           key: 'target-conflict_dir',
           fileName: 'conflict_dir',
           size: 0,
@@ -89,9 +89,9 @@ export const mockDiffFileList: DiffInfo[] = [
             id: '1-3-1',
             fileName: 'nested_left_only.md',
             isDirectory: false,
-            type: 'onlySource',
-            action: 'toRight',
-            sourceFile: {
+            difference: 'onlySource',
+            resolution: 'toRight',
+            source: {
               key: 'source-nested_left_only.md',
               fileName: 'nested_left_only.md',
               size: 512,
@@ -100,16 +100,16 @@ export const mockDiffFileList: DiffInfo[] = [
               relativePath: 'conflict_dir/nested_left_only.md',
               isDirectory: false,
             },
-            targetFile: null,
+            target: null,
             children: [],
           },
           {
             id: '1-3-2',
             fileName: 'nested_both.txt',
             isDirectory: false,
-            type: 'conflict',
-            action: 'toRight',
-            sourceFile: {
+            difference: 'conflict',
+            resolution: 'toRight',
+            source: {
               key: 'source-nested_both.txt',
               fileName: 'nested_both.txt',
               size: 300,
@@ -118,7 +118,7 @@ export const mockDiffFileList: DiffInfo[] = [
               relativePath: 'conflict_dir/nested_both.txt',
               isDirectory: false,
             },
-            targetFile: {
+            target: {
               key: 'target-nested_both.txt',
               fileName: 'nested_both.txt',
               size: 320,
@@ -137,10 +137,10 @@ export const mockDiffFileList: DiffInfo[] = [
     id: '2',
     fileName: 'another_root',
     isDirectory: true,
-    type: 'onlyTarget',
-    action: 'toRight',
-    sourceFile: null,
-    targetFile: {
+    difference: 'onlyTarget',
+    resolution: 'toRight',
+    source: null,
+    target: {
       key: 'target-another_root',
       fileName: 'another_root',
       size: 0,
@@ -154,10 +154,10 @@ export const mockDiffFileList: DiffInfo[] = [
         id: '2-1',
         fileName: 'right_only_file.jpg',
         isDirectory: false,
-        type: 'onlyTarget',
-        action: 'toRight',
-        sourceFile: null,
-        targetFile: {
+        difference: 'onlyTarget',
+        resolution: 'toRight',
+        source: null,
+        target: {
           key: 'target-right_only_file.jpg',
           fileName: 'right_only_file.jpg',
           size: 4096,
