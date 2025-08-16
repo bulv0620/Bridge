@@ -4,9 +4,11 @@ import { useSyncForm } from '@renderer/composables/file-sync-v2/useSyncForm'
 import { Folder, Pause, Play, Stop, SwapHorizontal } from '@vicons/ionicons5'
 import { computed } from 'vue'
 import { mockDiffFileList } from '@renderer/composables/file-sync-v2/mock'
+import { useIgnoredFoldersModal } from '@renderer/composables/file-sync-v2/useIgnoredFoldersModal'
 
-const { isFormCompleted, isComparing, isSyncing } = useSyncForm()
+const { syncForm, isFormCompleted, isComparing, isSyncing } = useSyncForm()
 const { diffFileList } = useFileList()
+const { openIgnoredFoldersModal } = useIgnoredFoldersModal()
 
 const compareButtonType = computed(() => {
   if (isComparing.value || isSyncing.value) return ''
@@ -80,8 +82,8 @@ function mockCompare() {
       {{ $t('views.fileSyncV2.pauseSync') }}
     </n-button>
 
-    <n-badge :value="5" type="success" style="margin-left: auto">
-      <n-button size="small">
+    <n-badge :value="syncForm.ignoredFolders.length" type="success" style="margin-left: auto">
+      <n-button size="small" @click="openIgnoredFoldersModal">
         <template #icon><Folder /></template>
         {{ $t('views.fileSyncV2.ignoredFolders') }}
       </n-button>

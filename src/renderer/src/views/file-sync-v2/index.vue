@@ -4,6 +4,7 @@ import FileList from './components/file-list/FileList.vue'
 import PlanToolbar from './components/plan-toolbar/PlanToolbar.vue'
 import SyncForm from './components/sync-form/SyncForm.vue'
 import SyncToolbar from './components/sync-toolbar/SyncToolbar.vue'
+import IgnoredFoldersModal from './components/ignored-folders-modal/IgnoredFoldersModal.vue'
 
 defineOptions({
   name: 'FileSyncV2',
@@ -29,6 +30,7 @@ defineOptions({
     <n-divider style="margin: 0"></n-divider>
     <div class="footer">0/0</div>
   </div>
+  <IgnoredFoldersModal></IgnoredFoldersModal>
 </template>
 
 <style lang="less" scoped>
