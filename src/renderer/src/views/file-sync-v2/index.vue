@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { useFileList } from '@renderer/composables/file-sync-v2/useFileList'
 import { mockDiffFileList } from '@renderer/composables/file-sync-v2/mock'
-import FileList from './file-list/FileList.vue'
-import EditableTitle from './editable-title/EditableTitle.vue'
-import PlanToolbar from './plan-toolbar/PlanToolbar.vue'
-import SyncForm from './sync-form/SyncForm.vue'
-import SyncToolbar from './sync-toolbar/SyncToolbar.vue'
+import EditableTitle from './components/editable-title/EditableTitle.vue'
+import FileList from './components/file-list/FileList.vue'
+import PlanToolbar from './components/plan-toolbar/PlanToolbar.vue'
+import SyncForm from './components/sync-form/SyncForm.vue'
+import SyncToolbar from './components/sync-toolbar/SyncToolbar.vue'
 import { onMounted } from 'vue'
 
 defineOptions({

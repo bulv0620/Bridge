@@ -139,7 +139,9 @@
       "rightSize": "R Size",
       "leftDate": "L Date",
       "rightDate": "R Date",
-      "resolution": "Resolution"
+      "resolution": "Resolution",
+      "local": "Local",
+      "ftp": "FTP"
     },
     "ftpClient": {
       "title": "Ftp Client",

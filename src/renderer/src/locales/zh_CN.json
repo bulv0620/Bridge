@@ -139,7 +139,9 @@
       "rightSize": "R 大小",
       "leftDate": "L 日期",
       "rightDate": "R 日期",
-      "resolution": "操作"
+      "resolution": "操作",
+      "local": "本地",
+      "ftp": "FTP"
     },
     "ftpClient": {
       "title": "FTP会话",

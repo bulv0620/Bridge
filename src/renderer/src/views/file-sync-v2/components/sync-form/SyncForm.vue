@@ -4,8 +4,11 @@ import { Component, computed, h } from 'vue'
 import { SwapHorizontal, ArrowForward, Add } from '@vicons/ionicons5'
 import EndpointCard from './form-item/EndpointCard.vue'
 import { useI18n } from 'vue-i18n'
+import { useSyncForm } from '@renderer/composables/file-sync-v2/useSyncForm'
 
 const { t } = useI18n()
+
+const { syncForm } = useSyncForm()
 
 const options = computed(() => [
   {
@@ -36,10 +39,10 @@ function renderIcon(icon: Component) {
 
 <template>
   <div class="sync-form">
-    <EndpointCard type="source"></EndpointCard>
+    <EndpointCard v-model:endpoint="syncForm.sourceEndpoint" type="source"></EndpointCard>
 
     <n-dropdown :options="options">
-      <n-button size="small" circle secondary plain>
+      <n-button circle secondary plain>
         <template #icon>
           <n-icon><ArrowForward></ArrowForward></n-icon>
         </template>
