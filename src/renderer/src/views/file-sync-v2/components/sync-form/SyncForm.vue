@@ -1,54 +1,15 @@
 <script setup lang="ts">
-import { NIcon } from 'naive-ui'
-import { Component, computed, h } from 'vue'
-import { SwapHorizontal, ArrowForward, Add } from '@vicons/ionicons5'
-import EndpointCard from './form-item/EndpointCard.vue'
-import { useI18n } from 'vue-i18n'
 import { useSyncForm } from '@renderer/composables/file-sync-v2/useSyncForm'
-
-const { t } = useI18n()
+import EndpointCard from './form-item/EndpointCard.vue'
+import StrategyDropdown from './form-item/StrategyDropdown.vue'
 
 const { syncForm } = useSyncForm()
-
-const options = computed(() => [
-  {
-    label: t('views.fileSyncV2.mirror'),
-    key: 'mirror',
-    icon: renderIcon(ArrowForward),
-  },
-  {
-    label: t('views.fileSyncV2.incremental'),
-    key: 'incremental',
-    icon: renderIcon(Add),
-  },
-  {
-    label: t('views.fileSyncV2.bidirectional'),
-    key: 'bidirectional',
-    icon: renderIcon(SwapHorizontal),
-  },
-])
-
-function renderIcon(icon: Component) {
-  return () => {
-    return h(NIcon, null, {
-      default: () => h(icon),
-    })
-  }
-}
 </script>
 
 <template>
   <div class="sync-form">
     <EndpointCard v-model:endpoint="syncForm.sourceEndpoint" type="source"></EndpointCard>
-
-    <n-dropdown :options="options">
-      <n-button circle secondary plain>
-        <template #icon>
-          <n-icon><ArrowForward></ArrowForward></n-icon>
-        </template>
-      </n-button>
-    </n-dropdown>
-
+    <StrategyDropdown v-model:strategy="syncForm.syncStrategy"></StrategyDropdown>
     <EndpointCard type="destination"></EndpointCard>
   </div>
 </template>
