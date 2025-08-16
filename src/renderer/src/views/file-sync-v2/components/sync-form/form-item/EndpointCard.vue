@@ -10,7 +10,7 @@ const props = defineProps<{
   type: 'source' | 'destination'
 }>()
 
-const endpoint = defineModel<StorageEndpoint | null>('endpoint')
+const endpoint = defineModel<StorageEndpoint | null>('endpoint', { required: true })
 
 const { t } = useI18n()
 

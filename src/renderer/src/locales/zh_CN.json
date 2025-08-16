@@ -127,7 +127,7 @@
       "syncDestination": "同步目标",
       "notSelected": "未选择",
       "compare": "对比",
-      "startSync": "开始",
+      "startSync": "同步",
       "pauseSync": "暂停",
       "stop": "结束",
       "ignoredFolders": "忽略文件夹",

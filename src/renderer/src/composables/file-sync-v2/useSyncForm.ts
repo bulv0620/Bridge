@@ -1,4 +1,4 @@
-import { reactive } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { i18n } from '@renderer/locales'
 import { useDiscreteApi } from '../discrete-api/useDiscreteApi'
 
@@ -11,6 +11,12 @@ const syncForm = reactive<FileSyncPlan>({
   destinationEndpoint: null,
   ignoredFolders: [],
   syncStrategy: 'mirror',
+})
+const isComparing = ref(false)
+const isSyncing = ref(false)
+
+const isFormCompleted = computed(() => {
+  return !!syncForm.sourceEndpoint && !!syncForm.destinationEndpoint
 })
 
 async function resetForm() {
@@ -31,6 +37,9 @@ async function resetForm() {
 export function useSyncForm() {
   return {
     syncForm,
+    isFormCompleted,
+    isComparing,
+    isSyncing,
     resetForm,
   }
 }

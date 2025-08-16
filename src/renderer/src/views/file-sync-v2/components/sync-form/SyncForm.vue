@@ -10,7 +10,7 @@ const { syncForm } = useSyncForm()
   <div class="sync-form">
     <EndpointCard v-model:endpoint="syncForm.sourceEndpoint" type="source"></EndpointCard>
     <StrategyDropdown v-model:strategy="syncForm.syncStrategy"></StrategyDropdown>
-    <EndpointCard type="destination"></EndpointCard>
+    <EndpointCard v-model:endpoint="syncForm.destinationEndpoint" type="destination"></EndpointCard>
   </div>
 </template>
 

@@ -1,25 +1,12 @@
 <script setup lang="ts">
-import { useFileList } from '@renderer/composables/file-sync-v2/useFileList'
-import { mockDiffFileList } from '@renderer/composables/file-sync-v2/mock'
 import EditableTitle from './components/editable-title/EditableTitle.vue'
 import FileList from './components/file-list/FileList.vue'
 import PlanToolbar from './components/plan-toolbar/PlanToolbar.vue'
 import SyncForm from './components/sync-form/SyncForm.vue'
 import SyncToolbar from './components/sync-toolbar/SyncToolbar.vue'
-import { onMounted } from 'vue'
 
 defineOptions({
   name: 'FileSyncV2',
-})
-
-const { diffFileList } = useFileList()
-
-function getMockTableData() {
-  diffFileList.value = JSON.parse(JSON.stringify(mockDiffFileList))
-}
-
-onMounted(() => {
-  getMockTableData()
 })
 </script>
 
