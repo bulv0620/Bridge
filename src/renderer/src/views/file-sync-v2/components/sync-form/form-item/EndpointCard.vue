@@ -5,6 +5,7 @@ import Drive from '@renderer/assets/imgs/drive.png'
 import CloudDrive from '@renderer/assets/imgs/cloud_drive.png'
 import Search from '@renderer/assets/imgs/search.png'
 import { Close } from '@vicons/ionicons5'
+import { useFtpConectionModal } from '@renderer/composables/file-sync-v2/useFtpConnectionModal'
 
 const props = defineProps<{
   type: 'source' | 'destination'
@@ -13,6 +14,7 @@ const props = defineProps<{
 const endpoint = defineModel<StorageEndpoint | null>('endpoint', { required: true })
 
 const { t } = useI18n()
+const { openFtpConnectionModal } = useFtpConectionModal()
 
 const title = computed(() => {
   if (props.type === 'source') {
@@ -54,11 +56,7 @@ async function selectStorageType(key: string) {
       }
     }
   } else if (key === 'ftp') {
-    // const conf = await openFtpConfigModal(value.value)
-    // if (!conf) return
-    // value.value.type = 'ftp'
-    // value.value.path = conf.path
-    // value.value.ftpConfig = conf.ftpConfig
+    openFtpConnectionModal()
   }
 }
 

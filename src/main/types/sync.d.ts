@@ -13,6 +13,10 @@ declare interface FtpConfig {
   port: number
   user: string
   password: string
+  secure: boolean
+  secureOptions: {
+    rejectUnauthorized: boolean
+  }
 }
 
 /**
