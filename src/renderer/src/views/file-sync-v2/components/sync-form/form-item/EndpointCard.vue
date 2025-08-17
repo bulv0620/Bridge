@@ -11,7 +11,7 @@ const props = defineProps<{
   type: 'source' | 'destination'
 }>()
 
-const endpoint = defineModel<StorageEndpoint | null>('endpoint', { required: true })
+const endpoint = defineModel<StorageEngineConfig | null>('endpoint', { required: true })
 
 const { t } = useI18n()
 const { openFtpConnectionModal } = useFtpConectionModal()

@@ -37,6 +37,7 @@
     "@electron-toolkit/tsconfig": "^1.0.1",
     "@rushstack/eslint-patch": "^1.10.3",
     "@types/node": "^20.14.8",
+    "@types/stream-buffers": "^3.0.7",
     "@vicons/fluent": "^0.13.0",
     "@vicons/ionicons5": "^0.13.0",
     "@vicons/material": "^0.13.0",

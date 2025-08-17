@@ -1,7 +1,5 @@
-const { Readable } = window.api.stream
-
 // 通用存储位置信息
-declare interface StorageEndpoint {
+declare interface StorageEngineConfig {
   storageType: 'local' | 'ftp' | ''
   path: string
   connectionConfig?: FtpConfig
@@ -31,8 +29,8 @@ declare type SyncStrategy = 'incremental' | 'bidirectional' | 'mirror'
 declare interface FileSyncPlan {
   id?: string
   name: string
-  sourceEndpoint: StorageEndpoint | null // 源
-  destinationEndpoint: StorageEndpoint | null // 目标
+  sourceEndpoint: StorageEngineConfig | null // 源
+  destinationEndpoint: StorageEngineConfig | null // 目标
   ignoredFolders: string[] // 忽略文件夹
   syncStrategy: SyncStrategy // 同步策略
 }
@@ -67,24 +65,4 @@ declare interface FileDifference {
   source?: FileInfo | null // 源文件信息
   target?: FileInfo | null // 目标文件信息
   children?: FileDifference[] // 子项
-}
-
-// 文件系统抽象类
-declare abstract class FileSystem {
-  protected basePath: string
-  constructor(basePath: string = '') {
-    this.basePath = basePath
-  }
-  protected abstract _resolve(filePath: string): string
-  abstract validate(): Promise<boolean>
-  abstract getAllFiles(dir?: string): Promise<FileInfo[]>
-  abstract getFile(filePath: string): Promise<Buffer>
-  abstract writeFile(filePath: string, data: Buffer | string): Promise<void>
-  abstract getFileStream(filePath: string): Promise<InstanceType<typeof Readable>>
-  abstract writeFileStream(filePath: string, source: InstanceType<typeof Readable>): Promise<void>
-  abstract delFile(filePath: string): Promise<void>
-  abstract exists(filePath: string): Promise<boolean>
-  abstract ensureDir(dirPath: string): Promise<void>
-  abstract getMeta(filePath: string): Promise<FileMetaData>
-  abstract setMeta(filePath: string, meta: FileMetaData): Promise<void>
 }
