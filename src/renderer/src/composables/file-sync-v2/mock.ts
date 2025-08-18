@@ -14,7 +14,7 @@ export const mockDiffFileList: FileDifference[] = [
       relativePath: '',
       isDirectory: true,
     },
-    target: {
+    destination: {
       key: 'target-root',
       fileName: 'root',
       size: 0,
@@ -39,7 +39,7 @@ export const mockDiffFileList: FileDifference[] = [
           relativePath: 'only_on_left.txt',
           isDirectory: false,
         },
-        target: null,
+        destination: null,
         children: [],
       },
       {
@@ -49,7 +49,7 @@ export const mockDiffFileList: FileDifference[] = [
         difference: 'onlyTarget',
         resolution: 'toRight',
         source: null,
-        target: {
+        destination: {
           key: 'target-only_on_right.log',
           fileName: 'only_on_right.log',
           size: 2048,
@@ -75,7 +75,7 @@ export const mockDiffFileList: FileDifference[] = [
           relativePath: 'conflict_dir',
           isDirectory: true,
         },
-        target: {
+        destination: {
           key: 'target-conflict_dir',
           fileName: 'conflict_dir',
           size: 0,
@@ -100,7 +100,7 @@ export const mockDiffFileList: FileDifference[] = [
               relativePath: 'conflict_dir/nested_left_only.md',
               isDirectory: false,
             },
-            target: null,
+            destination: null,
             children: [],
           },
           {
@@ -118,7 +118,7 @@ export const mockDiffFileList: FileDifference[] = [
               relativePath: 'conflict_dir/nested_both.txt',
               isDirectory: false,
             },
-            target: {
+            destination: {
               key: 'target-nested_both.txt',
               fileName: 'nested_both.txt',
               size: 320,
@@ -140,7 +140,7 @@ export const mockDiffFileList: FileDifference[] = [
     difference: 'onlyTarget',
     resolution: 'toRight',
     source: null,
-    target: {
+    destination: {
       key: 'target-another_root',
       fileName: 'another_root',
       size: 0,
@@ -157,7 +157,7 @@ export const mockDiffFileList: FileDifference[] = [
         difference: 'onlyTarget',
         resolution: 'toRight',
         source: null,
-        target: {
+        destination: {
           key: 'target-right_only_file.jpg',
           fileName: 'right_only_file.jpg',
           size: 4096,

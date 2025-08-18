@@ -7,8 +7,8 @@ import fs from 'fs'
  * 本地文件系统实现
  */
 export class LocalStorageEngine extends StorageEngine {
-  constructor(basePath: string = '', ignoredFolders: string[] = []) {
-    super(basePath, ignoredFolders)
+  constructor(basePath: string = '') {
+    super(basePath)
   }
 
   protected _resolve(filePath: string): string {
@@ -25,7 +25,7 @@ export class LocalStorageEngine extends StorageEngine {
     }
   }
 
-  async list(dir: string = ''): Promise<FileInfo[]> {
+  async list(dir: string, ignoredFolders: string[]): Promise<FileInfo[]> {
     const resolvedDir = this._resolve(dir)
     const entries = await fs.promises.readdir(resolvedDir, { withFileTypes: true })
     const fileList: FileInfo[] = []
@@ -38,7 +38,7 @@ export class LocalStorageEngine extends StorageEngine {
       const fullPath = path.join(resolvedDir, entry.name)
 
       if (entry.isDirectory()) {
-        if (this.ignoredFolders.includes(entry.name)) {
+        if (ignoredFolders.includes(entry.name)) {
           continue
         }
       }
@@ -63,7 +63,7 @@ export class LocalStorageEngine extends StorageEngine {
     return fileList
   }
 
-  async getAllFiles(dir: string = ''): Promise<FileInfo[]> {
+  async getAllFiles(dir: string, ignoredFolders: string[]): Promise<FileInfo[]> {
     let fileList: FileInfo[] = []
     const resolvedDir = this._resolve(dir)
     const entries = await fs.promises.readdir(resolvedDir, { withFileTypes: true })
@@ -75,12 +75,12 @@ export class LocalStorageEngine extends StorageEngine {
       const fullPath = path.join(resolvedDir, entry.name)
 
       if (entry.isDirectory()) {
-        if (this.ignoredFolders.includes(entry.name)) {
+        if (ignoredFolders.includes(entry.name)) {
           continue
         }
 
         const subDir = path.join(dir, entry.name)
-        const subFiles = await this.getAllFiles(subDir)
+        const subFiles = await this.getAllFiles(subDir, ignoredFolders)
         fileList = fileList.concat(subFiles)
       } else if (entry.isFile()) {
         const stats = await fs.promises.stat(fullPath)

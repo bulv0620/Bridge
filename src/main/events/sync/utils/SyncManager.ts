@@ -1,8 +1,15 @@
-import { Transform } from 'stream'
 import { pipeline } from 'stream/promises'
 import { FtpStorageEngine } from './storage-engine/FtpStorageEngine'
 import { LocalStorageEngine } from './storage-engine/LocalStorageEngine'
 import { StorageEngine } from './storage-engine/StorageEngine'
+
+// 构建目录树结构
+interface TreeNode {
+  name: string
+  key: string
+  isDirectory: boolean
+  children: Map<string, TreeNode>
+}
 
 export class SyncManager {
   private sourceConfig: StorageEngineConfig | null
@@ -10,6 +17,7 @@ export class SyncManager {
   private destinationConfig: StorageEngineConfig | null
   private destinationStorageEngine: StorageEngine | null
   private ignoredFolders: string[]
+  private syncStrategy: SyncStrategy
 
   constructor() {
     this.sourceConfig = null
@@ -19,97 +27,225 @@ export class SyncManager {
     this.ignoredFolders = []
   }
 
+  /**
+   * 设置存储引擎配置
+   * @param type
+   * @param config
+   */
   setStorageEngineConfig(type: 'source' | 'destination', config: StorageEngineConfig) {
     if (type === 'source') {
       this.sourceConfig = config
+      this.sourceStorageEngine = this.createStorageEngineInstance(this.sourceConfig)
     } else {
       this.destinationConfig = config
+      this.destinationStorageEngine = this.createStorageEngineInstance(this.destinationConfig)
     }
   }
 
+  /**
+   * 设置忽略文件夹
+   * @param folders
+   */
   setIgnoredFolders(folders: string[]) {
     this.ignoredFolders = folders
   }
 
+  /**
+   * 设置同步策略
+   * @param strategy
+   */
+  setSyncStrategy(strategy: SyncStrategy) {
+    this.syncStrategy = strategy
+  }
+
+  /**
+   * 根据配置获取存储引擎实例对象
+   * @param config
+   * @returns
+   */
   createStorageEngineInstance(config: StorageEngineConfig): StorageEngine {
     if (config.storageType === 'ftp') {
-      return new FtpStorageEngine(config.connectionConfig!, config.path, this.ignoredFolders)
+      return new FtpStorageEngine(config.connectionConfig!, config.path)
     } else {
-      return new LocalStorageEngine(config.path, this.ignoredFolders)
+      return new LocalStorageEngine(config.path)
     }
   }
 
-  async transfer(sourceFilePath: string, destinationFilePath: string) {
-    if (!this.sourceConfig || !this.destinationConfig) {
-      return
-    }
-    if (!this.sourceStorageEngine) {
-      this.sourceStorageEngine = this.createStorageEngineInstance(this.sourceConfig)
-    }
-
-    if (!this.destinationStorageEngine) {
-      this.destinationStorageEngine = this.createStorageEngineInstance(this.destinationConfig)
+  /**
+   * 对比函数
+   * @returns
+   */
+  async diff(): Promise<FileDifference[]> {
+    if (!this.sourceStorageEngine || !this.destinationStorageEngine) {
+      throw new Error('Source and destination storage engines must be configured')
     }
 
-    const readStream = await this.sourceStorageEngine.createReadStream(sourceFilePath)
-    const writeStream = await this.destinationStorageEngine.createWriteStream(destinationFilePath)
+    const sourceFiles = await this.sourceStorageEngine.list('', this.ignoredFolders)
+    const destinationFiles = await this.destinationStorageEngine.list('', this.ignoredFolders)
 
-    // 传输统计变量
-    let transferredBytes = 0
-    const startTime = Date.now()
-    let lastCheckTime = startTime
-    let lastTransferredBytes = 0
+    // key = type + relativePath，文件夹前缀 'D:', 文件前缀 'F:'
+    const mapByPath = (files: FileInfo[]) => {
+      const map = new Map<string, FileInfo>()
+      files.forEach((file) => {
+        const key = (file.isDirectory ? 'D:' : 'F:') + file.relativePath
+        map.set(key, file)
+      })
+      return map
+    }
 
-    // 创建传输监控流
-    const monitorStream = new Transform({
-      transform(chunk, _, callback) {
-        transferredBytes += chunk.length
-        callback(null, chunk)
-      },
-    })
+    const sourceMap = mapByPath(sourceFiles)
+    const destinationMap = mapByPath(destinationFiles)
 
-    const progressInterval = setInterval(() => {
-      const now = Date.now()
-      const timeDiff = (now - lastCheckTime) / 1000 // 秒
-      const transferredDiff = transferredBytes - lastTransferredBytes
+    const buildTree = (files: FileInfo[]) => {
+      const root: TreeNode = { name: '', key: '', isDirectory: true, children: new Map() }
 
-      // 计算当前速度
-      const currentSpeed = transferredDiff / timeDiff // 字节/秒
-
-      let speedText: string
-      if (currentSpeed > 1024 * 1024) {
-        speedText = (currentSpeed / (1024 * 1024)).toFixed(2) + ' MB/s'
-      } else if (currentSpeed > 1024) {
-        speedText = (currentSpeed / 1024).toFixed(2) + ' KB/s'
-      } else {
-        speedText = currentSpeed.toFixed(2) + ' B/s'
+      for (const file of files) {
+        const parts = file.relativePath.split('/')
+        let current = root
+        for (let i = 0; i < parts.length; i++) {
+          const isDir = i < parts.length - 1 || file.isDirectory
+          const key = (isDir ? 'D:' : 'F:') + parts.slice(0, i + 1).join('/')
+          if (!current.children.has(key)) {
+            current.children.set(key, {
+              name: parts[i],
+              key,
+              isDirectory: isDir,
+              children: new Map(),
+            })
+          }
+          current = current.children.get(key)!
+        }
       }
 
-      console.log(`已传输: ${transferredBytes} 字节 | 速度: ${speedText}`)
-
-      lastCheckTime = now
-      lastTransferredBytes = transferredBytes
-    }, 1000)
-
-    try {
-      await pipeline(readStream, monitorStream, writeStream)
-
-      const totalTime = (Date.now() - startTime) / 1000
-      const averageSpeed = transferredBytes / totalTime
-
-      console.log(
-        `传输完成! 总字节: ${transferredBytes} | 总时间: ${totalTime.toFixed(2)} 秒 | 平均速度: ${(averageSpeed / 1024).toFixed(2)} KB/s`,
-      )
-    } catch (err) {
-      console.error('传输失败:', err)
-      throw err
-    } finally {
-      // 清除定时器
-      clearInterval(progressInterval)
-
-      // 确保流被正确关闭
-      if (!readStream.destroyed) readStream.destroy()
-      if (!writeStream.destroyed) writeStream.destroy()
+      return root
     }
+
+    const sourceTree = buildTree(sourceFiles)
+    const destinationTree = buildTree(destinationFiles)
+
+    const diffNode = (
+      key: string,
+      sourceNode?: TreeNode,
+      destNode?: TreeNode,
+    ): FileDifference | null => {
+      const sourceFile = sourceNode ? sourceMap.get(sourceNode.key) || null : null
+      const destFile = destNode ? destinationMap.get(destNode.key) || null : null
+
+      let difference: FileDifference['difference']
+      if (sourceFile && !destFile) {
+        difference = 'onlySource'
+      } else if (!sourceFile && destFile) {
+        difference = 'onlyTarget'
+      } else if (sourceFile && destFile) {
+        if (
+          sourceFile.isDirectory !== destFile.isDirectory ||
+          (!sourceFile.isDirectory && sourceFile.size !== destFile.size)
+        ) {
+          difference = 'conflict'
+        } else {
+          difference = ''
+        }
+      } else {
+        return null
+      }
+
+      const childrenKeys = new Set<string>([
+        ...(sourceNode ? Array.from(sourceNode.children.keys()) : []),
+        ...(destNode ? Array.from(destNode.children.keys()) : []),
+      ])
+
+      const children: FileDifference[] = []
+      for (const childKey of childrenKeys) {
+        const childDiff = diffNode(
+          childKey,
+          sourceNode?.children.get(childKey),
+          destNode?.children.get(childKey),
+        )
+        if (childDiff) children.push(childDiff)
+      }
+
+      return {
+        id: key,
+        fileName: sourceNode?.name || destNode!.name,
+        isDirectory: sourceNode?.isDirectory ?? destNode!.isDirectory,
+        difference,
+        resolution: 'ignore',
+        source: sourceFile,
+        destination: destFile,
+        children: children.length ? children : undefined,
+      }
+    }
+
+    const allRootKeys = new Set<string>([
+      ...Array.from(sourceTree.children.keys()),
+      ...Array.from(destinationTree.children.keys()),
+    ])
+
+    const diffs: FileDifference[] = []
+    for (const rootKey of allRootKeys) {
+      const nodeDiff = diffNode(
+        rootKey,
+        sourceTree.children.get(rootKey),
+        destinationTree.children.get(rootKey),
+      )
+      if (nodeDiff && nodeDiff.difference !== '') diffs.push(nodeDiff)
+    }
+
+    return diffs
+  }
+
+  /**
+   * 同步文件
+   * @param diff
+   * @returns
+   */
+  async syncFile(diff: FileDifference) {
+    if (!this.sourceStorageEngine || !this.destinationStorageEngine) {
+      throw new Error('Storage engine is not initialized')
+    }
+    if (diff.isDirectory || diff.resolution === 'ignore') return
+
+    if (diff.resolution === 'toLeft') {
+      if (diff.source) {
+        await this.sourceStorageEngine?.delFile(diff.source.relativePath)
+      }
+      if (diff.destination) {
+        // ←
+        await this.transfer(
+          this.destinationStorageEngine,
+          this.sourceStorageEngine,
+          diff.destination.relativePath,
+        )
+      }
+    } else {
+      if (diff.destination) {
+        await this.destinationStorageEngine?.delFile(diff.destination.relativePath)
+      }
+      if (diff.source) {
+        // →
+        await this.transfer(
+          this.destinationStorageEngine,
+          this.sourceStorageEngine,
+          diff.source.relativePath,
+        )
+      }
+    }
+  }
+
+  /**
+   * 文件移动
+   * @param sourceStorageEngine
+   * @param destinationStorageEngine
+   * @param filePath
+   */
+  async transfer(
+    sourceStorageEngine: StorageEngine,
+    destinationStorageEngine: StorageEngine,
+    filePath: string,
+  ) {
+    const readStream = await sourceStorageEngine.createReadStream(filePath)
+    const writeStream = await destinationStorageEngine.createWriteStream(filePath)
+
+    await pipeline(readStream, writeStream)
   }
 }

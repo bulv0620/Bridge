@@ -4,14 +4,14 @@ import { ref, watch } from 'vue'
 const diffFileList = ref<FileDifference[]>([])
 const expandedRowKeys = ref<string[]>([])
 
-function getCellProps(row: FileDifference, type: 'source' | 'target') {
+function getCellProps(row: FileDifference, type: 'source' | 'destination') {
   if (row.isDirectory) return {}
 
   const successColor = changeColor('#67C23A', { alpha: 0.2 })
   const infoColor = changeColor('#409EFF', { alpha: 0.2 })
   const errorColor = changeColor('#F56C6C', { alpha: 0.2 })
 
-  const filePresent = type === 'source' ? !!row.source : !!row.target
+  const filePresent = type === 'source' ? !!row.source : !!row.destination
   const isLeft = row.resolution === 'toLeft'
   const isRight = row.resolution === 'toRight'
 
@@ -22,11 +22,11 @@ function getCellProps(row: FileDifference, type: 'source' | 'target') {
 
   // 语义化条件
   const presentAndRemoved =
-    filePresent && ((type === 'source' && isLeft) || (type === 'target' && isRight))
+    filePresent && ((type === 'source' && isLeft) || (type === 'destination' && isRight))
   const presentAndAdded =
-    filePresent && ((type === 'source' && isRight) || (type === 'target' && isLeft))
+    filePresent && ((type === 'source' && isRight) || (type === 'destination' && isLeft))
   const absentAndAdded =
-    !filePresent && ((type === 'source' && isLeft) || (type === 'target' && isRight))
+    !filePresent && ((type === 'source' && isLeft) || (type === 'destination' && isRight))
 
   if (presentAndRemoved) return mkStyle(errorColor, true)
   if (presentAndAdded) return mkStyle(infoColor)

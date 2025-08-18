@@ -69,9 +69,9 @@ const columns = computed<DataTableColumns<FileDifference>>(() => [
     width: 120,
     align: 'right',
     render(row) {
-      return row.isDirectory ? '-' : row.target ? formatBytes(row.target.size) : ''
+      return row.isDirectory ? '-' : row.destination ? formatBytes(row.destination.size) : ''
     },
-    cellProps: (row) => getCellProps(row, 'target'),
+    cellProps: (row) => getCellProps(row, 'destination'),
   },
   {
     title: t('views.fileSyncV2.rightDate'),
@@ -81,11 +81,11 @@ const columns = computed<DataTableColumns<FileDifference>>(() => [
     render(row) {
       return row.isDirectory
         ? '-'
-        : row.target
-          ? dayjs(row.target.timestamp).format('YYYY-MM-DD HH:mm:ss')
+        : row.destination
+          ? dayjs(row.destination.timestamp).format('YYYY-MM-DD HH:mm:ss')
           : ''
     },
-    cellProps: (row) => getCellProps(row, 'target'),
+    cellProps: (row) => getCellProps(row, 'destination'),
   },
 ])
 </script>

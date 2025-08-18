@@ -1,6 +1,13 @@
+/**
+ * 存储类型
+ * - ftp: FTP/FTPS服务目录
+ * - local: 本地存储目录
+ */
+declare type StorageType = 'ftp' | 'local' | ''
+
 // 通用存储位置信息
 declare interface StorageEngineConfig {
-  storageType: 'local' | 'ftp' | ''
+  storageType: StorageType
   path: string
   connectionConfig?: FtpConfig
 }
@@ -60,9 +67,9 @@ declare interface FileDifference {
   id: string
   fileName: string
   isDirectory: boolean // 是否为目录
-  difference: 'onlySource' | 'onlyTarget' | 'conflict' // 差异类型
+  difference: 'onlySource' | 'onlyTarget' | 'conflict' | '' // 差异类型
   resolution: 'toLeft' | 'toRight' | 'ignore' // 操作
   source?: FileInfo | null // 源文件信息
-  target?: FileInfo | null // 目标文件信息
+  destination?: FileInfo | null // 目标文件信息
   children?: FileDifference[] // 子项
 }

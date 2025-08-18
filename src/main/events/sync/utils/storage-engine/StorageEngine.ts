@@ -3,15 +3,13 @@ import { ReadStream, WriteStream } from 'fs'
 // 存储系统抽象类
 export abstract class StorageEngine {
   protected basePath: string
-  protected ignoredFolders: string[]
-  constructor(basePath: string = '', ignoredFolders: string[] = []) {
+  constructor(basePath: string = '') {
     this.basePath = basePath
-    this.ignoredFolders = ignoredFolders
   }
   protected abstract _resolve(filePath: string): string
   abstract validate(): Promise<boolean>
-  abstract list(dir?: string): Promise<FileInfo[]>
-  abstract getAllFiles(dir?: string): Promise<FileInfo[]>
+  abstract list(dir: string, ignoredFolders: string[]): Promise<FileInfo[]>
+  abstract getAllFiles(dir: string, ignoredFolders: string[]): Promise<FileInfo[]>
   abstract getFile(filePath: string): Promise<Buffer>
   abstract writeFile(filePath: string, data: Buffer | string): Promise<void>
   abstract createReadStream(filePath: string): Promise<ReadStream>

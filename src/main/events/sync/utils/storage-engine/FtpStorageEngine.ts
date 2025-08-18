@@ -16,9 +16,8 @@ export class FtpStorageEngine extends StorageEngine {
   constructor(
     private config: AccessOptions,
     basePath: string = '/',
-    ignoredFolders: string[] = [],
   ) {
-    super(basePath, ignoredFolders)
+    super(basePath)
     this.client = new ftp.Client()
     this.client.ftp.verbose = false
   }
@@ -51,7 +50,7 @@ export class FtpStorageEngine extends StorageEngine {
     }
   }
 
-  async list(dir: string = ''): Promise<FileInfo[]> {
+  async list(dir: string, ignoredFolders: string[]): Promise<FileInfo[]> {
     await this.connect()
 
     const filesList: FileInfo[] = []
@@ -66,7 +65,7 @@ export class FtpStorageEngine extends StorageEngine {
       const fullPath = path.posix.join(resolvedDir, entry.name)
 
       if (entry.isDirectory) {
-        if (this.ignoredFolders.includes(entry.name)) {
+        if (ignoredFolders.includes(entry.name)) {
           continue
         }
       }
@@ -95,7 +94,7 @@ export class FtpStorageEngine extends StorageEngine {
     return filesList
   }
 
-  async getAllFiles(dir: string = ''): Promise<FileInfo[]> {
+  async getAllFiles(dir: string, ignoredFolders: string[]): Promise<FileInfo[]> {
     await this.connect()
     let filesList: FileInfo[] = []
     const resolvedDir = this._resolve(dir)
@@ -109,11 +108,11 @@ export class FtpStorageEngine extends StorageEngine {
         continue
       }
       if (item.isDirectory) {
-        if (this.ignoredFolders.includes(item.name)) {
+        if (ignoredFolders.includes(item.name)) {
           continue
         }
         const subDir = path.posix.join(dir, item.name)
-        const subFiles = await this.getAllFiles(subDir)
+        const subFiles = await this.getAllFiles(subDir, ignoredFolders)
         filesList = filesList.concat(subFiles)
       } else {
         filesList.push({
@@ -148,7 +147,7 @@ export class FtpStorageEngine extends StorageEngine {
   async writeFile(filePath: string, data: Buffer | string): Promise<void> {
     await this.connect()
     const resolvedPath = this._resolve(filePath)
-    await this.ensureDir(path.dirname(filePath))
+    await this.ensureDir(path.posix.dirname(filePath))
     const bufferData = Buffer.isBuffer(data) ? data : Buffer.from(data)
     const stream = Readable.from(bufferData)
     await this.client.uploadFrom(stream, resolvedPath)
@@ -171,7 +170,7 @@ export class FtpStorageEngine extends StorageEngine {
 
   async createWriteStream(filePath: string): Promise<WriteStream> {
     await this.connect()
-    await this.ensureDir(path.dirname(filePath))
+    await this.ensureDir(path.posix.dirname(filePath))
     const resolved = this._resolve(filePath)
 
     const writeStream = new PassThrough()
