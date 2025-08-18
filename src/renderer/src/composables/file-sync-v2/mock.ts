@@ -46,7 +46,7 @@ export const mockDiffFileList: FileDifference[] = [
         id: '1-2',
         fileName: 'only_on_right.log',
         isDirectory: false,
-        difference: 'onlyTarget',
+        difference: 'onlyDest',
         resolution: 'toRight',
         source: null,
         destination: {
@@ -137,7 +137,7 @@ export const mockDiffFileList: FileDifference[] = [
     id: '2',
     fileName: 'another_root',
     isDirectory: true,
-    difference: 'onlyTarget',
+    difference: 'onlyDest',
     resolution: 'toRight',
     source: null,
     destination: {
@@ -154,7 +154,7 @@ export const mockDiffFileList: FileDifference[] = [
         id: '2-1',
         fileName: 'right_only_file.jpg',
         isDirectory: false,
-        difference: 'onlyTarget',
+        difference: 'onlyDest',
         resolution: 'toRight',
         source: null,
         destination: {

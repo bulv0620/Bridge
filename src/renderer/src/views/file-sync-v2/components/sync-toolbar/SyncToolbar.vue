@@ -3,10 +3,9 @@ import { useFileList } from '@renderer/composables/file-sync-v2/useFileList'
 import { useSyncForm } from '@renderer/composables/file-sync-v2/useSyncForm'
 import { Folder, Pause, Play, Stop, SwapHorizontal } from '@vicons/ionicons5'
 import { computed } from 'vue'
-import { mockDiffFileList } from '@renderer/composables/file-sync-v2/mock'
 import { useIgnoredFoldersModal } from '@renderer/composables/file-sync-v2/useIgnoredFoldersModal'
 
-const { syncForm, isFormCompleted, isComparing, isSyncing } = useSyncForm()
+const { syncForm, isFormCompleted, isComparing, isSyncing, startCompare } = useSyncForm()
 const { diffFileList } = useFileList()
 const { openIgnoredFoldersModal } = useIgnoredFoldersModal()
 
@@ -31,11 +30,6 @@ const pauseButtonType = computed(() => {
   if (isSyncing.value) return 'warning'
   return ''
 })
-
-function mockCompare() {
-  diffFileList.value = mockDiffFileList
-  isComparing.value = true
-}
 </script>
 
 <template>
@@ -45,7 +39,7 @@ function mockCompare() {
       :type="compareButtonType"
       :disabled="!isFormCompleted || isSyncing"
       :loading="isComparing"
-      @click="mockCompare"
+      @click="startCompare"
     >
       <template #icon><SwapHorizontal /></template>
       {{ $t('views.fileSyncV2.compare') }}

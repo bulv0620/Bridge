@@ -2,29 +2,19 @@ import { pipeline } from 'stream/promises'
 import { FtpStorageEngine } from './storage-engine/FtpStorageEngine'
 import { LocalStorageEngine } from './storage-engine/LocalStorageEngine'
 import { StorageEngine } from './storage-engine/StorageEngine'
-
-// 构建目录树结构
-interface TreeNode {
-  name: string
-  key: string
-  isDirectory: boolean
-  children: Map<string, TreeNode>
-}
+import path from 'path'
 
 export class SyncManager {
-  private sourceConfig: StorageEngineConfig | null
   private sourceStorageEngine: StorageEngine | null
-  private destinationConfig: StorageEngineConfig | null
   private destinationStorageEngine: StorageEngine | null
   private ignoredFolders: string[]
   private syncStrategy: SyncStrategy
 
   constructor() {
-    this.sourceConfig = null
     this.sourceStorageEngine = null
-    this.destinationConfig = null
     this.destinationStorageEngine = null
     this.ignoredFolders = []
+    this.syncStrategy = 'mirror'
   }
 
   /**
@@ -32,13 +22,19 @@ export class SyncManager {
    * @param type
    * @param config
    */
-  setStorageEngineConfig(type: 'source' | 'destination', config: StorageEngineConfig) {
+  setStorageEngineConfig(type: 'source' | 'destination', config: StorageEngineConfig | null) {
     if (type === 'source') {
-      this.sourceConfig = config
-      this.sourceStorageEngine = this.createStorageEngineInstance(this.sourceConfig)
+      if (config) {
+        this.sourceStorageEngine = this.createStorageEngineInstance(config)
+      } else {
+        this.sourceStorageEngine = null
+      }
     } else {
-      this.destinationConfig = config
-      this.destinationStorageEngine = this.createStorageEngineInstance(this.destinationConfig)
+      if (config) {
+        this.destinationStorageEngine = this.createStorageEngineInstance(config)
+      } else {
+        this.destinationStorageEngine = null
+      }
     }
   }
 
@@ -75,123 +71,115 @@ export class SyncManager {
    * 对比函数
    * @returns
    */
-  async diff(): Promise<FileDifference[]> {
+  compare(): Promise<FileDifference[]> {
     if (!this.sourceStorageEngine || !this.destinationStorageEngine) {
-      throw new Error('Source and destination storage engines must be configured')
+      throw new Error('Storage engine is not initialized')
     }
 
-    const sourceFiles = await this.sourceStorageEngine.list('', this.ignoredFolders)
-    const destinationFiles = await this.destinationStorageEngine.list('', this.ignoredFolders)
+    return this.compareFiles('')
+  }
 
-    // key = type + relativePath，文件夹前缀 'D:', 文件前缀 'F:'
-    const mapByPath = (files: FileInfo[]) => {
-      const map = new Map<string, FileInfo>()
-      files.forEach((file) => {
-        const key = (file.isDirectory ? 'D:' : 'F:') + file.relativePath
-        map.set(key, file)
-      })
-      return map
-    }
+  async compareFiles(currentPath: string): Promise<FileDifference[]> {
+    const children: FileDifference[] = []
 
-    const sourceMap = mapByPath(sourceFiles)
-    const destinationMap = mapByPath(destinationFiles)
-
-    const buildTree = (files: FileInfo[]) => {
-      const root: TreeNode = { name: '', key: '', isDirectory: true, children: new Map() }
-
-      for (const file of files) {
-        const parts = file.relativePath.split('/')
-        let current = root
-        for (let i = 0; i < parts.length; i++) {
-          const isDir = i < parts.length - 1 || file.isDirectory
-          const key = (isDir ? 'D:' : 'F:') + parts.slice(0, i + 1).join('/')
-          if (!current.children.has(key)) {
-            current.children.set(key, {
-              name: parts[i],
-              key,
-              isDirectory: isDir,
-              children: new Map(),
-            })
-          }
-          current = current.children.get(key)!
-        }
-      }
-
-      return root
-    }
-
-    const sourceTree = buildTree(sourceFiles)
-    const destinationTree = buildTree(destinationFiles)
-
-    const diffNode = (
-      key: string,
-      sourceNode?: TreeNode,
-      destNode?: TreeNode,
-    ): FileDifference | null => {
-      const sourceFile = sourceNode ? sourceMap.get(sourceNode.key) || null : null
-      const destFile = destNode ? destinationMap.get(destNode.key) || null : null
-
-      let difference: FileDifference['difference']
-      if (sourceFile && !destFile) {
-        difference = 'onlySource'
-      } else if (!sourceFile && destFile) {
-        difference = 'onlyTarget'
-      } else if (sourceFile && destFile) {
-        if (
-          sourceFile.isDirectory !== destFile.isDirectory ||
-          (!sourceFile.isDirectory && sourceFile.size !== destFile.size)
-        ) {
-          difference = 'conflict'
-        } else {
-          difference = ''
-        }
-      } else {
-        return null
-      }
-
-      const childrenKeys = new Set<string>([
-        ...(sourceNode ? Array.from(sourceNode.children.keys()) : []),
-        ...(destNode ? Array.from(destNode.children.keys()) : []),
-      ])
-
-      const children: FileDifference[] = []
-      for (const childKey of childrenKeys) {
-        const childDiff = diffNode(
-          childKey,
-          sourceNode?.children.get(childKey),
-          destNode?.children.get(childKey),
-        )
-        if (childDiff) children.push(childDiff)
-      }
-
-      return {
-        id: key,
-        fileName: sourceNode?.name || destNode!.name,
-        isDirectory: sourceNode?.isDirectory ?? destNode!.isDirectory,
-        difference,
-        resolution: 'ignore',
-        source: sourceFile,
-        destination: destFile,
-        children: children.length ? children : undefined,
-      }
-    }
-
-    const allRootKeys = new Set<string>([
-      ...Array.from(sourceTree.children.keys()),
-      ...Array.from(destinationTree.children.keys()),
+    const [sourceList, destList] = await Promise.all([
+      await this.sourceStorageEngine!.list(currentPath, this.ignoredFolders),
+      await this.destinationStorageEngine!.list(currentPath, this.ignoredFolders),
     ])
 
-    const diffs: FileDifference[] = []
-    for (const rootKey of allRootKeys) {
-      const nodeDiff = diffNode(
-        rootKey,
-        sourceTree.children.get(rootKey),
-        destinationTree.children.get(rootKey),
-      )
-      if (nodeDiff && nodeDiff.difference !== '') diffs.push(nodeDiff)
+    const fileMap = new Map<string, [FileInfo | null, FileInfo | null]>()
+    for (const file of sourceList) {
+      const key = (file.isDirectory ? 'D:' : 'F:') + file.relativePath
+      fileMap.set(key, [file, null])
     }
 
-    return diffs
+    for (const file of destList) {
+      const key = (file.isDirectory ? 'D:' : 'F:') + file.relativePath
+
+      const mapItem = fileMap.get(key)
+      if (mapItem) {
+        mapItem[1] = file
+      } else {
+        fileMap.set(key, [null, file])
+      }
+    }
+
+    for (const value of fileMap.values()) {
+      const [source, dest] = value
+
+      const differenceItem: FileDifference = {
+        id: crypto.randomUUID(),
+        fileName: (source || dest)!.fileName,
+        isDirectory: (source || dest)!.isDirectory,
+        difference: 'conflict',
+        resolution: 'toRight',
+        source: source,
+        destination: dest,
+        children: [],
+      }
+
+      if (source && dest) {
+        if (source.isDirectory) {
+          const comparePath = path.join(currentPath, source.fileName)
+          differenceItem.children = await this.compareFiles(comparePath)
+        }
+        if (source.size === dest.size) continue
+        children.push(differenceItem)
+      } else if (source) {
+        if (source.isDirectory) {
+          const recursionPath = path.join(currentPath, source.fileName)
+          differenceItem.children = await this.recursionDiffDir('onlySource', recursionPath)
+        }
+        children.push(differenceItem)
+      } else if (dest) {
+        if (dest.isDirectory) {
+          const recursionPath = path.join(currentPath, dest.fileName)
+          differenceItem.children = await this.recursionDiffDir('onlyDest', recursionPath)
+        }
+        children.push(differenceItem)
+      }
+    }
+
+    children.sort((a, b) => {
+      if (a.isDirectory === b.isDirectory) return 0
+      return a.isDirectory ? -1 : 1
+    })
+
+    return children
+  }
+
+  async recursionDiffDir(
+    type: 'onlySource' | 'onlyDest',
+    currentPath: string,
+  ): Promise<FileDifference[]> {
+    const children: FileDifference[] = []
+
+    const storageEngine =
+      type === 'onlySource' ? this.sourceStorageEngine : this.destinationStorageEngine
+
+    const fileList = await storageEngine!.list(currentPath, this.ignoredFolders)
+
+    for (const file of fileList) {
+      children.push({
+        id: crypto.randomUUID(),
+        fileName: file.fileName,
+        isDirectory: file.isDirectory,
+        difference: 'conflict',
+        resolution: 'toRight',
+        source: type === 'onlySource' ? file : null,
+        destination: type === 'onlyDest' ? file : null,
+        children: file.isDirectory
+          ? await this.recursionDiffDir(type, path.join(currentPath, file.fileName))
+          : [],
+      })
+    }
+
+    children.sort((a, b) => {
+      if (a.isDirectory === b.isDirectory) return 0
+      return a.isDirectory ? -1 : 1
+    })
+
+    return children
   }
 
   /**

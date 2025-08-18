@@ -36,8 +36,8 @@ declare type SyncStrategy = 'incremental' | 'bidirectional' | 'mirror'
 declare interface FileSyncPlan {
   id?: string
   name: string
-  sourceEndpoint: StorageEngineConfig | null // 源
-  destinationEndpoint: StorageEngineConfig | null // 目标
+  sourceConfig: StorageEngineConfig | null // 源
+  destinationConfig: StorageEngineConfig | null // 目标
   ignoredFolders: string[] // 忽略文件夹
   syncStrategy: SyncStrategy // 同步策略
 }
@@ -67,7 +67,7 @@ declare interface FileDifference {
   id: string
   fileName: string
   isDirectory: boolean // 是否为目录
-  difference: 'onlySource' | 'onlyTarget' | 'conflict' | '' // 差异类型
+  difference: 'onlySource' | 'onlyDest' | 'conflict' | '' // 差异类型
   resolution: 'toLeft' | 'toRight' | 'ignore' // 操作
   source?: FileInfo | null // 源文件信息
   destination?: FileInfo | null // 目标文件信息
