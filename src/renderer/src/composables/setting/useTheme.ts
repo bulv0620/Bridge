@@ -1,5 +1,6 @@
 import { computed, ref, watch } from 'vue'
 import { darkTheme } from 'naive-ui'
+import { VxeUI } from 'vxe-pc-ui'
 const ipcRenderer = window.electron.ipcRenderer
 
 export enum EThemeType {
@@ -40,6 +41,7 @@ const currentTheme = ref<EThemeType>(initThemeColor)
 window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e) => {
   const theme = e.matches ? EThemeType.LIGHT : EThemeType.DARK
   currentTheme.value = theme
+  VxeUI.setTheme(theme)
 })
 
 const themeConfig = computed(() => {

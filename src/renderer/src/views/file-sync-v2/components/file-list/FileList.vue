@@ -1,111 +1,94 @@
 <script setup lang="ts">
-import { computed, h } from 'vue'
-import { type DataTableColumns } from 'naive-ui'
 import FileNameWithIcon from './cells/FileNameWithIcon.vue'
 import SyncTypeAction from './cells/SyncTypeAction.vue'
 import { useFileList } from '@renderer/composables/file-sync-v2/useFileList'
 import { formatBytes } from '@renderer/utils/format'
 import dayjs from 'dayjs'
-import { useI18n } from 'vue-i18n'
+import { reactive } from 'vue'
+import { VxeTable, VxeColumn, VxeTablePropTypes } from 'vxe-table'
 
-const { t } = useI18n()
+const treeConfig = reactive<VxeTablePropTypes.TreeConfig>({
+  transform: true,
+  rowField: 'id',
+  parentField: 'parentId',
+})
 
 const { expandedRowKeys, diffFileList, getCellProps, getRowClassName } = useFileList()
 
-const columns = computed<DataTableColumns<FileDifference>>(() => [
-  {
-    title: t('views.fileSyncV2.fileName'),
-    key: 'fileName',
-    fixed: 'left',
-    minWidth: 200,
-    resizable: true,
-    ellipsis: {
-      tooltip: true,
-    },
-    // render(row) {
-    //   return h(FileNameWithIcon, {
-    //     fileName: row.fileName,
-    //     isDirectory: row.isDirectory,
-    //   })
-    // },
-  },
-  {
-    title: t('views.fileSyncV2.leftSize'),
-    key: 'LSize',
-    width: 120,
-    align: 'right',
-    render(row) {
-      return row.isDirectory ? '-' : row.source ? formatBytes(row.source.size) : ''
-    },
-    cellProps: (row) => getCellProps(row, 'source'),
-  },
-  {
-    title: t('views.fileSyncV2.leftDate'),
-    key: 'LDate',
-    minWidth: 200,
-    align: 'right',
-    render(row) {
-      return row.isDirectory
-        ? '-'
-        : row.source
-          ? dayjs(row.source.timestamp).format('YYYY-MM-DD HH:mm:ss')
-          : ''
-    },
-    cellProps: (row) => getCellProps(row, 'source'),
-  },
-  {
-    title: t('views.fileSyncV2.resolution'),
-    key: 'resolution',
-    width: 120,
-    align: 'center',
-    render(row) {
-      return h(SyncTypeAction, {
-        type: row.resolution,
-        isDirectory: row.isDirectory,
-        'onUpdate:type': (type) => (row.resolution = type),
-      })
-    },
-  },
-  {
-    title: t('views.fileSyncV2.rightSize'),
-    key: 'RSize',
-    width: 120,
-    align: 'right',
-    render(row) {
-      return row.isDirectory ? '-' : row.destination ? formatBytes(row.destination.size) : ''
-    },
-    cellProps: (row) => getCellProps(row, 'destination'),
-  },
-  {
-    title: t('views.fileSyncV2.rightDate'),
-    key: 'RDate',
-    minWidth: 200,
-    align: 'right',
-    render(row) {
-      return row.isDirectory
-        ? '-'
-        : row.destination
-          ? dayjs(row.destination.timestamp).format('YYYY-MM-DD HH:mm:ss')
-          : ''
-    },
-    cellProps: (row) => getCellProps(row, 'destination'),
-  },
-])
+function getFormatDate(type: 'source' | 'destination', differenceItem: FileDifference) {
+  if (differenceItem.isDirectory) {
+    return '-'
+  }
+  const target = type === 'source' ? differenceItem.source : differenceItem.destination
+  if (!target) return ''
+  else {
+    return dayjs(target.timestamp).format('YYYY-MM-DD HH:mm:ss')
+  }
+}
+
+function getFileSize(type: 'source' | 'destination', differenceItem: FileDifference) {
+  if (differenceItem.isDirectory) {
+    return '-'
+  }
+  const target = type === 'source' ? differenceItem.source : differenceItem.destination
+  if (!target) return ''
+  else {
+    return formatBytes(target.size)
+  }
+}
 </script>
 
 <template>
-  <n-data-table
-    v-model:expanded-row-keys="expandedRowKeys"
-    size="small"
-    virtual-scroll
-    :columns="columns"
+  <VxeTable
     :data="diffFileList"
-    :row-key="(row: FileDifference) => row.id"
-    flex-height
-    scroll-x="min-content"
-    style="height: 100%; width: 100%"
-    :row-class-name="getRowClassName"
-  />
+    size="small"
+    height="100%"
+    show-overflow="tooltip"
+    :tree-config="treeConfig"
+  >
+    <VxeColumn
+      field="fileName"
+      :title="$t('views.fileSyncV2.fileName')"
+      :width="200"
+      resizable
+      tree-node
+    >
+      <template #default="{ row }">
+        <FileNameWithIcon
+          :file-name="row.fileName"
+          :is-directory="row.isDirectory"
+        ></FileNameWithIcon>
+      </template>
+    </VxeColumn>
+    <VxeColumn :title="$t('views.fileSyncV2.leftSize')" :width="120">
+      <template #default="{ row }">
+        {{ getFileSize('source', row) }}
+      </template>
+    </VxeColumn>
+    <VxeColumn :title="$t('views.fileSyncV2.leftDate')" :min-width="200">
+      <template #default="{ row }">
+        {{ getFormatDate('source', row) }}
+      </template>
+    </VxeColumn>
+    <VxeColumn :title="$t('views.fileSyncV2.resolution')" :width="120" align="center">
+      <template #default="{ row }">
+        <SyncTypeAction
+          v-model:type="row.resolution"
+          :is-directory="row.isDirectory"
+        ></SyncTypeAction>
+      </template>
+    </VxeColumn>
+    <VxeColumn :title="$t('views.fileSyncV2.rightSize')" :width="120">
+      <template #default="{ row }">
+        {{ getFileSize('destination', row) }}
+      </template>
+    </VxeColumn>
+    <VxeColumn :title="$t('views.fileSyncV2.rightDate')" :min-width="200">
+      <template #default="{ row }">
+        {{ getFormatDate('destination', row) }}
+      </template>
+    </VxeColumn>
+  </VxeTable>
 </template>
 
 <style lang="less" scoped>

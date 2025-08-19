@@ -7,6 +7,8 @@ import naive from 'naive-ui'
 import { i18n } from './locales/index'
 import CommonButton from './components/CommonButton.vue'
 
+import './utils/vxe-table'
+
 const app = createApp(App)
 app.use(router)
 app.use(naive)

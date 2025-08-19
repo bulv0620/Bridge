@@ -1,10 +1,5 @@
 <script setup lang="ts">
-import {
-  // ArrowBackRound,
-  // ArrowForwardRound,
-  KeyboardDoubleArrowLeftRound,
-  KeyboardDoubleArrowRightRound,
-} from '@vicons/material'
+import { ArrowForward, ArrowBack } from '@vicons/ionicons5'
 import { useThemeVars } from 'naive-ui'
 const props = defineProps<{
   type: 'toLeft' | 'toRight' | 'ignore'
@@ -26,14 +21,14 @@ function handleActionClick(type: 'toLeft' | 'toRight' | 'ignore') {
 
 <template>
   <n-space v-if="isDirectory" justify="center" align="center"> - </n-space>
-  <n-space v-else justify="center" align="center">
+  <div v-else class="resolution-content">
     <n-icon
       size="18"
       :color="type === 'toLeft' ? themeVars.successColor : themeVars.borderColor"
       class="icon-button"
       @click="handleActionClick('toLeft')"
     >
-      <KeyboardDoubleArrowLeftRound />
+      <ArrowBack />
     </n-icon>
     <n-icon
       size="18"
@@ -41,12 +36,19 @@ function handleActionClick(type: 'toLeft' | 'toRight' | 'ignore') {
       class="icon-button"
       @click="handleActionClick('toRight')"
     >
-      <KeyboardDoubleArrowRightRound />
+      <ArrowForward />
     </n-icon>
-  </n-space>
+  </div>
 </template>
 
 <style lang="less" scoped>
+.resolution-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  height: 22px;
+}
 .icon-button {
   cursor: pointer;
 }

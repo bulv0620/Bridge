@@ -166,6 +166,15 @@ export class SyncManager {
 
     const stackItems = fileMap.values().toArray()
 
+    stackItems.sort((a, b) => {
+      const left = a[0] || a[1]
+      const right = b[0] || b[1]
+      if (left!.isDirectory !== right!.isDirectory) {
+        return left!.isDirectory ? 1 : -1
+      }
+      return right!.fileName.localeCompare(left!.fileName)
+    })
+
     this.compareStack?.push(
       ...stackItems.map((entry, index) => {
         const [source, dest] = entry

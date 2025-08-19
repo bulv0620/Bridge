@@ -43,18 +43,18 @@ const iconInfo = computed(() => {
 </script>
 
 <template>
-  <n-icon size="14" class="icon" :component="iconInfo.icon" :color="iconInfo.color" />
-  <n-text class="name">{{ fileName }}</n-text>
+  <div class="filename-content">
+    <n-icon size="14" class="icon" :component="iconInfo.icon" :color="iconInfo.color" />
+    <div style="flex: 1; overflow: hidden">
+      <n-ellipsis class="name" style="width: 100%">{{ fileName }}</n-ellipsis>
+    </div>
+  </div>
 </template>
 
 <style lang="less" scoped>
-.icon {
-  margin-right: 8px;
-}
-
-.name {
-  width: auto;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.filename-content {
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 </style>

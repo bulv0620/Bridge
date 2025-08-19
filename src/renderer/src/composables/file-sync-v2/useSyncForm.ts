@@ -69,23 +69,14 @@ async function startCompare() {
   isComparing.value = true
   diffFileList.value = []
 
-  const diffMap: Map<string, FileDifference> = new Map()
-
   try {
     let differenceItem = await window.ipc.sync.compare()
     while (differenceItem) {
-      let targetArray = diffFileList.value
-      if (differenceItem.parentId) {
-        targetArray = diffMap.get(differenceItem.parentId)!.children
-      }
-
-      if (differenceItem.isDirectory) {
-        targetArray.unshift(differenceItem)
-      } else {
-        targetArray.push(differenceItem)
-      }
-
-      diffMap.set(differenceItem.id, differenceItem)
+      // const lastItem = diffFileList.value[diffFileList.value.length - 1]
+      // if (lastItem && lastItem.isDirectory && differenceItem.parentId !== lastItem.id) {
+      //   diffFileList.value.pop()
+      // }
+      diffFileList.value.push(differenceItem)
       differenceItem = await window.ipc.sync.compare()
     }
   } catch (error) {

@@ -1,6 +1,7 @@
 import { useI18n } from 'vue-i18n'
 import { computed, watch } from 'vue'
 import { zhCN, dateZhCN, enUS, dateEnUS } from 'naive-ui'
+import { VxeUI } from 'vxe-pc-ui'
 
 export const useLang = () => {
   const { locale } = useI18n()
@@ -17,6 +18,7 @@ export const useLang = () => {
     (lang) => {
       window.ipc.lang.change(lang)
       localStorage.setItem('lang', lang)
+      VxeUI.setLanguage(lang.replace('_', '-') as any)
     },
     { immediate: true },
   )
