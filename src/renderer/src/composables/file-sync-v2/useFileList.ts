@@ -1,24 +1,32 @@
 import { changeColor } from 'seemly'
 import { ref } from 'vue'
+import { VxeTablePropTypes } from 'vxe-table'
 
 const diffFileList = ref<FileDifference[]>([])
 const expandedRowKeys = ref<string[]>([])
 
-function getCellProps(row: FileDifference, type: 'source' | 'destination') {
+const cellStyle: VxeTablePropTypes.CellStyle<FileDifference> = ({ row, column }) => {
   if (row.isDirectory) return {}
 
-  const successColor = changeColor('#67C23A', { alpha: 0.2 })
-  const infoColor = changeColor('#409EFF', { alpha: 0.2 })
-  const errorColor = changeColor('#F56C6C', { alpha: 0.2 })
+  const successColor = changeColor('#67C23A', { alpha: 0.1 })
+  const infoColor = changeColor('#409EFF', { alpha: 0.1 })
+  const errorColor = changeColor('#F56C6C', { alpha: 0.1 })
+
+  let type = ''
+  if (column.field.includes('left')) {
+    type = 'source'
+  } else if (column.field.includes('right')) {
+    type = 'destination'
+  } else {
+    return {}
+  }
 
   const filePresent = type === 'source' ? !!row.source : !!row.destination
   const isLeft = row.resolution === 'toLeft'
   const isRight = row.resolution === 'toRight'
 
   const mkStyle = (bg: string, strike = false) =>
-    strike
-      ? { style: { background: bg, textDecoration: 'line-through' } }
-      : { style: { background: bg } }
+    strike ? { backgroundColor: bg, textDecoration: 'line-through' } : { backgroundColor: bg }
 
   // 语义化条件
   const presentAndRemoved =
@@ -35,8 +43,8 @@ function getCellProps(row: FileDifference, type: 'source' | 'destination') {
   return {}
 }
 
-function getRowClassName(rowData: FileDifference) {
-  if (rowData.resolution === 'ignore') {
+const rowClassName: VxeTablePropTypes.RowClassName<FileDifference> = ({ row }) => {
+  if (row.resolution === 'ignore') {
     return 'grey-row'
   }
 
@@ -47,7 +55,7 @@ export function useFileList() {
   return {
     expandedRowKeys,
     diffFileList,
-    getCellProps,
-    getRowClassName,
+    cellStyle,
+    rowClassName,
   }
 }

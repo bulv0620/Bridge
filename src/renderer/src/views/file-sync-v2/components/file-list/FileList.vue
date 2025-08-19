@@ -13,7 +13,7 @@ const treeConfig = reactive<VxeTablePropTypes.TreeConfig>({
   parentField: 'parentId',
 })
 
-const { expandedRowKeys, diffFileList, getCellProps, getRowClassName } = useFileList()
+const { diffFileList, cellStyle, rowClassName } = useFileList()
 
 function getFormatDate(type: 'source' | 'destination', differenceItem: FileDifference) {
   if (differenceItem.isDirectory) {
@@ -49,6 +49,8 @@ function getFileSize(type: 'source' | 'destination', differenceItem: FileDiffere
       oSize: 5,
     }"
     :tree-config="treeConfig"
+    :cell-style="cellStyle"
+    :row-class-name="rowClassName"
   >
     <VxeColumn
       field="fileName"
@@ -65,17 +67,22 @@ function getFileSize(type: 'source' | 'destination', differenceItem: FileDiffere
         ></FileNameWithIcon>
       </template>
     </VxeColumn>
-    <VxeColumn :title="$t('views.fileSyncV2.leftSize')" :min-width="120">
+    <VxeColumn field="leftSize" :title="$t('views.fileSyncV2.leftSize')" :min-width="120">
       <template #default="{ row }">
         {{ getFileSize('source', row) }}
       </template>
     </VxeColumn>
-    <VxeColumn :title="$t('views.fileSyncV2.leftDate')" :min-width="200">
+    <VxeColumn field="leftDate" :title="$t('views.fileSyncV2.leftDate')" :min-width="200">
       <template #default="{ row }">
         {{ getFormatDate('source', row) }}
       </template>
     </VxeColumn>
-    <VxeColumn :title="$t('views.fileSyncV2.resolution')" :min-width="120" align="center">
+    <VxeColumn
+      field="resolution"
+      :title="$t('views.fileSyncV2.resolution')"
+      :min-width="120"
+      align="center"
+    >
       <template #default="{ row }">
         <SyncTypeAction
           v-model:type="row.resolution"
@@ -83,12 +90,12 @@ function getFileSize(type: 'source' | 'destination', differenceItem: FileDiffere
         ></SyncTypeAction>
       </template>
     </VxeColumn>
-    <VxeColumn :title="$t('views.fileSyncV2.rightSize')" :min-width="120">
+    <VxeColumn field="rightSize" :title="$t('views.fileSyncV2.rightSize')" :min-width="120">
       <template #default="{ row }">
         {{ getFileSize('destination', row) }}
       </template>
     </VxeColumn>
-    <VxeColumn :title="$t('views.fileSyncV2.rightDate')" :min-width="200">
+    <VxeColumn field="rightDate" :title="$t('views.fileSyncV2.rightDate')" :min-width="200">
       <template #default="{ row }">
         {{ getFormatDate('destination', row) }}
       </template>
@@ -96,12 +103,8 @@ function getFileSize(type: 'source' | 'destination', differenceItem: FileDiffere
   </VxeTable>
 </template>
 
-<style lang="less" scoped>
-:deep(.n-data-table-td) {
-  vertical-align: middle !important;
-}
-
-:deep(.grey-row .n-data-table-td) {
-  color: var(--n-th-icon-color) !important;
+<style lang="less">
+.grey-row {
+  color: rgba(100, 100, 100, 0.5) !important;
 }
 </style>
