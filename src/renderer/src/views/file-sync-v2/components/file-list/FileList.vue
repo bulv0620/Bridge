@@ -43,7 +43,11 @@ function getFileSize(type: 'source' | 'destination', differenceItem: FileDiffere
     :data="diffFileList"
     size="small"
     height="100%"
-    show-overflow="tooltip"
+    :scroll-x="{
+      enabled: true,
+      gt: 100,
+      oSize: 5,
+    }"
     :tree-config="treeConfig"
   >
     <VxeColumn
@@ -52,6 +56,7 @@ function getFileSize(type: 'source' | 'destination', differenceItem: FileDiffere
       :width="200"
       resizable
       tree-node
+      fixed="left"
     >
       <template #default="{ row }">
         <FileNameWithIcon
@@ -60,7 +65,7 @@ function getFileSize(type: 'source' | 'destination', differenceItem: FileDiffere
         ></FileNameWithIcon>
       </template>
     </VxeColumn>
-    <VxeColumn :title="$t('views.fileSyncV2.leftSize')" :width="120">
+    <VxeColumn :title="$t('views.fileSyncV2.leftSize')" :min-width="120">
       <template #default="{ row }">
         {{ getFileSize('source', row) }}
       </template>
@@ -70,7 +75,7 @@ function getFileSize(type: 'source' | 'destination', differenceItem: FileDiffere
         {{ getFormatDate('source', row) }}
       </template>
     </VxeColumn>
-    <VxeColumn :title="$t('views.fileSyncV2.resolution')" :width="120" align="center">
+    <VxeColumn :title="$t('views.fileSyncV2.resolution')" :min-width="120" align="center">
       <template #default="{ row }">
         <SyncTypeAction
           v-model:type="row.resolution"
@@ -78,7 +83,7 @@ function getFileSize(type: 'source' | 'destination', differenceItem: FileDiffere
         ></SyncTypeAction>
       </template>
     </VxeColumn>
-    <VxeColumn :title="$t('views.fileSyncV2.rightSize')" :width="120">
+    <VxeColumn :title="$t('views.fileSyncV2.rightSize')" :min-width="120">
       <template #default="{ row }">
         {{ getFileSize('destination', row) }}
       </template>

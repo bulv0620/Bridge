@@ -30,8 +30,8 @@
     "stream-buffers": "^3.0.3",
     "vue-i18n": "10",
     "vue-router": "4",
-    "vxe-pc-ui": "^4.8.21",
-    "vxe-table": "^4.15.9"
+    "vxe-pc-ui": "^4.8.22",
+    "vxe-table": "^4.15.10"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config": "^1.0.2",

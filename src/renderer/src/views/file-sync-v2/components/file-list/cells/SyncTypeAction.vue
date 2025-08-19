@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowForward, ArrowBack } from '@vicons/ionicons5'
+import { ArrowBackCircle, ArrowForwardCircle } from '@vicons/ionicons5'
 import { useThemeVars } from 'naive-ui'
 const props = defineProps<{
   type: 'toLeft' | 'toRight' | 'ignore'
@@ -20,23 +20,23 @@ function handleActionClick(type: 'toLeft' | 'toRight' | 'ignore') {
 </script>
 
 <template>
-  <n-space v-if="isDirectory" justify="center" align="center"> - </n-space>
+  <span v-if="isDirectory">{{ '-' }}</span>
   <div v-else class="resolution-content">
     <n-icon
-      size="18"
+      size="20"
       :color="type === 'toLeft' ? themeVars.successColor : themeVars.borderColor"
       class="icon-button"
       @click="handleActionClick('toLeft')"
     >
-      <ArrowBack />
+      <ArrowBackCircle />
     </n-icon>
     <n-icon
-      size="18"
+      size="20"
       :color="type === 'toRight' ? themeVars.successColor : themeVars.borderColor"
       class="icon-button"
       @click="handleActionClick('toRight')"
     >
-      <ArrowForward />
+      <ArrowForwardCircle />
     </n-icon>
   </div>
 </template>
@@ -46,8 +46,11 @@ function handleActionClick(type: 'toLeft' | 'toRight' | 'ignore') {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 12px;
-  height: 22px;
+  gap: 14px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 .icon-button {
   cursor: pointer;
