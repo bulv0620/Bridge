@@ -30,5 +30,5 @@ export const IGNORE_FILES: Record<string, string[]> = {
 export function shouldIgnoreFile(fileName: string): boolean {
   const platform = process.platform
   const ignoreList = IGNORE_FILES[platform] || []
-  return ignoreList.includes(fileName)
+  return !!ignoreList.find((f) => fileName.includes(f))
 }

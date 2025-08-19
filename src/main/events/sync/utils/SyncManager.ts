@@ -16,14 +16,12 @@ export class SyncManager {
   private destinationStorageEngine: StorageEngine | null
   private ignoredFolders: string[]
   private syncStrategy: SyncStrategy
-  private compareStack: CompareStakItem[] | null
 
   constructor() {
     this.sourceStorageEngine = null
     this.destinationStorageEngine = null
     this.ignoredFolders = []
     this.syncStrategy = 'mirror'
-    this.compareStack = null
   }
 
   /**
@@ -80,7 +78,7 @@ export class SyncManager {
    * 对比函数
    * @returns
    */
-  compare(): Promise<FileDifference | null> {
+  compare(): Promise<FileDifference[]> {
     if (!this.sourceStorageEngine || !this.destinationStorageEngine) {
       throw new Error('Storage engine is not initialized')
     }
@@ -88,47 +86,56 @@ export class SyncManager {
     return this.compareFiles()
   }
 
-  async compareFiles(): Promise<FileDifference | null> {
-    if (!this.compareStack) {
-      this.compareStack = []
+  async compareFiles(): Promise<FileDifference[]> {
+    const differenceItems: FileDifference[] = []
+    const compareStack: CompareStakItem[] = []
 
-      await this.detection({
+    await this.detection(
+      {
         id: null,
         parentId: null,
         depth: 0,
         index: -1,
         entry: [{ relativePath: '' } as FileInfo, { relativePath: '' } as FileInfo],
-      })
+      },
+      compareStack,
+    )
+
+    while (compareStack.length > 0) {
+      const stackItem = compareStack.pop()!
+      const [source, dest] = stackItem.entry
+
+      if ((source || dest)!.isDirectory) {
+        await this.detection(stackItem, compareStack)
+      }
+
+      const differenceItem: FileDifference = {
+        id: stackItem.id!,
+        parentId: stackItem.parentId,
+        fileName: (source || dest)!.fileName,
+        isDirectory: (source || dest)!.isDirectory,
+        difference: 'conflict',
+        resolution: this.getResolution(!!source, !!dest),
+        source: source,
+        destination: dest,
+      }
+
+      const lastItem = differenceItems[differenceItems.length - 1]
+      if (
+        lastItem &&
+        lastItem.isDirectory &&
+        (!differenceItem.parentId || differenceItem.parentId !== lastItem.id)
+      ) {
+        differenceItems.pop()
+      }
+
+      differenceItems.push(differenceItem)
     }
 
-    if (!this.compareStack.length) {
-      this.compareStack = null
-      return null
-    }
-
-    const stackItem = this.compareStack.pop()!
-    const [source, dest] = stackItem.entry
-
-    if ((source || dest)!.isDirectory) {
-      await this.detection(stackItem)
-    }
-
-    const differenceItem: FileDifference = {
-      id: stackItem.id!,
-      parentId: stackItem.parentId,
-      fileName: (source || dest)!.fileName,
-      isDirectory: (source || dest)!.isDirectory,
-      difference: 'conflict',
-      resolution: this.getResolution(!!source, !!dest),
-      source: source,
-      destination: dest,
-      children: [],
-    }
-
-    return differenceItem
+    return differenceItems
   }
 
-  async detection(item: CompareStakItem) {
+  private async detection(item: CompareStakItem, compareStack: CompareStakItem[]) {
     let sourceList: FileInfo[] = []
     let destList: FileInfo[] = []
 
@@ -175,7 +182,7 @@ export class SyncManager {
       return right!.fileName.localeCompare(left!.fileName)
     })
 
-    this.compareStack?.push(
+    compareStack.push(
       ...stackItems.map((entry, index) => {
         const [source, dest] = entry
         const id = ((source || dest)!.isDirectory ? '[D]' : '[F]') + (source || dest)!.relativePath

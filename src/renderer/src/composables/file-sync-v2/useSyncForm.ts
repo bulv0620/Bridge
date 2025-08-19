@@ -68,21 +68,8 @@ watch(
 async function startCompare() {
   isComparing.value = true
   diffFileList.value = []
-
   try {
-    let differenceItem = await window.ipc.sync.compare()
-    while (differenceItem) {
-      const lastItem = diffFileList.value[diffFileList.value.length - 1]
-      if (
-        lastItem &&
-        lastItem.isDirectory &&
-        (!differenceItem.parentId || differenceItem.parentId !== lastItem.id)
-      ) {
-        diffFileList.value.pop()
-      }
-      diffFileList.value.push(differenceItem)
-      differenceItem = await window.ipc.sync.compare()
-    }
+    diffFileList.value = await window.ipc.sync.compare()
   } catch (error) {
     console.error(error)
   } finally {

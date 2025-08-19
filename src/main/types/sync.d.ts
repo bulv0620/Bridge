@@ -74,5 +74,4 @@ declare interface FileDifference {
   resolution: FileSyncResolition // 操作
   source?: FileInfo | null // 源文件信息
   destination?: FileInfo | null // 目标文件信息
-  children: FileDifference[] // 子项
 }
