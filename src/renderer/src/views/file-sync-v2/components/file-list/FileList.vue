@@ -19,12 +19,15 @@ const columns = computed<DataTableColumns<FileDifference>>(() => [
     fixed: 'left',
     minWidth: 200,
     resizable: true,
-    render(row) {
-      return h(FileNameWithIcon, {
-        fileName: row.fileName,
-        isDirectory: row.isDirectory,
-      })
+    ellipsis: {
+      tooltip: true,
     },
+    // render(row) {
+    //   return h(FileNameWithIcon, {
+    //     fileName: row.fileName,
+    //     isDirectory: row.isDirectory,
+    //   })
+    // },
   },
   {
     title: t('views.fileSyncV2.leftSize'),

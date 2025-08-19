@@ -8,14 +8,12 @@ import {
   CodeSlash,
   DocumentText,
 } from '@vicons/ionicons5'
-import { computed, onMounted, useTemplateRef } from 'vue'
+import { computed } from 'vue'
 
 const props = defineProps<{
   fileName: string
   isDirectory: boolean
 }>()
-
-const fileNameRef = useTemplateRef('fileNameRef')
 
 const ext = computed(() => props.fileName.split('.').pop()?.toLowerCase() || '')
 
@@ -42,44 +40,21 @@ const iconInfo = computed(() => {
 
   return { icon: Document, color: '#9e9e9e' } // grey
 })
-
-onMounted(() => {
-  const parent = fileNameRef.value?.parentElement
-  if (parent && parent.classList.contains('n-data-table-td')) {
-    const wrapper = document.createElement('div')
-    wrapper.style.display = 'flex'
-    wrapper.style.alignItems = 'center'
-    wrapper.style.height = '100%'
-    wrapper.style.boxSizing = 'border-box'
-    while (parent.firstChild) {
-      wrapper.appendChild(parent.firstChild)
-    }
-    parent.appendChild(wrapper)
-  }
-})
 </script>
 
 <template>
-  <div ref="fileNameRef" class="file-icon">
-    <n-icon size="14" class="file-icon__icon" :component="iconInfo.icon" :color="iconInfo.color" />
-    <div class="file-icon__name">
-      <n-ellipsis style="width: 100%">{{ fileName }}</n-ellipsis>
-    </div>
-  </div>
+  <n-icon size="14" class="icon" :component="iconInfo.icon" :color="iconInfo.color" />
+  <n-text class="name">{{ fileName }}</n-text>
 </template>
 
-<style scoped lang="less">
-.file-icon {
-  flex: 1;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+<style lang="less" scoped>
+.icon {
+  margin-right: 8px;
+}
 
-  &__name {
-    word-break: break-all;
-    flex: 1;
-    overflow: hidden;
-  }
+.name {
+  width: auto;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

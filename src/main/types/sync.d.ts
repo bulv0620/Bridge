@@ -62,14 +62,17 @@ declare interface FileInfo {
   isDirectory: boolean
 }
 
+declare type FileSyncResolition = 'toLeft' | 'toRight' | 'ignore'
+
 // 差异项目信息
 declare interface FileDifference {
   id: string
+  parentId: string | null
   fileName: string
   isDirectory: boolean // 是否为目录
   difference: 'onlySource' | 'onlyDest' | 'conflict' | '' // 差异类型
-  resolution: 'toLeft' | 'toRight' | 'ignore' // 操作
+  resolution: FileSyncResolition // 操作
   source?: FileInfo | null // 源文件信息
   destination?: FileInfo | null // 目标文件信息
-  children?: FileDifference[] // 子项
+  children: FileDifference[] // 子项
 }
