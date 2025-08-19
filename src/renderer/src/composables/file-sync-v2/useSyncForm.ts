@@ -67,6 +67,7 @@ watch(
 
 async function startCompare() {
   isComparing.value = true
+  diffFileList.value = []
   try {
     diffFileList.value = await window.ipc.sync.compare()
   } catch (error) {

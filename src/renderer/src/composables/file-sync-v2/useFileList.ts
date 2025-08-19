@@ -1,5 +1,5 @@
 import { changeColor } from 'seemly'
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 
 const diffFileList = ref<FileDifference[]>([])
 const expandedRowKeys = ref<string[]>([])
@@ -42,24 +42,6 @@ function getRowClassName(rowData: FileDifference) {
 
   return ''
 }
-
-function collectIdsWithChildren(data: FileDifference[]): string[] {
-  const result: string[] = []
-
-  function traverse(node: FileDifference) {
-    if (node.children && node.children.length > 0) {
-      result.push(node.id)
-      node.children.forEach(traverse)
-    }
-  }
-
-  data.forEach(traverse)
-  return result
-}
-
-watch(diffFileList, () => {
-  expandedRowKeys.value = collectIdsWithChildren(diffFileList.value)
-})
 
 export function useFileList() {
   return {

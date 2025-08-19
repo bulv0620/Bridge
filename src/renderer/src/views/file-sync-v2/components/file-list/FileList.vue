@@ -94,6 +94,7 @@ const columns = computed<DataTableColumns<FileDifference>>(() => [
   <n-data-table
     v-model:expanded-row-keys="expandedRowKeys"
     size="small"
+    virtual-scroll
     :columns="columns"
     :data="diffFileList"
     :row-key="(row: FileDifference) => row.id"
