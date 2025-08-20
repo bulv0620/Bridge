@@ -2,8 +2,6 @@
 import FileNameWithIcon from './cells/FileNameWithIcon.vue'
 import SyncTypeAction from './cells/SyncTypeAction.vue'
 import { useFileList } from '@renderer/composables/file-sync-v2/useFileList'
-import { formatBytes } from '@renderer/utils/format'
-import dayjs from 'dayjs'
 import { reactive } from 'vue'
 import { VxeTable, VxeColumn, VxeTablePropTypes } from 'vxe-table'
 
@@ -13,42 +11,20 @@ const treeConfig = reactive<VxeTablePropTypes.TreeConfig>({
   parentField: 'parentId',
 })
 
-const { diffFileList, cellStyle, rowClassName } = useFileList()
-
-function getFormatDate(type: 'source' | 'destination', differenceItem: FileDifference) {
-  if (differenceItem.isDirectory) {
-    return '-'
-  }
-  const target = type === 'source' ? differenceItem.source : differenceItem.destination
-  if (!target) return ''
-  else {
-    return dayjs(target.timestamp).format('YYYY-MM-DD HH:mm:ss')
-  }
-}
-
-function getFileSize(type: 'source' | 'destination', differenceItem: FileDifference) {
-  if (differenceItem.isDirectory) {
-    return '-'
-  }
-  const target = type === 'source' ? differenceItem.source : differenceItem.destination
-  if (!target) return ''
-  else {
-    return formatBytes(target.size)
-  }
-}
+const { diffFileList, cellStyle, rowClassName, getFormatDate, getFileSize } = useFileList()
 </script>
 
 <template>
   <VxeTable
+    class="diff-file-table"
     :data="diffFileList"
     size="small"
     height="100%"
-    :scroll-x="{
-      enabled: true,
-      gt: 100,
-      oSize: 5,
-    }"
+    show-overflow
+    :row-config="{ isHover: true }"
     :tree-config="treeConfig"
+    :virtual-y-config="{ enabled: true, gt: 0 }"
+    :scrollbar-config="{ width: 8, height: 8 }"
     :cell-style="cellStyle"
     :row-class-name="rowClassName"
   >
@@ -58,7 +34,6 @@ function getFileSize(type: 'source' | 'destination', differenceItem: FileDiffere
       :width="200"
       resizable
       tree-node
-      fixed="left"
     >
       <template #default="{ row }">
         <FileNameWithIcon
@@ -106,5 +81,20 @@ function getFileSize(type: 'source' | 'destination', differenceItem: FileDiffere
 <style lang="less">
 .grey-row {
   color: rgba(100, 100, 100, 0.5) !important;
+}
+
+.diff-file-table {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--n-scrollbar-color);
+  }
+  ::-webkit-scrollbar-thumb:hover,
+  ::-webkit-scrollbar-thumb:active {
+    background-color: var(--n-scrollbar-color-hover);
+  }
 }
 </style>

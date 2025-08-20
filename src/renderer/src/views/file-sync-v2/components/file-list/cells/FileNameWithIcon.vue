@@ -44,7 +44,7 @@ const iconInfo = computed(() => {
 
 <template>
   <div class="filename-content">
-    <n-icon size="14" class="icon" :component="iconInfo.icon" :color="iconInfo.color" />
+    <n-icon class="icon" :component="iconInfo.icon" :color="iconInfo.color" />
     <div style="flex: 1; overflow: hidden">
       <n-ellipsis class="name" style="width: 100%">{{ fileName }}</n-ellipsis>
     </div>

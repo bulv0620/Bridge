@@ -1,3 +1,5 @@
+import { formatBytes } from '@renderer/utils/format'
+import dayjs from 'dayjs'
 import { changeColor } from 'seemly'
 import { ref } from 'vue'
 import { VxeTablePropTypes } from 'vxe-table'
@@ -51,11 +53,35 @@ const rowClassName: VxeTablePropTypes.RowClassName<FileDifference> = ({ row }) =
   return ''
 }
 
+function getFormatDate(type: 'source' | 'destination', differenceItem: FileDifference) {
+  if (differenceItem.isDirectory) {
+    return '-'
+  }
+  const target = type === 'source' ? differenceItem.source : differenceItem.destination
+  if (!target) return ''
+  else {
+    return dayjs(target.timestamp).format('YYYY-MM-DD HH:mm:ss')
+  }
+}
+
+function getFileSize(type: 'source' | 'destination', differenceItem: FileDifference) {
+  if (differenceItem.isDirectory) {
+    return '-'
+  }
+  const target = type === 'source' ? differenceItem.source : differenceItem.destination
+  if (!target) return ''
+  else {
+    return formatBytes(target.size)
+  }
+}
+
 export function useFileList() {
   return {
     expandedRowKeys,
     diffFileList,
     cellStyle,
     rowClassName,
+    getFormatDate,
+    getFileSize,
   }
 }
