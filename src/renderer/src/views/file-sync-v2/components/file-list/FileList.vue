@@ -2,6 +2,7 @@
 import FileNameWithIcon from './cells/FileNameWithIcon.vue'
 import SyncResolution from './cells/SyncResolution.vue'
 import { useFileList } from '@renderer/composables/file-sync-v2/useFileList'
+import { useSyncForm } from '@renderer/composables/file-sync-v2/useSyncForm'
 import { reactive } from 'vue'
 import { VxeTable, VxeColumn, VxeTablePropTypes } from 'vxe-table'
 
@@ -12,6 +13,7 @@ const treeConfig = reactive<VxeTablePropTypes.TreeConfig>({
 })
 
 const { diffFileList, cellStyle, rowClassName, getFormatDate, getFileSize } = useFileList()
+const { isComparing, isSyncing } = useSyncForm()
 </script>
 
 <template>
@@ -26,7 +28,22 @@ const { diffFileList, cellStyle, rowClassName, getFormatDate, getFileSize } = us
     :scrollbar-config="{ width: 8, height: 8 }"
     :cell-style="cellStyle"
     :row-class-name="rowClassName"
+    :loading="isComparing || isSyncing"
   >
+    <template #loading>
+      <n-space vertical>
+        <n-spin size="medium">
+          <template #description>
+            <n-text v-if="isComparing" type="primary">
+              {{ $t('views.fileSyncV2.comparing') }}...
+            </n-text>
+            <n-text v-else-if="isSyncing" type="primary">
+              {{ $t('views.fileSyncV2.syncing') }}...
+            </n-text>
+          </template>
+        </n-spin>
+      </n-space>
+    </template>
     <VxeColumn
       field="fileName"
       :title="$t('views.fileSyncV2.fileName')"

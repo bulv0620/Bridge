@@ -1,4 +1,4 @@
-import { VxeUI } from 'vxe-pc-ui'
+import { VxeUI, VxeLoading, VxeIcon } from 'vxe-pc-ui'
 import { VxeTable, VxeColumn, VxeColgroup, VxeGrid, VxeToolbar } from 'vxe-table'
 
 import 'vxe-pc-ui/styles/cssvar.scss'
@@ -6,6 +6,9 @@ import 'vxe-table/styles/cssvar.scss'
 
 import zhCN from 'vxe-pc-ui/lib/language/zh-CN'
 import enUs from 'vxe-pc-ui/lib/language/en-US'
+
+VxeUI.component(VxeLoading)
+VxeUI.component(VxeIcon)
 
 VxeUI.component(VxeTable)
 VxeUI.component(VxeColumn)

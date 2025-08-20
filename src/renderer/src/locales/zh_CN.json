@@ -160,7 +160,9 @@
       "ftpRejectUnauthorized": "拒绝未授权证书",
       "compareFailed": "对比失败",
       "sourceInvalid": "源目录校验失败",
-      "destInvalid": "目标目录校验失败"
+      "destInvalid": "目标目录校验失败",
+      "comparing": "对比中",
+      "syncing": "同步中"
     },
     "ftpClient": {
       "title": "FTP会话",

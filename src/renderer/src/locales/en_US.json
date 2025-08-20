@@ -160,7 +160,9 @@
       "ftpRejectUnauthorized": "Reject Unauthorized",
       "compareFailed": "Comparison failed",
       "sourceInvalid": "Invalid Source",
-      "destInvalid": "Invalid Destination"
+      "destInvalid": "Invalid Destination",
+      "comparing": "Comparing",
+      "syncing": "Synchronizing"
     },
     "ftpClient": {
       "title": "Ftp Client",
