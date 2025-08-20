@@ -16,12 +16,14 @@ export class SyncManager {
   private destinationStorageEngine: StorageEngine | null
   private ignoredFolders: string[]
   private syncStrategy: SyncStrategy
+  private stopFlag: boolean
 
   constructor() {
     this.sourceStorageEngine = null
     this.destinationStorageEngine = null
     this.ignoredFolders = []
     this.syncStrategy = 'mirror'
+    this.stopFlag = false
   }
 
   /**
@@ -59,6 +61,14 @@ export class SyncManager {
    */
   setSyncStrategy(strategy: SyncStrategy) {
     this.syncStrategy = strategy
+  }
+
+  /**
+   * 设置暂停标记
+   * @param flag
+   */
+  setStopFlag(flag: boolean) {
+    this.stopFlag = flag
   }
 
   /**
@@ -115,7 +125,7 @@ export class SyncManager {
       compareStack,
     )
 
-    while (compareStack.length > 0) {
+    while (compareStack.length > 0 && !this.stopFlag) {
       const stackItem = compareStack.pop()!
       const [source, dest] = stackItem.entry
 
@@ -153,6 +163,8 @@ export class SyncManager {
 
       differentItems.push(differentItem)
     }
+
+    if (this.stopFlag) this.stopFlag = false
 
     return { differentItems, totalCount }
   }

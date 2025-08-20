@@ -118,6 +118,10 @@ async function startCompare() {
   }
 }
 
+function stopCompare() {
+  window.ipc.sync.stopCompare()
+}
+
 function getResolution(
   syncStrategy: SyncStrategy,
   sourceFlag: boolean,
@@ -179,6 +183,7 @@ export function useSyncForm() {
     isSyncing,
     resetForm,
     startCompare,
+    stopCompare,
     getResolution,
     getTransferByte,
   }

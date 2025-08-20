@@ -23,6 +23,10 @@ export function compare(_: IpcMainInvokeEvent) {
   return syncManager.compare()
 }
 
-export function validate() {
+export function stopCompare(_: IpcMainInvokeEvent) {
+  return syncManager.setStopFlag(true)
+}
+
+export function validate(_: IpcMainInvokeEvent) {
   return syncManager.validateStorageEngine()
 }
