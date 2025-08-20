@@ -11,7 +11,7 @@ interface SyncStatus {
 }
 
 const { t } = i18n.global
-const { confirm } = useDiscreteApi()
+const { confirm, message } = useDiscreteApi()
 
 const { diffFileList } = useFileList()
 
@@ -97,11 +97,22 @@ async function startCompare() {
   diffFileList.value = []
   resetSyncStatus()
   try {
+    const [sourceValid, destValid] = await window.ipc.sync.validate()
+
+    if (!sourceValid) {
+      message.error(t('views.fileSyncV2.sourceInvalid'))
+      return
+    }
+    if (!destValid) {
+      message.error(t('views.fileSyncV2.destInvalid'))
+      return
+    }
+
     const compareResult = await window.ipc.sync.compare()
     diffFileList.value = compareResult.differentItems
     syncStatus.totalCount = compareResult.totalCount
   } catch (error) {
-    console.error(error)
+    message.error(t('views.fileSyncV2.compareFailed'))
   } finally {
     isComparing.value = false
   }

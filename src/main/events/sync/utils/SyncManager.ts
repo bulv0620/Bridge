@@ -75,18 +75,31 @@ export class SyncManager {
   }
 
   /**
+   * 校验存储引擎是否可用
+   * @returns
+   */
+  async validateStorageEngine(): Promise<[boolean, boolean]> {
+    const validateResult: [boolean, boolean] = [true, true]
+    if (!this.sourceStorageEngine) {
+      validateResult[0] = false
+    } else {
+      validateResult[0] = await this.sourceStorageEngine.validate()
+    }
+
+    if (!this.destinationStorageEngine) {
+      validateResult[1] = false
+    } else {
+      validateResult[1] = await this.destinationStorageEngine.validate()
+    }
+
+    return validateResult
+  }
+
+  /**
    * 对比函数
    * @returns
    */
-  compare(): Promise<CompareResult> {
-    if (!this.sourceStorageEngine || !this.destinationStorageEngine) {
-      throw new Error('Storage engine is not initialized')
-    }
-
-    return this.compareFiles()
-  }
-
-  async compareFiles(): Promise<CompareResult> {
+  async compare(): Promise<CompareResult> {
     const differentItems: FileDifference[] = []
     const compareStack: CompareStakItem[] = []
     let totalCount = 0
@@ -144,6 +157,11 @@ export class SyncManager {
     return { differentItems, totalCount }
   }
 
+  /**
+   * 探测并推入比对栈
+   * @param item
+   * @param compareStack
+   */
   private async detection(item: CompareStakItem, compareStack: CompareStakItem[]) {
     let sourceList: FileInfo[] = []
     let destList: FileInfo[] = []
@@ -206,6 +224,12 @@ export class SyncManager {
     )
   }
 
+  /**
+   * 根据策略获取差异项操作
+   * @param sourceFlag
+   * @param destFlag
+   * @returns
+   */
   private getResolution(sourceFlag: boolean, destFlag: boolean): FileSyncResolition {
     if (this.syncStrategy === 'mirror') {
       return 'toRight'
@@ -226,6 +250,13 @@ export class SyncManager {
     }
   }
 
+  /**
+   * 获取差异项数据传输量
+   * @param resolution
+   * @param source
+   * @param dest
+   * @returns
+   */
   private getTransferByte(
     resolution: FileSyncResolition,
     source: FileInfo | null,
@@ -247,109 +278,6 @@ export class SyncManager {
       }
     }
   }
-
-  // async compareFiles(currentPath: string): Promise<FileDifference[]> {
-  //   const children: FileDifference[] = []
-
-  //   const [sourceList, destList] = await Promise.all([
-  //     await this.sourceStorageEngine!.list(currentPath, this.ignoredFolders),
-  //     await this.destinationStorageEngine!.list(currentPath, this.ignoredFolders),
-  //   ])
-
-  //   const fileMap = new Map<string, [FileInfo | null, FileInfo | null]>()
-  //   for (const file of sourceList) {
-  //     const key = (file.isDirectory ? '[D]' : '[F]') + file.relativePath
-  //     fileMap.set(key, [file, null])
-  //   }
-
-  //   for (const file of destList) {
-  //     const key = (file.isDirectory ? '[D]' : '[F]') + file.relativePath
-
-  //     const mapItem = fileMap.get(key)
-  //     if (mapItem) {
-  //       mapItem[1] = file
-  //     } else {
-  //       fileMap.set(key, [null, file])
-  //     }
-  //   }
-
-  //   for (const value of fileMap.values()) {
-  //     const [source, dest] = value
-
-  //     const differentItem: FileDifference = {
-  //       id: crypto.randomUUID(),
-  //       fileName: (source || dest)!.fileName,
-  //       isDirectory: (source || dest)!.isDirectory,
-  //       difference: 'conflict',
-  //       resolution: 'toRight',
-  //       source: source,
-  //       destination: dest,
-  //       children: [],
-  //     }
-
-  //     if (source && dest) {
-  //       if (source.isDirectory) {
-  //         const comparePath = path.join(currentPath, source.fileName)
-  //         differentItem.children = await this.compareFiles(comparePath)
-  //       }
-  //       if (source.size === dest.size) continue
-  //       children.push(differentItem)
-  //     } else if (source) {
-  //       if (source.isDirectory) {
-  //         const recursionPath = path.join(currentPath, source.fileName)
-  //         differentItem.children = await this.recursionDiffDir('onlySource', recursionPath)
-  //       }
-  //       children.push(differentItem)
-  //     } else if (dest) {
-  //       if (dest.isDirectory) {
-  //         const recursionPath = path.join(currentPath, dest.fileName)
-  //         differentItem.children = await this.recursionDiffDir('onlyDest', recursionPath)
-  //       }
-  //       children.push(differentItem)
-  //     }
-  //   }
-
-  //   children.sort((a, b) => {
-  //     if (a.isDirectory === b.isDirectory) return 0
-  //     return a.isDirectory ? -1 : 1
-  //   })
-
-  //   return children
-  // }
-
-  // async recursionDiffDir(
-  //   type: 'onlySource' | 'onlyDest',
-  //   currentPath: string,
-  // ): Promise<FileDifference[]> {
-  //   const children: FileDifference[] = []
-
-  //   const storageEngine =
-  //     type === 'onlySource' ? this.sourceStorageEngine : this.destinationStorageEngine
-
-  //   const fileList = await storageEngine!.list(currentPath, this.ignoredFolders)
-
-  //   for (const file of fileList) {
-  //     children.push({
-  //       id: crypto.randomUUID(),
-  //       fileName: file.fileName,
-  //       isDirectory: file.isDirectory,
-  //       difference: 'conflict',
-  //       resolution: 'toRight',
-  //       source: type === 'onlySource' ? file : null,
-  //       destination: type === 'onlyDest' ? file : null,
-  //       children: file.isDirectory
-  //         ? await this.recursionDiffDir(type, path.join(currentPath, file.fileName))
-  //         : [],
-  //     })
-  //   }
-
-  //   children.sort((a, b) => {
-  //     if (a.isDirectory === b.isDirectory) return 0
-  //     return a.isDirectory ? -1 : 1
-  //   })
-
-  //   return children
-  // }
 
   /**
    * 同步文件

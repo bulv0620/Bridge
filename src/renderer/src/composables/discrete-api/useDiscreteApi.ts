@@ -18,9 +18,6 @@ const { message, notification, dialog, loadingBar, modal } = createDiscreteApi(
   ['message', 'dialog', 'notification', 'loadingBar', 'modal'],
   {
     configProviderProps: configProviderPropsRef,
-    messageProviderProps: {
-      placement: 'bottom-right',
-    },
   },
 )
 

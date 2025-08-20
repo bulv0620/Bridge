@@ -20,7 +20,7 @@ ipcRenderer.on('href-to-page', (_event, data: HrefToPageParam) => {
 
 <template>
   <n-config-provider :theme="themeConfig" :locale="naiveLocale" :date-locale="naiveDateLocale">
-    <n-message-provider placement="bottom-right">
+    <n-message-provider>
       <n-dialog-provider>
         <layout></layout>
       </n-dialog-provider>

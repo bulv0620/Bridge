@@ -157,7 +157,10 @@
       "ftpPasswordPlaceholder": "Enter password",
       "ftpPasswordRequired": "Password is required",
       "ftpSecure": "Use Secure",
-      "ftpRejectUnauthorized": "Reject Unauthorized"
+      "ftpRejectUnauthorized": "Reject Unauthorized",
+      "compareFailed": "Comparison failed",
+      "sourceInvalid": "Invalid Source",
+      "destInvalid": "Invalid Destination"
     },
     "ftpClient": {
       "title": "Ftp Client",

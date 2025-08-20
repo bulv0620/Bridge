@@ -20,7 +20,6 @@ const { diffFileList, cellStyle, rowClassName, getFormatDate, getFileSize } = us
     :data="diffFileList"
     size="small"
     height="100%"
-    show-overflow
     :row-config="{ isHover: true }"
     :tree-config="treeConfig"
     :virtual-y-config="{ enabled: true, gt: 0 }"

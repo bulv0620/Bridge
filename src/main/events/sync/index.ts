@@ -22,3 +22,7 @@ export function setSyncStrategy(_: IpcMainInvokeEvent, strategy: SyncStrategy) {
 export function compare(_: IpcMainInvokeEvent) {
   return syncManager.compare()
 }
+
+export function validate() {
+  return syncManager.validateStorageEngine()
+}
