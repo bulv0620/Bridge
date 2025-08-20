@@ -3,14 +3,6 @@ import { FtpStorageEngine } from './storage-engine/FtpStorageEngine'
 import { LocalStorageEngine } from './storage-engine/LocalStorageEngine'
 import { StorageEngine } from './storage-engine/StorageEngine'
 
-interface CompareStakItem {
-  id: string | null
-  parentId: string | null
-  depth: number
-  index: number
-  entry: [FileInfo | null, FileInfo | null]
-}
-
 export class SyncManager {
   private sourceStorageEngine: StorageEngine | null
   private destinationStorageEngine: StorageEngine | null
@@ -111,46 +103,29 @@ export class SyncManager {
    */
   async compare(): Promise<CompareResult> {
     const differentItems: FileDifference[] = []
-    const compareStack: CompareStakItem[] = []
+    const differentStack: FileDifference[] = [
+      {
+        id: '',
+        parentId: null,
+        fileName: '',
+        isDirectory: true,
+        difference: '',
+        resolution: '',
+        source: { relativePath: '' } as FileInfo,
+        destination: { relativePath: '' } as FileInfo,
+        transferBytes: 0,
+      },
+    ]
     let totalCount = 0
 
-    await this.detection(
-      {
-        id: null,
-        parentId: null,
-        depth: 0,
-        index: -1,
-        entry: [{ relativePath: '' } as FileInfo, { relativePath: '' } as FileInfo],
-      },
-      compareStack,
-    )
+    while (differentStack.length > 0 && !this.stopFlag) {
+      const differentItem = differentStack.pop()!
 
-    while (compareStack.length > 0 && !this.stopFlag) {
-      const stackItem = compareStack.pop()!
-      const [source, dest] = stackItem.entry
-
-      if ((source || dest)!.isDirectory) {
-        await this.detection(stackItem, compareStack)
+      if (differentItem.isDirectory) {
+        await this.compareDirectory(differentItem, differentStack)
       } else {
         totalCount++
       }
-
-      const differentItem: FileDifference = {
-        id: stackItem.id!,
-        parentId: stackItem.parentId,
-        fileName: (source || dest)!.fileName,
-        isDirectory: (source || dest)!.isDirectory,
-        difference: 'conflict',
-        resolution: (source || dest)!.isDirectory ? '' : this.getResolution(!!source, !!dest),
-        source: source,
-        destination: dest,
-        transferBytes: 0,
-      }
-      differentItem.transferBytes = this.getTransferByte(
-        differentItem.resolution,
-        differentItem.source,
-        differentItem.destination,
-      )
 
       const lastItem = differentItems[differentItems.length - 1]
       if (
@@ -170,21 +145,21 @@ export class SyncManager {
   }
 
   /**
-   * 探测并推入比对栈
+   * 比对文件夹的子项
    * @param item
    * @param compareStack
    */
-  private async detection(item: CompareStakItem, compareStack: CompareStakItem[]) {
+  private async compareDirectory(item: FileDifference, differentStack: FileDifference[]) {
     let sourceList: FileInfo[] = []
     let destList: FileInfo[] = []
 
-    if (item.entry[0]) {
-      const currentPath = item.entry[0].relativePath
+    if (item.source) {
+      const currentPath = item.source.relativePath
       sourceList = await this.sourceStorageEngine!.list(currentPath, this.ignoredFolders)
     }
 
-    if (item.entry[1]) {
-      const currentPath = item.entry[1].relativePath
+    if (item.destination) {
+      const currentPath = item.destination.relativePath
       destList = await this.destinationStorageEngine!.list(currentPath, this.ignoredFolders)
     }
 
@@ -221,17 +196,28 @@ export class SyncManager {
       return right!.fileName.localeCompare(left!.fileName)
     })
 
-    compareStack.push(
-      ...stackItems.map((entry, index) => {
+    differentStack.push(
+      ...stackItems.map((entry) => {
         const [source, dest] = entry
         const id = ((source || dest)!.isDirectory ? '[D]' : '[F]') + (source || dest)!.relativePath
-        return {
+        const differentItem: FileDifference = {
           id,
-          parentId: item.id,
-          depth: item.depth + 1,
-          index,
-          entry,
+          parentId: item.id ? item.id : null,
+          fileName: (source || dest)!.fileName,
+          isDirectory: (source || dest)!.isDirectory,
+          difference: 'conflict',
+          resolution: (source || dest)!.isDirectory ? '' : this.getResolution(!!source, !!dest),
+          source: source,
+          destination: dest,
+          transferBytes: 0,
         }
+        differentItem.transferBytes = this.getTransferByte(
+          differentItem.resolution,
+          differentItem.source,
+          differentItem.destination,
+        )
+
+        return differentItem
       }),
     )
   }
