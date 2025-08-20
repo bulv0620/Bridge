@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import FileNameWithIcon from './cells/FileNameWithIcon.vue'
-import SyncTypeAction from './cells/SyncTypeAction.vue'
+import SyncResolution from './cells/SyncResolution.vue'
 import { useFileList } from '@renderer/composables/file-sync-v2/useFileList'
 import { reactive } from 'vue'
 import { VxeTable, VxeColumn, VxeTablePropTypes } from 'vxe-table'
@@ -59,10 +59,13 @@ const { diffFileList, cellStyle, rowClassName, getFormatDate, getFileSize } = us
       align="center"
     >
       <template #default="{ row }">
-        <SyncTypeAction
+        <SyncResolution
           v-model:type="row.resolution"
+          v-model:byte="row.transferBytes"
           :is-directory="row.isDirectory"
-        ></SyncTypeAction>
+          :source="row.source"
+          :destination="row.destination"
+        ></SyncResolution>
       </template>
     </VxeColumn>
     <VxeColumn field="rightSize" :title="$t('views.fileSyncV2.rightSize')" :min-width="120">

@@ -62,7 +62,7 @@ declare interface FileInfo {
   isDirectory: boolean
 }
 
-declare type FileSyncResolition = 'toLeft' | 'toRight' | 'ignore'
+declare type FileSyncResolition = 'toLeft' | 'toRight' | 'ignore' | ''
 
 // 差异项目信息
 declare interface FileDifference {
@@ -72,6 +72,12 @@ declare interface FileDifference {
   isDirectory: boolean // 是否为目录
   difference: 'onlySource' | 'onlyDest' | 'conflict' | '' // 差异类型
   resolution: FileSyncResolition // 操作
-  source?: FileInfo | null // 源文件信息
-  destination?: FileInfo | null // 目标文件信息
+  source: FileInfo | null // 源文件信息
+  destination: FileInfo | null // 目标文件信息
+  transferBytes: number // 传输的数据量
+}
+
+declare interface CompareResult {
+  differentItems: FileDifference[]
+  totalCount: number
 }

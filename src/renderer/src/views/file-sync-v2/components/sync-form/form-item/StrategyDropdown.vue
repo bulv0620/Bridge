@@ -3,8 +3,11 @@ import { NIcon } from 'naive-ui'
 import { Component, computed, h } from 'vue'
 import { ArrowRight20Filled, ArrowStepOver20Filled, ArrowSplit20Filled } from '@vicons/fluent'
 import { useI18n } from 'vue-i18n'
+import { useSyncForm } from '@renderer/composables/file-sync-v2/useSyncForm'
 
 const { t } = useI18n()
+
+const { isComparing, isSyncing } = useSyncForm()
 
 const strategy = defineModel<SyncStrategy>('strategy', { required: true })
 
@@ -46,8 +49,12 @@ function selectStrategy(type: SyncStrategy) {
 </script>
 
 <template>
-  <n-dropdown :options="strategyOptions" @select="selectStrategy">
-    <n-button circle secondary plain>
+  <n-dropdown
+    :options="strategyOptions"
+    :disabled="isComparing || isSyncing"
+    @select="selectStrategy"
+  >
+    <n-button circle secondary plain :disabled="isComparing || isSyncing">
       <template #icon>
         <n-icon :component="strategyIconMap[strategy]"> </n-icon>
       </template>

@@ -1,20 +1,26 @@
 <script setup lang="ts">
+import { useSyncForm } from '@renderer/composables/file-sync-v2/useSyncForm'
 import { ArrowBackCircle, ArrowForwardCircle } from '@vicons/ionicons5'
 import { useThemeVars } from 'naive-ui'
 const props = defineProps<{
-  type: 'toLeft' | 'toRight' | 'ignore'
   isDirectory: boolean
+  source: FileInfo | null
+  destination: FileInfo | null
 }>()
 
-const emit = defineEmits(['update:type'])
+const type = defineModel<FileSyncResolition>('type', { required: true })
+const byte = defineModel<number>('byte', { required: true })
 
 const themeVars = useThemeVars()
+const { getTransferByte } = useSyncForm()
 
-function handleActionClick(type: 'toLeft' | 'toRight' | 'ignore') {
-  if (props.type === type) {
-    emit('update:type', 'ignore')
+function handleActionClick(resolution: FileSyncResolition) {
+  if (type.value === resolution) {
+    type.value = 'ignore'
+    byte.value = 0
   } else {
-    emit('update:type', type)
+    type.value = resolution
+    byte.value = getTransferByte(resolution, props.source, props.destination)
   }
 }
 </script>

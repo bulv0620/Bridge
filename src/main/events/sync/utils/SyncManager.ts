@@ -78,7 +78,7 @@ export class SyncManager {
    * 对比函数
    * @returns
    */
-  compare(): Promise<FileDifference[]> {
+  compare(): Promise<CompareResult> {
     if (!this.sourceStorageEngine || !this.destinationStorageEngine) {
       throw new Error('Storage engine is not initialized')
     }
@@ -86,9 +86,10 @@ export class SyncManager {
     return this.compareFiles()
   }
 
-  async compareFiles(): Promise<FileDifference[]> {
-    const differenceItems: FileDifference[] = []
+  async compareFiles(): Promise<CompareResult> {
+    const differentItems: FileDifference[] = []
     const compareStack: CompareStakItem[] = []
+    let totalCount = 0
 
     await this.detection(
       {
@@ -107,32 +108,40 @@ export class SyncManager {
 
       if ((source || dest)!.isDirectory) {
         await this.detection(stackItem, compareStack)
+      } else {
+        totalCount++
       }
 
-      const differenceItem: FileDifference = {
+      const differentItem: FileDifference = {
         id: stackItem.id!,
         parentId: stackItem.parentId,
         fileName: (source || dest)!.fileName,
         isDirectory: (source || dest)!.isDirectory,
         difference: 'conflict',
-        resolution: this.getResolution(!!source, !!dest),
+        resolution: (source || dest)!.isDirectory ? '' : this.getResolution(!!source, !!dest),
         source: source,
         destination: dest,
+        transferBytes: 0,
       }
+      differentItem.transferBytes = this.getTransferByte(
+        differentItem.resolution,
+        differentItem.source,
+        differentItem.destination,
+      )
 
-      const lastItem = differenceItems[differenceItems.length - 1]
+      const lastItem = differentItems[differentItems.length - 1]
       if (
         lastItem &&
         lastItem.isDirectory &&
-        (!differenceItem.parentId || differenceItem.parentId !== lastItem.id)
+        (!differentItem.parentId || differentItem.parentId !== lastItem.id)
       ) {
-        differenceItems.pop()
+        differentItems.pop()
       }
 
-      differenceItems.push(differenceItem)
+      differentItems.push(differentItem)
     }
 
-    return differenceItems
+    return { differentItems, totalCount }
   }
 
   private async detection(item: CompareStakItem, compareStack: CompareStakItem[]) {
@@ -217,6 +226,28 @@ export class SyncManager {
     }
   }
 
+  private getTransferByte(
+    resolution: FileSyncResolition,
+    source: FileInfo | null,
+    dest: FileInfo | null,
+  ) {
+    if (resolution === 'ignore') {
+      return 0
+    } else if (resolution === 'toLeft') {
+      if (dest) {
+        return dest.size
+      } else {
+        return 0
+      }
+    } else {
+      if (source) {
+        return source.size
+      } else {
+        return 0
+      }
+    }
+  }
+
   // async compareFiles(currentPath: string): Promise<FileDifference[]> {
   //   const children: FileDifference[] = []
 
@@ -245,7 +276,7 @@ export class SyncManager {
   //   for (const value of fileMap.values()) {
   //     const [source, dest] = value
 
-  //     const differenceItem: FileDifference = {
+  //     const differentItem: FileDifference = {
   //       id: crypto.randomUUID(),
   //       fileName: (source || dest)!.fileName,
   //       isDirectory: (source || dest)!.isDirectory,
@@ -259,22 +290,22 @@ export class SyncManager {
   //     if (source && dest) {
   //       if (source.isDirectory) {
   //         const comparePath = path.join(currentPath, source.fileName)
-  //         differenceItem.children = await this.compareFiles(comparePath)
+  //         differentItem.children = await this.compareFiles(comparePath)
   //       }
   //       if (source.size === dest.size) continue
-  //       children.push(differenceItem)
+  //       children.push(differentItem)
   //     } else if (source) {
   //       if (source.isDirectory) {
   //         const recursionPath = path.join(currentPath, source.fileName)
-  //         differenceItem.children = await this.recursionDiffDir('onlySource', recursionPath)
+  //         differentItem.children = await this.recursionDiffDir('onlySource', recursionPath)
   //       }
-  //       children.push(differenceItem)
+  //       children.push(differentItem)
   //     } else if (dest) {
   //       if (dest.isDirectory) {
   //         const recursionPath = path.join(currentPath, dest.fileName)
-  //         differenceItem.children = await this.recursionDiffDir('onlyDest', recursionPath)
+  //         differentItem.children = await this.recursionDiffDir('onlyDest', recursionPath)
   //       }
-  //       children.push(differenceItem)
+  //       children.push(differentItem)
   //     }
   //   }
 

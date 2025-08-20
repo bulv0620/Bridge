@@ -6,6 +6,7 @@ import CloudDrive from '@renderer/assets/imgs/cloud_drive.png'
 import Search from '@renderer/assets/imgs/search.png'
 import { Close } from '@vicons/ionicons5'
 import { useFtpConectionModal } from '@renderer/composables/file-sync-v2/useFtpConnectionModal'
+import { useSyncForm } from '@renderer/composables/file-sync-v2/useSyncForm'
 
 const props = defineProps<{
   type: 'source' | 'destination'
@@ -13,6 +14,7 @@ const props = defineProps<{
 
 const endpoint = defineModel<StorageEngineConfig | null>('endpoint', { required: true })
 
+const { isSyncing, isComparing } = useSyncForm()
 const { t } = useI18n()
 const { openFtpConnectionModal } = useFtpConectionModal()
 
@@ -80,7 +82,13 @@ function removeEndPoint() {
           <n-a>{{ $t('views.fileSyncV2.notSelected') }}</n-a>
         </n-dropdown>
       </div>
-      <n-button v-if="endpoint" type="text" size="small" @click="removeEndPoint">
+      <n-button
+        v-if="endpoint"
+        type="text"
+        size="small"
+        :disabled="isSyncing || isComparing"
+        @click="removeEndPoint"
+      >
         <template #icon>
           <Close></Close>
         </template>

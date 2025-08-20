@@ -53,22 +53,22 @@ const rowClassName: VxeTablePropTypes.RowClassName<FileDifference> = ({ row }) =
   return ''
 }
 
-function getFormatDate(type: 'source' | 'destination', differenceItem: FileDifference) {
-  if (differenceItem.isDirectory) {
+function getFormatDate(type: 'source' | 'destination', differentItem: FileDifference) {
+  if (differentItem.isDirectory) {
     return '-'
   }
-  const target = type === 'source' ? differenceItem.source : differenceItem.destination
+  const target = type === 'source' ? differentItem.source : differentItem.destination
   if (!target) return ''
   else {
     return dayjs(target.timestamp).format('YYYY-MM-DD HH:mm:ss')
   }
 }
 
-function getFileSize(type: 'source' | 'destination', differenceItem: FileDifference) {
-  if (differenceItem.isDirectory) {
+function getFileSize(type: 'source' | 'destination', differentItem: FileDifference) {
+  if (differentItem.isDirectory) {
     return '-'
   }
-  const target = type === 'source' ? differenceItem.source : differenceItem.destination
+  const target = type === 'source' ? differentItem.source : differentItem.destination
   if (!target) return ''
   else {
     return formatBytes(target.size)

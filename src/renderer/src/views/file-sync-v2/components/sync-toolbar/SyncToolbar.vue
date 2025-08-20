@@ -77,7 +77,7 @@ const pauseButtonType = computed(() => {
     </n-button>
 
     <n-badge :value="syncForm.ignoredFolders.length" type="success" style="margin-left: auto">
-      <n-button size="small" @click="openIgnoredFoldersModal">
+      <n-button size="small" :disabled="isComparing || isSyncing" @click="openIgnoredFoldersModal">
         <template #icon><Folder /></template>
         {{ $t('views.fileSyncV2.ignoredFolders') }}
       </n-button>
