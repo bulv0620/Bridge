@@ -211,11 +211,6 @@ export class SyncManager {
           destination: dest,
           transferBytes: 0,
         }
-        differentItem.transferBytes = this.getTransferByte(
-          differentItem.resolution,
-          differentItem.source,
-          differentItem.destination,
-        )
 
         return differentItem
       }),
@@ -244,35 +239,6 @@ export class SyncManager {
         return 'toLeft'
       } else {
         return 'toRight'
-      }
-    }
-  }
-
-  /**
-   * 获取差异项数据传输量
-   * @param resolution
-   * @param source
-   * @param dest
-   * @returns
-   */
-  private getTransferByte(
-    resolution: FileSyncResolition,
-    source: FileInfo | null,
-    dest: FileInfo | null,
-  ) {
-    if (resolution === 'ignore') {
-      return 0
-    } else if (resolution === 'toLeft') {
-      if (dest) {
-        return dest.size
-      } else {
-        return 0
-      }
-    } else {
-      if (source) {
-        return source.size
-      } else {
-        return 0
       }
     }
   }
