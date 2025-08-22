@@ -2,7 +2,6 @@ import { computed, ComputedRef, reactive, ref, toRaw, watch } from 'vue'
 import { i18n } from '@renderer/locales'
 import { useDiscreteApi } from '../discrete-api/useDiscreteApi'
 import { useFileList } from './useFileList'
-import { getResolution } from '@renderer/utils/sync'
 
 interface SyncStatus {
   bytesTransferred: number
@@ -68,10 +67,6 @@ watch(
   () => syncForm.syncStrategy,
   (newStrategy) => {
     window.ipc.sync.setSyncStrategy(newStrategy)
-    diffFileList.value.forEach((diffItem) => {
-      if (diffItem.isDirectory) return
-      diffItem.resolution = getResolution(newStrategy, !!diffItem.source, !!diffItem.destination)
-    })
   },
 )
 
@@ -91,8 +86,7 @@ async function startCompare() {
       return
     }
 
-    const compareResult = await window.ipc.sync.compare()
-    diffFileList.value = compareResult.differentItems
+    const compareResult = await window.ipc.sync.startCompare()
     syncStatus.totalCount = compareResult.totalCount
   } catch (error) {
     message.error(t('views.fileSyncV2.compareFailed'))
@@ -119,24 +113,7 @@ async function startSync() {
       return
     }
 
-    let i = diffFileList.value.length - 1
-    while (i > -1 && !syncStopFlag.value) {
-      const diffItem = diffFileList.value[i--]
-
-      if (diffItem.isDirectory) {
-        diffFileList.value.pop()
-        continue
-      }
-
-      await window.ipc.sync.syncFile(toRaw(diffItem))
-      syncStatus.transferredCount += 1
-      syncStatus.bytesTransferred += diffItem.transferBytes
-      diffFileList.value.pop()
-    }
-
-    if (syncStopFlag.value) {
-      syncStopFlag.value = false
-    }
+    // todo
   } catch (error) {
     console.log(error)
     message.error(t('views.fileSyncV2.syncFailed'))

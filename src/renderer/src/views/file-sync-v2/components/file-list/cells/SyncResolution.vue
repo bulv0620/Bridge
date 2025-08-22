@@ -17,6 +17,8 @@ function handleActionClick(resolution: FileSyncResolition) {
   } else {
     type.value = resolution
   }
+
+  // todo
 }
 </script>
 

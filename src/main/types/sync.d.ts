@@ -78,6 +78,6 @@ declare interface FileDifference {
 }
 
 declare interface CompareResult {
-  differentItems: FileDifference[]
+  totalBytes: number
   totalCount: number
 }

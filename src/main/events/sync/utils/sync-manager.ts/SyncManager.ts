@@ -1,24 +1,22 @@
 import { pipeline } from 'stream/promises'
-import { FtpStorageEngine } from './storage-engine/FtpStorageEngine'
-import { LocalStorageEngine } from './storage-engine/LocalStorageEngine'
-import { StorageEngine } from './storage-engine/StorageEngine'
-import { DiffStore } from './diff-store/DiffStore'
+import { FtpStorageEngine } from '../storage-engine/FtpStorageEngine'
+import { LocalStorageEngine } from '../storage-engine/LocalStorageEngine'
+import { StorageEngine } from '../storage-engine/StorageEngine'
+import { DiffStore } from '../diff-store/DiffStore'
+import { getResolution, getTransferByte } from '../common'
 
 export class SyncManager {
-  private sourceStorageEngine: StorageEngine | null
-  private destinationStorageEngine: StorageEngine | null
-  private ignoredFolders: string[]
-  private syncStrategy: SyncStrategy
-  private stopFlag: boolean
+  private sourceStorageEngine: StorageEngine | null = null
+  private destinationStorageEngine: StorageEngine | null = null
+  private ignoredFolders: string[] = []
+  private syncStrategy: SyncStrategy = 'mirror'
+  private stopFlag: boolean = false
   private diffStore: DiffStore
 
-  constructor(store: DiffStore) {
-    this.sourceStorageEngine = null
-    this.destinationStorageEngine = null
-    this.ignoredFolders = []
-    this.syncStrategy = 'mirror'
-    this.stopFlag = false
+  private totalBytes: number = 0
+  private totalCount: number = 0
 
+  constructor(store: DiffStore) {
     this.diffStore = store
   }
 
@@ -55,8 +53,54 @@ export class SyncManager {
    * 设置同步策略
    * @param strategy
    */
-  setSyncStrategy(strategy: SyncStrategy) {
+  setSyncStrategy(strategy: SyncStrategy): CompareResult {
     this.syncStrategy = strategy
+
+    const diffItems = this.diffStore.getAll()
+
+    this.totalBytes = 0
+    this.totalCount = 0
+    diffItems.forEach((item) => {
+      if (item.isDirectory) return
+      item.resolution = getResolution(strategy, !!item.source, !!item.destination)
+      item.transferBytes = getTransferByte(item.resolution, item.source, item.destination)
+
+      this.totalCount++
+      this.totalBytes += item.transferBytes
+    })
+
+    this.diffStore.updateAll(diffItems)
+
+    return {
+      totalBytes: this.totalBytes,
+      totalCount: this.totalCount,
+    }
+  }
+
+  /**
+   * 设置差异项目操作
+   * @param id
+   * @param resolution
+   */
+  setResolution(id: string, resolution: FileSyncResolition): CompareResult {
+    const diffItem = this.diffStore.getById(id)
+
+    if (!diffItem) throw new Error('Not found')
+
+    const transferByteTemp = diffItem.transferBytes
+
+    diffItem.resolution = resolution
+    diffItem.transferBytes = getTransferByte(resolution, diffItem.source, diffItem.destination)
+
+    const byteChangeValue = diffItem.transferBytes - transferByteTemp
+    this.totalBytes += byteChangeValue
+
+    this.diffStore.update(diffItem)
+
+    return {
+      totalBytes: this.totalBytes,
+      totalCount: this.totalCount,
+    }
   }
 
   /**
@@ -106,7 +150,9 @@ export class SyncManager {
    * @returns
    */
   async compare(): Promise<CompareResult> {
-    const differentItems: FileDifference[] = []
+    this.totalBytes = 0
+    this.totalCount = 0
+
     const differentStack: FileDifference[] = [
       {
         id: '',
@@ -120,7 +166,6 @@ export class SyncManager {
         transferBytes: 0,
       },
     ]
-    let totalCount = 0
 
     while (differentStack.length > 0 && !this.stopFlag) {
       const differentItem = differentStack.pop()!
@@ -128,24 +173,28 @@ export class SyncManager {
       if (differentItem.isDirectory) {
         await this.compareDirectory(differentItem, differentStack)
       } else {
-        totalCount++
+        this.totalCount++
       }
 
-      const lastItem = differentItems[differentItems.length - 1]
+      const lastItem = this.diffStore.getLast()
       if (
         lastItem &&
         lastItem.isDirectory &&
         (!differentItem.parentId || differentItem.parentId !== lastItem.id)
       ) {
-        differentItems.pop()
+        this.diffStore.delById(lastItem.id)
       }
 
-      differentItems.push(differentItem)
+      this.diffStore.add(differentItem)
+      this.totalBytes += differentItem.transferBytes
     }
 
     if (this.stopFlag) this.stopFlag = false
 
-    return { differentItems, totalCount }
+    return {
+      totalBytes: this.totalBytes,
+      totalCount: this.totalCount,
+    }
   }
 
   /**
@@ -210,41 +259,22 @@ export class SyncManager {
           fileName: (source || dest)!.fileName,
           isDirectory: (source || dest)!.isDirectory,
           difference: 'conflict',
-          resolution: (source || dest)!.isDirectory ? '' : this.getResolution(!!source, !!dest),
+          resolution: (source || dest)!.isDirectory
+            ? ''
+            : getResolution(this.syncStrategy, !!source, !!dest),
           source: source,
           destination: dest,
           transferBytes: 0,
         }
+        differentItem.transferBytes = getTransferByte(
+          differentItem.resolution,
+          differentItem.source,
+          differentItem.destination,
+        )
 
         return differentItem
       }),
     )
-  }
-
-  /**
-   * 根据策略获取差异项操作
-   * @param sourceFlag
-   * @param destFlag
-   * @returns
-   */
-  private getResolution(sourceFlag: boolean, destFlag: boolean): FileSyncResolition {
-    if (this.syncStrategy === 'mirror') {
-      return 'toRight'
-    } else if (this.syncStrategy === 'incremental') {
-      if (!sourceFlag && destFlag) {
-        return 'ignore'
-      } else {
-        return 'toRight'
-      }
-    } else {
-      if (sourceFlag && destFlag) {
-        return 'ignore'
-      } else if (!sourceFlag) {
-        return 'toLeft'
-      } else {
-        return 'toRight'
-      }
-    }
   }
 
   /**

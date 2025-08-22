@@ -1,3 +1,10 @@
+/**
+ * 获取传输数据量
+ * @param resolution
+ * @param source
+ * @param dest
+ * @returns
+ */
 export function getTransferByte(
   resolution: FileSyncResolition,
   source: FileInfo | null,
@@ -20,6 +27,12 @@ export function getTransferByte(
   }
 }
 
+/**
+ * 根据策略获取差异项操作
+ * @param sourceFlag
+ * @param destFlag
+ * @returns
+ */
 export function getResolution(
   syncStrategy: SyncStrategy,
   sourceFlag: boolean,
