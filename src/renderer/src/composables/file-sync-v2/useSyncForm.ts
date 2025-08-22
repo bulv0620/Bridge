@@ -33,24 +33,11 @@ const syncForm = reactive<FileSyncPlan>({
 const isComparing = ref(false)
 const isSyncing = ref(false)
 
+const syncStopFlag = ref(false)
+
 const isFormCompleted = computed(() => {
   return !!syncForm.sourceConfig && !!syncForm.destinationConfig
 })
-
-async function resetForm() {
-  await confirm('warning', {
-    title: t('common.warning'),
-    content: t('views.fileSyncV2.newPlanConfirm'),
-    positiveText: t('common.confirm'),
-    negativeText: t('common.cancel'),
-  })
-
-  syncForm.name = t('views.fileSyncV2.newPlan')
-  syncForm.sourceConfig = null
-  syncForm.destinationConfig = null
-  syncForm.ignoredFolders = []
-  syncForm.syncStrategy = 'mirror'
-}
 
 watch(
   () => syncForm.sourceConfig,
@@ -118,6 +105,65 @@ function stopCompare() {
   window.ipc.sync.stopCompare()
 }
 
+async function startSync() {
+  isSyncing.value = true
+  try {
+    const [sourceValid, destValid] = await window.ipc.sync.validate()
+
+    if (!sourceValid) {
+      message.error(t('views.fileSyncV2.sourceInvalid'))
+      return
+    }
+    if (!destValid) {
+      message.error(t('views.fileSyncV2.destInvalid'))
+      return
+    }
+
+    let i = diffFileList.value.length - 1
+    while (i > -1 && !syncStopFlag.value) {
+      const diffItem = diffFileList.value[i--]
+
+      if (diffItem.isDirectory) {
+        diffFileList.value.pop()
+        continue
+      }
+
+      await window.ipc.sync.syncFile(toRaw(diffItem))
+      syncStatus.transferredCount += 1
+      syncStatus.bytesTransferred += diffItem.transferBytes
+      diffFileList.value.pop()
+    }
+
+    if (syncStopFlag.value) {
+      syncStopFlag.value = false
+    }
+  } catch (error) {
+    console.log(error)
+    message.error(t('views.fileSyncV2.syncFailed'))
+  } finally {
+    isSyncing.value = false
+  }
+}
+
+function stopSync() {
+  syncStopFlag.value = true
+}
+
+async function resetForm() {
+  await confirm('warning', {
+    title: t('common.warning'),
+    content: t('views.fileSyncV2.newPlanConfirm'),
+    positiveText: t('common.confirm'),
+    negativeText: t('common.cancel'),
+  })
+
+  syncForm.name = t('views.fileSyncV2.newPlan')
+  syncForm.sourceConfig = null
+  syncForm.destinationConfig = null
+  syncForm.ignoredFolders = []
+  syncForm.syncStrategy = 'mirror'
+}
+
 function resetSyncStatus() {
   syncStatus.bytesTransferred = 0
   syncStatus.totalCount = 0
@@ -131,8 +177,11 @@ export function useSyncForm() {
     isFormCompleted,
     isComparing,
     isSyncing,
-    resetForm,
     startCompare,
     stopCompare,
+    startSync,
+    stopSync,
+    resetForm,
+    resetSyncStatus,
   }
 }

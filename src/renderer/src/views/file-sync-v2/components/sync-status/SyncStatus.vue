@@ -1,8 +1,14 @@
 <script setup lang="ts">
 import { useSyncForm } from '@renderer/composables/file-sync-v2/useSyncForm'
 import { formatBytes } from '@renderer/utils/format'
+import { computed } from 'vue'
 
 const { syncStatus } = useSyncForm()
+
+const percentage = computed(() => {
+  if (syncStatus.totalCount === 0) return 0
+  return Math.round((syncStatus.transferredCount / syncStatus.totalCount) * 100)
+})
 </script>
 
 <template>
@@ -11,7 +17,7 @@ const { syncStatus } = useSyncForm()
       <n-text class="text">
         {{ formatBytes(syncStatus.bytesTransferred) }}/{{ formatBytes(syncStatus.totalBytes) }}
       </n-text>
-      <n-progress class="progress" :percentage="0"></n-progress>
+      <n-progress class="progress" :percentage="percentage"></n-progress>
     </n-space>
     <n-text class="text"> {{ syncStatus.transferredCount }}/{{ syncStatus.totalCount }} </n-text>
   </n-space>

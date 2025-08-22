@@ -1,7 +1,9 @@
 import { IpcMainInvokeEvent } from 'electron'
 import { SyncManager } from './utils/SyncManager'
+import { DiffStore } from './utils/diff-store/DiffStore'
 
-const syncManager = new SyncManager()
+const diffStore = new DiffStore()
+const syncManager = new SyncManager(diffStore)
 
 export function setStorageEngineConfig(
   _: IpcMainInvokeEvent,
@@ -25,6 +27,10 @@ export function compare(_: IpcMainInvokeEvent) {
 
 export function stopCompare(_: IpcMainInvokeEvent) {
   return syncManager.setStopFlag(true)
+}
+
+export function syncFile(_: IpcMainInvokeEvent, differentItem: FileDifference) {
+  return syncManager.syncFile(differentItem)
 }
 
 export function validate(_: IpcMainInvokeEvent) {

@@ -2,6 +2,7 @@ import { pipeline } from 'stream/promises'
 import { FtpStorageEngine } from './storage-engine/FtpStorageEngine'
 import { LocalStorageEngine } from './storage-engine/LocalStorageEngine'
 import { StorageEngine } from './storage-engine/StorageEngine'
+import { DiffStore } from './diff-store/DiffStore'
 
 export class SyncManager {
   private sourceStorageEngine: StorageEngine | null
@@ -9,13 +10,16 @@ export class SyncManager {
   private ignoredFolders: string[]
   private syncStrategy: SyncStrategy
   private stopFlag: boolean
+  private diffStore: DiffStore
 
-  constructor() {
+  constructor(store: DiffStore) {
     this.sourceStorageEngine = null
     this.destinationStorageEngine = null
     this.ignoredFolders = []
     this.syncStrategy = 'mirror'
     this.stopFlag = false
+
+    this.diffStore = store
   }
 
   /**
@@ -273,8 +277,8 @@ export class SyncManager {
       if (diff.source) {
         // →
         await this.transfer(
-          this.destinationStorageEngine,
           this.sourceStorageEngine,
+          this.destinationStorageEngine,
           diff.source.relativePath,
         )
       }

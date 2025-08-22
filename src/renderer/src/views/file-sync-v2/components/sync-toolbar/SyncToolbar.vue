@@ -5,8 +5,16 @@ import { Folder, Pause, Play, Stop, SwapHorizontal } from '@vicons/ionicons5'
 import { computed } from 'vue'
 import { useIgnoredFoldersModal } from '@renderer/composables/file-sync-v2/useIgnoredFoldersModal'
 
-const { syncForm, isFormCompleted, isComparing, isSyncing, startCompare, stopCompare } =
-  useSyncForm()
+const {
+  syncForm,
+  isFormCompleted,
+  isComparing,
+  isSyncing,
+  startCompare,
+  stopCompare,
+  startSync,
+  stopSync,
+} = useSyncForm()
 const { diffFileList } = useFileList()
 const { openIgnoredFoldersModal } = useIgnoredFoldersModal()
 
@@ -56,18 +64,13 @@ const pauseButtonType = computed(() => {
       :type="syncButtonType"
       :disabled="!(isFormCompleted && diffFileList.length > 0) || isComparing"
       :loading="isSyncing"
-      @click="isSyncing = true"
+      @click="startSync"
     >
       <template #icon><Play /></template>
       {{ $t('views.fileSyncV2.startSync') }}
     </n-button>
 
-    <n-button
-      size="small"
-      :type="pauseButtonType"
-      :disabled="!isSyncing"
-      @click="isSyncing = false"
-    >
+    <n-button size="small" :type="pauseButtonType" :disabled="!isSyncing" @click="stopSync">
       <template #icon><Pause /></template>
       {{ $t('views.fileSyncV2.pauseSync') }}
     </n-button>
