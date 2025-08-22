@@ -2,6 +2,7 @@ import { computed, ComputedRef, reactive, ref, toRaw, watch } from 'vue'
 import { i18n } from '@renderer/locales'
 import { useDiscreteApi } from '../discrete-api/useDiscreteApi'
 import { useFileList } from './useFileList'
+import { getResolution } from '@renderer/utils/sync'
 
 interface SyncStatus {
   bytesTransferred: number
@@ -83,11 +84,6 @@ watch(
     diffFileList.value.forEach((diffItem) => {
       if (diffItem.isDirectory) return
       diffItem.resolution = getResolution(newStrategy, !!diffItem.source, !!diffItem.destination)
-      diffItem.transferBytes = getTransferByte(
-        diffItem.resolution,
-        diffItem.source,
-        diffItem.destination,
-      )
     })
   },
 )
@@ -122,52 +118,6 @@ function stopCompare() {
   window.ipc.sync.stopCompare()
 }
 
-function getResolution(
-  syncStrategy: SyncStrategy,
-  sourceFlag: boolean,
-  destFlag: boolean,
-): FileSyncResolition {
-  if (syncStrategy === 'mirror') {
-    return 'toRight'
-  } else if (syncStrategy === 'incremental') {
-    if (!sourceFlag && destFlag) {
-      return 'ignore'
-    } else {
-      return 'toRight'
-    }
-  } else {
-    if (sourceFlag && destFlag) {
-      return 'ignore'
-    } else if (!sourceFlag) {
-      return 'toLeft'
-    } else {
-      return 'toRight'
-    }
-  }
-}
-
-function getTransferByte(
-  resolution: FileSyncResolition,
-  source: FileInfo | null,
-  dest: FileInfo | null,
-) {
-  if (resolution === 'ignore') {
-    return 0
-  } else if (resolution === 'toLeft') {
-    if (dest) {
-      return dest.size
-    } else {
-      return 0
-    }
-  } else {
-    if (source) {
-      return source.size
-    } else {
-      return 0
-    }
-  }
-}
-
 function resetSyncStatus() {
   syncStatus.bytesTransferred = 0
   syncStatus.totalCount = 0
@@ -184,7 +134,5 @@ export function useSyncForm() {
     resetForm,
     startCompare,
     stopCompare,
-    getResolution,
-    getTransferByte,
   }
 }

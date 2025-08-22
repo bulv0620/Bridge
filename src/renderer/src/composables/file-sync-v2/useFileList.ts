@@ -1,11 +1,25 @@
 import { formatBytes } from '@renderer/utils/format'
+import { getTransferByte } from '@renderer/utils/sync'
 import dayjs from 'dayjs'
 import { changeColor } from 'seemly'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { VxeTablePropTypes } from 'vxe-table'
 
 const diffFileList = ref<FileDifference[]>([])
 const expandedRowKeys = ref<string[]>([])
+
+watch(
+  () => diffFileList.value.map((diffItem) => diffItem.resolution),
+  () => {
+    diffFileList.value.forEach((diffItem) => {
+      diffItem.transferBytes = getTransferByte(
+        diffItem.resolution,
+        diffItem.source,
+        diffItem.destination,
+      )
+    })
+  },
+)
 
 const cellStyle: VxeTablePropTypes.CellStyle<FileDifference> = ({ row, column }) => {
   if (row.isDirectory) return {}
