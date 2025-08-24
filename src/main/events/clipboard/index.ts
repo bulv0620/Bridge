@@ -1,4 +1,4 @@
-import { MagnetWatcher } from './utils/MagnetWatcher'
+import { MagnetWatcher } from './core/MagnetWatcher'
 
 const magnetWatcher = new MagnetWatcher()
 

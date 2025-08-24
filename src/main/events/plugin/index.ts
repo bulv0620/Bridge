@@ -1,5 +1,5 @@
 import { IpcMainInvokeEvent, shell } from 'electron'
-import { PluginManager } from './utils/PluginManager'
+import { PluginManager } from './core/PluginManager'
 import path from 'path'
 import fs from 'fs'
 

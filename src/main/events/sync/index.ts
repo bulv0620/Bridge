@@ -1,6 +1,6 @@
 import { IpcMainInvokeEvent } from 'electron'
-import { SyncManager } from './utils/sync-manager.ts/SyncManager'
-import { DiffStore } from './utils/diff-store/DiffStore'
+import { SyncManager } from './core/SyncManager'
+import { DiffStore } from './store/DiffStore'
 
 const diffStore = new DiffStore()
 const syncManager = new SyncManager(diffStore)

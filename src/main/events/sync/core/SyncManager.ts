@@ -1,9 +1,9 @@
 import { pipeline } from 'stream/promises'
-import { FtpStorageEngine } from '../storage-engine/FtpStorageEngine'
-import { LocalStorageEngine } from '../storage-engine/LocalStorageEngine'
-import { StorageEngine } from '../storage-engine/StorageEngine'
-import { DiffStore } from '../diff-store/DiffStore'
-import { getResolution, getTransferByte } from '../common'
+import { FtpStorageEngine } from '../engines/FtpStorageEngine'
+import { LocalStorageEngine } from '../engines/LocalStorageEngine'
+import { StorageEngine } from '../engines/StorageEngine'
+import { DiffStore } from '../store/DiffStore'
+import { getResolution, getTransferByte } from '../utils'
 
 export class SyncManager {
   private sourceStorageEngine: StorageEngine | null = null
