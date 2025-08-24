@@ -6,14 +6,21 @@ import { useSyncForm } from '@renderer/composables/file-sync-v2/useSyncForm'
 import { reactive } from 'vue'
 import { VxeTable, VxeColumn, VxeTablePropTypes } from 'vxe-table'
 
+const { diffFileList, cellStyle, rowClassName, getFormatDate, getFileSize, getFileList } =
+  useFileList()
+const { isComparing, isSyncing } = useSyncForm()
+
 const treeConfig = reactive<VxeTablePropTypes.TreeConfig>({
   transform: true,
   rowField: 'id',
   parentField: 'parentId',
+  lazy: true,
+  hasChildField: 'isDirectory',
+  loadMethod({ row }) {
+    // 异步加载子节点
+    return getFileList(row)
+  },
 })
-
-const { diffFileList, cellStyle, rowClassName, getFormatDate, getFileSize } = useFileList()
-const { isComparing, isSyncing } = useSyncForm()
 </script>
 
 <template>
@@ -22,7 +29,7 @@ const { isComparing, isSyncing } = useSyncForm()
     :data="diffFileList"
     size="small"
     height="100%"
-    :row-config="{ isHover: true }"
+    :row-config="{ isHover: true, keyField: 'id' }"
     :tree-config="treeConfig"
     :virtual-y-config="{ enabled: true, gt: 0 }"
     :scrollbar-config="{ width: 8, height: 8 }"
@@ -76,6 +83,7 @@ const { isComparing, isSyncing } = useSyncForm()
     >
       <template #default="{ row }">
         <SyncResolution
+          :id="row.id"
           v-model:type="row.resolution"
           v-model:byte="row.transferBytes"
           :is-directory="row.isDirectory"

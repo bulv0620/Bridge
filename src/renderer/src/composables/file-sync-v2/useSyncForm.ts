@@ -1,11 +1,11 @@
-import { computed, ComputedRef, reactive, ref, toRaw, watch } from 'vue'
+import { computed, reactive, ref, toRaw, watch } from 'vue'
 import { i18n } from '@renderer/locales'
 import { useDiscreteApi } from '../discrete-api/useDiscreteApi'
 import { useFileList } from './useFileList'
 
 interface SyncStatus {
   bytesTransferred: number
-  totalBytes: ComputedRef<number>
+  totalBytes: number
   transferredCount: number
   totalCount: number
 }
@@ -13,11 +13,11 @@ interface SyncStatus {
 const { t } = i18n.global
 const { confirm, message } = useDiscreteApi()
 
-const { diffFileList } = useFileList()
+const { diffFileList, getRootList } = useFileList()
 
 const syncStatus = reactive<SyncStatus>({
   bytesTransferred: 0,
-  totalBytes: computed(() => diffFileList.value.reduce((acc, cur) => acc + cur.transferBytes, 0)),
+  totalBytes: 0,
   transferredCount: 0,
   totalCount: 0,
 })
@@ -38,6 +38,7 @@ const isFormCompleted = computed(() => {
   return !!syncForm.sourceConfig && !!syncForm.destinationConfig
 })
 
+// 监听源位置变化
 watch(
   () => syncForm.sourceConfig,
   (newVal) => {
@@ -47,6 +48,7 @@ watch(
   },
 )
 
+// 监听目标配置变化
 watch(
   () => syncForm.destinationConfig,
   (newVal) => {
@@ -56,6 +58,7 @@ watch(
   },
 )
 
+// 监听忽略文件夹变化
 watch(
   () => syncForm.ignoredFolders,
   (newVal) => {
@@ -63,10 +66,14 @@ watch(
   },
 )
 
+// 监听策略变化
 watch(
   () => syncForm.syncStrategy,
-  (newStrategy) => {
-    window.ipc.sync.setSyncStrategy(newStrategy)
+  async (newStrategy) => {
+    const compareResult = await window.ipc.sync.setSyncStrategy(newStrategy)
+    syncStatus.totalCount = compareResult.totalCount
+    syncStatus.totalBytes = compareResult.totalBytes
+    getRootList()
   },
 )
 
@@ -88,7 +95,11 @@ async function startCompare() {
 
     const compareResult = await window.ipc.sync.startCompare()
     syncStatus.totalCount = compareResult.totalCount
+    syncStatus.totalBytes = compareResult.totalBytes
+
+    getRootList()
   } catch (error) {
+    console.log(error)
     message.error(t('views.fileSyncV2.compareFailed'))
   } finally {
     isComparing.value = false
@@ -142,6 +153,7 @@ async function resetForm() {
 }
 
 function resetSyncStatus() {
+  syncStatus.totalBytes = 0
   syncStatus.bytesTransferred = 0
   syncStatus.totalCount = 0
   syncStatus.transferredCount = 0

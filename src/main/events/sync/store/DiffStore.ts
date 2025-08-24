@@ -21,9 +21,19 @@ export class DiffStore {
     this.deletedIds.add(id)
 
     if (this.deletedIds.size === this.list.length) {
-      this.deletedIds.clear()
-      this.list = []
+      this.clear()
     }
+  }
+
+  delAll() {
+    this.clear()
+  }
+
+  private clear() {
+    this.list = []
+    this.idIndex.clear()
+    this.parentIdIndex.clear()
+    this.deletedIds.clear()
   }
 
   update(diffItem: FileDifference) {

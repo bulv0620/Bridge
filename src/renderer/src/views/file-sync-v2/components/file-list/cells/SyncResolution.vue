@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import { useSyncForm } from '@renderer/composables/file-sync-v2/useSyncForm'
 import { ArrowBackCircle, ArrowForwardCircle } from '@vicons/ionicons5'
 import { useThemeVars } from 'naive-ui'
-defineProps<{
+import { nextTick } from 'vue'
+const props = defineProps<{
+  id: string
   isDirectory: boolean
   source: FileInfo | null
   destination: FileInfo | null
@@ -11,14 +14,20 @@ const type = defineModel<FileSyncResolition>('type', { required: true })
 
 const themeVars = useThemeVars()
 
-function handleActionClick(resolution: FileSyncResolition) {
+const { syncStatus } = useSyncForm()
+
+async function handleActionClick(resolution: FileSyncResolition) {
   if (type.value === resolution) {
     type.value = 'ignore'
   } else {
     type.value = resolution
   }
 
-  // todo
+  await nextTick()
+
+  const compareResult = await window.ipc.sync.setResolution(props.id, type.value)
+  syncStatus.totalCount = compareResult.totalCount
+  syncStatus.totalBytes = compareResult.totalBytes
 }
 </script>
 

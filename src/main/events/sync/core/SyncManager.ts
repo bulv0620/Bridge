@@ -152,6 +152,7 @@ export class SyncManager {
   async compare(): Promise<CompareResult> {
     this.totalBytes = 0
     this.totalCount = 0
+    this.diffStore.delAll()
 
     const differentStack: FileDifference[] = [
       {
@@ -185,8 +186,10 @@ export class SyncManager {
         this.diffStore.delById(lastItem.id)
       }
 
-      this.diffStore.add(differentItem)
-      this.totalBytes += differentItem.transferBytes
+      if (differentItem.id) {
+        this.diffStore.add(differentItem)
+        this.totalBytes += differentItem.transferBytes
+      }
     }
 
     if (this.stopFlag) this.stopFlag = false

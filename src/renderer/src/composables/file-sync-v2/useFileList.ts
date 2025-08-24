@@ -4,8 +4,8 @@ import { changeColor } from 'seemly'
 import { ref } from 'vue'
 import { VxeTablePropTypes } from 'vxe-table'
 
+// const tableLoading = ref(false)
 const diffFileList = ref<FileDifference[]>([])
-const expandedRowKeys = ref<string[]>([])
 
 const cellStyle: VxeTablePropTypes.CellStyle<FileDifference> = ({ row, column }) => {
   if (row.isDirectory) return {}
@@ -75,13 +75,25 @@ function getFileSize(type: 'source' | 'destination', differentItem: FileDifferen
   }
 }
 
+async function getRootList() {
+  diffFileList.value = []
+  const result = await window.ipc.sync.getDiffItems(null)
+  diffFileList.value = result
+}
+
+async function getFileList(parentRow: FileDifference): Promise<FileDifference[]> {
+  const list = await window.ipc.sync.getDiffItems(parentRow.id)
+  return list
+}
+
 export function useFileList() {
   return {
-    expandedRowKeys,
     diffFileList,
     cellStyle,
     rowClassName,
     getFormatDate,
     getFileSize,
+    getRootList,
+    getFileList,
   }
 }

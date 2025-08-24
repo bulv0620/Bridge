@@ -45,7 +45,7 @@ export function stopCompare(_: IpcMainInvokeEvent) {
 }
 
 // 获取差异项（树形懒加载）
-export function getDiffItems(_: IpcMainInvokeEvent, parentId: string) {
+export function getDiffItems(_: IpcMainInvokeEvent, parentId: string | null) {
   return diffStore.getChildren(parentId)
 }
 
