@@ -23,7 +23,7 @@ export abstract class StorageEngine {
 
 // 忽略文件列表，按平台区分
 export const IGNORE_FILES: Record<string, string[]> = {
-  darwin: ['.DS_Store'],
+  darwin: ['.DS_Store', '.app'],
   win32: ['desktop.ini'],
 }
 

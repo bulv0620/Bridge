@@ -162,7 +162,8 @@
       "sourceInvalid": "Invalid Source",
       "destInvalid": "Invalid Destination",
       "comparing": "Comparing",
-      "syncing": "Synchronizing"
+      "syncing": "Synchronizing",
+      "syncFailed": "Sync failed"
     },
     "ftpClient": {
       "title": "Ftp Client",

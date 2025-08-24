@@ -4,6 +4,8 @@ import { LocalStorageEngine } from '../engines/LocalStorageEngine'
 import { StorageEngine } from '../engines/StorageEngine'
 import { DiffStore } from '../store/DiffStore'
 import { getResolution, getTransferByte } from '../utils'
+import { getWindow } from '../../../utils/window'
+import { sendToRenderer } from '../../../utils/sender'
 
 export class SyncManager {
   private sourceStorageEngine: StorageEngine | null = null
@@ -15,6 +17,8 @@ export class SyncManager {
 
   private totalBytes: number = 0
   private totalCount: number = 0
+  private bytesTransferred: number = 0
+  private transferredCount: number = 0
 
   constructor(store: DiffStore) {
     this.diffStore = store
@@ -53,23 +57,30 @@ export class SyncManager {
    * 设置同步策略
    * @param strategy
    */
-  setSyncStrategy(strategy: SyncStrategy): CompareResult {
+  async setSyncStrategy(strategy: SyncStrategy): Promise<CompareResult> {
     this.syncStrategy = strategy
+    const diffItems = await this.diffStore.getAll()
 
-    const diffItems = this.diffStore.getAll()
-
-    this.totalBytes = 0
-    this.totalCount = 0
     diffItems.forEach((item) => {
       if (item.isDirectory) return
+
+      const transferByteTemp = item.transferBytes
+      const resolutionTemp = item.resolution
+
       item.resolution = getResolution(strategy, !!item.source, !!item.destination)
       item.transferBytes = getTransferByte(item.resolution, item.source, item.destination)
 
-      this.totalCount++
-      this.totalBytes += item.transferBytes
+      const byteChangeValue = item.transferBytes - transferByteTemp
+      this.totalBytes += byteChangeValue
+
+      if (resolutionTemp === 'ignore' && item.resolution !== 'ignore') {
+        this.totalCount += 1
+      } else if (resolutionTemp !== 'ignore' && item.resolution === 'ignore') {
+        this.totalCount -= 1
+      }
     })
 
-    this.diffStore.updateAll(diffItems)
+    await this.diffStore.updateAll(diffItems)
 
     return {
       totalBytes: this.totalBytes,
@@ -82,8 +93,8 @@ export class SyncManager {
    * @param id
    * @param resolution
    */
-  setResolution(id: string, resolution: FileSyncResolition): CompareResult {
-    const diffItem = this.diffStore.getById(id)
+  async setResolution(id: string, resolution: FileSyncResolition): Promise<CompareResult> {
+    const diffItem = await this.diffStore.getById(id)
 
     if (!diffItem) throw new Error('Not found')
 
@@ -95,7 +106,7 @@ export class SyncManager {
     const byteChangeValue = diffItem.transferBytes - transferByteTemp
     this.totalBytes += byteChangeValue
 
-    this.diffStore.update(diffItem)
+    await this.diffStore.update(diffItem)
 
     return {
       totalBytes: this.totalBytes,
@@ -150,9 +161,8 @@ export class SyncManager {
    * @returns
    */
   async compare(): Promise<CompareResult> {
-    this.totalBytes = 0
-    this.totalCount = 0
-    this.diffStore.delAll()
+    this.clearStatus()
+    await this.diffStore.delAll()
 
     const differentStack: FileDifference[] = [
       {
@@ -177,19 +187,27 @@ export class SyncManager {
         this.totalCount++
       }
 
-      const lastItem = this.diffStore.getLast()
+      const lastItem = await this.diffStore.getLast()
       if (
         lastItem &&
         lastItem.isDirectory &&
         (!differentItem.parentId || differentItem.parentId !== lastItem.id)
       ) {
-        this.diffStore.delById(lastItem.id)
+        await this.diffStore.delById(lastItem.id)
       }
 
       if (differentItem.id) {
-        this.diffStore.add(differentItem)
-        this.totalBytes += differentItem.transferBytes
+        await this.diffStore.add(differentItem)
+        if (!differentItem.isDirectory) {
+          this.totalBytes += differentItem.transferBytes
+        }
       }
+    }
+
+    let lastItem = await this.diffStore.getLast()
+    while (lastItem && lastItem.isDirectory) {
+      await this.diffStore.delById(lastItem.id)
+      lastItem = await this.diffStore.getLast()
     }
 
     if (this.stopFlag) this.stopFlag = false
@@ -281,6 +299,35 @@ export class SyncManager {
   }
 
   /**
+   * 开始同步
+   */
+  async startSync() {
+    const mainWindow = getWindow('main')
+    const differentItems = await this.diffStore.getAll()
+
+    let i = differentItems.length - 1
+    while (i > -1 && !this.stopFlag) {
+      const differentItem = differentItems[i]
+
+      await this.syncFile(differentItem)
+      if (!differentItem.isDirectory) {
+        this.bytesTransferred += differentItem.transferBytes
+        this.transferredCount++
+      }
+
+      sendToRenderer(mainWindow, 'sync:updateStatus', {
+        bytesTransferred: this.bytesTransferred,
+        transferredCount: this.transferredCount,
+      })
+
+      await this.diffStore.delById(differentItem.id)
+      i--
+    }
+
+    if (this.stopFlag) this.stopFlag = false
+  }
+
+  /**
    * 同步文件
    * @param diff
    * @returns
@@ -329,9 +376,19 @@ export class SyncManager {
     destinationStorageEngine: StorageEngine,
     filePath: string,
   ) {
+    const readStreamAvailable = await sourceStorageEngine.exists(filePath)
+    if (!readStreamAvailable) return
+
     const readStream = await sourceStorageEngine.createReadStream(filePath)
     const writeStream = await destinationStorageEngine.createWriteStream(filePath)
 
     await pipeline(readStream, writeStream)
+  }
+
+  private clearStatus() {
+    this.totalBytes = 0
+    this.totalCount = 0
+    this.bytesTransferred = 0
+    this.transferredCount = 0
   }
 }

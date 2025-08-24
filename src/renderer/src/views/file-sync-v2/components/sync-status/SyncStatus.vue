@@ -13,13 +13,13 @@ const percentage = computed(() => {
 
 <template>
   <n-space justify="space-between">
+    <n-text class="text">
+      {{ formatBytes(syncStatus.bytesTransferred) }}/{{ formatBytes(syncStatus.totalBytes) }}
+    </n-text>
     <n-space>
-      <n-text class="text">
-        {{ formatBytes(syncStatus.bytesTransferred) }}/{{ formatBytes(syncStatus.totalBytes) }}
-      </n-text>
+      <n-text class="text"> {{ syncStatus.transferredCount }}/{{ syncStatus.totalCount }} </n-text>
       <n-progress class="progress" :percentage="percentage"></n-progress>
     </n-space>
-    <n-text class="text"> {{ syncStatus.transferredCount }}/{{ syncStatus.totalCount }} </n-text>
   </n-space>
 </template>
 

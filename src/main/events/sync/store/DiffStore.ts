@@ -6,7 +6,7 @@ export class DiffStore {
   private parentIdIndex: Map<string, FileDifference[]> = new Map()
   private deletedIds: Set<string> = new Set()
 
-  add(diff: FileDifference) {
+  async add(diff: FileDifference) {
     this.list.push(diff)
     this.idIndex.set(diff.id, diff)
 
@@ -17,37 +17,37 @@ export class DiffStore {
     this.parentIdIndex.get(pid)!.push(diff)
   }
 
-  delById(id: string) {
+  async delById(id: string) {
     this.deletedIds.add(id)
 
     if (this.deletedIds.size === this.list.length) {
-      this.clear()
+      await this.clear()
     }
   }
 
-  delAll() {
-    this.clear()
+  async delAll() {
+    await this.clear()
   }
 
-  private clear() {
+  private async clear() {
     this.list = []
     this.idIndex.clear()
     this.parentIdIndex.clear()
     this.deletedIds.clear()
   }
 
-  update(diffItem: FileDifference) {
+  async update(diffItem: FileDifference) {
     const item = this.getById(diffItem.id)
     if (item) {
       Object.assign(item, diffItem)
     }
   }
 
-  updateAll(list: FileDifference[]) {
+  async updateAll(list: FileDifference[]) {
     this.list = list
   }
 
-  getLast(): FileDifference | undefined {
+  async getLast(): Promise<FileDifference | undefined> {
     if (!this.list.length) return
 
     let i = this.list.length - 1
@@ -64,17 +64,17 @@ export class DiffStore {
     return
   }
 
-  getById(id: string): FileDifference | undefined {
+  async getById(id: string): Promise<FileDifference | undefined> {
     if (this.deletedIds.has(id)) return
     return this.idIndex.get(id)
   }
 
-  getChildren(parentId: string | null): FileDifference[] {
+  async getChildren(parentId: string | null): Promise<FileDifference[]> {
     const pid = parentId ?? ROOT_KEY
     return (this.parentIdIndex.get(pid) || []).filter((item) => !this.deletedIds.has(item.id))
   }
 
-  getAll() {
+  async getAll(): Promise<FileDifference[]> {
     return this.list.filter((item) => !this.deletedIds.has(item.id))
   }
 }

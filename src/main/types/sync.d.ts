@@ -81,3 +81,8 @@ declare interface CompareResult {
   totalBytes: number
   totalCount: number
 }
+
+declare interface SyncStatus {
+  bytesTransferred: number
+  transferredCount: number
+}

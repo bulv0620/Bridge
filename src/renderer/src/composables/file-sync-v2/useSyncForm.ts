@@ -32,8 +32,6 @@ const syncForm = reactive<FileSyncPlan>({
 const isComparing = ref(false)
 const isSyncing = ref(false)
 
-const syncStopFlag = ref(false)
-
 const isFormCompleted = computed(() => {
   return !!syncForm.sourceConfig && !!syncForm.destinationConfig
 })
@@ -124,17 +122,26 @@ async function startSync() {
       return
     }
 
-    // todo
+    window.events.on('sync:updateStatus', syncStatusHanlder)
+    await window.ipc.sync.startSync()
   } catch (error) {
     console.log(error)
     message.error(t('views.fileSyncV2.syncFailed'))
   } finally {
     isSyncing.value = false
+    window.events.off('sync:updateStatus', syncStatusHanlder)
+    // 重新获取差异项
+    getRootList()
   }
 }
 
 function stopSync() {
-  syncStopFlag.value = true
+  window.ipc.sync.stopSync()
+}
+
+function syncStatusHanlder(status: SyncStatus) {
+  syncStatus.bytesTransferred = status.bytesTransferred
+  syncStatus.transferredCount = status.transferredCount
 }
 
 async function resetForm() {

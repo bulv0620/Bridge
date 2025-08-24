@@ -50,7 +50,11 @@ export function getDiffItems(_: IpcMainInvokeEvent, parentId: string | null) {
 }
 
 // 同步
-export function startSync(_: IpcMainInvokeEvent) {}
+export function startSync(_: IpcMainInvokeEvent) {
+  return syncManager.startSync()
+}
 
 // 停止同步
-export function stopSync(_: IpcMainInvokeEvent) {}
+export function stopSync(_: IpcMainInvokeEvent) {
+  return syncManager.setStopFlag(true)
+}

@@ -1,5 +1,6 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 import { IpcApi } from './ipc'
+import { EventsApi } from './events'
 
 interface WindowAPI {
   os: typeof import('os')
@@ -18,5 +19,6 @@ declare global {
     electron: ElectronAPI
     api: WindowAPI
     ipc: IpcApi
+    events: EventsApi
   }
 }
