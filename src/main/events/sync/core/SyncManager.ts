@@ -194,14 +194,7 @@ export class SyncManager {
         this.totalCount++
       }
 
-      const lastItem = await this.diffStore.getLast()
-      if (
-        lastItem &&
-        lastItem.isDirectory &&
-        (!differentItem.parentId || differentItem.parentId !== lastItem.id)
-      ) {
-        await this.diffStore.delById(lastItem.id)
-      }
+      this.clearEmptyDirectory(differentItem.parentId)
 
       if (differentItem.id) {
         await this.diffStore.add(differentItem)
@@ -211,11 +204,7 @@ export class SyncManager {
       }
     }
 
-    let lastItem = await this.diffStore.getLast()
-    while (lastItem && lastItem.isDirectory) {
-      await this.diffStore.delById(lastItem.id)
-      lastItem = await this.diffStore.getLast()
-    }
+    this.clearEmptyDirectory(null)
 
     if (this.stopFlag) this.stopFlag = false
 
@@ -303,6 +292,14 @@ export class SyncManager {
         return differentItem
       }),
     )
+  }
+
+  private async clearEmptyDirectory(parentId: string | null) {
+    let lastItem = await this.diffStore.getLast()
+    while (lastItem && lastItem.isDirectory && (!parentId || parentId !== lastItem.id)) {
+      await this.diffStore.delById(lastItem.id)
+      lastItem = await this.diffStore.getLast()
+    }
   }
 
   /**
