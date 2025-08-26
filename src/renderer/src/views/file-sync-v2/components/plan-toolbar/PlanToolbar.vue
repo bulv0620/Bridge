@@ -2,7 +2,7 @@
 import { useSyncForm } from '@renderer/composables/file-sync-v2/useSyncForm'
 import { DocumentOutline, SaveOutline, FileTrayFullOutline } from '@vicons/ionicons5'
 
-const { resetForm } = useSyncForm()
+const { resetForm, isSyncing, isComparing } = useSyncForm()
 </script>
 
 <template>
@@ -13,6 +13,7 @@ const { resetForm } = useSyncForm()
       :button-props="{ size: 'small', circle: true, type: 'primary' }"
       placement="bottom"
       :delay="500"
+      :disabled="isSyncing || isComparing"
       @click="resetForm"
     />
     <CommonButton
@@ -21,6 +22,7 @@ const { resetForm } = useSyncForm()
       :button-props="{ size: 'small', circle: true }"
       placement="bottom"
       :delay="500"
+      :disabled="isSyncing || isComparing"
     />
     <CommonButton
       :tooltip="$t('views.fileSyncV2.savedPlans')"
@@ -28,6 +30,7 @@ const { resetForm } = useSyncForm()
       :button-props="{ size: 'small', circle: true }"
       placement="bottom"
       :delay="500"
+      :disabled="isSyncing || isComparing"
     />
   </n-space>
 </template>
