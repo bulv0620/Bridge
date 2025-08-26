@@ -35,6 +35,7 @@ declare type SyncStrategy = 'incremental' | 'bidirectional' | 'mirror'
 // 同步方案
 declare interface FileSyncPlan {
   id?: string
+  timestamp?: number
   name: string
   sourceConfig: StorageEngineConfig | null // 源
   destinationConfig: StorageEngineConfig | null // 目标

@@ -56,3 +56,5 @@ export function startSync(_: IpcMainInvokeEvent) {
 export function stopSync(_: IpcMainInvokeEvent) {
   return syncManager.setStopFlag(true)
 }
+
+// 新增方案
