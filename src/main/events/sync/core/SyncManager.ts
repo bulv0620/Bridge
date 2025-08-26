@@ -13,16 +13,14 @@ export class SyncManager {
   private ignoredFolders: string[] = []
   private syncStrategy: SyncStrategy = 'mirror'
   private stopFlag: boolean = false
-  private diffStore: DiffStore
+  private diffStore: DiffStore = new DiffStore()
 
   private totalBytes: number = 0
   private totalCount: number = 0
   private bytesTransferred: number = 0
   private transferredCount: number = 0
 
-  constructor(store: DiffStore) {
-    this.diffStore = store
-  }
+  constructor() {}
 
   /**
    * 设置存储引擎配置
@@ -120,6 +118,15 @@ export class SyncManager {
    */
   setStopFlag(flag: boolean) {
     this.stopFlag = flag
+  }
+
+  /**
+   * 获取子项
+   * @param parentId
+   * @returns
+   */
+  getChildren(parentId: string | null) {
+    return this.diffStore.getChildren(parentId)
   }
 
   /**

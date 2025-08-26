@@ -1,9 +1,7 @@
 import { IpcMainInvokeEvent } from 'electron'
 import { SyncManager } from './core/SyncManager'
-import { DiffStore } from './store/DiffStore'
 
-const diffStore = new DiffStore()
-const syncManager = new SyncManager(diffStore)
+const syncManager = new SyncManager()
 
 // 设置同步引擎配置
 export function setStorageEngineConfig(
@@ -46,7 +44,7 @@ export function stopCompare(_: IpcMainInvokeEvent) {
 
 // 获取差异项（树形懒加载）
 export function getDiffItems(_: IpcMainInvokeEvent, parentId: string | null) {
-  return diffStore.getChildren(parentId)
+  return syncManager.getChildren(parentId)
 }
 
 // 同步
