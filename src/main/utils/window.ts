@@ -24,10 +24,7 @@ export function createCustomWindow(
     autoHideMenuBar: windowOption?.hideMenuBar || true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
-      contextIsolation: false,
-      nodeIntegration: true,
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false,
     },
     parent: windowOption?.parent,
     modal: windowOption?.modal,
@@ -62,7 +59,7 @@ export function createCustomWindow(
   }
 
   const themeUpdateHandler = () => {
-    win.webContents.send('switch-theme', nativeTheme.themeSource)
+    win.webContents.send('theme:switch', nativeTheme.themeSource)
   }
   nativeTheme.on('updated', themeUpdateHandler)
   win.on('close', () => {

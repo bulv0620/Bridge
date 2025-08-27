@@ -1,64 +1,36 @@
 <script setup lang="ts">
-import { FileTrayFull, Document, Save } from '@vicons/ionicons5'
-import { onMounted } from 'vue'
-import { deepClone } from '@renderer/utils/object'
-import { usePlanManage } from '@renderer/composables/file-sync/usePlanManage'
-import { useFileSync } from '@renderer/composables/file-sync/useFileSync'
+import { useSyncForm } from '@renderer/composables/file-sync-v2/useSyncForm'
+import { DocumentOutline, SaveOutline, FileTrayFullOutline } from '@vicons/ionicons5'
 
-const { processing } = useFileSync()
-const {
-  sourceFolder,
-  targetFolder,
-  syncType,
-  folderWhiteList,
-  tempPlanData,
-  planId,
-  planName,
-  openPlanManageModal,
-  createNewPlan,
-  savePlan,
-} = usePlanManage()
-
-onMounted(() => {
-  tempPlanData.value = deepClone({
-    planId: planId.value,
-    planName: planName.value,
-    sourceFolder: sourceFolder.value,
-    targetFolder: targetFolder.value,
-    folderWhiteList: folderWhiteList.value,
-    syncType: syncType.value,
-  })
-})
+const { resetForm, isSyncing, isComparing } = useSyncForm()
 </script>
 
 <template>
-  <n-flex>
+  <n-space>
     <CommonButton
       :tooltip="$t('views.fileSync.newPlan')"
-      :icon="Document"
-      :button-props="{ size: 'small', circle: true }"
+      :icon="DocumentOutline"
+      :button-props="{ size: 'small', circle: true, type: 'primary' }"
       placement="bottom"
       :delay="500"
-      :disabled="processing"
-      @click="createNewPlan"
+      :disabled="isSyncing || isComparing"
+      @click="resetForm"
     />
     <CommonButton
       :tooltip="$t('views.fileSync.savePlan')"
-      :icon="Save"
+      :icon="SaveOutline"
       :button-props="{ size: 'small', circle: true }"
       placement="bottom"
       :delay="500"
-      :disabled="processing"
-      @click="savePlan"
+      :disabled="isSyncing || isComparing"
     />
     <CommonButton
       :tooltip="$t('views.fileSync.savedPlans')"
-      :icon="FileTrayFull"
+      :icon="FileTrayFullOutline"
       :button-props="{ size: 'small', circle: true }"
       placement="bottom"
       :delay="500"
-      :disabled="processing"
-      @click="openPlanManageModal"
+      :disabled="isSyncing || isComparing"
     />
-  </n-flex>
+  </n-space>
 </template>

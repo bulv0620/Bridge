@@ -23,7 +23,7 @@ const syncStatus = reactive<SyncStatus>({
 })
 
 const syncForm = reactive<FileSyncPlan>({
-  name: t('views.fileSyncV2.newPlan'),
+  name: t('views.fileSync.newPlan'),
   sourceConfig: null,
   destinationConfig: null,
   ignoredFolders: [],
@@ -83,11 +83,11 @@ async function startCompare() {
     const [sourceValid, destValid] = await window.ipc.sync.validate()
 
     if (!sourceValid) {
-      message.error(t('views.fileSyncV2.sourceInvalid'))
+      message.error(t('views.fileSync.sourceInvalid'))
       return
     }
     if (!destValid) {
-      message.error(t('views.fileSyncV2.destInvalid'))
+      message.error(t('views.fileSync.destInvalid'))
       return
     }
 
@@ -98,7 +98,7 @@ async function startCompare() {
     getRootList()
   } catch (error) {
     console.log(error)
-    message.error(t('views.fileSyncV2.compareFailed'))
+    message.error(t('views.fileSync.compareFailed'))
   } finally {
     isComparing.value = false
   }
@@ -114,11 +114,11 @@ async function startSync() {
     const [sourceValid, destValid] = await window.ipc.sync.validate()
 
     if (!sourceValid) {
-      message.error(t('views.fileSyncV2.sourceInvalid'))
+      message.error(t('views.fileSync.sourceInvalid'))
       return
     }
     if (!destValid) {
-      message.error(t('views.fileSyncV2.destInvalid'))
+      message.error(t('views.fileSync.destInvalid'))
       return
     }
 
@@ -126,7 +126,7 @@ async function startSync() {
     await window.ipc.sync.startSync()
   } catch (error) {
     console.log(error)
-    message.error(t('views.fileSyncV2.syncFailed'))
+    message.error(t('views.fileSync.syncFailed'))
   } finally {
     isSyncing.value = false
     window.events.off('sync:updateStatus', syncStatusHanlder)
@@ -147,12 +147,12 @@ function syncStatusHanlder(status: SyncStatus) {
 async function resetForm() {
   await confirm('warning', {
     title: t('common.warning'),
-    content: t('views.fileSyncV2.newPlanConfirm'),
+    content: t('views.fileSync.newPlanConfirm'),
     positiveText: t('common.confirm'),
     negativeText: t('common.cancel'),
   })
 
-  syncForm.name = t('views.fileSyncV2.newPlan')
+  syncForm.name = t('views.fileSync.newPlan')
   syncForm.sourceConfig = null
   syncForm.destinationConfig = null
   syncForm.ignoredFolders = []

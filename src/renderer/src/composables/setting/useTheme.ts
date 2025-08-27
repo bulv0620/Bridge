@@ -1,7 +1,6 @@
 import { computed, ref, watch } from 'vue'
 import { darkTheme } from 'naive-ui'
 import { VxeUI } from 'vxe-pc-ui'
-const ipcRenderer = window.electron.ipcRenderer
 
 export enum EThemeType {
   SYSTEM = 'system',
@@ -26,7 +25,7 @@ watch(
 )
 
 // 监听主题更新（多窗口store独立，需要手动更新）
-ipcRenderer.on('switch-theme', (_, type: EThemeType) => {
+window.events.on('theme:switch', (type: EThemeType) => {
   themeMode.value = type
 })
 

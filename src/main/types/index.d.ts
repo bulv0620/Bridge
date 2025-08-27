@@ -1,23 +1,26 @@
-import { ElectronAPI } from '@electron-toolkit/preload'
-import { IpcApi } from './ipc'
-import { EventsApi } from './events'
+import type { EventsMapType } from '../events/eventLoader'
 
-interface WindowAPI {
-  os: typeof import('os')
-  fs: typeof import('fs/promises')
-  fsSync: typeof import('fs')
-  path: typeof import('path')
-  ftp: typeof import('basic-ftp')
-  stream: typeof import('stream')
-  streamBuffers: typeof import('stream-buffers')
-  crypto: typeof import('crypto')
-  // Add any other APIs you want to expose here
+// 去掉 IpcMainInvokeEvent（第一个参数）
+type StripFirstArg<F> = F extends (first: any, ...args: infer P) => infer R
+  ? (...args: P) => Promise<R>
+  : never
+
+export type IpcApi = {
+  [Namespace in keyof EventsMapType]: {
+    [Handler in keyof EventsMapType[Namespace]]: StripFirstArg<EventsMapType[Namespace][Handler]>
+  }
+}
+
+type EventCallback = (...args: any[]) => void
+
+export interface EventsApi {
+  on(channel: string, callback: EventCallback): void
+  off(channel: string, callback: EventCallback): void
+  once(channel: string, callback: EventCallback): void
 }
 
 declare global {
   interface Window {
-    electron: ElectronAPI
-    api: WindowAPI
     ipc: IpcApi
     events: EventsApi
   }

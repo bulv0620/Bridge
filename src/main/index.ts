@@ -1,7 +1,6 @@
 import { app } from 'electron'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { createCustomWindow } from './utils/window'
-import { createEventHandler } from './events/index'
 import { createTray } from './utils/tray'
 import { installExtension, VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import { registerAllEvents } from './events/eventLoader'
@@ -37,7 +36,6 @@ app.whenReady().then(() => {
   })
 
   const tray = createTray()
-  createEventHandler({ mainWindow, tray })
   registerAllEvents()
 
   app.on('second-instance', (_event, _commandLine, _workingDirectory) => {

@@ -6,7 +6,7 @@ export function change(_: IpcMainInvokeEvent, lang: string) {
   const tray = getTray()
   const mainWindow = getWindow('main')
   BrowserWindow.getAllWindows().forEach((win) => {
-    win.webContents.send('switch-lang', lang)
+    win.webContents.send('lang:switch', lang)
   })
   updateTray(tray!, lang, { mainWindow })
 }

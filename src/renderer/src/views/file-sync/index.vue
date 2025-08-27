@@ -1,86 +1,70 @@
 <script setup lang="ts">
-import { watch } from 'vue'
-import { useDiffList } from '@renderer/composables/file-sync/useDiffList'
-import { DiffFile, useSyncTool } from '@renderer/composables/file-sync/useSyncTool'
-import { useSyncForm } from '@renderer/composables/file-sync/useSyncForm'
-import { useFileSync } from '@renderer/composables/file-sync/useFileSync'
-import FolderWhiteListModal from './components/folder-white-list-modal/FolderWhiteListModal.vue'
-import DiffDataTable from './components/diff-data-table/DiffDataTable.vue'
+import EditableTitle from './components/editable-title/EditableTitle.vue'
+import FileList from './components/file-list/FileList.vue'
 import PlanToolbar from './components/plan-toolbar/PlanToolbar.vue'
-import FtpConfigModal from './components/ftp-config-modal/FtpConfigModal.vue'
-import PlanNameDialog from './components/plan-name-dialog/PlanNameDialog.vue'
-import PlanManageModal from './components/plan-manage-modal/PlanManageModal.vue'
+import SyncForm from './components/sync-form/SyncForm.vue'
 import SyncToolbar from './components/sync-toolbar/SyncToolbar.vue'
-import DiffForm from './components/diff-form/DiffForm.vue'
-import PlanTitle from './components/plan-title/PlanTitle.vue'
+import IgnoredFoldersModal from './components/ignored-folders-modal/IgnoredFoldersModal.vue'
+import FtpConnectionModal from './components/ftp-connection-modal/FtpConnectionModal.vue'
+import SyncStatus from './components/sync-status/SyncStatus.vue'
 
 defineOptions({
-  name: 'FileSync',
+  name: 'FileSyncV2',
 })
-
-const { sourceFolder, targetFolder, syncType } = useSyncForm()
-const { diffTableData } = useDiffList()
-const { percentage } = useFileSync()
-const { getDiffAction } = useSyncTool()
-
-watch(syncType, (type) => {
-  diffTableData.value.forEach((diffFile: DiffFile) => {
-    diffFile.action = getDiffAction(diffFile, type)
-  })
-})
-watch(
-  sourceFolder,
-  () => {
-    diffTableData.value = []
-    percentage.value = 0
-  },
-  { deep: true },
-)
-watch(
-  targetFolder,
-  () => {
-    diffTableData.value = []
-    percentage.value = 0
-  },
-  { deep: true },
-)
 </script>
 
 <template>
   <div class="file-sync">
-    <div class="container">
-      <n-flex justify="space-between">
-        <PlanTitle></PlanTitle>
-        <PlanToolbar></PlanToolbar>
-      </n-flex>
-      <DiffForm></DiffForm>
+    <div class="header">
+      <EditableTitle></EditableTitle>
+      <PlanToolbar></PlanToolbar>
+    </div>
+    <n-divider style="margin: 0"></n-divider>
+
+    <div class="main">
+      <SyncForm></SyncForm>
       <SyncToolbar></SyncToolbar>
-      <div class="table-wrapper">
-        <DiffDataTable></DiffDataTable>
+      <div class="table">
+        <FileList></FileList>
       </div>
     </div>
-    <FolderWhiteListModal></FolderWhiteListModal>
-    <FtpConfigModal></FtpConfigModal>
-    <PlanNameDialog></PlanNameDialog>
-    <PlanManageModal></PlanManageModal>
+
+    <n-divider style="margin: 0"></n-divider>
+    <div class="footer"><SyncStatus></SyncStatus></div>
   </div>
+  <IgnoredFoldersModal></IgnoredFoldersModal>
+  <FtpConnectionModal></FtpConnectionModal>
 </template>
 
 <style lang="less" scoped>
 .file-sync {
-  padding: 18px;
-  height: calc(100vh - 36px);
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 
-  .container {
-    height: 100%;
+  .header {
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .main {
+    flex: 1;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    gap: 12px;
 
-    .table-wrapper {
+    .table {
+      padding: 16px;
       flex: 1;
       overflow: hidden;
     }
+  }
+
+  .footer {
+    padding: 16px;
   }
 }
 </style>

@@ -1,25 +1,4 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import { electronAPI } from '@electron-toolkit/preload'
-import fs from 'fs/promises'
-import fsSync from 'fs'
-import path from 'path'
-import ftp from 'basic-ftp'
-import stream from 'stream'
-import streamBuffers from 'stream-buffers'
-import crypto from 'crypto'
-import os from 'os'
-
-// Custom APIs for renderer
-const api = {
-  os,
-  fs,
-  fsSync,
-  path,
-  ftp,
-  stream,
-  streamBuffers,
-  crypto,
-}
 
 async function generateApi() {
   const api: Record<string, Record<string, (...args: any[]) => Promise<any>>> = {}
@@ -63,8 +42,6 @@ function once(channel: string, callback: (...args: any[]) => void) {
 generateApi().then((ipc) => {
   if (process.contextIsolated) {
     try {
-      contextBridge.exposeInMainWorld('electron', electronAPI)
-      contextBridge.exposeInMainWorld('api', api)
       contextBridge.exposeInMainWorld('ipc', ipc)
       contextBridge.exposeInMainWorld('events', {
         on,
@@ -75,10 +52,6 @@ generateApi().then((ipc) => {
       console.error(error)
     }
   } else {
-    // @ts-ignore (define in dts)
-    window.electron = electronAPI
-    // @ts-ignore (define in dts)
-    window.api = api
     // @ts-ignore (define in dts)
     window.ipc = ipc
     // @ts-ignore (define in dts)

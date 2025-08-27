@@ -43,7 +43,7 @@ export function updateTray(tray: Tray, lang: string, options: { mainWindow: Brow
     {
       label: messages[lang].tray.fileSync,
       click: () => {
-        options.mainWindow.webContents.send('href-to-page', {
+        options.mainWindow.webContents.send('page:link', {
           to: 'FileSync',
         })
         options.mainWindow.show()
@@ -52,7 +52,7 @@ export function updateTray(tray: Tray, lang: string, options: { mainWindow: Brow
     {
       label: messages[lang].tray.ftpClient,
       click: () => {
-        options.mainWindow.webContents.send('href-to-page', {
+        options.mainWindow.webContents.send('page:link', {
           to: 'FtpClient',
         })
         options.mainWindow.show()
@@ -61,7 +61,7 @@ export function updateTray(tray: Tray, lang: string, options: { mainWindow: Brow
     {
       label: messages[lang].tray.downloader,
       click: () => {
-        options.mainWindow.webContents.send('href-to-page', {
+        options.mainWindow.webContents.send('page:link', {
           to: 'Downloader',
         })
         options.mainWindow.show()
@@ -70,7 +70,7 @@ export function updateTray(tray: Tray, lang: string, options: { mainWindow: Brow
     {
       label: messages[lang].tray.shareHub,
       click: () => {
-        options.mainWindow.webContents.send('href-to-page', {
+        options.mainWindow.webContents.send('page:link', {
           to: 'ShareHub',
         })
         options.mainWindow.show()
@@ -80,7 +80,7 @@ export function updateTray(tray: Tray, lang: string, options: { mainWindow: Brow
     {
       label: messages[lang].tray.pluginCenter,
       click: () => {
-        options.mainWindow.webContents.send('href-to-page', {
+        options.mainWindow.webContents.send('page:link', {
           to: 'PluginCenter',
         })
         options.mainWindow.show()
@@ -89,7 +89,7 @@ export function updateTray(tray: Tray, lang: string, options: { mainWindow: Brow
     {
       label: messages[lang].tray.setting,
       click: () => {
-        options.mainWindow.webContents.send('href-to-page', {
+        options.mainWindow.webContents.send('page:link', {
           to: 'Setting',
         })
         options.mainWindow.show()

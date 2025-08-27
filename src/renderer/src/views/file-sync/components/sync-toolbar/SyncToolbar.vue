@@ -1,51 +1,95 @@
 <script setup lang="ts">
-import { List, Pause, Play } from '@vicons/ionicons5'
-import { NIcon } from 'naive-ui'
-import { useDiffList } from '@renderer/composables/file-sync/useDiffList'
-import { useFolderWhiteList } from '@renderer/composables/file-sync/useFolderWhiteList'
-import { useSyncForm } from '@renderer/composables/file-sync/useSyncForm'
-import { useFileSync } from '@renderer/composables/file-sync/useFileSync'
+import { useFileList } from '@renderer/composables/file-sync-v2/useFileList'
+import { useSyncForm } from '@renderer/composables/file-sync-v2/useSyncForm'
+import { Folder, Pause, Play, Stop, SwapHorizontal } from '@vicons/ionicons5'
+import { computed } from 'vue'
+import { useIgnoredFoldersModal } from '@renderer/composables/file-sync-v2/useIgnoredFoldersModal'
 
-defineOptions({
-  name: 'FileSync',
+const {
+  syncForm,
+  isFormCompleted,
+  isComparing,
+  isSyncing,
+  startCompare,
+  stopCompare,
+  startSync,
+  stopSync,
+} = useSyncForm()
+const { diffFileList } = useFileList()
+const { openIgnoredFoldersModal } = useIgnoredFoldersModal()
+
+const compareButtonType = computed(() => {
+  if (isComparing.value || isSyncing.value) return ''
+  if (isFormCompleted.value) return 'primary'
+  return ''
 })
 
-const { syncType, syncOptions } = useSyncForm()
-const { diffTableData, hasWaitingFile } = useDiffList()
-const { folderWhiteList, openWhiteListModal } = useFolderWhiteList()
+const stopButtonType = computed(() => {
+  if (isComparing.value) return 'error'
+  return ''
+})
 
-const { syncProgressTxt, processing, pauseFlag, startSync, pauseSync } = useFileSync()
+const syncButtonType = computed(() => {
+  if (isComparing.value || isSyncing.value) return ''
+  if (isFormCompleted.value && diffFileList.value.length > 0) return 'info'
+  return ''
+})
+
+const pauseButtonType = computed(() => {
+  if (isSyncing.value) return 'warning'
+  return ''
+})
 </script>
 
 <template>
-  <n-flex :wrap="false" align="center">
-    <n-select
-      v-model:value="syncType"
-      :options="syncOptions"
-      style="width: 180px"
-      :disabled="processing"
-    />
-    <n-button v-if="processing" type="warning" :loading="pauseFlag" @click="pauseSync">
-      <template #icon>
-        <n-icon> <Pause /> </n-icon>
-      </template>
-      {{ $t('views.fileSync.stopSync') }}
-    </n-button>
-    <n-button v-else :disabled="diffTableData.length === 0 || !hasWaitingFile" @click="startSync">
-      <template #icon>
-        <n-icon> <Play /> </n-icon>
-      </template>
-      {{ $t('views.fileSync.startSync') }}
-    </n-button>
-    <n-button @click="openWhiteListModal">
-      <template #icon>
-        <n-icon> <List /> </n-icon>
-      </template>
-      {{ $t('views.fileSync.folderWhiteList') + ` ${folderWhiteList.length}` }}
+  <div class="sync-toolbar">
+    <n-button
+      size="small"
+      :type="compareButtonType"
+      :disabled="!isFormCompleted || isSyncing"
+      :loading="isComparing"
+      @click="startCompare"
+    >
+      <template #icon><SwapHorizontal /></template>
+      {{ $t('views.fileSync.compare') }}
     </n-button>
 
-    <div style="margin-left: auto">
-      {{ syncProgressTxt }}
-    </div>
-  </n-flex>
+    <n-button size="small" :type="stopButtonType" :disabled="!isComparing" @click="stopCompare">
+      <template #icon><Stop /></template>
+      {{ $t('views.fileSync.stop') }}
+    </n-button>
+
+    <n-button
+      size="small"
+      :type="syncButtonType"
+      :disabled="!(isFormCompleted && diffFileList.length > 0) || isComparing"
+      :loading="isSyncing"
+      @click="startSync"
+    >
+      <template #icon><Play /></template>
+      {{ $t('views.fileSync.startSync') }}
+    </n-button>
+
+    <n-button size="small" :type="pauseButtonType" :disabled="!isSyncing" @click="stopSync">
+      <template #icon><Pause /></template>
+      {{ $t('views.fileSync.pauseSync') }}
+    </n-button>
+
+    <n-badge :value="syncForm.ignoredFolders.length" type="success" style="margin-left: auto">
+      <n-button size="small" :disabled="isComparing || isSyncing" @click="openIgnoredFoldersModal">
+        <template #icon><Folder /></template>
+        {{ $t('views.fileSync.ignoredFolders') }}
+      </n-button>
+    </n-badge>
+  </div>
 </template>
+
+<style lang="less" scoped>
+.sync-toolbar {
+  padding: 16px;
+  padding-bottom: 0;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+</style>

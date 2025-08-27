@@ -5,7 +5,6 @@ import {
   AppsAddIn20Regular,
   Settings20Regular,
   CloudArrowDown20Regular,
-  FolderGlobe20Regular,
   BoxArrowLeft20Regular,
 } from '@vicons/fluent'
 import { NIcon } from 'naive-ui'
@@ -37,34 +36,6 @@ const menuOptions = computed<MenuOption[]>(() => {
         ),
       key: '/',
       icon: renderIcon(FolderSwap20Regular),
-    },
-    {
-      label: () =>
-        h(
-          RouterLink,
-          {
-            to: {
-              path: '/v2',
-            },
-          },
-          { default: () => t('views.fileSyncV2.title') },
-        ),
-      key: '/v2',
-      icon: renderIcon(FolderSwap20Regular),
-    },
-    {
-      label: () =>
-        h(
-          RouterLink,
-          {
-            to: {
-              path: '/ftp-client',
-            },
-          },
-          { default: () => t('views.ftpClient.title') },
-        ),
-      key: '/ftp-client',
-      icon: renderIcon(FolderGlobe20Regular),
     },
     {
       label: () =>

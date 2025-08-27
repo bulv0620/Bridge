@@ -1,19 +1,15 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 
 import FileSync from '@renderer/views/file-sync/index.vue'
-import FileSyncV2 from '@renderer/views/file-sync-v2/index.vue'
 import PluginCenter from '@renderer/views/plugin-center/index.vue'
 import Setting from '@renderer/views/setting/index.vue'
-import FtpClient from '@renderer/views/ftp-client/index.vue'
 import Downloader from '@renderer/views/downloader/index.vue'
 import ShareHub from '@renderer/views/share-hub/index.vue'
 
 const routes = [
-  { name: 'FileSync', path: '/', component: FileSync },
-  { name: 'FileSyncV2', path: '/v2', component: FileSyncV2 },
+  { name: 'FileSyncV2', path: '/', component: FileSync },
   { name: 'PluginCenter', path: '/plugin-center', component: PluginCenter },
   { name: 'Setting', path: '/setting', component: Setting },
-  { name: 'FtpClient', path: '/ftp-client', component: FtpClient },
   { name: 'Downloader', path: '/downloader', component: Downloader },
   { name: 'ShareHub', path: '/share-hub', component: ShareHub },
 ]

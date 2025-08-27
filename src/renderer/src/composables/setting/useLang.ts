@@ -5,10 +5,9 @@ import { VxeUI } from 'vxe-pc-ui'
 
 export const useLang = () => {
   const { locale } = useI18n()
-  const ipcRenderer = window.electron.ipcRenderer
 
   // 主题变化更新（多窗口store独立，需要手动更新）
-  ipcRenderer.on('switch-lang', (_, lang: string) => {
+  window.events.on('lang:switch', (lang: string) => {
     locale.value = lang
   })
 

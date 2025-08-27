@@ -48,7 +48,7 @@ export class MagnetWatcher {
           mainWindow.focus()
 
           // console.log('检测到下载链接: ' + txt)
-          mainWindow.webContents.send('href-to-page', {
+          mainWindow.webContents.send('page:link', {
             to: 'Downloader',
             query: {
               url: txt,

@@ -4,13 +4,11 @@ import { useLang } from './composables/setting/useLang'
 import { useTheme } from './composables/setting/useTheme'
 import layout from './layout/layout.vue'
 
-const ipcRenderer = window.electron.ipcRenderer
-
 const { themeConfig } = useTheme()
 const { naiveLocale, naiveDateLocale } = useLang()
 const router = useRouter()
 
-ipcRenderer.on('href-to-page', (_event, data: HrefToPageParam) => {
+window.events.on('page:link', (data: HrefToPageParam) => {
   router.push({
     name: data.to,
     query: data.query,

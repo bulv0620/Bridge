@@ -12,5 +12,6 @@
     "src/main/locales",
     "src/main/events/lang",
     "src/renderer/src/locales"
-  ]
+  ],
+  "i18n-ally.keystyle": "nested"
 }
