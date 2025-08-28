@@ -5,8 +5,8 @@ import Drive from '@renderer/assets/imgs/drive.png'
 import CloudDrive from '@renderer/assets/imgs/cloud_drive.png'
 import Search from '@renderer/assets/imgs/search.png'
 import { Close } from '@vicons/ionicons5'
-import { useFtpConectionModal } from '@renderer/composables/file-sync-v2/useFtpConnectionModal'
-import { useSyncForm } from '@renderer/composables/file-sync-v2/useSyncForm'
+import { useFtpConectionModal } from '@renderer/composables/file-sync/useFtpConnectionModal'
+import { useSyncForm } from '@renderer/composables/file-sync/useSyncForm'
 
 const props = defineProps<{
   type: 'source' | 'destination'

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useFtpConectionModal } from '@renderer/composables/file-sync-v2/useFtpConnectionModal'
+import { useFtpConectionModal } from '@renderer/composables/file-sync/useFtpConnectionModal'
 import FtpConnectionForm from '../ftp-connection-form/FtpConnectionForm.vue'
 
 const { ftpFormRef, visible, ftpConfig, submitForm } = useFtpConectionModal()

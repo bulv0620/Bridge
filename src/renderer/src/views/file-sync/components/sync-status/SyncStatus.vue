@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useSyncForm } from '@renderer/composables/file-sync-v2/useSyncForm'
+import { useSyncForm } from '@renderer/composables/file-sync/useSyncForm'
 import { formatBytes } from '@renderer/utils/format'
 import { computed } from 'vue'
 

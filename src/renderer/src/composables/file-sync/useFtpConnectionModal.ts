@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import FtpConnectionForm from '@renderer/views/file-sync-v2/components/ftp-connection-form/FtpConnectionForm.vue'
+import FtpConnectionForm from '@renderer/views/file-sync/components/ftp-connection-form/FtpConnectionForm.vue'
 
 const ftpFormRef = ref<InstanceType<typeof FtpConnectionForm> | null>(null)
 const visible = ref(false)

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { useFileList } from '@renderer/composables/file-sync-v2/useFileList'
-import { useSyncForm } from '@renderer/composables/file-sync-v2/useSyncForm'
+import { useFileList } from '@renderer/composables/file-sync/useFileList'
+import { useSyncForm } from '@renderer/composables/file-sync/useSyncForm'
 import { Folder, Pause, Play, Stop, SwapHorizontal } from '@vicons/ionicons5'
 import { computed } from 'vue'
-import { useIgnoredFoldersModal } from '@renderer/composables/file-sync-v2/useIgnoredFoldersModal'
+import { useIgnoredFoldersModal } from '@renderer/composables/file-sync/useIgnoredFoldersModal'
 
 const {
   syncForm,

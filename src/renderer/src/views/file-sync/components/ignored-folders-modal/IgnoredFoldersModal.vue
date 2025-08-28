@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useIgnoredFoldersModal } from '@renderer/composables/file-sync-v2/useIgnoredFoldersModal'
+import { useIgnoredFoldersModal } from '@renderer/composables/file-sync/useIgnoredFoldersModal'
 
 const { visible, edtingIgnoredFolderList, conifrmIgnoredFolders } = useIgnoredFoldersModal()
 </script>

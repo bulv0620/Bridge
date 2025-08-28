@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useSyncForm } from '@renderer/composables/file-sync-v2/useSyncForm'
+import { useSyncForm } from '@renderer/composables/file-sync/useSyncForm'
 import { ArrowBackCircle, ArrowForwardCircle } from '@vicons/ionicons5'
 import { useThemeVars } from 'naive-ui'
 import { nextTick } from 'vue'

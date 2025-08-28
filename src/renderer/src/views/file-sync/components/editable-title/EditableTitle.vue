@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, nextTick } from 'vue'
 import { NInput } from 'naive-ui'
-import { useSyncForm } from '@renderer/composables/file-sync-v2/useSyncForm'
+import { useSyncForm } from '@renderer/composables/file-sync/useSyncForm'
 
 const { syncForm } = useSyncForm()
 

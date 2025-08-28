@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import FileNameWithIcon from './cells/FileNameWithIcon.vue'
 import SyncResolution from './cells/SyncResolution.vue'
-import { useFileList } from '@renderer/composables/file-sync-v2/useFileList'
-import { useSyncForm } from '@renderer/composables/file-sync-v2/useSyncForm'
+import { useFileList } from '@renderer/composables/file-sync/useFileList'
+import { useSyncForm } from '@renderer/composables/file-sync/useSyncForm'
 import { reactive } from 'vue'
 import { VxeTable, VxeColumn, VxeTablePropTypes } from 'vxe-table'
 
