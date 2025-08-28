@@ -85,7 +85,10 @@
       "destInvalid": "Invalid Destination",
       "comparing": "Comparing",
       "syncing": "Synchronizing",
-      "syncFailed": "Sync failed"
+      "syncFailed": "Sync failed",
+      "savePlanConfirm": "Save plan?",
+      "updatePlanConfirm": "Update plan?",
+      "removePlanConfirm": "Remove this paln?"
     },
     "downloader": {
       "title": "Downloader",

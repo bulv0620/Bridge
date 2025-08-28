@@ -85,7 +85,10 @@
       "destInvalid": "目标目录校验失败",
       "comparing": "对比中",
       "syncing": "同步中",
-      "syncFailed": "同步失败"
+      "syncFailed": "同步失败",
+      "savePlanConfirm": "是否保存方案?",
+      "updatePlanConfirm": "是否保存修改?",
+      "removePlanConfirm": "是否删除该方案?"
     },
     "downloader": {
       "title": "下载器",

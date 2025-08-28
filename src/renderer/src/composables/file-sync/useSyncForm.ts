@@ -11,7 +11,7 @@ interface SyncStatus {
 }
 
 const { t } = i18n.global
-const { confirm, message } = useDiscreteApi()
+const { message } = useDiscreteApi()
 
 const { diffFileList, getRootList } = useFileList()
 
@@ -23,6 +23,7 @@ const syncStatus = reactive<SyncStatus>({
 })
 
 const syncForm = reactive<FileSyncPlan>({
+  id: undefined,
   name: t('views.fileSync.newPlan'),
   sourceConfig: null,
   destinationConfig: null,
@@ -144,21 +145,6 @@ function syncStatusHanlder(status: SyncStatus) {
   syncStatus.transferredCount = status.transferredCount
 }
 
-async function resetForm() {
-  await confirm('warning', {
-    title: t('common.warning'),
-    content: t('views.fileSync.newPlanConfirm'),
-    positiveText: t('common.confirm'),
-    negativeText: t('common.cancel'),
-  })
-
-  syncForm.name = t('views.fileSync.newPlan')
-  syncForm.sourceConfig = null
-  syncForm.destinationConfig = null
-  syncForm.ignoredFolders = []
-  syncForm.syncStrategy = 'mirror'
-}
-
 function resetSyncStatus() {
   syncStatus.totalBytes = 0
   syncStatus.bytesTransferred = 0
@@ -177,7 +163,6 @@ export function useSyncForm() {
     stopCompare,
     startSync,
     stopSync,
-    resetForm,
     resetSyncStatus,
   }
 }

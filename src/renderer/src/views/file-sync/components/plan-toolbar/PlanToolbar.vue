@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { useSyncForm } from '@renderer/composables/file-sync/useSyncForm'
+import { useSyncPlan } from '@renderer/composables/file-sync/useSyncPlan'
 import { DocumentOutline, SaveOutline, FileTrayFullOutline } from '@vicons/ionicons5'
 
-const { resetForm, isSyncing, isComparing } = useSyncForm()
+const { isSyncing, isComparing } = useSyncForm()
+const { resetPlan, savePlan, saveLoading, openPlanListModal, queryLoading } = useSyncPlan()
 </script>
 
 <template>
@@ -14,7 +16,7 @@ const { resetForm, isSyncing, isComparing } = useSyncForm()
       placement="bottom"
       :delay="500"
       :disabled="isSyncing || isComparing"
-      @click="resetForm"
+      @click="resetPlan"
     />
     <CommonButton
       :tooltip="$t('views.fileSync.savePlan')"
@@ -23,6 +25,8 @@ const { resetForm, isSyncing, isComparing } = useSyncForm()
       placement="bottom"
       :delay="500"
       :disabled="isSyncing || isComparing"
+      :loading="saveLoading"
+      @click="savePlan"
     />
     <CommonButton
       :tooltip="$t('views.fileSync.savedPlans')"
@@ -31,6 +35,8 @@ const { resetForm, isSyncing, isComparing } = useSyncForm()
       placement="bottom"
       :delay="500"
       :disabled="isSyncing || isComparing"
+      :loading="queryLoading"
+      @click="openPlanListModal"
     />
   </n-space>
 </template>

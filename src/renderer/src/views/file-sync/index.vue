@@ -7,6 +7,7 @@ import SyncToolbar from './components/sync-toolbar/SyncToolbar.vue'
 import IgnoredFoldersModal from './components/ignored-folders-modal/IgnoredFoldersModal.vue'
 import FtpConnectionModal from './components/ftp-connection-modal/FtpConnectionModal.vue'
 import SyncStatus from './components/sync-status/SyncStatus.vue'
+import PlanListModal from './components/plan-list-modal/PlanListModal.vue'
 
 defineOptions({
   name: 'FileSyncV2',
@@ -34,6 +35,7 @@ defineOptions({
   </div>
   <IgnoredFoldersModal></IgnoredFoldersModal>
   <FtpConnectionModal></FtpConnectionModal>
+  <PlanListModal></PlanListModal>
 </template>
 
 <style lang="less" scoped>

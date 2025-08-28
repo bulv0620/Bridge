@@ -1,5 +1,4 @@
 import { PlanStore } from '../store/PlanStore'
-import { randomUUID } from 'crypto'
 
 export class PlanManager {
   private store: PlanStore = new PlanStore()
@@ -9,7 +8,7 @@ export class PlanManager {
   }
 
   async add(plan: FileSyncPlan): Promise<FileSyncPlan> {
-    const id = plan.id ?? randomUUID()
+    const id = plan.id ?? crypto.randomUUID()
     const timestamp = new Date().getTime()
     const newPlan = { ...plan, id, timestamp }
     await this.store.insert(newPlan)

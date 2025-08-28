@@ -106,8 +106,8 @@ export class PlanStore {
     return rows.map((row: any) => ({
       id: row.id,
       name: row.name,
-      sourceConfig: JSON.parse(row.source),
-      destinationConfig: JSON.parse(row.destination),
+      sourceConfig: JSON.parse(row.sourceConfig),
+      destinationConfig: JSON.parse(row.destinationConfig),
       ignoredFolders: JSON.parse(row.ignoredFolders),
       syncStrategy: row.syncStrategy,
       timestamp: row.timestamp,
