@@ -1,7 +1,9 @@
 import { IpcMainInvokeEvent } from 'electron'
 import { SyncManager } from './core/SyncManager'
+import { PlanManager } from './core/PlanManager'
 
 const syncManager = new SyncManager()
+const planManager = new PlanManager()
 
 // 设置同步引擎配置
 export function setStorageEngineConfig(
@@ -58,3 +60,21 @@ export function stopSync(_: IpcMainInvokeEvent) {
 }
 
 // 新增方案
+export function addPlan(_: IpcMainInvokeEvent, plan: FileSyncPlan) {
+  return planManager.add(plan)
+}
+
+// 更新方案
+export function updatePlan(_: IpcMainInvokeEvent, plan: FileSyncPlan) {
+  return planManager.update(plan.id!, plan)
+}
+
+// 删除方案
+export function removePlan(_: IpcMainInvokeEvent, plan: FileSyncPlan) {
+  return planManager.remove(plan.id!)
+}
+
+// 获取所有方案
+export function getAllPlan() {
+  return planManager.getAll()
+}
