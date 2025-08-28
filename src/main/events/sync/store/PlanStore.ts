@@ -1,55 +1,68 @@
-import sqlite3 from 'sqlite3'
-import { open, Database } from 'sqlite'
+import Database from 'better-sqlite3'
+import path from 'path'
+import fs from 'fs'
 import { app } from 'electron'
 
 export class PlanStore {
-  private db!: Database<sqlite3.Database, sqlite3.Statement>
+  private db!: Database.Database
 
-  async init() {
-    const dbPath = app.getPath('userData') + '/syncPlans.db'
-    this.db = await open({
-      filename: dbPath,
-      driver: sqlite3.Database,
-    })
+  init(customPath?: string) {
+    // 默认存储在 electron 的 userData 目录
+    const dbPath = customPath ?? path.join(app.getPath('userData'), 'syncPlans.db')
 
-    await this.db.run(`
-      CREATE TABLE IF NOT EXISTS plans (
-        id TEXT PRIMARY KEY,
-        name TEXT,
-        data TEXT
+    // 确保目录存在
+    const dir = path.dirname(dbPath)
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true })
+    }
+
+    this.db = new Database(dbPath)
+
+    // 建表
+    this.db
+      .prepare(
+        `CREATE TABLE IF NOT EXISTS plans (
+          id TEXT PRIMARY KEY,
+          name TEXT NOT NULL,
+          source TEXT NOT NULL,
+          target TEXT NOT NULL,
+          timestamp INTEGER NOT NULL
+        )`,
       )
-    `)
+      .run()
   }
 
   async insert(plan: FileSyncPlan): Promise<void> {
-    await this.db.run(
-      'INSERT INTO plans (id, name, data) VALUES (?, ?, ?)',
-      plan.id,
-      plan.name,
-      JSON.stringify(plan),
-    )
+    this.db
+      .prepare(
+        `INSERT INTO plans (id, name, source, target, timestamp)
+         VALUES (@id, @name, @source, @target, @timestamp)`,
+      )
+      .run(plan)
   }
 
   async update(plan: FileSyncPlan): Promise<void> {
-    await this.db.run(
-      'UPDATE plans SET name = ?, data = ? WHERE id = ?',
-      plan.name,
-      JSON.stringify(plan),
-      plan.id,
-    )
+    this.db
+      .prepare(
+        `UPDATE plans
+         SET name=@name, source=@source, target=@target, timestamp=@timestamp
+         WHERE id=@id`,
+      )
+      .run(plan)
   }
 
   async remove(id: string): Promise<void> {
-    await this.db.run('DELETE FROM plans WHERE id = ?', id)
+    this.db.prepare(`DELETE FROM plans WHERE id = ?`).run(id)
   }
 
   async getById(id: string): Promise<FileSyncPlan | undefined> {
-    const row = await this.db.get<{ data: string }>('SELECT data FROM plans WHERE id = ?', id)
-    return row ? JSON.parse(row.data) : undefined
+    const row = this.db.prepare(`SELECT * FROM plans WHERE id = ?`).get(id)
+    if (!row) return undefined
+    return row as FileSyncPlan // 类型断言
   }
 
   async getAll(): Promise<FileSyncPlan[]> {
-    const rows = await this.db.all<{ data: string }[]>('SELECT data FROM plans')
-    return rows.map((r) => JSON.parse(r.data))
+    const rows = this.db.prepare(`SELECT * FROM plans ORDER BY timestamp DESC`).all()
+    return rows as FileSyncPlan[] // 类型断言
   }
 }
