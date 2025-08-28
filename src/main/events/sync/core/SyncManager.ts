@@ -190,21 +190,20 @@ export class SyncManager {
 
       if (differentItem.isDirectory) {
         await this.compareDirectory(differentItem, differentStack)
-      } else {
-        this.totalCount++
       }
 
-      this.clearEmptyDirectory(differentItem.parentId)
+      await this.clearEmptyDirectory(differentItem.parentId)
 
       if (differentItem.id) {
         await this.diffStore.add(differentItem)
         if (!differentItem.isDirectory) {
+          this.totalCount++
           this.totalBytes += differentItem.transferBytes
         }
       }
     }
 
-    this.clearEmptyDirectory(null)
+    await this.clearEmptyDirectory(null)
 
     if (this.stopFlag) this.stopFlag = false
 
