@@ -40,7 +40,7 @@ async function savePlan() {
     } else {
       // 新增
       await confirm('info', {
-        title: t('common.warning'),
+        title: t('common.info'),
         content: t('views.fileSync.savePlanConfirm'),
         positiveText: t('common.confirm'),
         negativeText: t('common.cancel'),

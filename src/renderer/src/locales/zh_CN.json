@@ -87,7 +87,7 @@
       "syncing": "同步中",
       "syncFailed": "同步失败",
       "savePlanConfirm": "是否保存方案?",
-      "updatePlanConfirm": "是否保存修改?",
+      "updatePlanConfirm": "方案信息将被覆盖,是否保存修改?",
       "removePlanConfirm": "是否删除该方案?",
       "timestamp": "创建时间",
       "planName": "名称",
