@@ -3,24 +3,26 @@ import { h, computed } from 'vue'
 import { NButton, NDataTable } from 'naive-ui'
 import { useSyncPlan } from '@renderer/composables/file-sync/useSyncPlan'
 import dayjs from 'dayjs'
+import { useI18n } from 'vue-i18n'
 
 const { planListModalVisible, planList, selectPlan, removePlan } = useSyncPlan()
 
+const { t } = useI18n()
 // 表格列定义
 const columns = computed(() => [
   {
-    title: '名称',
+    title: t('views.fileSync.planName'),
     key: 'name',
   },
   {
-    title: '时间',
+    title: t('views.fileSync.timestamp'),
     key: 'timestamp',
     render(row: FileSyncPlan) {
       return dayjs(row.timestamp).format('YYYY-MM-DD HH:mm:ss')
     },
   },
   {
-    title: '操作',
+    title: t('views.fileSync.actions'),
     key: 'actions',
     render(row: FileSyncPlan) {
       return [
@@ -32,7 +34,7 @@ const columns = computed(() => [
             style: 'margin-right: 8px;',
             onClick: () => selectPlan(row),
           },
-          { default: () => '选择' },
+          { default: () => t('common.select') },
         ),
         h(
           NButton,
@@ -41,7 +43,7 @@ const columns = computed(() => [
             type: 'error',
             onClick: () => removePlan(row),
           },
-          { default: () => '删除' },
+          { default: () => t('common.delete') },
         ),
       ]
     },
@@ -58,7 +60,7 @@ const columns = computed(() => [
     :title="$t('views.fileSync.savedPlans')"
     :mask-closable="false"
   >
-    <n-data-table :columns="columns" :data="planList" :bordered="false" />
+    <n-data-table :columns="columns" :data="planList" :bordered="false" :max-height="260" />
     <template #footer> </template>
   </n-modal>
 </template>

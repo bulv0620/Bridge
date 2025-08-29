@@ -68,7 +68,14 @@ async function removePlan(plan: FileSyncPlan) {
       negativeText: t('common.cancel'),
     })
 
-    await window.ipc.sync.removePlan(plan)
+    if (plan.id === syncForm.id) {
+      syncForm.id = undefined
+      syncForm.timestamp = undefined
+    }
+
+    await window.ipc.sync.removePlan(toRaw(plan))
+
+    getPlanList()
   } catch (error) {
     console.error(error)
   } finally {
@@ -78,6 +85,7 @@ async function removePlan(plan: FileSyncPlan) {
 
 async function selectPlan(plan: FileSyncPlan) {
   Object.assign(syncForm, plan)
+  planListModalVisible.value = false
 }
 
 async function resetPlan() {

@@ -88,7 +88,10 @@
       "syncFailed": "Sync failed",
       "savePlanConfirm": "Save plan?",
       "updatePlanConfirm": "Update plan?",
-      "removePlanConfirm": "Remove this paln?"
+      "removePlanConfirm": "Remove this paln?",
+      "timestamp": "Time",
+      "planName": "Name",
+      "actions": "Action"
     },
     "downloader": {
       "title": "Downloader",

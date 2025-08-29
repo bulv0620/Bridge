@@ -88,7 +88,10 @@
       "syncFailed": "同步失败",
       "savePlanConfirm": "是否保存方案?",
       "updatePlanConfirm": "是否保存修改?",
-      "removePlanConfirm": "是否删除该方案?"
+      "removePlanConfirm": "是否删除该方案?",
+      "timestamp": "创建时间",
+      "planName": "名称",
+      "actions": "操作"
     },
     "downloader": {
       "title": "下载器",

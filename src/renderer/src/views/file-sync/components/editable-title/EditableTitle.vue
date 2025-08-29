@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref, watch, nextTick } from 'vue'
-import { NInput } from 'naive-ui'
+import { NInput, useThemeVars } from 'naive-ui'
 import { useSyncForm } from '@renderer/composables/file-sync/useSyncForm'
+import { FiberNewFilled } from '@vicons/material'
+
+const themeVars = useThemeVars()
 
 const { syncForm } = useSyncForm()
 
@@ -59,5 +62,9 @@ watch(
       @change="confirmEdit"
       @blur="confirmEdit"
     />
+
+    <n-icon v-if="!syncForm.id" style="margin-left: 8px" :color="themeVars.primaryColor">
+      <FiberNewFilled></FiberNewFilled>
+    </n-icon>
   </div>
 </template>
