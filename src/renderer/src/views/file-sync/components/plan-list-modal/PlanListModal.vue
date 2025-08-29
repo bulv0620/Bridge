@@ -2,16 +2,9 @@
 import { h, computed } from 'vue'
 import { NButton, NDataTable } from 'naive-ui'
 import { useSyncPlan } from '@renderer/composables/file-sync/useSyncPlan'
+import dayjs from 'dayjs'
 
 const { planListModalVisible, planList, selectPlan, removePlan } = useSyncPlan()
-
-// 时间格式化工具
-function formatTime(ts?: number) {
-  if (!ts) return '-'
-  const d = new Date(ts)
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
-}
 
 // 表格列定义
 const columns = computed(() => [
@@ -23,7 +16,7 @@ const columns = computed(() => [
     title: '时间',
     key: 'timestamp',
     render(row: FileSyncPlan) {
-      return formatTime(row.timestamp)
+      return dayjs(row.timestamp).format('YYYY-MM-DD HH:mm:ss')
     },
   },
   {
@@ -46,7 +39,7 @@ const columns = computed(() => [
           {
             size: 'small',
             type: 'error',
-            onClick: () => removePlan(row.id!),
+            onClick: () => removePlan(row),
           },
           { default: () => '删除' },
         ),
@@ -61,9 +54,11 @@ const columns = computed(() => [
     v-model:show="planListModalVisible"
     style="width: 600px"
     preset="card"
+    size="small"
     :title="$t('views.fileSync.savedPlans')"
     :mask-closable="false"
   >
     <n-data-table :columns="columns" :data="planList" :bordered="false" />
+    <template #footer> </template>
   </n-modal>
 </template>

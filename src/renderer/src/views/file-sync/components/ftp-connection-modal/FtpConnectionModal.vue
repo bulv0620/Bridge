@@ -10,6 +10,7 @@ const { ftpFormRef, visible, ftpConfig, submitForm } = useFtpConectionModal()
     v-model:show="visible"
     style="width: 500px"
     preset="card"
+    size="small"
     :title="$t('views.fileSync.ftpConfig')"
     :mask-closable="false"
   >

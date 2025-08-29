@@ -10,6 +10,7 @@ const { loading, visible, language, configJson, saveConfig, closeModal } = usePl
     v-model:show="visible"
     style="width: 620px"
     preset="card"
+    size="small"
     :title="$t('views.pluginCenter.config')"
     :on-after-leave="closeModal"
     :mask-closable="false"

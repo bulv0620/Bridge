@@ -9,6 +9,7 @@ const { visible, edtingIgnoredFolderList, conifrmIgnoredFolders } = useIgnoredFo
     v-model:show="visible"
     style="width: 400px"
     preset="card"
+    size="small"
     :title="$t('views.fileSync.ignoredFolders')"
   >
     <n-scrollbar style="max-height: 220px">

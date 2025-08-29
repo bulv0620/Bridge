@@ -13,6 +13,7 @@ const { show, urlInput, loading, inputRef, submitDownloadTask } = useCreateDownl
     v-model:show="show"
     :title="t('views.downloader.createTask')"
     preset="card"
+    size="small"
     style="width: 500px"
   >
     <n-input
