@@ -10,7 +10,7 @@ import SyncStatus from './components/sync-status/SyncStatus.vue'
 import PlanListModal from './components/plan-list-modal/PlanListModal.vue'
 
 defineOptions({
-  name: 'FileSyncV2',
+  name: 'FileSync',
 })
 </script>
 

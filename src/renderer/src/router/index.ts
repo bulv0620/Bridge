@@ -7,7 +7,7 @@ import Downloader from '@renderer/views/downloader/index.vue'
 import ShareHub from '@renderer/views/share-hub/index.vue'
 
 const routes = [
-  { name: 'FileSyncV2', path: '/', component: FileSync },
+  { name: 'FileSync', path: '/', component: FileSync },
   { name: 'PluginCenter', path: '/plugin-center', component: PluginCenter },
   { name: 'Setting', path: '/setting', component: Setting },
   { name: 'Downloader', path: '/downloader', component: Downloader },
