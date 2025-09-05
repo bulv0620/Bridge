@@ -91,7 +91,8 @@
       "removePlanConfirm": "是否删除该方案?",
       "timestamp": "创建时间",
       "planName": "名称",
-      "actions": "操作"
+      "actions": "操作",
+      "selectPath": "选择路径"
     },
     "downloader": {
       "title": "下载器",
@@ -173,7 +174,7 @@
       "upload": "上传",
       "download": "下载",
       "remove": "删除",
-      "setting":"设置",
+      "setting": "设置",
       "noSharedFile": "没有被共享的文件",
       "settingTitle": "设置",
       "enableSharing": "启用分享",
@@ -215,6 +216,5 @@
       "resetConfirm": "是否恢复默认设置?"
     }
   },
-  "layout": {
-  }
+  "layout": {}
 }

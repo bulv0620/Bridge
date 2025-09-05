@@ -91,7 +91,8 @@
       "removePlanConfirm": "Remove this paln?",
       "timestamp": "Time",
       "planName": "Name",
-      "actions": "Action"
+      "actions": "Action",
+      "selectPath": "Select Path"
     },
     "downloader": {
       "title": "Downloader",
@@ -173,7 +174,7 @@
       "upload": "Upload",
       "download": "Download",
       "remove": "Remove",
-      "setting":"Setting",
+      "setting": "Setting",
       "noSharedFile": "No shared files found",
       "settingTitle": "Setting",
       "enableSharing": "Enable Sharing",
@@ -215,6 +216,5 @@
       "resetConfirm": "Reset to default settings?"
     }
   },
-  "layout": {
-  }
+  "layout": {}
 }

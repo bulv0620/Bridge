@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { useFtpConectionModal } from '@renderer/composables/file-sync/useFtpConnectionModal'
-import FtpConnectionForm from '../ftp-connection-form/FtpConnectionForm.vue'
+import FtpConnectionForm from './ftp-connection-form/FtpConnectionForm.vue'
+import FtpConnectionTree from './ftp-connection-tree/FtpConnectionTree.vue'
 
-const { ftpFormRef, visible, ftpConfig, submitForm } = useFtpConectionModal()
+const { ftpFormRef, visible, currentStep, ftpConfig, prevStep, submitForm } = useFtpConectionModal()
 </script>
 
 <template>
@@ -14,10 +15,28 @@ const { ftpFormRef, visible, ftpConfig, submitForm } = useFtpConectionModal()
     :title="$t('views.fileSync.ftpConfig')"
     :mask-closable="false"
   >
-    <FtpConnectionForm ref="ftpFormRef" v-model:ftp-config="ftpConfig"></FtpConnectionForm>
+    <n-steps size="small" :current="currentStep" style="margin-bottom: 18px">
+      <n-step :title="$t('views.fileSync.ftpConfig')" />
+      <n-step :title="$t('views.fileSync.selectPath')" />
+    </n-steps>
+    <FtpConnectionForm
+      v-if="currentStep === 1"
+      ref="ftpFormRef"
+      v-model:ftp-config="ftpConfig"
+    ></FtpConnectionForm>
+
+    <FtpConnectionTree v-else></FtpConnectionTree>
 
     <template #footer>
       <n-flex justify="end">
+        <n-button
+          v-if="currentStep === 2"
+          size="small"
+          style="margin-right: auto"
+          @click="prevStep"
+        >
+          {{ $t('common.prev') }}
+        </n-button>
         <n-button type="primary" size="small" @click="submitForm">
           {{ $t('common.confirm') }}
         </n-button>

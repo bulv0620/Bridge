@@ -3,6 +3,7 @@ import FtpConnectionForm from '@renderer/views/file-sync/components/ftp-connecti
 
 const ftpFormRef = ref<InstanceType<typeof FtpConnectionForm> | null>(null)
 const visible = ref(false)
+const currentStep = ref(1)
 const ftpConfig = ref<FtpConfig>({
   host: '',
   port: 21,
@@ -14,8 +15,19 @@ const ftpConfig = ref<FtpConfig>({
   },
 })
 
+async function prevStep() {
+  currentStep.value--
+}
+
 async function submitForm() {
-  await ftpFormRef.value?.validate()
+  if (currentStep.value === 1) {
+    // 配置ftp确认
+    await ftpFormRef.value?.validate()
+
+    currentStep.value++
+  } else {
+    // 路径选择确认
+  }
 }
 
 function openFtpConnectionModal() {
@@ -29,6 +41,7 @@ function openFtpConnectionModal() {
       rejectUnauthorized: false,
     },
   }
+  currentStep.value = 1
   visible.value = true
 }
 
@@ -36,7 +49,9 @@ export function useFtpConectionModal() {
   return {
     ftpFormRef,
     visible,
+    currentStep,
     ftpConfig,
+    prevStep,
     submitForm,
     openFtpConnectionModal,
   }
