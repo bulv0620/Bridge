@@ -92,7 +92,9 @@
       "timestamp": "创建时间",
       "planName": "名称",
       "actions": "操作",
-      "selectPath": "选择路径"
+      "selectPath": "选择路径",
+      "selectedPath": "当前选中路径",
+      "connectionFailed": "连接失败"
     },
     "downloader": {
       "title": "下载器",

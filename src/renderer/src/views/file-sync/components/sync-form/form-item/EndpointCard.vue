@@ -58,7 +58,8 @@ async function selectStorageType(key: string) {
       }
     }
   } else if (key === 'ftp') {
-    openFtpConnectionModal()
+    const config = await openFtpConnectionModal()
+    endpoint.value = config
   }
 }
 

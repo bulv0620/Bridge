@@ -7,10 +7,17 @@ export class InstanceManager {
 
   constructor() {}
 
-  createInstance(config: StorageEngineConfig) {
+  async createInstance(config: StorageEngineConfig) {
     this.instanceConfig = config
 
     this.instance = createStorageEngineInstance(config)
+
+    const valid = await this.instance.validate()
+
+    if (!valid) {
+      this.clearInstance()
+      throw new Error('Invalid instance.')
+    }
   }
 
   async listInstance(dir: string, ignoredFolders?: string[]) {

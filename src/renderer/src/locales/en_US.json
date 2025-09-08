@@ -92,7 +92,9 @@
       "timestamp": "Time",
       "planName": "Name",
       "actions": "Action",
-      "selectPath": "Select Path"
+      "selectPath": "Select Path",
+      "selectedPath": "Selected Path",
+      "connectionFailed": "Connection failed"
     },
     "downloader": {
       "title": "Downloader",

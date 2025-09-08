@@ -3,45 +3,20 @@ import { Folder, FolderOpenOutline } from '@vicons/ionicons5'
 import { NIcon, TreeOption } from 'naive-ui'
 import { h, ref } from 'vue'
 
+// 绑定选中的 key
+const selectedPath = defineModel<Array<string>>('selectedPath', { required: true })
+
 const data = ref([
   {
-    key: '文件夹',
-    label: '文件夹',
+    key: '/',
+    label: 'root',
     prefix: () =>
       h(NIcon, null, {
         default: () => h(Folder),
       }),
-    children: [
-      {
-        key: '空的',
-        label: '空的',
-        prefix: () =>
-          h(NIcon, null, {
-            default: () => h(Folder),
-          }),
-      },
-      {
-        key: '我的文件',
-        label: '我的文件',
-        prefix: () =>
-          h(NIcon, null, {
-            default: () => h(Folder),
-          }),
-        children: [],
-      },
-    ],
+    isLeaf: false,
   },
 ])
-
-function nodeProps({ option }: { option: TreeOption }) {
-  return {
-    onClick() {
-      if (!option.children && !option.disabled) {
-        // message.info(`[Click] ${option.label}`)
-      }
-    },
-  }
-}
 
 function updatePrefixWithExpaned(
   _keys: Array<string | number>,
@@ -67,17 +42,38 @@ function updatePrefixWithExpaned(
       break
   }
 }
+
+// 异步加载子节点
+async function handleLoad(node: TreeOption) {
+  const list = await window.ipc.sync.listInstance(node.key as string)
+
+  node.children = list.map((el) => ({
+    key: el.filePath,
+    label: el.fileName,
+    prefix: () =>
+      h(NIcon, null, {
+        default: () => h(Folder),
+      }),
+    isLeaf: false,
+  }))
+}
 </script>
 
 <template>
-  <n-scrollbar style="height: 228px">
+  <n-p>
+    <n-ellipsis style="width: 100%">
+      <span style="margin-right: 8px">{{ $t('views.fileSync.selectedPath') }}:</span>
+      <n-a>{{ selectedPath[0] || '/' }}</n-a>
+    </n-ellipsis>
+  </n-p>
+  <n-scrollbar style="height: 190px">
     <n-tree
+      v-model:selected-keys="selectedPath"
       block-line
       show-line
-      expand-on-click
       :data="data"
-      :node-props="nodeProps"
       :on-update:expanded-keys="updatePrefixWithExpaned"
+      :on-load="handleLoad"
     />
   </n-scrollbar>
 </template>

@@ -3,7 +3,16 @@ import { useFtpConectionModal } from '@renderer/composables/file-sync/useFtpConn
 import FtpConnectionForm from './ftp-connection-form/FtpConnectionForm.vue'
 import FtpConnectionTree from './ftp-connection-tree/FtpConnectionTree.vue'
 
-const { ftpFormRef, visible, currentStep, ftpConfig, prevStep, submitForm } = useFtpConectionModal()
+const {
+  ftpFormRef,
+  visible,
+  currentStep,
+  ftpConfig,
+  connectLoading,
+  selectedPath,
+  prevStep,
+  submitForm,
+} = useFtpConectionModal()
 </script>
 
 <template>
@@ -25,7 +34,7 @@ const { ftpFormRef, visible, currentStep, ftpConfig, prevStep, submitForm } = us
       v-model:ftp-config="ftpConfig"
     ></FtpConnectionForm>
 
-    <FtpConnectionTree v-else></FtpConnectionTree>
+    <FtpConnectionTree v-else v-model:selected-path="selectedPath"></FtpConnectionTree>
 
     <template #footer>
       <n-flex justify="end">
@@ -37,7 +46,7 @@ const { ftpFormRef, visible, currentStep, ftpConfig, prevStep, submitForm } = us
         >
           {{ $t('common.prev') }}
         </n-button>
-        <n-button type="primary" size="small" @click="submitForm">
+        <n-button type="primary" size="small" :loading="connectLoading" @click="submitForm">
           {{ $t('common.confirm') }}
         </n-button>
         <n-button size="small" @click="visible = false">
