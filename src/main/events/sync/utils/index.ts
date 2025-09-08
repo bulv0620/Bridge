@@ -1,3 +1,7 @@
+import { FtpStorageEngine } from '../engines/FtpStorageEngine'
+import { LocalStorageEngine } from '../engines/LocalStorageEngine'
+import { StorageEngine } from '../engines/StorageEngine'
+
 /**
  * 获取传输数据量
  * @param resolution
@@ -54,5 +58,18 @@ export function getResolution(
     } else {
       return 'toRight'
     }
+  }
+}
+
+/**
+ * 根据配置获取存储引擎实例对象
+ * @param config
+ * @returns
+ */
+export function createStorageEngineInstance(config: StorageEngineConfig): StorageEngine {
+  if (config.storageType === 'ftp') {
+    return new FtpStorageEngine(config.connectionConfig!, config.path)
+  } else {
+    return new LocalStorageEngine(config.path)
   }
 }

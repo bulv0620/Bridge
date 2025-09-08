@@ -11,6 +11,8 @@ export class LocalStorageEngine extends StorageEngine {
     super(basePath)
   }
 
+  async disconnect(): Promise<void> {}
+
   protected _resolve(filePath: string): string {
     return path.join(this.basePath, filePath)
   }

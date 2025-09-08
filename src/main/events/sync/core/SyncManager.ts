@@ -1,9 +1,7 @@
 import { pipeline } from 'stream/promises'
-import { FtpStorageEngine } from '../engines/FtpStorageEngine'
-import { LocalStorageEngine } from '../engines/LocalStorageEngine'
 import { StorageEngine } from '../engines/StorageEngine'
 import { DiffStore } from '../store/DiffStore'
-import { getResolution, getTransferByte } from '../utils'
+import { getResolution, getTransferByte, createStorageEngineInstance } from '../utils'
 import { getWindow } from '../../../utils/window'
 import { sendToRenderer } from '../../../utils/sender'
 
@@ -30,13 +28,13 @@ export class SyncManager {
   setStorageEngineConfig(type: 'source' | 'destination', config: StorageEngineConfig | null) {
     if (type === 'source') {
       if (config) {
-        this.sourceStorageEngine = this.createStorageEngineInstance(config)
+        this.sourceStorageEngine = createStorageEngineInstance(config)
       } else {
         this.sourceStorageEngine = null
       }
     } else {
       if (config) {
-        this.destinationStorageEngine = this.createStorageEngineInstance(config)
+        this.destinationStorageEngine = createStorageEngineInstance(config)
       } else {
         this.destinationStorageEngine = null
       }
@@ -130,19 +128,6 @@ export class SyncManager {
   }
 
   /**
-   * 根据配置获取存储引擎实例对象
-   * @param config
-   * @returns
-   */
-  createStorageEngineInstance(config: StorageEngineConfig): StorageEngine {
-    if (config.storageType === 'ftp') {
-      return new FtpStorageEngine(config.connectionConfig!, config.path)
-    } else {
-      return new LocalStorageEngine(config.path)
-    }
-  }
-
-  /**
    * 校验存储引擎是否可用
    * @returns
    */
@@ -152,12 +137,14 @@ export class SyncManager {
       validateResult[0] = false
     } else {
       validateResult[0] = await this.sourceStorageEngine.validate()
+      await this.sourceStorageEngine.disconnect()
     }
 
     if (!this.destinationStorageEngine) {
       validateResult[1] = false
     } else {
       validateResult[1] = await this.destinationStorageEngine.validate()
+      await this.destinationStorageEngine.disconnect()
     }
 
     return validateResult
@@ -206,6 +193,11 @@ export class SyncManager {
     await this.clearEmptyDirectory(null)
 
     if (this.stopFlag) this.stopFlag = false
+
+    await Promise.all([
+      this.sourceStorageEngine?.disconnect(),
+      this.destinationStorageEngine?.disconnect(),
+    ])
 
     return {
       totalBytes: this.totalBytes,
@@ -328,6 +320,13 @@ export class SyncManager {
     }
 
     if (this.stopFlag) this.stopFlag = false
+
+    await Promise.all([
+      this.sourceStorageEngine?.disconnect(),
+      this.destinationStorageEngine?.disconnect(),
+    ])
+
+    return
   }
 
   /**

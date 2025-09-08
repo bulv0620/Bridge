@@ -19,6 +19,7 @@ export abstract class StorageEngine {
   abstract ensureDir(dirPath: string): Promise<void>
   abstract getMeta(filePath: string): Promise<FileMetaData>
   abstract setMeta(filePath: string, meta: FileMetaData): Promise<void>
+  abstract disconnect(): Promise<void>
 }
 
 // 忽略文件列表，按平台区分
