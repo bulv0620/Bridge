@@ -47,6 +47,8 @@ function updatePrefixWithExpaned(
 async function handleLoad(node: TreeOption) {
   const list = await window.ipc.sync.listInstance(node.key as string)
 
+  console.log(list)
+
   node.children = list.map((el) => ({
     key: el.filePath,
     label: el.fileName,

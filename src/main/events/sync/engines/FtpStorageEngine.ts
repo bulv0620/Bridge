@@ -170,15 +170,21 @@ export class FtpStorageEngine extends StorageEngine {
 
   async createWriteStream(filePath: string): Promise<WriteStream> {
     await this.connect()
-    await this.ensureDir(path.posix.dirname(filePath))
     const resolved = this._resolve(filePath)
+    await this.ensureDir(path.posix.dirname(resolved))
 
     const writeStream = new PassThrough()
 
-    this.client.uploadFrom(writeStream, resolved).catch((err) => {
-      writeStream.destroy(err)
-      writeStream.emit('error', err)
-    })
+    const done = (async () => {
+      try {
+        await this.client.uploadFrom(writeStream, resolved)
+      } catch (err) {
+        writeStream.destroy(err as Error)
+        writeStream.emit('error', err)
+      }
+    })()
+
+    ;(writeStream as any)._DONE = done
 
     return writeStream as unknown as WriteStream
   }

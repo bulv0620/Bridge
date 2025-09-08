@@ -52,6 +52,7 @@ async function submitForm() {
         path: '/',
         connectionConfig: toRaw(ftpConfig.value),
       })
+      selectedPath.value = []
       currentStep.value++
     } catch (error) {
       message.error(t('views.fileSync.connectionFailed'))

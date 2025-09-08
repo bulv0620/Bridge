@@ -385,6 +385,10 @@ export class SyncManager {
     const writeStream = await destinationStorageEngine.createWriteStream(filePath)
 
     await pipeline(readStream, writeStream)
+
+    if ((writeStream as any)._DONE) {
+      await (writeStream as any)._DONE
+    }
   }
 
   private clearStatus() {
