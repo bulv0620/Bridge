@@ -1,5 +1,5 @@
-import { FtpStorageEngine } from '../engines/FtpStorageEngine'
 import { StorageEngine } from '../engines/StorageEngine'
+import { createStorageEngineInstance } from '../utils'
 
 export class InstanceManager {
   private instance: StorageEngine | null = null
@@ -9,13 +9,16 @@ export class InstanceManager {
 
   createInstance(config: StorageEngineConfig) {
     this.instanceConfig = config
-    if (config.storageType === 'ftp') {
-      this.instance = new FtpStorageEngine(config.connectionConfig!, config.path)
-    }
+
+    this.instance = createStorageEngineInstance(config)
   }
 
-  listInstance(dir: string, ignoredFolders?: string[]) {
-    return this.instance?.list(dir, ignoredFolders || [])
+  async listInstance(dir: string, ignoredFolders?: string[]) {
+    if (!this.instance) return []
+    const list = await this.instance.list(dir, ignoredFolders || [])
+
+    await this.instance.disconnect()
+    return list.filter((item) => item.isDirectory)
   }
 
   getInstanceConfig() {
@@ -23,6 +26,7 @@ export class InstanceManager {
   }
 
   clearInstance() {
+    this.instance?.disconnect()
     this.instance = null
   }
 }
