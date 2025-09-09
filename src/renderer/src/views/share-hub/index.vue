@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import ShareToolbar from './components/share-toolbar/ShareToolbar.vue'
 import FileList from './components/file-list/FileList.vue'
-import SettingDrawer from './components/setting-drawer/SettingDrawer.vue'
 import OnlineDevicePopover from './components/online-device-popover/OnlineDevicePopover.vue'
 import TransferPopover from './components/transfer-popover/TransferPopover.vue'
 
@@ -25,7 +24,6 @@ defineOptions({
       <TransferPopover></TransferPopover>
     </div>
   </div>
-  <SettingDrawer></SettingDrawer>
 </template>
 
 <style lang="less" scoped>
