@@ -5,6 +5,7 @@ import * as fileEvents from './file'
 import * as clipboardEvents from './clipboard'
 import * as pluginEvents from './plugin'
 import * as syncEvents from './sync'
+import * as shareEvents from './share'
 
 // 事件映射
 export const eventsMap = {
@@ -14,6 +15,7 @@ export const eventsMap = {
   clipboard: clipboardEvents,
   plugin: pluginEvents,
   sync: syncEvents,
+  share: shareEvents,
 }
 
 export const handlerKeys: string[] = []
