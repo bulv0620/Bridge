@@ -2,6 +2,7 @@ export class FileStore {
   private list: SharedFileInfo[] = []
 
   async add(file: SharedFileInfo) {
+    await this.cleanupExpired()
     this.list.push(file)
   }
 
@@ -15,6 +16,12 @@ export class FileStore {
   }
 
   async getAll(): Promise<SharedFileInfo[]> {
+    await this.cleanupExpired()
     return this.list
+  }
+
+  private async cleanupExpired() {
+    const now = Date.now()
+    this.list = this.list.filter((file) => file.status.expiresAt > now)
   }
 }
