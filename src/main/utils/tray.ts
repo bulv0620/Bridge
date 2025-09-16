@@ -32,7 +32,7 @@ export function createTray(): Tray {
 
   tray.on('double-click', () => {
     const mainWindow = getWindow('main')
-    mainWindow.show()
+    mainWindow!.show()
   })
 
   return tray
