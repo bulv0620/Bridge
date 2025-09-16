@@ -5,6 +5,7 @@ import { getWindow } from '../../../utils/window'
 
 export class DeviceDiscovery {
   private id: string
+  private platform: NodeJS.Platform
   private port: number
   private interval: number
   private server: dgram.Socket | null
@@ -18,6 +19,7 @@ export class DeviceDiscovery {
 
   constructor(store: FileStore, options: DeviceDiscoveryOptions = {}) {
     this.id = crypto.randomUUID()
+    this.platform = os.platform()
     this.port = options.port ?? 9520
     this.interval = options.interval ?? 2000
     this.server = null
@@ -41,7 +43,7 @@ export class DeviceDiscovery {
     this.server!.on('message', (msg: Buffer, rinfo: RemoteInfo) => {
       const ip = rinfo.address
 
-      let message: ShareInfo
+      let message: BroadcastMessage
 
       try {
         message = JSON.parse(msg.toString())
@@ -54,9 +56,13 @@ export class DeviceDiscovery {
 
       if (!this.onlineDevices[id]) {
         this.onlineDevices[id] = {
+          id,
           ip: ip,
+          platform: message.platform,
           lastSeen: Date.now(),
-          data: message,
+          data: {
+            files: message.files,
+          },
           me: id === this.id,
         }
       } else {
@@ -129,10 +135,10 @@ export class DeviceDiscovery {
    */
   private async broadcastMessage() {
     const files = await this.fileStore.getAll()
-    const message: ShareInfo = {
+    const message: BroadcastMessage = {
       id: this.id,
       files,
-      platform: os.platform(),
+      platform: this.platform,
     }
     const messageStr = JSON.stringify(message)
 

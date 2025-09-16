@@ -1,14 +1,19 @@
-declare interface ShareInfo {
+declare interface BroadcastMessage {
   files: SharedFileInfo[]
-  platform: NodeJS.Platform
   id: string
+  platform: NodeJS.Platform
 }
 
+declare interface OnlineDeviceData {
+  files: SharedFileInfo[]
+}
 declare interface OnlineDevice {
+  id: string
   ip: string
+  platform: NodeJS.Platform
   lastSeen: number
-  data: ShareInfo
   me: boolean
+  data: OnlineDeviceData
 }
 
 declare interface DeviceDiscoveryOptions {
