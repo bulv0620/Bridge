@@ -16,7 +16,6 @@ import dayjs from 'dayjs'
 import { useThemeVars } from 'naive-ui'
 import { changeColor } from 'seemly'
 import { useNow } from '@vueuse/core'
-import { SharedFileInfo } from '@renderer/composables/share-hub/useSharedFileList'
 
 const props = defineProps<{
   file: SharedFileInfo
@@ -26,8 +25,8 @@ const themeVars = useThemeVars()
 const now = useNow({ interval: 1000 })
 
 const expPercentage = computed(() => {
-  const total = props.file.exp - props.file.date
-  const left = props.file.exp - now.value.getTime()
+  const total = props.file.status.expiresAt - props.file.status.createdAt
+  const left = props.file.status.expiresAt - now.value.getTime()
   if (total <= 0) return 0
   return Math.max(0, Math.min(100, (left / total) * 100))
 })
@@ -89,11 +88,11 @@ const progressRailColor = computed(() => {
       <div style="flex: 1; overflow: hidden">
         <n-ellipsis style="width: 100%">{{ file.fileName }}</n-ellipsis>
         <n-text :depth="3" style="font-size: 13px">
-          {{ file.type === 'folder' ? '-' : formatBytes(file.fileSize) }}
+          {{ file.type === 'folder' ? '-' : formatBytes(file.size) }}
         </n-text>
         <br />
         <n-text :depth="3" style="font-size: 13px">
-          {{ dayjs(file.date).format('YYYY-MM-DD HH:mm:ss') }}
+          {{ dayjs(file.status.createdAt).format('YYYY-MM-DD HH:mm:ss') }}
         </n-text>
       </div>
     </div>

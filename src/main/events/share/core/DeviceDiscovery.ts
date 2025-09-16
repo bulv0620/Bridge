@@ -4,9 +4,10 @@ import { FileStore } from '../store/FileStore'
 import { getWindow } from '../../../utils/window'
 
 export class DeviceDiscovery {
+  private id: string
   private port: number
   private interval: number
-  private server: dgram.Socket
+  private server: dgram.Socket | null
 
   private onlineDevices: Record<string, OnlineDevice>
   private timer: NodeJS.Timeout | null
@@ -16,17 +17,17 @@ export class DeviceDiscovery {
   private fileStore: FileStore
 
   constructor(store: FileStore, options: DeviceDiscoveryOptions = {}) {
+    this.id = crypto.randomUUID()
     this.port = options.port ?? 9520
     this.interval = options.interval ?? 2000
-    this.server = dgram.createSocket('udp4')
+    this.server = null
+
     this.onlineDevices = {}
     this.timer = null
     this.debug = options.debug ?? false
     this.running = false
 
     this.fileStore = store
-
-    this.setupListeners()
   }
 
   private log(...args: any[]) {
@@ -37,7 +38,7 @@ export class DeviceDiscovery {
    * 绑定消息监听器
    */
   private setupListeners() {
-    this.server.on('message', (msg: Buffer, rinfo: RemoteInfo) => {
+    this.server!.on('message', (msg: Buffer, rinfo: RemoteInfo) => {
       const ip = rinfo.address
 
       let message: ShareInfo
@@ -49,15 +50,18 @@ export class DeviceDiscovery {
         return
       }
 
-      if (!this.onlineDevices[ip]) {
-        this.onlineDevices[ip] = {
+      const id = message.id
+
+      if (!this.onlineDevices[id]) {
+        this.onlineDevices[id] = {
           ip: ip,
           lastSeen: Date.now(),
           data: message,
+          me: id === this.id,
         }
       } else {
-        this.onlineDevices[ip].lastSeen = Date.now()
-        this.onlineDevices[ip].data = message
+        this.onlineDevices[id].lastSeen = Date.now()
+        this.onlineDevices[id].data = message
       }
 
       const mainWindow = getWindow('main')
@@ -77,8 +81,11 @@ export class DeviceDiscovery {
       return
     }
 
+    this.server = dgram.createSocket('udp4')
+    this.setupListeners()
+
     this.server.bind(this.port, () => {
-      this.server.setBroadcast(true)
+      this.server!.setBroadcast(true)
       this.log(`UDP server listening on port ${this.port}`)
     })
 
@@ -95,7 +102,7 @@ export class DeviceDiscovery {
    * @returns
    */
   public stop() {
-    if (!this.running) {
+    if (!this.running || !this.server) {
       this.log('服务未在运行')
       return
     }
@@ -107,6 +114,7 @@ export class DeviceDiscovery {
 
     try {
       this.server.close()
+      this.server = null
     } catch (err) {
       this.log('关闭 server 出错:', err)
     }
@@ -122,6 +130,7 @@ export class DeviceDiscovery {
   private async broadcastMessage() {
     const files = await this.fileStore.getAll()
     const message: ShareInfo = {
+      id: this.id,
       files,
       platform: os.platform(),
     }
@@ -134,7 +143,7 @@ export class DeviceDiscovery {
     }
 
     for (const addr of broadcastAddresses) {
-      this.server.send(messageStr, 0, messageStr.length, this.port, addr, (err) => {
+      this.server!.send(messageStr, 0, messageStr.length, this.port, addr, (err) => {
         if (err) {
           console.error('Error broadcasting message:', err)
         } else {
@@ -172,9 +181,9 @@ export class DeviceDiscovery {
    */
   private cleanupOfflineDevices() {
     const currentTime = Date.now()
-    Object.keys(this.onlineDevices).forEach((ip) => {
-      if (currentTime - this.onlineDevices[ip].lastSeen > this.interval * 2) {
-        delete this.onlineDevices[ip]
+    Object.keys(this.onlineDevices).forEach((id) => {
+      if (currentTime - this.onlineDevices[id].lastSeen > this.interval * 2) {
+        delete this.onlineDevices[id]
       }
     })
   }

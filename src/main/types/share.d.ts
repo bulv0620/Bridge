@@ -1,12 +1,14 @@
 declare interface ShareInfo {
   files: SharedFileInfo[]
   platform: NodeJS.Platform
+  id: string
 }
 
 declare interface OnlineDevice {
   ip: string
   lastSeen: number
   data: ShareInfo
+  me: boolean
 }
 
 declare interface DeviceDiscoveryOptions {
@@ -20,14 +22,14 @@ declare interface SharedFileInfo {
   id: string
   filePath: string
   fileName: string
+  type: string
   size: number
-  timestamp: Date
   status: Consumption
 }
 
 declare interface Consumption {
   remaining: number
   total: number
-  createdAt: Date
-  expiresAt: Date
+  createdAt: number
+  expiresAt: number
 }

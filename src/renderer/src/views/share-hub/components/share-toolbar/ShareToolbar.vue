@@ -1,7 +1,12 @@
 <script setup lang="ts">
-import { useSettingDrawer } from '@renderer/composables/share-hub/useSettingDrawer'
+import { useSettingForm } from '@renderer/composables/share-hub/useSettingForm'
 
-const { settingsForm } = useSettingDrawer()
+const { enableSharing, enableSharingLoading, showMyFiles, handleUpdateEnableSharing } =
+  useSettingForm()
+
+window.events.on('share:message', (message) => {
+  console.log(message)
+})
 </script>
 
 <template>
@@ -11,7 +16,12 @@ const { settingsForm } = useSettingDrawer()
     label-placement="left"
     size="small"
   >
-    <n-switch v-model:value="settingsForm.enableSharing" />
+    <n-switch
+      :rubber-band="false"
+      :value="enableSharing"
+      :loading="enableSharingLoading"
+      @update:value="handleUpdateEnableSharing"
+    />
   </n-form-item>
   <n-form-item
     :label="$t('views.shareHub.showMyFiles')"
@@ -19,6 +29,6 @@ const { settingsForm } = useSettingDrawer()
     label-placement="left"
     size="small"
   >
-    <n-switch v-model:value="settingsForm.showMyFiles" />
+    <n-switch v-model:value="showMyFiles" />
   </n-form-item>
 </template>

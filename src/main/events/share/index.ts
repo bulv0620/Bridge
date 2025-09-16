@@ -11,4 +11,13 @@ export function start(_: IpcMainInvokeEvent) {
 
 export function stop(_: IpcMainInvokeEvent) {
   deviceDiscovery.stop()
+  fileStore.delAll()
+}
+
+export function addFile(_: IpcMainInvokeEvent, file: SharedFileInfo) {
+  fileStore.add(file)
+}
+
+export function removeFile(_: IpcMainInvokeEvent, file: SharedFileInfo) {
+  fileStore.delById(file.id)
 }
