@@ -3,7 +3,7 @@ import { is } from '@electron-toolkit/utils'
 import { join } from 'path'
 import icon from '../../../resources/icon.png?asset'
 
-const windowInstances = new Map()
+const windowInstances = new Map<string, BrowserWindow>()
 
 export function getWindow(name: string) {
   return windowInstances.get(name)
