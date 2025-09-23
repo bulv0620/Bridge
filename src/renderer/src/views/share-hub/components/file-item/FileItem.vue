@@ -93,7 +93,7 @@ const expireInfo = computed(() => {
 
   // 🌞 light 模式
   &.light {
-    background: #fff;
+    background: rgb(250, 250, 252);
     border: 1px solid rgb(239, 239, 245);
 
     .file-item__name {
