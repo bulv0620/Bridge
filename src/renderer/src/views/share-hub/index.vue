@@ -4,6 +4,7 @@ import { useSettingForm } from '@renderer/composables/share-hub/useSettingForm'
 import NotEnabledWrapper from './components/not-enabled-wrapper/NotEnabledWrapper.vue'
 import FileUploader from './components/file-uploader/FileUploader.vue'
 import FileItem from './components/file-item/FileItem.vue'
+import { LogoWindows } from '@vicons/ionicons5'
 
 defineOptions({
   name: 'ShareHub',
@@ -11,7 +12,7 @@ defineOptions({
 
 const { enableSharing } = useSettingForm()
 
-const mockFiles: SharedFileInfo[] = Array.from({ length: 10 }).map((_, i) => {
+const mockFiles: SharedFileInfo[] = Array.from({ length: 2 }).map((_, i) => {
   const now = Date.now()
   const total = Math.floor(Math.random() * 10) + 1 // 总次数 1~10
   const remaining = Math.floor(Math.random() * total)
@@ -56,7 +57,23 @@ const mockFiles: SharedFileInfo[] = Array.from({ length: 10 }).map((_, i) => {
       <div class="right">
         <n-card :title="$t('views.shareHub.sharedFiles')" class="shared-list" size="small">
           <div class="shared-list__content">
-            <n-empty class="empty" :description="$t('views.shareHub.noFiles')"></n-empty>
+            <n-scrollbar v-if="mockFiles.length > 0" style="height: 100%">
+              <n-collapse>
+                <n-collapse-item title="192.168.1.105" name="1">
+                  <FileItem v-for="item in mockFiles" :key="item.id" :file-item="item"></FileItem>
+                  <template #header-extra>
+                    <n-icon><LogoWindows></LogoWindows></n-icon>
+                  </template>
+                </n-collapse-item>
+                <n-collapse-item title="192.168.1.110" name="2">
+                  <FileItem v-for="item in mockFiles" :key="item.id" :file-item="item"></FileItem>
+                  <template #header-extra>
+                    <n-icon><LogoWindows></LogoWindows></n-icon>
+                  </template>
+                </n-collapse-item>
+              </n-collapse>
+            </n-scrollbar>
+            <n-empty v-else class="empty" :description="$t('views.shareHub.noFiles')"></n-empty>
           </div>
         </n-card>
       </div>
