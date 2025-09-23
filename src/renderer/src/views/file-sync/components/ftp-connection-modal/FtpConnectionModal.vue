@@ -24,7 +24,7 @@ const {
     :title="$t('views.fileSync.ftpConfig')"
     :mask-closable="false"
   >
-    <n-steps size="small" :current="currentStep" style="margin-bottom: 18px">
+    <n-steps size="small" :current="currentStep" style="margin-bottom: 18px; margin-top: 4px">
       <n-step :title="$t('views.fileSync.ftpConfig')" />
       <n-step :title="$t('views.fileSync.selectPath')" />
     </n-steps>
