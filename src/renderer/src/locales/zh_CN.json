@@ -185,7 +185,12 @@
       "deviceList": "设备列表",
       "noDevice": "没有在线的设备",
       "transferTasks": "传输任务",
-      "transferTaskList": "任务列表"
+      "transferTaskList": "任务列表",
+      "myShared": "我的共享",
+      "sharedFiles": "共享文件",
+      "expirationTime": "过期",
+      "noFiles": "无文件",
+      "uploadTip": "点击或者拖动文件到该区域来上传"
     },
     "pluginCenter": {
       "title": "插件中心",

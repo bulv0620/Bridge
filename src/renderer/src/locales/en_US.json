@@ -185,7 +185,12 @@
       "deviceList": "Devices",
       "noDevice": "No online devices",
       "transferTasks": "Transfer Tasks",
-      "transferTaskList": "Tasks"
+      "transferTaskList": "Tasks",
+      "myShared": "My shared files",
+      "sharedFiles": "Shared Files",
+      "expirationTime": "Expires At",
+      "noFiles": "No Files",
+      "uploadTip": "Click or drag files into this area to upload"
     },
     "pluginCenter": {
       "title": "Plugin Center",

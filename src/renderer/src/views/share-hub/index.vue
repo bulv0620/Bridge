@@ -2,13 +2,36 @@
 import ShareToolbar from './components/share-toolbar/ShareToolbar.vue'
 import { useSettingForm } from '@renderer/composables/share-hub/useSettingForm'
 import NotEnabledWrapper from './components/not-enabled-wrapper/NotEnabledWrapper.vue'
-import { ArchiveOutline as ArchiveIcon } from '@vicons/ionicons5'
+import FileUploader from './components/file-uploader/FileUploader.vue'
+import FileItem from './components/file-item/FileItem.vue'
 
 defineOptions({
   name: 'ShareHub',
 })
 
 const { enableSharing } = useSettingForm()
+
+const mockFiles: SharedFileInfo[] = Array.from({ length: 10 }).map((_, i) => {
+  const now = Date.now()
+  const total = Math.floor(Math.random() * 10) + 1 // 总次数 1~10
+  const remaining = Math.floor(Math.random() * total)
+
+  const type = ['txt', 'jpg', 'mp4', 'pdf'][i % 4]
+
+  return {
+    id: `file-${i + 1}`,
+    filePath: `/mock/path/file-${i + 1}.txt`,
+    fileName: `file-${i + 1}.${type}`,
+    type: type,
+    size: Math.floor(Math.random() * 1024 * 1024), // 0~1MB 随机大小
+    status: {
+      remaining,
+      total,
+      createdAt: now,
+      expiresAt: now + 1000 * 60 * 60 * 24 * (Math.floor(Math.random() * 7) + 1), // 1~7 天后过期
+    },
+  }
+})
 </script>
 
 <template>
@@ -20,32 +43,20 @@ const { enableSharing } = useSettingForm()
 
     <div v-if="enableSharing" class="main">
       <div class="left">
-        <n-upload
-          multiple
-          directory-dnd
-          action="https://www.mocky.io/v2/5e4bafc63100007100d8b70f"
-          :max="5"
-          :show-file-list="false"
-        >
-          <n-upload-dragger>
-            <div style="margin-bottom: 12px">
-              <n-icon size="48" :depth="3">
-                <ArchiveIcon />
-              </n-icon>
-            </div>
-            <n-text style="font-size: 16px"> 点击或者拖动文件到该区域来上传 </n-text>
-          </n-upload-dragger>
-        </n-upload>
-        <n-card title="已共享文件" class="my-shared-list" size="small">
+        <FileUploader></FileUploader>
+        <n-card :title="$t('views.shareHub.myShared')" class="my-shared-list" size="small">
           <div class="my-shared-list__content">
-            <n-empty class="empty" description="No File"></n-empty>
+            <n-scrollbar v-if="mockFiles.length > 0" style="height: 100%">
+              <FileItem v-for="item in mockFiles" :key="item.id" :file-item="item"></FileItem>
+            </n-scrollbar>
+            <n-empty v-else class="empty" :description="$t('views.shareHub.noFiles')"></n-empty>
           </div>
         </n-card>
       </div>
       <div class="right">
-        <n-card title="共享文件" class="shared-list" size="small">
+        <n-card :title="$t('views.shareHub.sharedFiles')" class="shared-list" size="small">
           <div class="shared-list__content">
-            <n-empty class="empty" description="No File"></n-empty>
+            <n-empty class="empty" :description="$t('views.shareHub.noFiles')"></n-empty>
           </div>
         </n-card>
       </div>
@@ -85,7 +96,7 @@ const { enableSharing } = useSettingForm()
         flex: 1;
         overflow: hidden;
 
-        &__content {
+        .my-shared-list__content {
           height: 100%;
           position: relative;
 
@@ -106,7 +117,7 @@ const { enableSharing } = useSettingForm()
       .shared-list {
         height: 100%;
 
-        &__content {
+        .shared-list__content {
           height: 100%;
           position: relative;
 
@@ -120,5 +131,11 @@ const { enableSharing } = useSettingForm()
       }
     }
   }
+}
+</style>
+
+<style>
+.n-card > .n-card__content {
+  overflow: hidden;
 }
 </style>
