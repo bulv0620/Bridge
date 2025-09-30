@@ -113,7 +113,7 @@ const expireInfo = computed(() => {
 .file-item {
   margin-bottom: 10px;
   padding: 10px 14px;
-  border-radius: 8px;
+  border-radius: 3px;
   display: flex;
   align-items: center;
   gap: 10px;

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import ShareToolbar from './components/share-toolbar/ShareToolbar.vue'
-import { useSettingForm } from '@renderer/composables/share-hub/useSettingForm'
+import { useSharing } from '@renderer/composables/share-hub/useSharing'
 import NotEnabledWrapper from './components/not-enabled-wrapper/NotEnabledWrapper.vue'
 import FileUploader from './components/file-uploader/FileUploader.vue'
 import FileUploadModal from './components/file-upload-modal/FileUploadModal.vue'
@@ -11,7 +11,7 @@ defineOptions({
   name: 'ShareHub',
 })
 
-const { enableSharing } = useSettingForm()
+const { enableSharing } = useSharing()
 </script>
 
 <template>

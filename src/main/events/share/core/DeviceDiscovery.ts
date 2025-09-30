@@ -21,7 +21,7 @@ export class DeviceDiscovery {
     this.id = crypto.randomUUID()
     this.platform = os.platform()
     this.port = options.port ?? 9520
-    this.interval = options.interval ?? 2000
+    this.interval = options.interval ?? 1000
     this.server = null
 
     this.onlineDevices = {}
@@ -71,11 +71,6 @@ export class DeviceDiscovery {
           files: message.files,
         }
       }
-
-      const mainWindow = getWindow('main')
-      mainWindow!.webContents.send('share:message', {
-        onlineDevices: this.getOnlineDevices(),
-      })
     })
   }
 
@@ -100,6 +95,10 @@ export class DeviceDiscovery {
     this.timer = setInterval(() => {
       this.broadcastMessage()
       this.cleanupOfflineDevices()
+      const mainWindow = getWindow('main')
+      mainWindow!.webContents.send('share:message', {
+        onlineDevices: this.getOnlineDevices(),
+      })
     }, this.interval)
 
     this.running = true
@@ -202,5 +201,13 @@ export class DeviceDiscovery {
    */
   public getOnlineDevices(): OnlineDevice[] {
     return Object.values(this.onlineDevices)
+  }
+
+  /**
+   * 获取我的设备
+   * @returns
+   */
+  public getMyDevice(): OnlineDevice {
+    return this.onlineDevices[this.id]
   }
 }

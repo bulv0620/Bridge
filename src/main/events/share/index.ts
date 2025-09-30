@@ -16,6 +16,7 @@ export function stop(_: IpcMainInvokeEvent) {
 
 export function addFile(_: IpcMainInvokeEvent, file: SharedFileInfo) {
   fileStore.add(file)
+  deviceDiscovery.getMyDevice().data.files.push(file)
 }
 
 export function removeFile(_: IpcMainInvokeEvent, file: SharedFileInfo) {

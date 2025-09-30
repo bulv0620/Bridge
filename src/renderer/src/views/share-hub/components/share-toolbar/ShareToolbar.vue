@@ -1,11 +1,7 @@
 <script setup lang="ts">
-import { useSettingForm } from '@renderer/composables/share-hub/useSettingForm'
+import { useSharing } from '@renderer/composables/share-hub/useSharing'
 
-const { enableSharing, enableSharingLoading, handleUpdateEnableSharing } = useSettingForm()
-
-window.events.on('share:message', (message) => {
-  console.log(message)
-})
+const { enableSharing, enableSharingLoading, handleUpdateEnableSharing } = useSharing()
 </script>
 
 <template>
