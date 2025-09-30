@@ -190,7 +190,17 @@
       "sharedFiles": "Shared Files",
       "expirationTime": "Expires At",
       "noFiles": "No Files",
-      "uploadTip": "Click or drag files into this area to upload"
+      "uploadTip": "Click or drag files into this area to upload",
+      "fileUpload": "File Upload",
+      "totalRequired": "Please enter consumption count",
+      "totalPositive": "Consumption count must be greater than 0",
+      "expiresAtRequired": "Please select expiration time",
+      "fileName": "File Name",
+      "filePath": "File Path",
+      "total": "Consumption Count",
+      "totalPlaceholder": "Enter consumption count",
+      "expiresAtPlaceholder": "Select expiration time",
+      "expiresAt": "Expiration Time"
     },
     "pluginCenter": {
       "title": "Plugin Center",

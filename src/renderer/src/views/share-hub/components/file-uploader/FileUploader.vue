@@ -1,15 +1,32 @@
 <script setup lang="ts">
+import { useUpload } from '@renderer/composables/share-hub/useUpload'
 import { ArchiveOutline as ArchiveIcon } from '@vicons/ionicons5'
+import { UploadCustomRequestOptions } from 'naive-ui'
+
+const { openUploadModal } = useUpload()
+
+function customRequest({ file, onFinish }: UploadCustomRequestOptions) {
+  const fileInfo: SharedFileInfo = {
+    id: file.id,
+    filePath: file.file!.path,
+    fileName: file.name,
+    type: file.type!,
+    size: file.file!.size,
+    status: {
+      remaining: 1,
+      total: 1,
+      createdAt: new Date().getTime(),
+      expiresAt: new Date().getTime() + 1000 * 60 * 5,
+    },
+  }
+
+  openUploadModal(fileInfo)
+  onFinish()
+}
 </script>
 
 <template>
-  <n-upload
-    multiple
-    directory-dnd
-    action="https://www.mocky.io/v2/5e4bafc63100007100d8b70f"
-    :max="5"
-    :show-file-list="false"
-  >
+  <n-upload directory-dnd :custom-request="customRequest" :show-file-list="false">
     <n-upload-dragger>
       <div style="margin-bottom: 12px">
         <n-icon size="48" :depth="3">

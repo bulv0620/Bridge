@@ -4,6 +4,7 @@ import { useSettingForm } from '@renderer/composables/share-hub/useSettingForm'
 import NotEnabledWrapper from './components/not-enabled-wrapper/NotEnabledWrapper.vue'
 import FileUploader from './components/file-uploader/FileUploader.vue'
 import FileItem from './components/file-item/FileItem.vue'
+import FileUploadModal from './components/file-upload-modal/FileUploadModal.vue'
 import { LogoWindows } from '@vicons/ionicons5'
 
 defineOptions({
@@ -80,6 +81,7 @@ const mockFiles: SharedFileInfo[] = Array.from({ length: 2 }).map((_, i) => {
     </div>
     <NotEnabledWrapper v-else> </NotEnabledWrapper>
   </div>
+  <FileUploadModal></FileUploadModal>
 </template>
 
 <style lang="less" scoped>

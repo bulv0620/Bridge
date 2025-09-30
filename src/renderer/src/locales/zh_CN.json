@@ -190,7 +190,17 @@
       "sharedFiles": "共享文件",
       "expirationTime": "过期",
       "noFiles": "无文件",
-      "uploadTip": "点击或者拖动文件到该区域来上传"
+      "uploadTip": "点击或者拖动文件到该区域来上传",
+      "fileUpload": "文件上传",
+      "totalRequired": "请输入可消费次数",
+      "totalPositive": "可消费次数必须大于 0",
+      "expiresAtRequired": "请选择过期时间",
+      "fileName": "文件名",
+      "filePath": "文件路径",
+      "total": "可消费次数",
+      "totalPlaceholder": "请输入可消费次数",
+      "expiresAt": "过期时间",
+      "expiresAtPlaceholder": "请选择过期时间"
     },
     "pluginCenter": {
       "title": "插件中心",

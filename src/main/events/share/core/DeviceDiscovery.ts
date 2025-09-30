@@ -67,7 +67,9 @@ export class DeviceDiscovery {
         }
       } else {
         this.onlineDevices[id].lastSeen = Date.now()
-        this.onlineDevices[id].data = message
+        this.onlineDevices[id].data = {
+          files: message.files,
+        }
       }
 
       const mainWindow = getWindow('main')
