@@ -4,7 +4,7 @@ import { CloudOfflineOutline } from '@vicons/ionicons5'
 
 <template>
   <div class="empty-main">
-    <n-empty description="未开启共享" size="huge">
+    <n-empty :description="$t('views.shareHub.notEnabled')" size="huge">
       <template #icon>
         <n-icon>
           <CloudOfflineOutline />

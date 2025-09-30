@@ -200,7 +200,8 @@
       "total": "Consumption Count",
       "totalPlaceholder": "Enter consumption count",
       "expiresAtPlaceholder": "Select expiration time",
-      "expiresAt": "Expiration Time"
+      "expiresAt": "Expiration Time",
+      "notEnabled": "Sharing not enabled"
     },
     "pluginCenter": {
       "title": "Plugin Center",

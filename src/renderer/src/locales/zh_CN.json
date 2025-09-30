@@ -200,7 +200,8 @@
       "total": "可消费次数",
       "totalPlaceholder": "请输入可消费次数",
       "expiresAt": "过期时间",
-      "expiresAtPlaceholder": "请选择过期时间"
+      "expiresAtPlaceholder": "请选择过期时间",
+      "notEnabled": "未开启共享"
     },
     "pluginCenter": {
       "title": "插件中心",
