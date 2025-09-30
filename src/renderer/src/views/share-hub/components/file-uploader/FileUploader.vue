@@ -26,7 +26,7 @@ function customRequest({ file, onFinish }: UploadCustomRequestOptions) {
 </script>
 
 <template>
-  <n-upload directory-dnd :custom-request="customRequest" :show-file-list="false">
+  <n-upload :custom-request="customRequest" :show-file-list="false">
     <n-upload-dragger>
       <div style="margin-bottom: 12px">
         <n-icon size="48" :depth="3">
