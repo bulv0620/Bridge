@@ -20,6 +20,10 @@ export class FileStore {
     return this.list
   }
 
+  async getById(id: string) {
+    return this.list.find((file) => file.id === id)
+  }
+
   private async cleanupExpired() {
     const now = Date.now()
     this.list = this.list.filter((file) => file.status.expiresAt > now)

@@ -3,6 +3,13 @@ import os from 'os'
 import { FileStore } from '../store/FileStore'
 import { getWindow } from '../../../utils/window'
 
+export interface DeviceDiscoveryOptions {
+  channel?: string
+  port?: number
+  interval?: number
+  debug?: boolean
+}
+
 export class DeviceDiscovery {
   private id: string
   private platform: NodeJS.Platform

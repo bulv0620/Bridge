@@ -16,13 +16,6 @@ declare interface OnlineDevice {
   data: OnlineDeviceData
 }
 
-declare interface DeviceDiscoveryOptions {
-  channel?: string
-  port?: number
-  interval?: number
-  debug?: boolean
-}
-
 declare interface SharedFileInfo {
   id: string
   filePath: string
