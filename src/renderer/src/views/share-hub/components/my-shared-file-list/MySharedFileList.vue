@@ -9,7 +9,12 @@ const { myDevice } = useSharing()
   <n-card :title="$t('views.shareHub.myShared')" class="my-shared-list" size="small">
     <div class="my-shared-list__content">
       <n-scrollbar v-if="myDevice && myDevice.data.files.length > 0" style="height: 100%">
-        <FileItem v-for="item in myDevice.data.files" :key="item.id" :file-item="item"></FileItem>
+        <FileItem
+          v-for="item in myDevice.data.files"
+          :key="item.id"
+          :file-item="item"
+          mine
+        ></FileItem>
       </n-scrollbar>
       <n-empty v-else class="empty" :description="$t('views.shareHub.noFiles')"></n-empty>
     </div>

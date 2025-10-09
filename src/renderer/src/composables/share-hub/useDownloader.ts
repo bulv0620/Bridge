@@ -1,8 +1,11 @@
+import { useMessage } from 'naive-ui'
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 export interface DownloaderOptions {
   fileId: string
-  serverUrl: string
+  serverIp: string
+  serverPort: number
   chunkSize?: number
   maxConcurrent?: number
   onFinish?: () => void
@@ -18,7 +21,17 @@ function parseFileName(contentDisposition: string | null) {
 }
 
 export function useDownloader(options: DownloaderOptions) {
-  const { fileId, serverUrl, chunkSize = 2 * 1024 * 1024, maxConcurrent = 4, onFinish } = options
+  const message = useMessage()
+  const { t } = useI18n()
+
+  const {
+    fileId,
+    serverIp,
+    serverPort,
+    chunkSize = 50 * 1024 * 1024,
+    maxConcurrent = 1,
+    onFinish,
+  } = options
 
   const progress = ref(0)
   let chunks: { start: number; end: number; index: number }[] = []
@@ -27,22 +40,31 @@ export function useDownloader(options: DownloaderOptions) {
   const totalSize = ref(0)
   const paused = ref(false)
   const downloading = ref(false)
+  const finished = ref(false)
 
   async function getFileSizeAndName() {
-    const res = await fetch(`${serverUrl}/download/${fileId}`, { method: 'HEAD' })
+    const res = await fetch(`http://${serverIp}:${serverPort}/download/${fileId}`, {
+      method: 'HEAD',
+    })
     const size = res.headers.get('content-length')
     const disposition = res.headers.get('content-disposition')
     fileName = parseFileName(disposition)
-    if (!size) throw new Error('无法获取文件大小')
+    if (!size) {
+      message.error(t('views.shareHub.getSizeFailed'))
+      throw new Error('Unable to get file size')
+    }
     return parseInt(size, 10)
   }
 
   async function downloadChunk(start: number, end: number, index: number) {
     if (downloadedChunks[index]) return downloadedChunks[index]
-    const res = await fetch(`${serverUrl}/download/${fileId}`, {
+    const res = await fetch(`http://${serverIp}:${serverPort}download/${fileId}`, {
       headers: { Range: `bytes=${start}-${end}` },
     })
-    if (!res.ok && res.status !== 206) throw new Error(`分片下载失败: ${res.status}`)
+    if (!res.ok && res.status !== 206) {
+      message.error(t('views.shareHub.chunkDownloadFailed'))
+      throw new Error(`Unable to download chunk: ${res.status}`)
+    }
     const reader = res.body!.getReader()
     const chunkArr: BlobPart[] = []
     let received = 0
@@ -101,6 +123,7 @@ export function useDownloader(options: DownloaderOptions) {
     a.click()
     URL.revokeObjectURL(a.href)
 
+    finished.value = true
     onFinish?.()
   }
 
@@ -121,6 +144,7 @@ export function useDownloader(options: DownloaderOptions) {
     progress,
     paused,
     downloading,
+    finished,
     totalSize,
   }
 }

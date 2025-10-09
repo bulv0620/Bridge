@@ -5,7 +5,8 @@ import { getWindow } from '../../../utils/window'
 
 export interface DeviceDiscoveryOptions {
   channel?: string
-  port?: number
+  udpPort?: number
+  httpPort?: number
   interval?: number
   debug?: boolean
 }
@@ -13,7 +14,8 @@ export interface DeviceDiscoveryOptions {
 export class DeviceDiscovery {
   private id: string
   private platform: NodeJS.Platform
-  private port: number
+  private udpPort: number
+  private httpPort: number
   private interval: number
   private server: dgram.Socket | null
 
@@ -27,7 +29,8 @@ export class DeviceDiscovery {
   constructor(store: FileStore, options: DeviceDiscoveryOptions = {}) {
     this.id = crypto.randomUUID()
     this.platform = os.platform()
-    this.port = options.port ?? 9520
+    this.udpPort = options.udpPort ?? 9520
+    this.httpPort = options.httpPort ?? 9520
     this.interval = options.interval ?? 1000
     this.server = null
 
@@ -65,6 +68,8 @@ export class DeviceDiscovery {
         this.onlineDevices[id] = {
           id,
           ip: ip,
+          udpPort: this.udpPort,
+          httpPort: this.httpPort,
           platform: message.platform,
           lastSeen: Date.now(),
           data: {
@@ -94,9 +99,9 @@ export class DeviceDiscovery {
     this.server = dgram.createSocket('udp4')
     this.setupListeners()
 
-    this.server.bind(this.port, () => {
+    this.server.bind(this.udpPort, () => {
       this.server!.setBroadcast(true)
-      this.log(`UDP server listening on port ${this.port}`)
+      this.log(`UDP server listening on port ${this.udpPort}`)
     })
 
     this.timer = setInterval(() => {
@@ -157,11 +162,11 @@ export class DeviceDiscovery {
     }
 
     for (const addr of broadcastAddresses) {
-      this.server!.send(messageStr, 0, messageStr.length, this.port, addr, (err) => {
+      this.server!.send(messageStr, 0, messageStr.length, this.udpPort, addr, (err) => {
         if (err) {
           console.error('Error broadcasting message:', err)
         } else {
-          this.log(`广播到 ${addr}:${this.port}`)
+          this.log(`广播到 ${addr}:${this.udpPort}`)
         }
       })
     }

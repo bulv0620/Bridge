@@ -17,7 +17,12 @@ const { otherDevices } = useSharing()
             :title="device.ip"
             :name="device.id"
           >
-            <FileItem v-for="item in device.data.files" :key="item.id" :file-item="item"></FileItem>
+            <FileItem
+              v-for="item in device.data.files"
+              :key="item.id"
+              :file-item="item"
+              :device="device"
+            ></FileItem>
             <template #header-extra>
               <n-icon>
                 <LogoWindows v-if="device.platform === 'win32'"></LogoWindows>

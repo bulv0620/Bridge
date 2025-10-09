@@ -10,6 +10,8 @@ declare interface OnlineDeviceData {
 declare interface OnlineDevice {
   id: string
   ip: string
+  udpPort: number
+  httpPort: number
   platform: NodeJS.Platform
   lastSeen: number
   mine: boolean

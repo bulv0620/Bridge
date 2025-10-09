@@ -22,7 +22,7 @@ export class FileServer {
   private server: Server | null = null
 
   constructor(store: FileStore, options: FileServerOptions = {}) {
-    this.port = options.port ?? 9525
+    this.port = options.port ?? 9520
     this.fileStore = store
     this.app = express()
 

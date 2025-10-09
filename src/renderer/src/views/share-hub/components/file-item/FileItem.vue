@@ -7,15 +7,17 @@ import {
   MusicalNotes,
   CodeSlash,
   DocumentText,
-  TrashBinOutline,
 } from '@vicons/ionicons5'
 import { computed } from 'vue'
 import dayjs from 'dayjs'
 import { useTheme } from '@renderer/composables/setting/useTheme'
+import FileActionButton from './file-action-button/FileActionButton.vue'
+import FileDownloadButton from './file-download-button.vue/FileDownloadButton.vue'
 
 const props = defineProps<{
   fileItem: SharedFileInfo
   mine?: boolean
+  device?: OnlineDevice
 }>()
 
 const { currentTheme } = useTheme()
@@ -99,13 +101,8 @@ const expireInfo = computed(() => {
       </div>
     </div>
     <div class="operation">
-      <CommonButton
-        tooltip="取消共享"
-        :icon="TrashBinOutline"
-        :button-props="{ size: 'small', circle: true, secondary: true }"
-        placement="bottom"
-        :delay="500"
-      />
+      <FileActionButton v-if="mine" :file-item="fileItem"></FileActionButton>
+      <FileDownloadButton v-else :file-item="fileItem" :device="device!"></FileDownloadButton>
     </div>
   </div>
 </template>

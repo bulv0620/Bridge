@@ -201,7 +201,9 @@
       "totalPlaceholder": "Enter consumption count",
       "expiresAtPlaceholder": "Select expiration time",
       "expiresAt": "Expiration Time",
-      "notEnabled": "Sharing not enabled"
+      "notEnabled": "Sharing not enabled",
+      "getSizeFailed": "Unable to get file size",
+      "chunkDownloadFailed": "Unable to download chunk"
     },
     "pluginCenter": {
       "title": "Plugin Center",

@@ -201,7 +201,9 @@
       "totalPlaceholder": "请输入可消费次数",
       "expiresAt": "过期时间",
       "expiresAtPlaceholder": "请选择过期时间",
-      "notEnabled": "未开启共享"
+      "notEnabled": "未开启共享",
+      "getSizeFailed": "无法获取文件大小",
+      "chunkDownloadFailed": "分片下载失败"
     },
     "pluginCenter": {
       "title": "插件中心",
