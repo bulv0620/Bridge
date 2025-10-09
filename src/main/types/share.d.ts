@@ -12,7 +12,7 @@ declare interface OnlineDevice {
   ip: string
   platform: NodeJS.Platform
   lastSeen: number
-  me: boolean
+  mine: boolean
   data: OnlineDeviceData
 }
 

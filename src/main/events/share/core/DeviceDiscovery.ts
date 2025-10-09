@@ -63,7 +63,7 @@ export class DeviceDiscovery {
           data: {
             files: message.files,
           },
-          me: id === this.id,
+          mine: id === this.id,
         }
       } else {
         this.onlineDevices[id].lastSeen = Date.now()

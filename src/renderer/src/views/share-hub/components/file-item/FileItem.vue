@@ -15,6 +15,7 @@ import { useTheme } from '@renderer/composables/setting/useTheme'
 
 const props = defineProps<{
   fileItem: SharedFileInfo
+  mine?: boolean
 }>()
 
 const { currentTheme } = useTheme()

@@ -5,11 +5,11 @@ const enableSharingLoading = ref(false)
 const onlineDevices = ref<OnlineDevice[]>([])
 
 const myDevice = computed(() => {
-  return onlineDevices.value.find((device) => device.me)
+  return onlineDevices.value.find((device) => device.mine)
 })
 
 const otherDevices = computed(() => {
-  return onlineDevices.value.filter((device) => !device.me)
+  return onlineDevices.value.filter((device) => !device.mine)
 })
 
 async function handleUpdateEnableSharing(val: boolean) {
@@ -51,7 +51,7 @@ window.events.on('share:message', (message: { onlineDevices: OnlineDevice[] }) =
     if (updated) {
       existing.lastSeen = updated.lastSeen
       existing.data = updated.data
-      existing.me = updated.me
+      existing.mine = updated.mine
       existing.ip = updated.ip
       existing.platform = updated.platform
 

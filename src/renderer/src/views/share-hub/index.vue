@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ShareToolbar from './components/share-toolbar/ShareToolbar.vue'
 import { useSharing } from '@renderer/composables/share-hub/useSharing'
-import NotEnabledWrapper from './components/not-enabled-wrapper/NotEnabledWrapper.vue'
+import NotEnabledBox from './components/not-enabled-box/NotEnabledBox.vue'
 import FileUploader from './components/file-uploader/FileUploader.vue'
 import FileUploadModal from './components/file-upload-modal/FileUploadModal.vue'
 import MySharedFileList from './components/my-shared-file-list/MySharedFileList.vue'
@@ -30,7 +30,7 @@ const { enableSharing } = useSharing()
         <SharedFileList></SharedFileList>
       </div>
     </div>
-    <NotEnabledWrapper v-else> </NotEnabledWrapper>
+    <NotEnabledBox v-else> </NotEnabledBox>
   </div>
   <FileUploadModal></FileUploadModal>
 </template>
