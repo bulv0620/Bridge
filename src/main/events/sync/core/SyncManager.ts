@@ -102,7 +102,7 @@ export class SyncManager {
     const byteChangeValue = diffItem.transferBytes - transferByteTemp
     this.totalBytes += byteChangeValue
 
-    await this.diffStore.update(diffItem)
+    await this.diffStore.updateById(diffItem.id, diffItem)
 
     return {
       totalBytes: this.totalBytes,
@@ -310,7 +310,7 @@ export class SyncManager {
         this.transferredCount++
       }
 
-      sendToRenderer(mainWindow, 'sync:updateStatus', {
+      sendToRenderer(mainWindow!, 'sync:updateStatus', {
         bytesTransferred: this.bytesTransferred,
         transferredCount: this.transferredCount,
       })

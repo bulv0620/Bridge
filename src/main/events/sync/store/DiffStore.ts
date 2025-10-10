@@ -36,8 +36,9 @@ export class DiffStore {
     this.deletedIds.clear()
   }
 
-  async update(diffItem: FileDifference) {
-    const item = this.getById(diffItem.id)
+  async updateById(id: string, diffItem: FileDifference) {
+    if (this.deletedIds.has(id)) return
+    const item = this.idIndex.get(id)
     if (item) {
       Object.assign(item, diffItem)
     }
@@ -55,7 +56,7 @@ export class DiffStore {
       const diffItem = this.list[i]
 
       if (!this.deletedIds.has(diffItem.id)) {
-        return diffItem
+        return structuredClone(diffItem)
       }
 
       i--
@@ -66,15 +67,18 @@ export class DiffStore {
 
   async getById(id: string): Promise<FileDifference | undefined> {
     if (this.deletedIds.has(id)) return
-    return this.idIndex.get(id)
+    const item = this.idIndex.get(id)
+    return item ? structuredClone(item) : undefined
   }
 
   async getChildren(parentId: string | null): Promise<FileDifference[]> {
     const pid = parentId ?? ROOT_KEY
-    return (this.parentIdIndex.get(pid) || []).filter((item) => !this.deletedIds.has(item.id))
+    return structuredClone(
+      (this.parentIdIndex.get(pid) || []).filter((item) => !this.deletedIds.has(item.id)),
+    )
   }
 
   async getAll(): Promise<FileDifference[]> {
-    return this.list.filter((item) => !this.deletedIds.has(item.id))
+    return structuredClone(this.list.filter((item) => !this.deletedIds.has(item.id)))
   }
 }
