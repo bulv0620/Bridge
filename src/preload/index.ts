@@ -1,6 +1,7 @@
 import { contextBridge } from 'electron'
 import { on, off, once } from './listener'
 import { generateApi } from './handler'
+import { remoteRefBridge } from './remoteRefBridge'
 
 generateApi().then((ipc) => {
   if (process.contextIsolated) {
@@ -11,6 +12,7 @@ generateApi().then((ipc) => {
         off,
         once,
       })
+      contextBridge.exposeInMainWorld('remoteRef', remoteRefBridge)
     } catch (error) {
       console.error(error)
     }
@@ -23,5 +25,7 @@ generateApi().then((ipc) => {
       off,
       once,
     }
+    // @ts-ignore (define in dts)
+    window.remoteRef = remoteRefBridge
   }
 })

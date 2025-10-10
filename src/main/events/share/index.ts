@@ -25,11 +25,3 @@ export function stop(_: IpcMainInvokeEvent) {
   fileServer.stop()
   fileStore.delAll()
 }
-
-export function addFile(_: IpcMainInvokeEvent, file: SharedFileInfo) {
-  fileStore.add(file)
-}
-
-export function removeFile(_: IpcMainInvokeEvent, file: SharedFileInfo) {
-  fileStore.delById(file.id)
-}

@@ -1,39 +1,44 @@
+import { remoteRef, RemoteRefMain } from '../../../utils/remoteRef'
+import { getWindow } from '../../../utils/window'
+
 export class FileStore {
-  private list: SharedFileInfo[] = []
+  private list: RemoteRefMain<SharedFileInfo[]>
+
+  constructor() {
+    const mainWindow = getWindow('main')
+    this.list = remoteRef(mainWindow!, 'shared-file-list', [])
+  }
 
   async add(file: SharedFileInfo) {
     await this.cleanupExpired()
-    this.list.push(file)
+    this.list.value = [...this.list.value, file]
   }
 
   async delById(id: string) {
-    const index = this.list.findIndex((el) => el.id === id)
-    this.list.splice(index, 1)
+    this.list.value = this.list.value.filter((el) => el.id !== id)
   }
 
   async delAll() {
-    this.list = []
+    this.list.value = []
+  }
+
+  async updateById(id: string, file: SharedFileInfo) {
+    const list = this.list.value.map((el) => (el.id === id ? file : el))
+    this.list.value = list
   }
 
   async getAll(): Promise<SharedFileInfo[]> {
     await this.cleanupExpired()
-    return structuredClone(this.list)
+    return structuredClone(this.list.value)
   }
 
   async getById(id: string) {
-    const file = this.list.find((file) => file.id === id)
+    const file = this.list.value.find((file) => file.id === id)
     return file ? structuredClone(file) : undefined
-  }
-
-  async updateById(id: string, file: SharedFileInfo) {
-    const index = this.list.findIndex((el) => el.id === id)
-    if (index !== -1) {
-      this.list[index] = file
-    }
   }
 
   private async cleanupExpired() {
     const now = Date.now()
-    this.list = this.list.filter((file) => file.status.expiresAt > now)
+    this.list.value = this.list.value.filter((file) => file.status.expiresAt > now)
   }
 }

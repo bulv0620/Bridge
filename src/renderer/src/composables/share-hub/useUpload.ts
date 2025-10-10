@@ -1,5 +1,5 @@
 import FileUploadForm from '@renderer/views/share-hub/components/file-upload-modal/file-upload-form/FileUploadForm.vue'
-import { ref, toRaw } from 'vue'
+import { ref } from 'vue'
 import { useSharing } from './useSharing'
 
 const { mySharedFiles } = useSharing()
@@ -30,7 +30,6 @@ async function confirmUpload() {
   uploadLoading.value = true
   try {
     await uploadFormRef.value?.validate()
-    await window.ipc.share.addFile(toRaw(uploadForm.value))
     mySharedFiles.value.push(uploadForm.value)
 
     uploadModalVisible.value = false

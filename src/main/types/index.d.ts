@@ -1,4 +1,5 @@
 import type { EventsMapType } from '../events/eventLoader'
+import { remoteRefBridge } from '../../preload/remoteRefBridge'
 
 // 去掉 IpcMainInvokeEvent（第一个参数）
 type StripFirstArg<F> = F extends (first: any, ...args: infer P) => infer R
@@ -21,6 +22,7 @@ export interface EventsApi {
 
 declare global {
   interface Window {
+    remoteRef: typeof remoteRefBridge
     ipc: IpcApi
     events: EventsApi
   }

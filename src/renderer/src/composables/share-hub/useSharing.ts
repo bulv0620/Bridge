@@ -1,8 +1,9 @@
 import { ref, watch } from 'vue'
+import { useRemoteRef } from '../remote-ref/useRemoteRef'
 
 const enableSharing = ref(false)
 const enableSharingLoading = ref(false)
-const mySharedFiles = ref<SharedFileInfo[]>([])
+const mySharedFiles = useRemoteRef<SharedFileInfo[]>('shared-file-list', [])
 const onlineDevices = ref<OnlineDevice[]>([])
 
 async function handleUpdateEnableSharing(val: boolean) {

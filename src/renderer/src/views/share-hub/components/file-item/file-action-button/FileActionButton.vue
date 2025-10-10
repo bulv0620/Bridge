@@ -2,7 +2,7 @@
 import { useDiscreteApi } from '@renderer/composables/discrete-api/useDiscreteApi'
 import { useSharing } from '@renderer/composables/share-hub/useSharing'
 import { TrashBinOutline } from '@vicons/ionicons5'
-import { ref, toRaw } from 'vue'
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
@@ -25,7 +25,6 @@ async function handleUnshare() {
       positiveText: t('common.confirm'),
       negativeText: t('common.cancel'),
     })
-    window.ipc.share.removeFile(toRaw(props.fileItem))
     mySharedFiles.value = mySharedFiles.value.filter((file) => file.id !== props.fileItem.id)
   } catch (error) {
     console.error(error)
