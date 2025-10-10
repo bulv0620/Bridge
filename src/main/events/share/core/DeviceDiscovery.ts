@@ -103,6 +103,8 @@ export class DeviceDiscovery {
 
       const id = message.id
 
+      if (id === this.id) return
+
       if (!this.onlineDevices[id]) {
         this.onlineDevices[id] = {
           id,
@@ -153,6 +155,10 @@ export class DeviceDiscovery {
       platform: this.platform,
     }
     const messageStr = JSON.stringify(message)
+
+    console.log(messageStr)
+
+    return
 
     const broadcastAddresses = this.getBroadcastAddresses()
     if (broadcastAddresses.length === 0) {
@@ -212,13 +218,5 @@ export class DeviceDiscovery {
    */
   public getOnlineDevices(): OnlineDevice[] {
     return Object.values(this.onlineDevices)
-  }
-
-  /**
-   * 获取我的设备
-   * @returns
-   */
-  public getMyDevice(): OnlineDevice {
-    return this.onlineDevices[this.id]
   }
 }

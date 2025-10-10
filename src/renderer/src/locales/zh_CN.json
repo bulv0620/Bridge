@@ -203,7 +203,8 @@
       "expiresAtPlaceholder": "请选择过期时间",
       "notEnabled": "未开启共享",
       "getSizeFailed": "无法获取文件大小",
-      "chunkDownloadFailed": "分片下载失败"
+      "chunkDownloadFailed": "分片下载失败",
+      "unshareConfirm": "确认取消分享?"
     },
     "pluginCenter": {
       "title": "插件中心",

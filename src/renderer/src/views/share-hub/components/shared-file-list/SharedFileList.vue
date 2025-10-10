@@ -3,16 +3,16 @@ import { useSharing } from '@renderer/composables/share-hub/useSharing'
 import FileItem from '../file-item/FileItem.vue'
 import { LogoApple, LogoTux, LogoWindows, Laptop } from '@vicons/ionicons5'
 
-const { otherDevices } = useSharing()
+const { onlineDevices } = useSharing()
 </script>
 
 <template>
   <n-card :title="$t('views.shareHub.sharedFiles')" class="shared-list" size="small">
     <div class="shared-list__content">
-      <n-scrollbar v-if="otherDevices.length > 0" style="height: 100%">
+      <n-scrollbar v-if="onlineDevices.length > 0" style="height: 100%">
         <n-collapse>
           <n-collapse-item
-            v-for="device in otherDevices"
+            v-for="device in onlineDevices"
             :key="device.id"
             :title="device.ip"
             :name="device.id"

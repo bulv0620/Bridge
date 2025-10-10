@@ -1,16 +1,37 @@
 <script setup lang="ts">
+import { useDiscreteApi } from '@renderer/composables/discrete-api/useDiscreteApi'
+import { useSharing } from '@renderer/composables/share-hub/useSharing'
 import { TrashBinOutline } from '@vicons/ionicons5'
 import { ref, toRaw } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
   fileItem: SharedFileInfo
 }>()
 
+const { confirm } = useDiscreteApi()
+const { t } = useI18n()
+
 const loading = ref(false)
 
-function handleUnshare() {
-  loading.value = true
-  window.ipc.share.removeFile(toRaw(props.fileItem))
+const { mySharedFiles } = useSharing()
+
+async function handleUnshare() {
+  try {
+    loading.value = true
+    await confirm('warning', {
+      title: t('common.warning'),
+      content: t('views.shareHub.unshareConfirm'),
+      positiveText: t('common.confirm'),
+      negativeText: t('common.cancel'),
+    })
+    window.ipc.share.removeFile(toRaw(props.fileItem))
+    mySharedFiles.value = mySharedFiles.value.filter((file) => file.id !== props.fileItem.id)
+  } catch (error) {
+    console.error(error)
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 

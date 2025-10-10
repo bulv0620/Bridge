@@ -33,3 +33,11 @@ declare interface Consumption {
   createdAt: number
   expiresAt: number
 }
+
+declare interface FileDownloadStatus {
+  id: string
+  downloading: boolean
+  paused: boolean
+  finished: boolean
+  progress: number
+}

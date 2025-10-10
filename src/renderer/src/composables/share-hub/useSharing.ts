@@ -1,16 +1,9 @@
-import { computed, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 
 const enableSharing = ref(false)
 const enableSharingLoading = ref(false)
+const mySharedFiles = ref<SharedFileInfo[]>([])
 const onlineDevices = ref<OnlineDevice[]>([])
-
-const myDevice = computed(() => {
-  return onlineDevices.value.find((device) => device.mine)
-})
-
-const otherDevices = computed(() => {
-  return onlineDevices.value.filter((device) => !device.mine)
-})
 
 async function handleUpdateEnableSharing(val: boolean) {
   enableSharingLoading.value = true
@@ -72,9 +65,8 @@ window.events.on('share:message', (message: { onlineDevices: OnlineDevice[] }) =
 
 export function useSharing() {
   return {
+    mySharedFiles,
     onlineDevices,
-    otherDevices,
-    myDevice,
     enableSharing,
     enableSharingLoading,
     handleUpdateEnableSharing,

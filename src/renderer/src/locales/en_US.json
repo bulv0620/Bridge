@@ -203,7 +203,8 @@
       "expiresAt": "Expiration Time",
       "notEnabled": "Sharing not enabled",
       "getSizeFailed": "Unable to get file size",
-      "chunkDownloadFailed": "Unable to download chunk"
+      "chunkDownloadFailed": "Unable to download chunk",
+      "unshareConfirm": "Confirm to cancel sharing?"
     },
     "pluginCenter": {
       "title": "Plugin Center",

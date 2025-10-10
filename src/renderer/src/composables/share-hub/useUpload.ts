@@ -2,7 +2,7 @@ import FileUploadForm from '@renderer/views/share-hub/components/file-upload-mod
 import { ref, toRaw } from 'vue'
 import { useSharing } from './useSharing'
 
-const { onlineDevices } = useSharing()
+const { mySharedFiles } = useSharing()
 
 const uploadFormRef = ref<InstanceType<typeof FileUploadForm> | null>(null)
 const uploadModalVisible = ref(false)
@@ -31,12 +31,7 @@ async function confirmUpload() {
   try {
     await uploadFormRef.value?.validate()
     await window.ipc.share.addFile(toRaw(uploadForm.value))
-
-    const me = onlineDevices.value.find((device) => device.me)
-
-    if (me) {
-      me.data.files.push(toRaw(uploadForm.value))
-    }
+    mySharedFiles.value.push(uploadForm.value)
 
     uploadModalVisible.value = false
   } catch (error) {
