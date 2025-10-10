@@ -8,7 +8,6 @@ export interface DeviceDiscoveryOptions {
   udpPort?: number
   httpPort?: number
   interval?: number
-  debug?: boolean
 }
 
 export class DeviceDiscovery {
@@ -17,11 +16,10 @@ export class DeviceDiscovery {
   private udpPort: number
   private httpPort: number
   private interval: number
-  private server: dgram.Socket | null
+  private server: dgram.Socket | undefined
 
   private onlineDevices: Record<string, OnlineDevice>
   private timer: NodeJS.Timeout | null
-  private debug: boolean
   private running: boolean
 
   private fileStore: FileStore
@@ -32,33 +30,74 @@ export class DeviceDiscovery {
     this.udpPort = options.udpPort ?? 9520
     this.httpPort = options.httpPort ?? 9520
     this.interval = options.interval ?? 1000
-    this.server = null
 
     this.onlineDevices = {}
     this.timer = null
-    this.debug = options.debug ?? false
     this.running = false
 
     this.fileStore = store
   }
 
-  private log(...args: any[]) {
-    if (this.debug) console.log('[DeviceDiscovery]', ...args)
+  /** 启动服务 */
+  public start(): Promise<void> {
+    return new Promise((resolve) => {
+      if (this.running) {
+        console.log('⚠️ UDP server already started')
+        resolve()
+        return
+      }
+
+      const server = dgram.createSocket('udp4')
+      this.server = server
+
+      this.server.bind(this.udpPort, () => {
+        this.setupListeners(server)
+        this.setupBroadcast(server)
+        console.log(`✅ UDP server listening on port ${this.udpPort}`)
+        resolve()
+      })
+    })
   }
 
   /**
-   * 绑定消息监听器
+   * 停止服务
+   * @returns
    */
-  private setupListeners() {
-    this.server!.on('message', (msg: Buffer, rinfo: RemoteInfo) => {
+  public stop(): Promise<void> {
+    return new Promise((resolve) => {
+      if (!this.running || !this.server) {
+        console.log('⚠️ UDP server is not running')
+        resolve()
+        return
+      }
+
+      if (this.timer) clearInterval(this.timer)
+
+      this.timer = null
+      this.onlineDevices = {}
+
+      this.server.removeAllListeners()
+      this.server.close(() => {
+        console.log('🛑 UDP server stopped')
+        this.running = false
+        this.server = undefined
+        resolve()
+      })
+    })
+  }
+
+  /** 绑定消息监听器 */
+  private setupListeners(server: dgram.Socket) {
+    server.on('message', (msg: Buffer, rinfo: RemoteInfo) => {
       const ip = rinfo.address
 
       let message: BroadcastMessage
 
       try {
         message = JSON.parse(msg.toString())
+        // console.log(`📦 UDP receive : ${message}`)
       } catch {
-        this.log('收到异常消息')
+        console.log('⚠️ UDP received an abnormal message')
         return
       }
 
@@ -86,27 +125,13 @@ export class DeviceDiscovery {
     })
   }
 
-  /**
-   * 启动服务
-   * @returns
-   */
-  public start() {
-    if (this.running) {
-      this.log('服务已经在运行')
-      return
-    }
-
-    this.server = dgram.createSocket('udp4')
-    this.setupListeners()
-
-    this.server.bind(this.udpPort, () => {
-      this.server!.setBroadcast(true)
-      this.log(`UDP server listening on port ${this.udpPort}`)
-    })
-
+  /** 启动广播 */
+  private setupBroadcast(server: dgram.Socket) {
+    server.setBroadcast(true)
     this.timer = setInterval(() => {
-      this.broadcastMessage()
+      this.broadcastMessage(server)
       this.cleanupOfflineDevices()
+
       const mainWindow = getWindow('main')
       mainWindow!.webContents.send('share:message', {
         onlineDevices: this.getOnlineDevices(),
@@ -117,36 +142,10 @@ export class DeviceDiscovery {
   }
 
   /**
-   * 停止服务
-   * @returns
-   */
-  public stop() {
-    if (!this.running || !this.server) {
-      this.log('服务未在运行')
-      return
-    }
-
-    if (this.timer) clearInterval(this.timer)
-
-    this.timer = null
-    this.onlineDevices = {}
-
-    try {
-      this.server.close()
-      this.server = null
-    } catch (err) {
-      this.log('关闭 server 出错:', err)
-    }
-
-    this.running = false
-    this.log('服务已停止')
-  }
-
-  /**
    * 广播本机状态到所有网卡
    * @returns
    */
-  private async broadcastMessage() {
+  private async broadcastMessage(server: dgram.Socket) {
     const files = await this.fileStore.getAll()
     const message: BroadcastMessage = {
       id: this.id,
@@ -157,16 +156,16 @@ export class DeviceDiscovery {
 
     const broadcastAddresses = this.getBroadcastAddresses()
     if (broadcastAddresses.length === 0) {
-      this.log('没有可用的广播地址')
+      console.log('⚠️ No UDP broadcast address available')
       return
     }
 
     for (const addr of broadcastAddresses) {
-      this.server!.send(messageStr, 0, messageStr.length, this.udpPort, addr, (err) => {
+      server.send(messageStr, 0, messageStr.length, this.udpPort, addr, (err) => {
         if (err) {
-          console.error('Error broadcasting message:', err)
+          console.error('⚠️ UDP broadcast error:', err)
         } else {
-          this.log(`广播到 ${addr}:${this.udpPort}`)
+          // console.log(`📦 UDP broadcast to ${addr}:${this.udpPort}`)
         }
       })
     }

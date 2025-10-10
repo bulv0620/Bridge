@@ -17,11 +17,19 @@ export class FileStore {
 
   async getAll(): Promise<SharedFileInfo[]> {
     await this.cleanupExpired()
-    return this.list
+    return structuredClone(this.list)
   }
 
   async getById(id: string) {
-    return this.list.find((file) => file.id === id)
+    const file = this.list.find((file) => file.id === id)
+    return file ? structuredClone(file) : undefined
+  }
+
+  async updateById(id: string, file: SharedFileInfo) {
+    const index = this.list.findIndex((el) => el.id === id)
+    if (index !== -1) {
+      this.list[index] = file
+    }
   }
 
   private async cleanupExpired() {

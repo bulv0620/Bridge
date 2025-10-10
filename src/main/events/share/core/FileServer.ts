@@ -31,17 +31,17 @@ export class FileServer {
 
   /** 启动服务器 */
   public start(): Promise<void> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       if (this.server) {
-        return reject(new Error('Server already started'))
+        console.log('⚠️ HTTP server already started')
+        resolve()
+        return
       }
 
       this.server = this.app.listen(this.port, () => {
-        console.log(`✅ Server started on port ${this.port}`)
+        console.log(`✅ HTTP server listening on port ${this.port}`)
         resolve()
       })
-
-      this.server.on('error', (err: Error) => reject(err))
     })
   }
 
@@ -49,12 +49,14 @@ export class FileServer {
   public stop(): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!this.server) {
-        return reject(new Error('Server is not running'))
+        console.log('⚠️ HTTP server is not running')
+        resolve()
+        return
       }
 
       this.server.close((err?: Error) => {
         if (err) return reject(err)
-        console.log('🛑 Server stopped')
+        console.log('🛑 HTTP server stopped')
         this.server = null
         resolve()
       })
@@ -64,22 +66,29 @@ export class FileServer {
   /** 重启服务器 */
   public async restart(): Promise<void> {
     await this.stop().catch((err) => {
-      console.warn('⚠️ Error stopping server:', err)
+      console.warn('⚠️ Error stopping HTTP server:', err)
       // 即使 stop 失败，也尝试启动
     })
     await this.start()
-    console.log('🔁 Server restarted')
+    console.log('🔁 HTTP server restarted')
   }
 
   /** 下载处理 */
   private async handleDownload(req: Request<{ id: string }>, res: Response): Promise<void> {
     const fileId = req.params.id
-    const fileItem: FileItem | undefined = await this.fileStore.getById(fileId)
+    const fileItem: SharedFileInfo | undefined = await this.fileStore.getById(fileId)
 
     // 校验文件是否存在
-    if (!fileItem || !fs.existsSync(fileItem.filePath)) {
+    if (!fileItem || !fs.existsSync(fileItem.filePath) || fileItem.status.remaining < 1) {
       res.status(404).json({ error: 'File does not exist' })
       return
+    }
+
+    fileItem.status.remaining -= 1
+    if (fileItem.status.remaining < 1) {
+      this.fileStore.delById(fileId)
+    } else {
+      this.fileStore.updateById(fileId, fileItem)
     }
 
     const stat = fs.statSync(fileItem.filePath)
@@ -98,7 +107,7 @@ export class FileServer {
       return
     }
 
-    // --- Range 模式 ---
+    // Range 模式
     const match = range.match(/bytes=(\d*)-(\d*)/)
     if (!match) {
       res.status(400).json({ error: 'Invalid range' })
