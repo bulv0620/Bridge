@@ -1,4 +1,4 @@
-import { BrowserWindow, ipcMain, WebContents } from 'electron'
+import { BrowserWindow, ipcMain } from 'electron'
 
 export interface RemoteRefMain<T> {
   value: T
@@ -8,24 +8,23 @@ export interface RemoteRefMain<T> {
 /**
  * 在主进程创建一个可同步的响应值
  */
-export function remoteRef<T>(
-  target: BrowserWindow | WebContents,
-  channel: string,
-  initialValue: T,
-): RemoteRefMain<T> {
+export function remoteRef<T>(channel: string, initialValue: T): RemoteRefMain<T> {
   let value = structuredClone(initialValue)
-  const win = target instanceof BrowserWindow ? target.webContents : target
 
   // 广播更新
-  const broadcast = () => {
-    win.send('remote-ref:update', channel, structuredClone(value))
+  const broadcast = (payload: { value: T; txnId?: string }) => {
+    for (const win of BrowserWindow.getAllWindows()) {
+      if (!win.isDestroyed()) {
+        win.webContents.send('remote-ref:update', channel, payload)
+      }
+    }
   }
 
   // 接收渲染进程修改
-  const changeListener = (_event: any, ch: string, newVal: T) => {
+  const changeListener = (_event: any, ch: string, payload: { value: T; txnId?: string }) => {
     if (ch === channel) {
-      value = structuredClone(newVal)
-      broadcast()
+      value = payload.value
+      broadcast(payload)
     }
   }
 
@@ -36,8 +35,10 @@ export function remoteRef<T>(
       return value
     },
     set value(v: T) {
-      value = structuredClone(v)
-      broadcast()
+      value = v
+      broadcast({
+        value,
+      })
     },
     destroy() {
       ipcMain.removeListener('remote-ref:change', changeListener)

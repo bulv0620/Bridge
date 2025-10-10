@@ -1,12 +1,10 @@
 import { remoteRef, RemoteRefMain } from '../../../utils/remoteRef'
-import { getWindow } from '../../../utils/window'
 
 export class FileStore {
   private list: RemoteRefMain<SharedFileInfo[]>
 
   constructor() {
-    const mainWindow = getWindow('main')
-    this.list = remoteRef(mainWindow!, 'shared-file-list', [])
+    this.list = remoteRef('shared-file-list', [])
   }
 
   async add(file: SharedFileInfo) {
@@ -38,6 +36,7 @@ export class FileStore {
   }
 
   private async cleanupExpired() {
+    if (this.list.value.length === 0) return
     const now = Date.now()
     this.list.value = this.list.value.filter((file) => file.status.expiresAt > now)
   }

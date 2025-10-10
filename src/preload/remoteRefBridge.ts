@@ -1,25 +1,25 @@
 import { ipcRenderer } from 'electron'
 
+interface UpdatePayload<T> {
+  value: T
+  txnId?: string
+}
+
 export interface RemoteRefRenderer<T> {
   value: T
-  onUpdate(fn: (v: T) => void): () => void
+  onUpdate(fn: (payload: UpdatePayload<T>) => void): () => void
   destroy(): void
 }
 
 export const remoteRefBridge = {
   useRemoteRef<T>(channel: string, initialValue: T): RemoteRefRenderer<T> {
-    let value = structuredClone(initialValue)
-    const listeners = new Set<(v: T) => void>()
-
-    const notify = (v: T) => {
-      listeners.forEach((fn) => fn(v))
-    }
+    const value = structuredClone(initialValue)
+    const listeners = new Set<(payload: UpdatePayload<T>) => void>()
 
     // 监听主进程广播
-    const updateHandler = (_: any, ch: string, newVal: T) => {
+    const updateHandler = (_: any, ch: string, payload: UpdatePayload<T>) => {
       if (ch === channel) {
-        value = structuredClone(newVal)
-        notify(value)
+        listeners.forEach((fn) => fn(payload))
       }
     }
 
@@ -40,7 +40,7 @@ export const remoteRefBridge = {
     }
   },
 
-  updateRemoteRef<T>(channel: string, value: T) {
-    ipcRenderer.send('remote-ref:change', channel, structuredClone(value))
+  updateRemoteRef<T>(channel: string, payload: UpdatePayload<T>) {
+    ipcRenderer.send('remote-ref:change', channel, payload)
   },
 }

@@ -30,6 +30,7 @@
     "express": "^5.1.0",
     "monaco-editor": "^0.52.2",
     "stream-buffers": "^3.0.3",
+    "uuid": "^13.0.0",
     "vue-i18n": "10",
     "vue-router": "4",
     "vxe-pc-ui": "^4.8.22",
