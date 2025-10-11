@@ -30,6 +30,12 @@ export function remoteRef<T>(channel: string, initialValue: T): RemoteRefMain<T>
 
   ipcMain.on('remote-ref:change', changeListener)
 
+  ipcMain.on('remote-ref:request-init', (event, ch) => {
+    if (ch === channel) {
+      event.sender.send('remote-ref:update', ch, { value: value })
+    }
+  })
+
   return {
     get value() {
       return value

@@ -24,6 +24,7 @@ export const remoteRefBridge = {
     }
 
     ipcRenderer.on('remote-ref:update', updateHandler)
+    ipcRenderer.send('remote-ref:request-init', channel)
 
     return {
       get value() {

@@ -4,7 +4,21 @@ export class FileStore {
   private list: RemoteRefMain<SharedFileInfo[]>
 
   constructor() {
-    this.list = remoteRef('shared-file-list', [])
+    this.list = remoteRef('shared-file-list', [
+      {
+        id: 'XXX',
+        filePath: 'string',
+        fileName: 'string',
+        type: '',
+        size: 100,
+        status: {
+          remaining: 1,
+          total: 1,
+          createdAt: 1760143995584,
+          expiresAt: 1760153995584,
+        },
+      },
+    ])
   }
 
   async add(file: SharedFileInfo) {
@@ -38,6 +52,8 @@ export class FileStore {
   private async cleanupExpired() {
     if (this.list.value.length === 0) return
     const now = Date.now()
-    this.list.value = this.list.value.filter((file) => file.status.expiresAt > now)
+    if (this.list.value.find((el) => el.status.expiresAt < now)) {
+      this.list.value = this.list.value.filter((file) => file.status.expiresAt > now)
+    }
   }
 }
