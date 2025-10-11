@@ -3,6 +3,7 @@ import { BrowserWindow, ipcMain } from 'electron'
 export interface RemoteRefMain<T> {
   value: T
   destroy(): void
+  update(fn: (v: T) => void): void
 }
 
 /**
@@ -45,6 +46,10 @@ export function remoteRef<T>(channel: string, initialValue: T): RemoteRefMain<T>
       broadcast({
         value,
       })
+    },
+    update(fn: (v: T) => void) {
+      fn(value)
+      broadcast({ value })
     },
     destroy() {
       ipcMain.removeListener('remote-ref:change', changeListener)

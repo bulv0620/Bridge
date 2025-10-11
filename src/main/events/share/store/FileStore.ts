@@ -4,21 +4,7 @@ export class FileStore {
   private list: RemoteRefMain<SharedFileInfo[]>
 
   constructor() {
-    this.list = remoteRef('shared-file-list', [
-      {
-        id: 'XXX',
-        filePath: 'string',
-        fileName: 'string',
-        type: '',
-        size: 100,
-        status: {
-          remaining: 1,
-          total: 1,
-          createdAt: 1760143995584,
-          expiresAt: 1760153995584,
-        },
-      },
-    ])
+    this.list = remoteRef('shared-file-list', [])
   }
 
   async add(file: SharedFileInfo) {
