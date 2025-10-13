@@ -28,11 +28,11 @@ const treeConfig = reactive<VxeTablePropTypes.TreeConfig>({
     class="diff-file-table"
     :data="diffFileList"
     size="small"
+    round
     height="100%"
     :row-config="{ isHover: true, keyField: 'id' }"
     :tree-config="treeConfig"
     :virtual-y-config="{ enabled: true, gt: 0 }"
-    :scrollbar-config="{ width: 8, height: 8 }"
     :cell-style="cellStyle"
     :row-class-name="rowClassName"
     :loading="isComparing || isSyncing"
@@ -108,24 +108,5 @@ const treeConfig = reactive<VxeTablePropTypes.TreeConfig>({
 <style lang="less">
 .grey-row {
   color: rgba(100, 100, 100, 0.5) !important;
-}
-
-.diff-file-table {
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background-color: var(--n-scrollbar-color);
-  }
-  ::-webkit-scrollbar-thumb:hover,
-  ::-webkit-scrollbar-thumb:active {
-    background-color: var(--n-scrollbar-color-hover);
-  }
-}
-
-.vxe-table--render-default.border--default .vxe-cell--col-resizable:before {
-  background-color: var(--n-scrollbar-color);
 }
 </style>
