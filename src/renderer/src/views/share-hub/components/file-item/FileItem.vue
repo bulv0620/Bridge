@@ -7,12 +7,15 @@ import {
   MusicalNotes,
   CodeSlash,
   DocumentText,
+  TrashBinOutline,
 } from '@vicons/ionicons5'
 import { computed } from 'vue'
 import dayjs from 'dayjs'
 import { useTheme } from '@renderer/composables/setting/useTheme'
-import FileActionButton from './file-action-button/FileActionButton.vue'
-import FileDownloadButton from './file-download-button.vue/FileDownloadButton.vue'
+import { useI18n } from 'vue-i18n'
+import { useSharing } from '@renderer/composables/share-hub/useSharing'
+import { useDiscreteApi } from '@renderer/composables/discrete-api/useDiscreteApi'
+import { ref } from 'vue'
 
 const props = defineProps<{
   fileItem: SharedFileInfo
@@ -21,6 +24,11 @@ const props = defineProps<{
 }>()
 
 const { currentTheme } = useTheme()
+const { confirm } = useDiscreteApi()
+const { t } = useI18n()
+const { mySharedFiles } = useSharing()
+
+const loading = ref(false)
 
 const iconInfo = computed(() => {
   const file = props.fileItem
@@ -82,6 +90,23 @@ const remainingInfo = computed(() => {
 const expireInfo = computed(() => {
   return dayjs(props.fileItem.status.expiresAt).format('YYYY-MM-DD HH:mm')
 })
+
+async function handleUnshare() {
+  try {
+    loading.value = true
+    await confirm('warning', {
+      title: t('common.warning'),
+      content: t('views.shareHub.unshareConfirm'),
+      positiveText: t('common.confirm'),
+      negativeText: t('common.cancel'),
+    })
+    mySharedFiles.value = mySharedFiles.value.filter((file) => file.id !== props.fileItem.id)
+  } catch (error) {
+    console.error(error)
+  } finally {
+    loading.value = false
+  }
+}
 </script>
 
 <template>
@@ -101,8 +126,16 @@ const expireInfo = computed(() => {
       </div>
     </div>
     <div class="operation">
-      <FileActionButton v-if="mine" :file-item="fileItem"></FileActionButton>
-      <FileDownloadButton v-else :file-item="fileItem" :device="device!"></FileDownloadButton>
+      <CommonButton
+        v-if="mine"
+        tooltip="取消共享"
+        :icon="TrashBinOutline"
+        :button-props="{ size: 'small', circle: true, secondary: true }"
+        placement="bottom"
+        :delay="500"
+        :loading="loading"
+        @click="handleUnshare"
+      />
     </div>
   </div>
 </template>
