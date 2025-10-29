@@ -2,7 +2,6 @@
 import type { MenuOption } from 'naive-ui'
 import {
   FolderSwap20Regular,
-  AppsAddIn20Regular,
   Settings20Regular,
   CloudArrowDown20Regular,
   BoxArrowLeft20Regular,
@@ -43,20 +42,6 @@ const menuOptions = computed<MenuOption[]>(() => {
           RouterLink,
           {
             to: {
-              path: '/downloader',
-            },
-          },
-          { default: () => t('views.downloader.title') },
-        ),
-      key: '/downloader',
-      icon: renderIcon(CloudArrowDown20Regular),
-    },
-    {
-      label: () =>
-        h(
-          RouterLink,
-          {
-            to: {
               path: '/share-hub',
             },
           },
@@ -71,15 +56,14 @@ const menuOptions = computed<MenuOption[]>(() => {
           RouterLink,
           {
             to: {
-              path: '/plugin-center',
+              path: '/downloader',
             },
           },
-          { default: () => t('views.pluginCenter.title') },
+          { default: () => t('views.downloader.title') },
         ),
-      key: '/plugin-center',
-      icon: renderIcon(AppsAddIn20Regular),
+      key: '/downloader',
+      icon: renderIcon(CloudArrowDown20Regular),
     },
-
     {
       label: () =>
         h(

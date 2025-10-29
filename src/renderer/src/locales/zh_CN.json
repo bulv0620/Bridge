@@ -206,27 +206,6 @@
       "chunkDownloadFailed": "分片下载失败",
       "unshareConfirm": "确认取消分享?"
     },
-    "pluginCenter": {
-      "title": "插件中心",
-      "description": "插件中心",
-      "searchPlaceholder": "请输入关键词",
-      "run": "启动",
-      "stop": "停止",
-      "config": "配置参数",
-      "viewLog": "查看日志",
-      "available": "可用",
-      "unavailable": "不可用",
-      "logs": "日志",
-      "logFileReadError": "日志读取失败",
-      "logFileClearConfirm": "是否清空日志文件?",
-      "logFileCleared": "日志已清空",
-      "logFileClearError": "日志清空失败",
-      "readConfigError": "读取配置文件失败",
-      "configFileSaveConfirm": "是否保存配置文件?",
-      "configFileSaveError": "配置文件保存失败",
-      "configFileSaved": "配置文件已保存",
-      "noPlugin": "没有找到插件"
-    },
     "setting": {
       "title": "设置",
       "description": "全局参数设置",

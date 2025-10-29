@@ -206,27 +206,6 @@
       "chunkDownloadFailed": "Unable to download chunk",
       "unshareConfirm": "Confirm to cancel sharing?"
     },
-    "pluginCenter": {
-      "title": "Plugin Center",
-      "description": "Plugin Center",
-      "searchPlaceholder": "Enter keywords",
-      "run": "Run",
-      "stop": "Stop",
-      "config": "Config",
-      "viewLog": "View Logs",
-      "available": "Available",
-      "unavailable": "Unavailable",
-      "logs": "Logs",
-      "logFileReadError": "Log file read error",
-      "logFileClearConfirm": "Clear the log file?",
-      "logFileCleared": "Log file cleared",
-      "logFileClearError": "Log file clear error",
-      "readConfigError": "Failed to read config file",
-      "configFileSaveConfirm": "Save the config file?",
-      "configFileSaveError": "Failed to save config file",
-      "configFileSaved": "Config file saved",
-      "noPlugin": "No Plugin Found"
-    },
     "setting": {
       "title": "Settings",
       "description": "Global parameter settings",

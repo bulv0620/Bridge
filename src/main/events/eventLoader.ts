@@ -3,9 +3,9 @@ import * as themeEvents from './theme'
 import * as langEvents from './lang'
 import * as fileEvents from './file'
 import * as clipboardEvents from './clipboard'
-import * as pluginEvents from './plugin'
 import * as syncEvents from './sync'
 import * as shareEvents from './share'
+import * as downloaderEvents from './downloader'
 
 // 事件映射
 export const eventsMap = {
@@ -13,9 +13,9 @@ export const eventsMap = {
   lang: langEvents,
   file: fileEvents,
   clipboard: clipboardEvents,
-  plugin: pluginEvents,
   sync: syncEvents,
   share: shareEvents,
+  downloader: downloaderEvents,
 }
 
 export const handlerKeys: string[] = []

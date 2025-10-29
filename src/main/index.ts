@@ -4,7 +4,7 @@ import { createCustomWindow } from './utils/window'
 import { createTray } from './utils/tray'
 import { installExtension, VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import { registerAllEvents } from './events/eventLoader'
-import { stopAll } from './events/plugin'
+import { stopAllTasks } from './utils/PluginManager'
 
 const gotTheLock = app.requestSingleInstanceLock({ myKey: 'key' })
 if (!gotTheLock) {
@@ -51,7 +51,7 @@ app.whenReady().then(() => {
     if (!global.flagQuit) {
       event.preventDefault() // 阻止默认退出
       console.log('before-quit: stopping all plugin tasks...')
-      await stopAll()
+      await stopAllTasks()
       console.log('before-quit: all stoped')
       global.flagQuit = true
       tray.destroy()
