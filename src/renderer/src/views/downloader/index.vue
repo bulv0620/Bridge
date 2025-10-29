@@ -6,7 +6,7 @@ import DownloadStatus from './components/download-status/DownloadStatus.vue'
 import TaskListTab from './components/task-list-tab/TaskListTab.vue'
 import TaskList from './components/task-list/TaskList.vue'
 import { useRoute, useRouter } from 'vue-router'
-import { watch } from 'vue'
+import { onActivated, onMounted } from 'vue'
 import { useCreateDownloadTaskModal } from '@renderer/composables/downloader/useCreateDownloadTaskModal'
 
 defineOptions({
@@ -18,19 +18,25 @@ const router = useRouter()
 
 const { openCreateTaskModal } = useCreateDownloadTaskModal()
 
-watch(
-  () => route.query.url,
-  (url: any) => {
-    if (url) {
-      openCreateTaskModal(url)
+function checkDownloadTask() {
+  const url = route.query.url as string
+  if (url) {
+    openCreateTaskModal(url)
 
-      router.replace({
-        path: router.currentRoute.value.path,
-        query: {},
-      })
-    }
-  },
-)
+    router.replace({
+      path: router.currentRoute.value.path,
+      query: {},
+    })
+  }
+}
+
+onMounted(() => {
+  checkDownloadTask()
+})
+
+onActivated(() => {
+  checkDownloadTask()
+})
 </script>
 
 <template>
