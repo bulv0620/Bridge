@@ -2,7 +2,6 @@ import { ipcMain } from 'electron'
 import * as themeEvents from './theme'
 import * as langEvents from './lang'
 import * as fileEvents from './file'
-import * as clipboardEvents from './clipboard'
 import * as syncEvents from './sync'
 import * as shareEvents from './share'
 import * as downloaderEvents from './downloader'
@@ -12,7 +11,6 @@ export const eventsMap = {
   theme: themeEvents,
   lang: langEvents,
   file: fileEvents,
-  clipboard: clipboardEvents,
   sync: syncEvents,
   share: shareEvents,
   downloader: downloaderEvents,

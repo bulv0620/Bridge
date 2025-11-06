@@ -1,7 +1,0 @@
-{
-  "title": "FTP Server",
-  "summary": "Supported by Python, starting the plugin will run a local FTP service according to the configuration.",
-  "configPath": "./config.json",
-  "logPath": "./.log",
-  "cliArgs": []
-}

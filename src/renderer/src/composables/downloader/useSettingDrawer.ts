@@ -63,7 +63,7 @@ async function loadSettings() {
 }
 
 async function loadLocalSettings() {
-  settingsForm.enableUrlWatcher = await window.ipc.clipboard.getMagnetWatcherStatus()
+  settingsForm.enableUrlWatcher = await window.ipc.downloader.getMagnetWatcherStatus()
 }
 
 async function applySettings() {

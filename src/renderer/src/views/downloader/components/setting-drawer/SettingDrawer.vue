@@ -26,7 +26,7 @@ watch(isConnected, (connected) => {
   if (!connected) {
     activeTab.value = 'connection'
 
-    window.ipc.clipboard.stopMagnetWatcher()
+    window.ipc.downloader.stopMagnetWatcher()
   }
 })
 
@@ -54,9 +54,9 @@ watch(
   () => settingsForm.enableUrlWatcher,
   (enable) => {
     if (enable) {
-      window.ipc.clipboard.startMagnetWatcher()
+      window.ipc.downloader.startMagnetWatcher()
     } else {
-      window.ipc.clipboard.stopMagnetWatcher()
+      window.ipc.downloader.stopMagnetWatcher()
     }
   },
 )

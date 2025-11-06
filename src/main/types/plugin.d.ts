@@ -7,7 +7,6 @@ declare interface PluginPlatformInfo {
 declare interface PluginInfo {
   name: string
   desc: Record<string, any>
-  iconPath: string
   platforms: {
     mac?: PluginPlatformInfo
     win?: PluginPlatformInfo

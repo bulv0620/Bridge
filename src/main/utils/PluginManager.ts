@@ -5,18 +5,20 @@ import * as os from 'os'
 
 let resourcesPath = ''
 let pluginProcess: PluginProcess[] = []
-let availablePluginList: PluginInfo[] = []
+const availablePlugin = new Map<string, PluginInfo>()
 
-// 初始化资源路径
+/** 初始化资源路径 */
 function initResourcesPath() {
   const devPath = path.join(process.cwd(), 'resources/plugins')
   const prodPath = path.join(process.resourcesPath, 'app.asar.unpacked', 'resources/plugins')
   resourcesPath = process.env.NODE_ENV === 'development' ? devPath : prodPath
+
+  initPluginMap()
 }
 
 initResourcesPath()
 
-// 内部工具函数
+/** 杀死进程 */
 async function killProcess(pid: number) {
   const platform = os.platform()
   if (platform === 'win32') {
@@ -34,6 +36,7 @@ async function killProcess(pid: number) {
   }
 }
 
+/** 校验进程是否存活 */
 function isProcessAlive(pid: number) {
   try {
     process.kill(pid, 0)
@@ -43,26 +46,23 @@ function isProcessAlive(pid: number) {
   }
 }
 
-export function getPluginList(): PluginInfo[] {
+/** 初始化plugin map */
+function initPluginMap() {
   const pluginsDir = resourcesPath
   const pluginDirs = fs
     .readdirSync(pluginsDir, { withFileTypes: true })
     .filter((d) => d.isDirectory())
     .map((d) => d.name)
 
-  const result: PluginInfo[] = []
-
   for (const name of pluginDirs) {
     const pluginPath = path.join(pluginsDir, name)
     const descPath = path.join(pluginPath, 'desc.json')
-    const iconPath = path.join(pluginPath, 'icon.png')
 
     const desc = fs.existsSync(descPath) ? JSON.parse(fs.readFileSync(descPath, 'utf-8')) : {}
 
     const plugin: PluginInfo = {
       name,
       desc,
-      iconPath,
       platforms: {},
     }
 
@@ -79,13 +79,21 @@ export function getPluginList(): PluginInfo[] {
       }
     }
 
-    result.push(plugin)
+    availablePlugin.set(plugin.name, plugin)
   }
-
-  availablePluginList = result
-  return result
 }
 
+/** 获取所有插件列表 */
+export function getPluginList(): PluginInfo[] {
+  return Array.from(availablePlugin.values())
+}
+
+/** 获取指定插件 */
+export function getPlugin(name: string): PluginInfo | undefined {
+  return availablePlugin.get(name)
+}
+
+/** 运行插件任务 */
 export async function runTask(pluginInfo: PluginInfo) {
   if (pluginProcess.find((p) => p.name === pluginInfo.name)) return
 
@@ -118,6 +126,7 @@ export async function runTask(pluginInfo: PluginInfo) {
   pluginProcess.push({ name: pluginInfo.name, pid: child.pid })
 }
 
+/** 停止任务 */
 export async function stopTask(pluginInfo: PluginInfo) {
   const p = pluginProcess.find((el) => el.name === pluginInfo.name)
   if (p) {
@@ -126,6 +135,7 @@ export async function stopTask(pluginInfo: PluginInfo) {
   }
 }
 
+/** 停止所有任务 */
 export async function stopAllTasks() {
   for (const p of pluginProcess) {
     await killProcess(p.pid!)
@@ -133,21 +143,8 @@ export async function stopAllTasks() {
   pluginProcess = []
 }
 
+/** 检查插件运行状态 */
 export function checkPluginStatus(name: string) {
   const p = pluginProcess.find((el) => el.name === name)
   return p ? isProcessAlive(p.pid!) : false
-}
-
-export function getPluginImagePath(name: string) {
-  return availablePluginList.find((p) => p.name === name)?.iconPath ?? ''
-}
-
-export function checkPlatformSupport(name: string) {
-  const pluginInfo = availablePluginList.find((p) => p.name === name)
-  if (!pluginInfo) return false
-  const platform = os.platform()
-  if (platform === 'darwin') return !!pluginInfo.platforms.mac
-  if (platform === 'win32') return !!pluginInfo.platforms.win
-  if (platform === 'linux') return !!pluginInfo.platforms.linux
-  return false
 }
