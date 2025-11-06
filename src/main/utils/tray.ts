@@ -50,10 +50,10 @@ export function updateTray(tray: Tray, lang: string, options: { mainWindow: Brow
       },
     },
     {
-      label: messages[lang].tray.ftpClient,
+      label: messages[lang].tray.shareHub,
       click: () => {
         options.mainWindow.webContents.send('page:link', {
-          to: 'FtpClient',
+          to: 'ShareHub',
         })
         options.mainWindow.show()
       },
@@ -67,25 +67,7 @@ export function updateTray(tray: Tray, lang: string, options: { mainWindow: Brow
         options.mainWindow.show()
       },
     },
-    {
-      label: messages[lang].tray.shareHub,
-      click: () => {
-        options.mainWindow.webContents.send('page:link', {
-          to: 'ShareHub',
-        })
-        options.mainWindow.show()
-      },
-    },
     { type: 'separator' },
-    {
-      label: messages[lang].tray.pluginCenter,
-      click: () => {
-        options.mainWindow.webContents.send('page:link', {
-          to: 'PluginCenter',
-        })
-        options.mainWindow.show()
-      },
-    },
     {
       label: messages[lang].tray.setting,
       click: () => {
@@ -95,7 +77,6 @@ export function updateTray(tray: Tray, lang: string, options: { mainWindow: Brow
         options.mainWindow.show()
       },
     },
-    { type: 'separator' },
     {
       label: messages[lang].tray.quit,
       click: () => {
