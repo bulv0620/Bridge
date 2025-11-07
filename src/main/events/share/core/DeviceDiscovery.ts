@@ -156,6 +156,10 @@ export class DeviceDiscovery {
     }
     const messageStr = JSON.stringify(message)
 
+    // console.log(messageStr)
+
+    return
+
     const broadcastAddresses = this.getBroadcastAddresses()
     if (broadcastAddresses.length === 0) {
       console.log('⚠️ No UDP broadcast address available')

@@ -1,8 +1,14 @@
 import { computed, ref } from 'vue'
 import { useAria2 } from './useAria2'
-import { Aria2Status } from '@renderer/utils/aria2/Aria2Types'
-import { formatBytes, formatBytesPerSecond, formatTimeLeft } from '@renderer/utils/format'
+import { Aria2GlobalStat, Aria2Status } from '@renderer/utils/aria2/Aria2Types'
 import { i18n } from '@renderer/locales'
+import {
+  getTaskPercentage,
+  getTaskSize,
+  getTaskSpeed,
+  getTaskStatus,
+  getTaskTimeLeft,
+} from '@renderer/utils/get-task-info'
 
 export interface DownloadTaskInfo {
   gid: string
@@ -20,7 +26,7 @@ export interface DownloadTaskStatus {
 }
 
 const { t } = i18n.global
-const { activeTasks, waitingTasks, stoppedTasks, checkedRowKeys } = useAria2()
+const { aria2 } = useAria2()
 
 const activeTaskListTab = ref('downloading')
 
@@ -30,6 +36,15 @@ const taskListTabOptions = computed(() => [
   { key: 'waiting', label: t('views.downloader.waiting') },
   { key: 'completed', label: t('views.downloader.completed') },
 ])
+
+const activeTasks = ref<Aria2Status[]>([])
+const waitingTasks = ref<Aria2Status[]>([])
+const stoppedTasks = ref<Aria2Status[]>([])
+const globalStats = ref<Aria2GlobalStat | null>(null)
+
+const allTasks = computed(() => {
+  return [...activeTasks.value, ...waitingTasks.value, ...stoppedTasks.value]
+})
 
 const tableData = computed<DownloadTaskInfo[]>(() => {
   let taskList: Aria2Status[] = []
@@ -57,47 +72,55 @@ const tableData = computed<DownloadTaskInfo[]>(() => {
   }))
 })
 
-function getTaskStatus(row: Aria2Status) {
-  const statusMap = {
-    active: { type: 'success', label: t('views.downloader.downloading') },
-    waiting: { type: 'warning', label: t('views.downloader.waiting') },
-    complete: { type: 'info', label: t('views.downloader.completed') },
-    paused: { type: 'default', label: t('views.downloader.paused') },
-    error: { type: 'error', label: t('views.downloader.error') },
-    removed: { type: 'error', label: t('views.downloader.removed') },
-    seeding: { type: 'success', label: t('views.downloader.seeding') },
+// 选中行的 GID 列表
+const checkedRowKeys = ref<string[]>([])
+const checkedTasks = computed(() => {
+  return allTasks.value.filter((task) => checkedRowKeys.value.includes(task.gid))
+})
+
+let timer: ReturnType<typeof setInterval> | null = null
+
+async function fetchStats() {
+  if (!aria2.value) return
+
+  try {
+    const keys = [
+      'gid',
+      'totalLength',
+      'completedLength',
+      'downloadSpeed',
+      'status',
+      'files',
+      'seeder',
+    ]
+
+    const [active, waiting, stopped, stats] = await Promise.all([
+      aria2.value.tellActive(keys),
+      aria2.value.tellWaiting(0, 100, keys), // 可根据需要增加数量上限
+      aria2.value.tellStopped(0, 100, keys),
+      aria2.value.getGlobalStat(),
+    ])
+
+    activeTasks.value = active
+    waitingTasks.value = waiting
+    stoppedTasks.value = stopped.reverse()
+    globalStats.value = stats
+  } catch (error) {
+    console.warn('[Aria2Polling] Error while polling:', error)
   }
-  let info: { type: string; label: string }
-  if (
-    row.status === 'active' &&
-    Number(row.totalLength) > 0 &&
-    row.completedLength === row.totalLength
-  ) {
-    info = statusMap['seeding']
-  } else {
-    info = statusMap[row.status] || { type: 'default', label: row.status }
+}
+
+function startPolling(interval: number) {
+  if (timer || !aria2.value) return
+  timer = setInterval(fetchStats, interval)
+  fetchStats()
+}
+
+function stopPolling() {
+  if (timer) {
+    clearInterval(timer)
+    timer = null
   }
-
-  return info
-}
-
-function getTaskPercentage(row: Aria2Status) {
-  if (Number(row.totalLength) === 0) return 0
-  return Math.floor((Number(row.completedLength) / Number(row.totalLength)) * 100)
-}
-
-function getTaskSize(row: Aria2Status) {
-  return `${formatBytes(Number(row.completedLength))}/${formatBytes(Number(row.totalLength))}`
-}
-
-function getTaskSpeed(row: Aria2Status) {
-  return formatBytesPerSecond(Number(row.downloadSpeed))
-}
-
-function getTaskTimeLeft(row: Aria2Status) {
-  if (Number(row.downloadSpeed) === 0 || Number(row.totalLength) === 0) return '-'
-  const remaining = Number(row.totalLength) - Number(row.completedLength)
-  return formatTimeLeft(remaining / Number(row.downloadSpeed))
 }
 
 export function useTaskList() {
@@ -106,5 +129,14 @@ export function useTaskList() {
     taskListTabOptions,
     tableData,
     checkedRowKeys,
+    activeTasks,
+    waitingTasks,
+    stoppedTasks,
+    allTasks,
+    checkedTasks,
+    globalStats,
+    fetchStats,
+    startPolling,
+    stopPolling,
   }
 }

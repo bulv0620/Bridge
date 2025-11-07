@@ -1,24 +1,33 @@
-import { useDownloader } from './useDownloader'
-
 import { useDiscreteApi } from '../discrete-api/useDiscreteApi'
 import { i18n } from '@renderer/locales'
 import { useAria2 } from './useAria2'
+import { useTaskList } from './useTaskList'
+import { computed, ref } from 'vue'
 
 const { t } = i18n.global
 const { confirm, message } = useDiscreteApi()
 
-const { aria2, checkedRowKeys } = useAria2()
+const { aria2 } = useAria2()
+const { checkedRowKeys, checkedTasks } = useTaskList()
 
-const {
-  toStartTasks,
-  toPauseTasks,
-  toStopTasks,
-  toRemoveTasks,
-  startLoading,
-  pauseLoading,
-  stopLoading,
-  removeLoading,
-} = useDownloader()
+const startLoading = ref(false)
+const pauseLoading = ref(false)
+const stopLoading = ref(false)
+const removeLoading = ref(false)
+
+// 选中任务按状态分类过滤，方便调用
+const toStartTasks = computed(() =>
+  checkedTasks.value.filter((t) => t.status === 'paused' || t.status === 'waiting'),
+)
+const toPauseTasks = computed(() => checkedTasks.value.filter((t) => t.status === 'active'))
+const toStopTasks = computed(() => {
+  const activeStates = ['active', 'waiting', 'paused']
+  return checkedTasks.value.filter((t) => activeStates.includes(t.status))
+})
+const toRemoveTasks = computed(() => {
+  const removableStates = ['complete', 'error', 'removed']
+  return checkedTasks.value.filter((t) => removableStates.includes(t.status))
+})
 
 async function startTasks() {
   if (!toStartTasks.value.length) {
@@ -108,6 +117,10 @@ async function removeTasks() {
 
 export function useDownloaderActions() {
   return {
+    startLoading,
+    pauseLoading,
+    stopLoading,
+    removeLoading,
     startTasks,
     pauseTasks,
     stopTasks,

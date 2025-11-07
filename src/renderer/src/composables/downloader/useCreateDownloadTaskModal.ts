@@ -4,7 +4,7 @@ import { i18n } from '@renderer/locales'
 import { useDiscreteApi } from '../discrete-api/useDiscreteApi'
 import { useTaskList } from './useTaskList'
 
-const { aria2, isConnected } = useAria2()
+const { aria2 } = useAria2()
 
 const { t } = i18n.global
 const { message } = useDiscreteApi()
@@ -17,7 +17,7 @@ const loading = ref(false)
 const inputRef = ref<InstanceType<any> | null>(null)
 
 function openCreateTaskModal(url?: string) {
-  if (!aria2.value || !isConnected.value) {
+  if (!aria2.value) {
     return
   }
   show.value = true

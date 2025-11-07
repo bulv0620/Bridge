@@ -28,7 +28,6 @@ export interface Aria2Status {
     selected: 'true' | 'false'
     uris: { uri: string; status: 'used' | 'waiting' }[]
   }[]
-  // ...你可以继续添加其它字段，比如bittorrent, etc.
 }
 
 export interface Aria2GlobalStat {

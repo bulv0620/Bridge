@@ -1,34 +1,21 @@
 <script setup lang="ts">
 import { FolderOutline } from '@vicons/ionicons5'
 import { useSettingDrawer } from '@renderer/composables/downloader/useSettingDrawer'
-import { useAria2 } from '@renderer/composables/downloader/useAria2'
 import { watch } from 'vue'
-
-const { aria2, isConnected } = useAria2()
 
 const {
   showSettingDrawer,
   activeTab,
-  connectionForm,
-  connecting,
   applyingSettings,
   fetchingTracker,
   settingsForm,
-  connectToAria2,
+  localSettingsForm,
   loadSettings,
   loadLocalSettings,
   applySettings,
   fetchLatestTracker,
   selectFolder,
 } = useSettingDrawer()
-
-watch(isConnected, (connected) => {
-  if (!connected) {
-    activeTab.value = 'connection'
-
-    window.ipc.downloader.stopMagnetWatcher()
-  }
-})
 
 watch(activeTab, (tab) => {
   if (tab === 'settings') {
@@ -51,7 +38,7 @@ watch(showSettingDrawer, (show) => {
 })
 
 watch(
-  () => settingsForm.enableUrlWatcher,
+  () => localSettingsForm.value.enableUrlWatcher,
   (enable) => {
     if (enable) {
       window.ipc.downloader.startMagnetWatcher()
@@ -74,40 +61,12 @@ watch(
     <n-drawer-content :title="$t('views.downloader.settingTitle')" :closable="true">
       <n-scrollbar style="height: 100%; width: calc(100% - 18px); padding-right: 18px">
         <n-tabs v-model:value="activeTab">
-          <n-tab-pane name="connection" :tab="$t('views.downloader.tabConnection')">
-            <n-form label-placement="left" label-width="100">
-              <n-form-item :label="$t('views.downloader.rpcAddress')">
-                <n-input
-                  v-model:value="connectionForm.host"
-                  placeholder="http://localhost:6800/jsonrpc"
-                />
-              </n-form-item>
-              <n-form-item :label="$t('views.downloader.token')">
-                <n-input
-                  v-model:value="connectionForm.token"
-                  :placeholder="$t('views.downloader.tokenPlaceholder')"
-                />
-              </n-form-item>
-              <n-form-item>
-                <n-button type="primary" :loading="connecting" @click="connectToAria2">
-                  {{ $t('views.downloader.connect') }}
-                </n-button>
-              </n-form-item>
-            </n-form>
-          </n-tab-pane>
-
-          <n-tab-pane v-if="isConnected" name="settings" :tab="$t('views.downloader.tabSettings')">
+          <n-tab-pane name="settings" :tab="$t('views.downloader.tabSettings')">
             <n-form label-placement="left" label-width="160">
               <n-form-item :label="$t('views.downloader.dir')">
                 <n-input-group>
-                  <n-input v-model:value="settingsForm.dir" />
-                  <n-button
-                    v-if="
-                      aria2?.getUrl().includes('localhost') || aria2?.getUrl().includes('127.0.0.1')
-                    "
-                    :loading="applyingSettings"
-                    @click="selectFolder"
-                  >
+                  <n-input v-model:value="settingsForm['dir']" />
+                  <n-button :loading="applyingSettings" @click="selectFolder">
                     <template #icon>
                       <n-icon> <FolderOutline /> </n-icon>
                     </template>
@@ -115,51 +74,57 @@ watch(
                 </n-input-group>
               </n-form-item>
               <n-form-item :label="$t('views.downloader.maxConcurrent')">
-                <n-input-number
-                  v-model:value="settingsForm.maxConcurrentDownloads"
+                <n-input
+                  v-model:value="settingsForm['max-concurrent-downloads']"
                   style="width: 100%"
-                  :min="1"
-                  :max="64"
+                  type="number"
+                  :input-props="{ min: 1, max: 64 }"
                 />
               </n-form-item>
               <n-form-item :label="$t('views.downloader.split')">
-                <n-input-number
-                  v-model:value="settingsForm.split"
+                <n-input
+                  v-model:value="settingsForm['split']"
                   style="width: 100%"
-                  :min="1"
-                  :max="64"
+                  type="number"
+                  :input-props="{ min: 1, max: 64 }"
                 />
               </n-form-item>
               <n-form-item :label="$t('views.downloader.maxConnection')">
-                <n-input-number
-                  v-model:value="settingsForm.maxConnectionPerServer"
+                <n-input
+                  v-model:value="settingsForm['max-connection-per-server']"
                   style="width: 100%"
-                  :min="1"
-                  :max="16"
+                  type="number"
+                  :input-props="{ min: 1, max: 16 }"
                 />
               </n-form-item>
               <n-form-item :label="$t('views.downloader.downloadLimit')">
-                <n-input-number
-                  v-model:value="settingsForm.maxOverallDownloadLimit"
+                <n-input
+                  v-model:value="settingsForm['max-overall-download-limit']"
                   style="width: 100%"
-                  :min="0"
+                  type="number"
+                  :input-props="{ min: 0 }"
                   :placeholder="$t('views.downloader.noLimit')"
                 />
               </n-form-item>
               <n-form-item :label="$t('views.downloader.uploadLimit')">
-                <n-input-number
-                  v-model:value="settingsForm.maxOverallUploadLimit"
+                <n-input
+                  v-model:value="settingsForm['max-overall-upload-limit']"
                   style="width: 100%"
-                  :min="0"
+                  type="number"
+                  :input-props="{ min: 0 }"
                   :placeholder="$t('views.downloader.noLimit')"
                 />
               </n-form-item>
               <n-form-item :label="$t('views.downloader.enableDHT')">
-                <n-switch v-model:value="settingsForm.enableDHT" />
+                <n-switch
+                  v-model:value="settingsForm['enable-dht']"
+                  checked-value="true"
+                  unchecked-value="false"
+                />
               </n-form-item>
               <n-form-item :label="$t('views.downloader.btTracker')">
                 <n-input
-                  v-model:value="settingsForm.btTracker"
+                  v-model:value="settingsForm['bt-tracker']"
                   type="textarea"
                   :placeholder="$t('views.downloader.trackerPlaceholder')"
                 />
@@ -177,17 +142,10 @@ watch(
             </n-form>
           </n-tab-pane>
 
-          <n-tab-pane
-            v-if="
-              (isConnected && aria2?.getUrl().includes('localhost')) ||
-              aria2?.getUrl().includes('127.0.0.1')
-            "
-            name="localSettings"
-            :tab="$t('views.downloader.tabLocalSettings')"
-          >
+          <n-tab-pane name="localSettings" :tab="$t('views.downloader.tabLocalSettings')">
             <n-form label-placement="left" label-width="150">
               <n-form-item :label="$t('views.downloader.enableUrlWatcher')">
-                <n-switch v-model:value="settingsForm.enableUrlWatcher" />
+                <n-switch v-model:value="localSettingsForm.enableUrlWatcher" />
               </n-form-item>
             </n-form>
           </n-tab-pane>

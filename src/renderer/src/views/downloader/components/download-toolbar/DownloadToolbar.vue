@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { Add, Pause, Play, SettingsOutline, Stop, TrashBinOutline } from '@vicons/ionicons5'
 import { useDownloaderActions } from '@renderer/composables/downloader/useDownloaderAction'
-import { useDownloader } from '@renderer/composables/downloader/useDownloader'
 import { useSettingDrawer } from '@renderer/composables/downloader/useSettingDrawer'
 import { useAria2 } from '@renderer/composables/downloader/useAria2'
 import { useCreateDownloadTaskModal } from '@renderer/composables/downloader/useCreateDownloadTaskModal'
+import { useTaskList } from '@renderer/composables/downloader/useTaskList'
 
+const { aria2 } = useAria2()
 const { showSettingDrawer } = useSettingDrawer()
-const { checkedTasks, aria2, isConnected } = useAria2()
-const { startLoading, pauseLoading, stopLoading, removeLoading } = useDownloader()
+const { checkedTasks } = useTaskList()
+const { startLoading, pauseLoading, stopLoading, removeLoading } = useDownloaderActions()
 const { startTasks, pauseTasks, stopTasks, removeTasks } = useDownloaderActions()
 const { openCreateTaskModal } = useCreateDownloadTaskModal()
 </script>
@@ -21,7 +22,7 @@ const { openCreateTaskModal } = useCreateDownloadTaskModal()
       :button-props="{ size: 'small', circle: true, type: 'primary' }"
       placement="bottom"
       :delay="500"
-      :disabled="!aria2 || !isConnected"
+      :disabled="!aria2"
       @click="openCreateTaskModal()"
     />
     <CommonButton
