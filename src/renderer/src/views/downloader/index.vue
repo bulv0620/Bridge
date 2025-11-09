@@ -6,8 +6,9 @@ import DownloadStatus from './components/download-status/DownloadStatus.vue'
 import TaskListTab from './components/task-list-tab/TaskListTab.vue'
 import TaskList from './components/task-list/TaskList.vue'
 import { useRoute, useRouter } from 'vue-router'
-import { onActivated, onMounted } from 'vue'
+import { onActivated, onDeactivated } from 'vue'
 import { useCreateDownloadTaskModal } from '@renderer/composables/downloader/useCreateDownloadTaskModal'
+import { useTaskList } from '@renderer/composables/downloader/useTaskList'
 
 defineOptions({
   name: 'Downloader',
@@ -17,6 +18,7 @@ const route = useRoute()
 const router = useRouter()
 
 const { openCreateTaskModal } = useCreateDownloadTaskModal()
+const { startPolling, stopPolling } = useTaskList()
 
 function checkDownloadTask() {
   const url = route.query.url as string
@@ -30,12 +32,13 @@ function checkDownloadTask() {
   }
 }
 
-onMounted(() => {
-  checkDownloadTask()
+onDeactivated(() => {
+  stopPolling()
 })
 
 onActivated(() => {
   checkDownloadTask()
+  startPolling(1000)
 })
 </script>
 
@@ -84,7 +87,7 @@ onActivated(() => {
     padding: 16px;
     display: flex;
     gap: 8px;
-    justify-content: space-between;
+    justify-content: end;
     align-items: center;
   }
 }

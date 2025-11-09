@@ -28,7 +28,7 @@ export interface DownloadTaskStatus {
 const { t } = i18n.global
 const { aria2 } = useAria2()
 
-const activeTaskListTab = ref('downloading')
+const activeTaskListTab = ref('all')
 
 const taskListTabOptions = computed(() => [
   { key: 'all', label: t('views.downloader.all') },

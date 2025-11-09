@@ -1,85 +1,80 @@
 <script setup lang="ts">
-import { computed, h } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { NProgress, NTag } from 'naive-ui'
-import { DownloadTaskInfo, useTaskList } from '@renderer/composables/downloader/useTaskList'
+import { useTaskList } from '@renderer/composables/downloader/useTaskList'
+import { VxeTable, VxeColumn } from 'vxe-table'
 
-const { t } = useI18n()
+const { tableData } = useTaskList()
 
-const { tableData, checkedRowKeys } = useTaskList()
-
-const columns = computed(() => [
-  { type: 'selection' },
-  {
-    key: 'name',
-    title: t('views.downloader.taskName'),
-    ellipsis: {
-      tooltip: true,
-    },
-  },
-  {
-    key: 'status',
-    title: t('views.downloader.taskStatus'),
-    width: 110,
-    render(row: DownloadTaskInfo) {
-      return h(
-        NTag,
-        { type: row.status.type as any, size: 'small' },
-        { default: () => row.status.label },
-      )
-    },
-  },
-  {
-    key: 'progress',
-    title: t('views.downloader.taskProgress'),
-    render(row: DownloadTaskInfo) {
-      return h(NProgress, {
-        type: 'line',
-        percentage: row.progress,
-        height: 12,
-        indicatorPlacement: 'inside',
-      })
-    },
-  },
-  {
-    key: 'size',
-    title: t('views.downloader.taskSize'),
-    ellipsis: {
-      tooltip: true,
-    },
-  },
-  {
-    key: 'speed',
-    title: t('views.downloader.taskSpeed'),
-    width: 110,
-    ellipsis: {
-      tooltip: true,
-    },
-  },
-  {
-    key: 'eta',
-    title: t('views.downloader.taskTimeLeft'),
-    width: 90,
-    ellipsis: {
-      tooltip: true,
-    },
-  },
-])
+function handleCheckboxChange(data) {
+  console.log(data)
+}
 </script>
 
 <template>
   <div class="table">
-    <n-data-table
-      v-model:checked-row-keys="checkedRowKeys"
-      size="small"
-      :columns="columns"
+    <VxeTable
       :data="tableData"
-      virtual-scroll
-      flex-height
-      style="height: 100%"
-      :row-key="(row: DownloadTaskInfo) => row.gid"
+      size="small"
+      round
+      height="100%"
+      :row-config="{ isHover: true, keyField: 'gid' }"
+      :virtual-y-config="{ enabled: true, gt: 0 }"
+      @checkbox-change="handleCheckboxChange"
     >
-    </n-data-table>
+      <vxe-column type="checkbox" width="45" align="center"></vxe-column>
+      <VxeColumn
+        field="name"
+        :title="$t('views.downloader.taskName')"
+        resizable
+        :min-width="200"
+        show-overflow
+      ></VxeColumn>
+      <VxeColumn
+        field="status"
+        :title="$t('views.downloader.taskStatus')"
+        resizable
+        :min-width="110"
+      >
+        <template #default="{ row }">
+          <n-tag :type="row.status.type" size="small">{{ row.status.label }}</n-tag>
+        </template>
+      </VxeColumn>
+      <VxeColumn
+        field="progress"
+        :title="$t('views.downloader.taskProgress')"
+        resizable
+        :min-width="200"
+      >
+        <template #default="{ row }">
+          <n-progress
+            type="line"
+            :percentage="row.progress"
+            :height="12"
+            indicator-placement="inside"
+          ></n-progress>
+        </template>
+      </VxeColumn>
+      <VxeColumn
+        field="size"
+        :title="$t('views.downloader.taskSize')"
+        resizable
+        :min-width="100"
+        show-overflow
+      ></VxeColumn>
+      <VxeColumn
+        field="speed"
+        :title="$t('views.downloader.taskSpeed')"
+        resizable
+        :min-width="100"
+        show-overflow
+      ></VxeColumn>
+      <VxeColumn
+        field="eta"
+        :title="$t('views.downloader.taskTimeLeft')"
+        :min-width="120"
+        show-overflow
+      ></VxeColumn>
+    </VxeTable>
   </div>
 </template>
 
