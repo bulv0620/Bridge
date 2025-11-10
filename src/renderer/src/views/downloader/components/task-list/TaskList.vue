@@ -3,32 +3,26 @@ import { NProgress, NTag } from 'naive-ui'
 import { useTaskList } from '@renderer/composables/downloader/useTaskList'
 import { VxeTable, VxeColumn } from 'vxe-table'
 
-const { tableData } = useTaskList()
-
-function handleCheckboxChange(data) {
-  console.log(data)
-}
+const { tableData, tableRef } = useTaskList()
 </script>
 
 <template>
   <div class="table">
     <VxeTable
+      ref="tableRef"
       :data="tableData"
       size="small"
       round
       height="100%"
       :row-config="{ isHover: true, keyField: 'gid' }"
       :virtual-y-config="{ enabled: true, gt: 0 }"
-      @checkbox-change="handleCheckboxChange"
     >
       <vxe-column type="checkbox" width="45" align="center"></vxe-column>
-      <VxeColumn
-        field="name"
-        :title="$t('views.downloader.taskName')"
-        resizable
-        :min-width="200"
-        show-overflow
-      ></VxeColumn>
+      <VxeColumn field="name" :title="$t('views.downloader.taskName')" resizable :min-width="200">
+        <template #default="{ row }">
+          <n-ellipsis style="width: 100%">{{ row.name }}</n-ellipsis>
+        </template>
+      </VxeColumn>
       <VxeColumn
         field="status"
         :title="$t('views.downloader.taskStatus')"
@@ -58,21 +52,21 @@ function handleCheckboxChange(data) {
         field="size"
         :title="$t('views.downloader.taskSize')"
         resizable
-        :min-width="100"
-        show-overflow
+        :min-width="140"
+        show-overflow="ellipsis"
       ></VxeColumn>
       <VxeColumn
         field="speed"
         :title="$t('views.downloader.taskSpeed')"
         resizable
         :min-width="100"
-        show-overflow
+        show-overflow="ellipsis"
       ></VxeColumn>
       <VxeColumn
         field="eta"
         :title="$t('views.downloader.taskTimeLeft')"
-        :min-width="120"
-        show-overflow
+        :min-width="100"
+        show-overflow="ellipsis"
       ></VxeColumn>
     </VxeTable>
   </div>

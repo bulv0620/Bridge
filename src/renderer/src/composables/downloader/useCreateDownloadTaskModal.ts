@@ -17,9 +17,6 @@ const loading = ref(false)
 const inputRef = ref<InstanceType<any> | null>(null)
 
 function openCreateTaskModal(url?: string) {
-  if (!aria2.value) {
-    return
-  }
   show.value = true
   urlInput.value = url ?? ''
   nextTick(() => {

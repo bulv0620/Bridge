@@ -6,7 +6,7 @@ import DownloadStatus from './components/download-status/DownloadStatus.vue'
 import TaskListTab from './components/task-list-tab/TaskListTab.vue'
 import TaskList from './components/task-list/TaskList.vue'
 import { useRoute, useRouter } from 'vue-router'
-import { onActivated, onDeactivated } from 'vue'
+import { onActivated, onDeactivated, watch } from 'vue'
 import { useCreateDownloadTaskModal } from '@renderer/composables/downloader/useCreateDownloadTaskModal'
 import { useTaskList } from '@renderer/composables/downloader/useTaskList'
 
@@ -22,6 +22,7 @@ const { startPolling, stopPolling } = useTaskList()
 
 function checkDownloadTask() {
   const url = route.query.url as string
+  console.log(url)
   if (url) {
     openCreateTaskModal(url)
 
@@ -32,12 +33,19 @@ function checkDownloadTask() {
   }
 }
 
+watch(
+  () => route.query,
+  () => {
+    checkDownloadTask()
+  },
+  { deep: true, immediate: true },
+)
+
 onDeactivated(() => {
   stopPolling()
 })
 
 onActivated(() => {
-  checkDownloadTask()
   startPolling(1000)
 })
 </script>

@@ -169,7 +169,8 @@
       "noTaskToStop": "No task to stop",
       "noTaskToRemove": "No task to remove",
       "unknown": "unknown",
-      "noTask": "No Task"
+      "noTask": "No Task",
+      "noSelectedRows": "Please select at least one task."
     },
     "shareHub": {
       "title": "Share Hub",

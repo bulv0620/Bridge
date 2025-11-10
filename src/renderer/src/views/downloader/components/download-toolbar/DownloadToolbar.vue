@@ -4,11 +4,9 @@ import { useDownloaderActions } from '@renderer/composables/downloader/useDownlo
 import { useSettingDrawer } from '@renderer/composables/downloader/useSettingDrawer'
 import { useAria2 } from '@renderer/composables/downloader/useAria2'
 import { useCreateDownloadTaskModal } from '@renderer/composables/downloader/useCreateDownloadTaskModal'
-import { useTaskList } from '@renderer/composables/downloader/useTaskList'
 
 const { aria2 } = useAria2()
 const { showSettingDrawer } = useSettingDrawer()
-const { checkedTasks } = useTaskList()
 const { startLoading, pauseLoading, stopLoading, removeLoading } = useDownloaderActions()
 const { startTasks, pauseTasks, stopTasks, removeTasks } = useDownloaderActions()
 const { openCreateTaskModal } = useCreateDownloadTaskModal()
@@ -31,7 +29,6 @@ const { openCreateTaskModal } = useCreateDownloadTaskModal()
       :button-props="{ size: 'small', circle: true }"
       placement="bottom"
       :delay="500"
-      :disabled="checkedTasks.length === 0"
       :loading="startLoading"
       @click="startTasks"
     />
@@ -41,7 +38,6 @@ const { openCreateTaskModal } = useCreateDownloadTaskModal()
       :button-props="{ size: 'small', circle: true }"
       placement="bottom"
       :delay="500"
-      :disabled="checkedTasks.length === 0"
       :loading="pauseLoading"
       @click="pauseTasks"
     />
@@ -51,7 +47,6 @@ const { openCreateTaskModal } = useCreateDownloadTaskModal()
       :button-props="{ size: 'small', circle: true }"
       placement="bottom"
       :delay="500"
-      :disabled="checkedTasks.length === 0"
       :loading="stopLoading"
       @click="stopTasks"
     />
@@ -62,7 +57,6 @@ const { openCreateTaskModal } = useCreateDownloadTaskModal()
       :button-props="{ size: 'small', circle: true }"
       placement="bottom"
       :delay="500"
-      :disabled="checkedTasks.length === 0"
       :loading="removeLoading"
       @click="removeTasks"
     />

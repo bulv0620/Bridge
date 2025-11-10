@@ -9,6 +9,7 @@ import {
   getTaskStatus,
   getTaskTimeLeft,
 } from '@renderer/utils/get-task-info'
+import { VxeTable } from 'vxe-table'
 
 export interface DownloadTaskInfo {
   gid: string
@@ -18,6 +19,7 @@ export interface DownloadTaskInfo {
   size: string
   speed: string
   eta: string
+  origin: any
 }
 
 export interface DownloadTaskStatus {
@@ -46,6 +48,7 @@ const allTasks = computed(() => {
   return [...activeTasks.value, ...waitingTasks.value, ...stoppedTasks.value]
 })
 
+const tableRef = ref<InstanceType<typeof VxeTable> | null>(null)
 const tableData = computed<DownloadTaskInfo[]>(() => {
   let taskList: Aria2Status[] = []
   if (activeTaskListTab.value === 'all') {
@@ -69,16 +72,21 @@ const tableData = computed<DownloadTaskInfo[]>(() => {
     size: getTaskSize(task),
     speed: getTaskSpeed(task),
     eta: getTaskTimeLeft(task),
+    origin: task,
   }))
 })
 
-// 选中行的 GID 列表
-const checkedRowKeys = ref<string[]>([])
-const checkedTasks = computed(() => {
-  return allTasks.value.filter((task) => checkedRowKeys.value.includes(task.gid))
-})
-
 let timer: ReturnType<typeof setInterval> | null = null
+
+function getCheckedRows() {
+  const set = new Set(tableRef.value?.getCheckboxRecords().map((row) => row.gid))
+
+  return allTasks.value.filter((task) => set.has(task.gid))
+}
+
+function clearCheckedRows() {
+  tableRef.value?.clearCheckboxRow()
+}
 
 async function fetchStats() {
   if (!aria2.value) return
@@ -128,15 +136,16 @@ export function useTaskList() {
     activeTaskListTab,
     taskListTabOptions,
     tableData,
-    checkedRowKeys,
+    tableRef,
     activeTasks,
     waitingTasks,
     stoppedTasks,
     allTasks,
-    checkedTasks,
     globalStats,
     fetchStats,
     startPolling,
     stopPolling,
+    getCheckedRows,
+    clearCheckedRows,
   }
 }

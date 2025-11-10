@@ -1,4 +1,4 @@
-import { VxeUI, VxeLoading, VxeIcon } from 'vxe-pc-ui'
+import { VxeUI, VxeLoading, VxeIcon, VxeTooltip } from 'vxe-pc-ui'
 import { VxeTable, VxeColumn, VxeColgroup, VxeGrid, VxeToolbar } from 'vxe-table'
 
 import 'vxe-pc-ui/styles/cssvar.scss'
@@ -15,6 +15,7 @@ VxeUI.component(VxeColumn)
 VxeUI.component(VxeColgroup)
 VxeUI.component(VxeGrid)
 VxeUI.component(VxeToolbar)
+VxeUI.component(VxeTooltip)
 
 VxeUI.setI18n('zh-CN', zhCN)
 VxeUI.setI18n('en-US', enUs)
