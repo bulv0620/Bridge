@@ -1,4 +1,4 @@
-import { parseConfFile, writeConfFile } from '../../../utils/confUtils'
+import { parseConfFile, updateConfFile } from '../../../utils/confUtils'
 import { getPlugin, getPluginConfPath, runTask } from '../../../utils/pluginUtils'
 
 export class Aria2Server {
@@ -16,6 +16,6 @@ export class Aria2Server {
   saveAria2Settings(settings: Aria2GlobalOption) {
     const path = getPluginConfPath(this.ariaPlugin)
 
-    return writeConfFile(path, settings)
+    return updateConfFile(path, settings)
   }
 }

@@ -52,20 +52,75 @@ export function parseConfFile(filePath: string): ParsedConf {
 }
 
 /**
- * 覆盖写入 .conf 文件
+ * 将 JSON 对象写回 .conf 文件（保持注释与原顺序）
+ */
+export function writeConfFile(filePath: string, conf: ParsedConf) {
+  const output = conf.lines
+    .map((line) => {
+      if (line.type === 'kv' && line.key) {
+        const newValue = conf.data[line.key]
+        return `${line.key}=${newValue}`
+      }
+      return line.raw
+    })
+    .join('\n')
+
+  fs.writeFileSync(filePath, output, 'utf-8')
+}
+
+/**
+ * 更新 .conf 文件
  * @param filePath 配置文件路径
  * @param data 键值对数据
  */
-export function writeConfFile(
+export function updateConfFile(
   filePath: string,
-  data: Record<string, string | number | boolean>,
+  updates: Record<string, string | number | boolean>,
 ): void {
-  const lines: string[] = []
+  // 1. 读取文件内容
+  const content = fs.readFileSync(filePath, 'utf-8')
+  const lines = content.split(/\r?\n/)
 
-  for (const [key, value] of Object.entries(data)) {
-    lines.push(`${key}=${value}`)
+  // 2. 解析成结构化数据
+  const data: Record<string, string | number | boolean> = {}
+  const lineInfo: { type: 'comment' | 'blank' | 'kv'; key?: string; raw: string }[] = []
+
+  for (const raw of lines) {
+    const line = raw.trim()
+
+    if (!line) {
+      lineInfo.push({ type: 'blank', raw })
+      continue
+    }
+
+    if (line.startsWith('#')) {
+      lineInfo.push({ type: 'comment', raw })
+      continue
+    }
+
+    const [key, ...rest] = line.split('=')
+    const value = rest.join('=').trim()
+    data[key.trim()] = value
+    lineInfo.push({ type: 'kv', key: key.trim(), raw })
   }
 
-  const content = lines.join('\n')
-  fs.writeFileSync(filePath, content, 'utf-8')
+  // 3. 应用更新
+  for (const [key, val] of Object.entries(updates)) {
+    data[key] = val
+
+    // 查找是否已存在此 key
+    const line = lineInfo.find((l) => l.type === 'kv' && l.key === key)
+    if (line) {
+      line.raw = `${key}=${val}`
+    } else {
+      // 不存在则追加
+      lineInfo.push({ type: 'kv', key, raw: `${key}=${val}` })
+    }
+  }
+
+  // 4. 重新拼接内容
+  const newContent = lineInfo.map((l) => l.raw).join('\n')
+
+  // 5. 写回文件
+  fs.writeFileSync(filePath, newContent, 'utf-8')
 }
