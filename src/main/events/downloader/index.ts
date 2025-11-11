@@ -1,7 +1,8 @@
+import { IpcMainInvokeEvent } from 'electron'
 import { Aria2Server } from './core/Aria2Server'
 import { MagnetWatcher } from './core/MagnetWatcher'
 
-new Aria2Server()
+const aria2Server = new Aria2Server()
 const magnetWatcher = new MagnetWatcher()
 
 export function startMagnetWatcher() {
@@ -14,4 +15,12 @@ export function stopMagnetWatcher() {
 
 export function getMagnetWatcherStatus() {
   return magnetWatcher.getStatus()
+}
+
+export function getSettings() {
+  return aria2Server.getAria2Settings()
+}
+
+export function saveSettings(_: IpcMainInvokeEvent, settings: Aria2GlobalOption) {
+  return aria2Server.saveAria2Settings(settings)
 }

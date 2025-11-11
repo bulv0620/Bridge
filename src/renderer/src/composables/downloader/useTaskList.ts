@@ -1,6 +1,5 @@
 import { computed, ref } from 'vue'
 import { useAria2 } from './useAria2'
-import { Aria2GlobalStat, Aria2Status } from '@renderer/utils/aria2/Aria2Types'
 import { i18n } from '@renderer/locales'
 import {
   getTaskPercentage,

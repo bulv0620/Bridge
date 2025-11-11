@@ -1,8 +1,7 @@
-import { ref } from 'vue'
+import { ref, toRaw } from 'vue'
 import { useAria2 } from '@renderer/composables/downloader/useAria2'
 import { i18n } from '@renderer/locales'
 import { useDiscreteApi } from '../discrete-api/useDiscreteApi'
-import { Aria2GlobalOption } from '@renderer/utils/aria2/Aria2Types'
 
 const { t } = i18n.global
 const { message } = useDiscreteApi()
@@ -45,6 +44,7 @@ async function applySettings() {
   applyingSettings.value = true
   try {
     await aria2.value.changeGlobalOption(settingsForm.value)
+    await window.ipc.downloader.saveSettings(toRaw(settingsForm.value))
     message.success(t('views.downloader.applySuccess'))
   } catch (err: any) {
     message.error(t('views.downloader.applyFail') + `: ${err.message}`)

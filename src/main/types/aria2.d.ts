@@ -1,9 +1,9 @@
-export interface Aria2Version {
+declare interface Aria2Version {
   enabledFeatures: string[]
   version: string
 }
 
-export interface Aria2Status {
+declare interface Aria2Status {
   gid: string
   status: 'active' | 'waiting' | 'paused' | 'error' | 'complete' | 'removed'
   totalLength: string
@@ -30,7 +30,7 @@ export interface Aria2Status {
   }[]
 }
 
-export interface Aria2GlobalStat {
+declare interface Aria2GlobalStat {
   downloadSpeed: string
   uploadSpeed: string
   numActive: string
@@ -39,7 +39,7 @@ export interface Aria2GlobalStat {
   numStoppedTotal: string
 }
 
-export interface Aria2GlobalOption {
+declare interface Aria2GlobalOption {
   dir: string
   'max-concurrent-downloads': string
   split: string
@@ -48,10 +48,10 @@ export interface Aria2GlobalOption {
   'max-overall-upload-limit': string
   'enable-dht': 'true' | 'false'
   'bt-tracker'?: string
-  [key: string]: string | undefined
+  [key: string]: string
 }
 
-export interface IAria2Client {
+declare interface IAria2Client {
   getUrl(): string
 
   rpcRequest(method: string, params?: any[]): Promise<any>

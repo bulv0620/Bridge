@@ -1,5 +1,4 @@
 import { Aria2Client } from '@renderer/utils/aria2/Aria2Client'
-import { IAria2Client } from '@renderer/utils/aria2/Aria2Types'
 import { ref } from 'vue'
 
 const aria2 = ref<IAria2Client>(

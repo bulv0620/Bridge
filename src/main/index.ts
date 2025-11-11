@@ -4,7 +4,7 @@ import { createCustomWindow } from './utils/window'
 import { createTray } from './utils/tray'
 import { installExtension, VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import { registerAllEvents } from './events/eventLoader'
-import { stopAllTasks } from './utils/PluginManager'
+import { stopAllTasks } from './utils/pluginUtils'
 
 const gotTheLock = app.requestSingleInstanceLock({ myKey: 'key' })
 if (!gotTheLock) {

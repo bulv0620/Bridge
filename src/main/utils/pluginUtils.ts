@@ -148,3 +148,20 @@ export function checkPluginStatus(name: string) {
   const p = pluginProcess.find((el) => el.name === name)
   return p ? isProcessAlive(p.pid!) : false
 }
+
+/** 获取插件的配置文件路径 */
+export function getPluginConfPath(pluginInfo: PluginInfo) {
+  const platform = os.platform()
+  const platformInfo =
+    platform === 'darwin'
+      ? pluginInfo.platforms.mac
+      : platform === 'win32'
+        ? pluginInfo.platforms.win
+        : pluginInfo.platforms.linux
+
+  if (!platformInfo || !platformInfo.config) {
+    return ''
+  }
+
+  return platformInfo.config || ''
+}
