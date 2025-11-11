@@ -22,7 +22,7 @@ const { startPolling, stopPolling } = useTaskList()
 
 function checkDownloadTask() {
   const url = route.query.url as string
-  console.log(url)
+
   if (url) {
     openCreateTaskModal(url)
 
