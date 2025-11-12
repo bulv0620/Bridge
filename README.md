@@ -1,34 +1,14 @@
-# electron-vite-template
+# 🛰️ Bridge
 
-An Electron application with Vue and TypeScript
+> A cross-platform LAN collaboration tool built with **Electron + Vue 3 + Vite**.
 
-## Recommended IDE Setup
+English | [简体中文](./README.zh-CN.md)
 
-- [VSCode](https://code.visualstudio.com/) + [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) + [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin)
+## ✨ Features
+- 📁 Directory sync (local & FTP)
+- ⬇️ Integrated Aria2 downloader
+- 🌐 LAN device discovery via UDP broadcast
+- ⚡ Fast LAN file sharing
 
-## Project Setup
-
-### Install
-
-```bash
-$ pnpm install
-```
-
-### Development
-
-```bash
-$ pnpm dev
-```
-
-### Build
-
-```bash
-# For windows
-$ pnpm build:win
-
-# For macOS
-$ pnpm build:mac
-
-# For Linux
-$ pnpm build:linux
-```
+## 📦 Tech Stack
+Electron + Vue 3 + Vite + TypeScript + Aria2 RPC + UDP
