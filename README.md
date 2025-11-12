@@ -8,13 +8,16 @@ English | [简体中文](./README.zh-CN.md)
 
 ## ✨ Features
 - 📁 **File Sync & Compare**
-   Compare directory trees between local and remote (FTP) paths and synchronize files intelligently.
+
+  Compare directory trees between local and remote (FTP) paths and synchronize files intelligently.
+
 - 🌐 **LAN File Sharing**
-   Auto-discovers devices over UDP broadcast.
-   Share local files instantly — peers download via an HTTP service by file ID, without exposing your paths.
+
+  Auto-discovers devices over UDP broadcast. Share local files instantly — peers download via an HTTP service by file ID, without exposing your paths.
+
 - ⬇️ **Integrated Downloader**
-   Built-in **Aria2** engine supporting HTTP, FTP, and BitTorrent.
-   Unified task list for both Internet and LAN downloads.
+
+  Built-in **Aria2** engine supporting HTTP, FTP, and BitTorrent. Unified task list for both Internet and LAN downloads.
 
 ## 📦 Tech Stack
 - **Frontend:** Vue 3 + Vite + TypeScript
