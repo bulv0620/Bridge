@@ -217,5 +217,12 @@
       "resetConfirm": "Reset to default settings?"
     }
   },
-  "layout": {}
+  "layout": {},
+  "update": {
+    "findNewVersion": "New version found",
+    "newVersionNotFound": "No new version found",
+    "checkForUpdate": "Check for updates",
+    "updateNow": "Update now",
+    "downloading": "Downloading new version"
+  }
 }

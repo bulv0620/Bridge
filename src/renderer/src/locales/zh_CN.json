@@ -217,5 +217,12 @@
       "resetConfirm": "是否恢复默认设置?"
     }
   },
-  "layout": {}
+  "layout": {},
+  "update": {
+    "findNewVersion": "发现新版本",
+    "newVersionNotFound": "没有发现新版本",
+    "checkForUpdate": "检查更新",
+    "updateNow": "点击立即更新",
+    "downloading": "新版本下载中"
+  }
 }

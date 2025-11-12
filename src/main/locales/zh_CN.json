@@ -8,5 +8,11 @@
     "setting": "设置",
     "show": "显示",
     "quit": "退出"
+  },
+  "update": {
+    "confirm": "立即更新",
+    "later": "稍后",
+    "prompt": "提示",
+    "confirmMessage": "新版本已就绪，是否立即安装？"
   }
 }

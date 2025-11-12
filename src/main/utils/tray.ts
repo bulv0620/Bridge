@@ -27,7 +27,7 @@ export function createTray(): Tray {
     },
   ])
 
-  tray.setToolTip('My Electron App')
+  tray.setToolTip('Bridge')
   tray.setContextMenu(contextMenu)
 
   tray.on('double-click', () => {

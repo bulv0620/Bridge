@@ -11,6 +11,7 @@ import { computed, h, ref } from 'vue'
 import type { Component } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import AppVersion from '@renderer/components/AppVersion.vue'
 
 const { t } = useI18n()
 
@@ -95,14 +96,39 @@ const menuOptions = computed<MenuOption[]>(() => {
     @collapse="collapsed = true"
     @expand="collapsed = false"
   >
-    <n-menu
-      :options="menuOptions"
-      :collapsed-width="64"
-      :collapsed-icon-size="22"
-      :default-active="$route.path"
-      :value="$route.path"
-    />
+    <div class="side-wrapper">
+      <div class="menu-wrapper">
+        <n-menu
+          :options="menuOptions"
+          :collapsed-width="64"
+          :collapsed-icon-size="22"
+          :default-active="$route.path"
+          :value="$route.path"
+        />
+      </div>
+      <div class="version-wrapper">
+        <AppVersion v-show="!collapsed"></AppVersion>
+      </div>
+    </div>
   </n-layout-sider>
 </template>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+:deep(.n-scrollbar-content) {
+  height: 100%;
+}
+.side-wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  .menu-wrapper {
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .version-wrapper {
+    width: 100%;
+  }
+}
+</style>
