@@ -26,6 +26,7 @@ app.whenReady().then(() => {
     resizable: true,
     minWidth: 880,
     minHeight: 600,
+    width: 1100,
   })
   mainWindow.on('close', (event) => {
     if (!global.flagQuit) {

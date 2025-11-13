@@ -38,14 +38,48 @@ export class DiffStore {
 
   async updateById(id: string, diffItem: FileDifference) {
     if (this.deletedIds.has(id)) return
-    const item = this.idIndex.get(id)
-    if (item) {
-      Object.assign(item, diffItem)
+    const oldItem = this.idIndex.get(id)
+    if (!oldItem) return
+
+    const oldParentId = oldItem.parentId ?? ROOT_KEY
+    Object.assign(oldItem, diffItem)
+    const newParentId = oldItem.parentId ?? ROOT_KEY
+
+    // 如果 parentId 变了，需要调整索引结构
+    if (oldParentId !== newParentId) {
+      const oldList = this.parentIdIndex.get(oldParentId)
+      if (oldList) {
+        this.parentIdIndex.set(
+          oldParentId,
+          oldList.filter((x) => x.id !== id),
+        )
+      }
+
+      if (!this.parentIdIndex.has(newParentId)) {
+        this.parentIdIndex.set(newParentId, [])
+      }
+      this.parentIdIndex.get(newParentId)!.push(oldItem)
     }
   }
 
   async updateAll(list: FileDifference[]) {
     this.list = list
+    this.idIndex.clear()
+    this.parentIdIndex.clear()
+
+    for (const diff of list) {
+      this.idIndex.set(diff.id, diff)
+      const pid = diff.parentId ?? ROOT_KEY
+      if (!this.parentIdIndex.has(pid)) {
+        this.parentIdIndex.set(pid, [])
+      }
+      this.parentIdIndex.get(pid)!.push(diff)
+    }
+
+    // 清理掉已删除但不再存在的 id
+    this.deletedIds.forEach((id) => {
+      if (!this.idIndex.has(id)) this.deletedIds.delete(id)
+    })
   }
 
   async getLast(): Promise<FileDifference | undefined> {
