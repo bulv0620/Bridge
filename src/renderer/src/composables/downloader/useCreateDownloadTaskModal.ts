@@ -2,14 +2,11 @@ import { ref, nextTick } from 'vue'
 import { useAria2 } from './useAria2'
 import { i18n } from '@renderer/locales'
 import { useDiscreteApi } from '../discrete-api/useDiscreteApi'
-import { useTaskList } from './useTaskList'
 
 const { aria2 } = useAria2()
 
 const { t } = i18n.global
 const { message } = useDiscreteApi()
-
-const { activeTaskListTab } = useTaskList()
 
 const show = ref(false)
 const urlInput = ref('')
@@ -41,7 +38,6 @@ async function submitDownloadTask() {
     message.success(t('views.downloader.taskAdded'))
     show.value = false
     urlInput.value = ''
-    activeTaskListTab.value = 'downloading'
   } catch (err) {
     message.error(t('views.downloader.taskAddFailed'))
   } finally {
