@@ -8,7 +8,7 @@ import {
   getTaskStatus,
   getTaskTimeLeft,
 } from '@renderer/utils/get-task-info'
-import { VxeTable } from 'vxe-table'
+import { VxeTable, VxeTableEvents } from 'vxe-table'
 
 export interface DownloadTaskInfo {
   gid: string
@@ -18,7 +18,7 @@ export interface DownloadTaskInfo {
   size: string
   speed: string
   eta: string
-  origin: any
+  origin: Aria2Status
 }
 
 export interface DownloadTaskStatus {
@@ -130,6 +130,12 @@ function stopPolling() {
   }
 }
 
+const handleCellDbClick: VxeTableEvents.CellDblclick<DownloadTaskInfo> = ({ row }) => {
+  if (row.origin.status === 'complete' && row.origin.files?.[0]?.path) {
+    window.ipc.file.openFolder(row.origin.files[0].path)
+  }
+}
+
 export function useTaskList() {
   return {
     activeTaskListTab,
@@ -146,5 +152,6 @@ export function useTaskList() {
     stopPolling,
     getCheckedRows,
     clearCheckedRows,
+    handleCellDbClick,
   }
 }

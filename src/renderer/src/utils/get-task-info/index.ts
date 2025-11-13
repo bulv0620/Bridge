@@ -1,5 +1,4 @@
 import { i18n } from '@renderer/locales'
-import { Aria2Status } from '../aria2/Aria2Types'
 import { formatBytes, formatBytesPerSecond, formatTimeLeft } from '../format'
 
 const { t } = i18n.global
