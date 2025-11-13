@@ -1,14 +1,5 @@
 <script setup lang="ts">
-import {
-  Folder,
-  Document,
-  Image,
-  Videocam,
-  MusicalNotes,
-  CodeSlash,
-  DocumentText,
-  TrashBinOutline,
-} from '@vicons/ionicons5'
+import { TrashBinOutline } from '@vicons/ionicons5'
 import { computed } from 'vue'
 import dayjs from 'dayjs'
 import { useTheme } from '@renderer/composables/setting/useTheme'
@@ -16,6 +7,7 @@ import { useI18n } from 'vue-i18n'
 import { useSharing } from '@renderer/composables/share-hub/useSharing'
 import { useDiscreteApi } from '@renderer/composables/discrete-api/useDiscreteApi'
 import { ref } from 'vue'
+import { getFileIcon } from '@renderer/utils/get-file-icon'
 
 const props = defineProps<{
   fileItem: SharedFileInfo
@@ -32,54 +24,7 @@ const loading = ref(false)
 
 const iconInfo = computed(() => {
   const file = props.fileItem
-  const type = file.type || ''
-  const ext = file.fileName?.split('.').pop()?.toLowerCase() || '' // 兜底扩展名
-
-  if ((file as any).isDirectory) {
-    return { icon: Folder, color: '#f9a825' }
-  }
-
-  // 图片
-  if (type.startsWith('image/')) {
-    return { icon: Image, color: '#42a5f5' }
-  }
-
-  // 视频
-  if (type.startsWith('video/')) {
-    return { icon: Videocam, color: '#ab47bc' }
-  }
-
-  // 音频
-  if (type.startsWith('audio/')) {
-    return { icon: MusicalNotes, color: '#ef5350' }
-  }
-
-  // 代码 / 脚本类
-  if (
-    ['application/javascript', 'text/javascript', 'application/json', 'text/html', 'text/css'].some(
-      (t) => type.includes(t),
-    ) ||
-    ['js', 'ts', 'vue', 'json', 'html', 'css', 'py', 'java', 'cpp'].includes(ext)
-  ) {
-    return { icon: CodeSlash, color: '#26a69a' }
-  }
-
-  // 文档类
-  if (
-    [
-      'application/pdf',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'text/markdown',
-      'text/plain',
-    ].some((t) => type.includes(t)) ||
-    ['txt', 'md', 'log', 'doc', 'docx', 'pdf'].includes(ext)
-  ) {
-    return { icon: DocumentText, color: '#5c6bc0' }
-  }
-
-  // 兜底
-  return { icon: Document, color: '#9e9e9e' }
+  return getFileIcon(file.fileName, file.type, (file as any).isDirectory)
 })
 
 const remainingInfo = computed(() => {
