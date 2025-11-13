@@ -31,7 +31,8 @@ declare interface Consumption {
   remaining: number
   total: number
   createdAt: number
-  expiresAt: number
+  expiresAt?: number
+  expireType?: string
 }
 
 declare interface FileDownloadStatus {

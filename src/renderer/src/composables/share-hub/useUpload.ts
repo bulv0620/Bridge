@@ -1,6 +1,7 @@
 import FileUploadForm from '@renderer/views/share-hub/components/file-upload-modal/file-upload-form/FileUploadForm.vue'
 import { ref } from 'vue'
 import { useSharing } from './useSharing'
+import { getExpireTime } from '@renderer/utils/expires-time'
 
 const { mySharedFiles } = useSharing()
 
@@ -30,7 +31,14 @@ async function confirmUpload() {
   uploadLoading.value = true
   try {
     await uploadFormRef.value?.validate()
-    mySharedFiles.value.push(uploadForm.value)
+    mySharedFiles.value.push({
+      ...uploadForm.value,
+      status: {
+        ...uploadForm.value.status,
+        remaining: uploadForm.value.status.total,
+        expiresAt: getExpireTime(uploadForm.value.status.expireType!),
+      },
+    })
 
     uploadModalVisible.value = false
   } catch (error) {

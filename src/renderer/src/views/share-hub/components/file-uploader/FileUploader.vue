@@ -14,9 +14,10 @@ function customRequest({ file, onFinish }: UploadCustomRequestOptions) {
     size: file.file!.size,
     status: {
       remaining: 1,
-      total: 1,
+      total: 3,
       createdAt: new Date().getTime(),
-      expiresAt: new Date().getTime() + 1000 * 60 * 5,
+      expiresAt: undefined,
+      expireType: '5min',
     },
   }
 

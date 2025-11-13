@@ -2,6 +2,7 @@
 import { FormRules, NForm } from 'naive-ui'
 import { computed, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { expireTypeOptions } from '@renderer/utils/expires-time'
 
 const { t } = useI18n()
 
@@ -29,10 +30,10 @@ const rules = computed<FormRules>(() => ({
       trigger: ['change', 'blur'],
     },
   ],
-  'status.expiresAt': [
+  'status.expireType': [
     {
       required: true,
-      type: 'number',
+      type: 'string',
       trigger: ['change', 'blur'],
       message: t('views.shareHub.expiresAtRequired', '请选择过期时间'),
     },
@@ -70,19 +71,15 @@ defineExpose({
       <n-input-number
         v-model:value="fileInfo.status.total"
         :min="1"
+        :max="5"
         style="width: 100%"
         :placeholder="t('views.shareHub.totalPlaceholder')"
       />
     </n-form-item>
 
     <!-- 过期时间 -->
-    <n-form-item :label="t('views.shareHub.expiresAt')" path="status.expiresAt">
-      <n-date-picker
-        v-model:value="fileInfo.status.expiresAt"
-        type="datetime"
-        style="width: 100%"
-        :placeholder="t('views.shareHub.expiresAtPlaceholder')"
-      />
+    <n-form-item :label="t('views.shareHub.expiresAt')" path="status.expireType">
+      <n-select v-model:value="fileInfo.status.expireType" :options="expireTypeOptions" />
     </n-form-item>
   </n-form>
 </template>

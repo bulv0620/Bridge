@@ -2,8 +2,20 @@
 import { useSharing } from '@renderer/composables/share-hub/useSharing'
 import FileItem from '../file-item/FileItem.vue'
 import { LogoApple, LogoTux, LogoWindows, Laptop } from '@vicons/ionicons5'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const { onlineDevices } = useSharing()
+
+function handleDownload(item: SharedFileInfo, device: OnlineDevice) {
+  router.push({
+    name: 'Downloader',
+    query: {
+      url: `http://${device.ip}:${device.httpPort}/download/${item.id}`,
+    },
+  })
+}
 </script>
 
 <template>
@@ -22,6 +34,7 @@ const { onlineDevices } = useSharing()
               :key="item.id"
               :file-item="item"
               :device="device"
+              @download="handleDownload(item, device)"
             ></FileItem>
             <template #header-extra>
               <n-icon>

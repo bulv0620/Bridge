@@ -2,20 +2,23 @@
 import { TrashBinOutline } from '@vicons/ionicons5'
 import { computed } from 'vue'
 import dayjs from 'dayjs'
-import { useTheme } from '@renderer/composables/setting/useTheme'
 import { useI18n } from 'vue-i18n'
 import { useSharing } from '@renderer/composables/share-hub/useSharing'
 import { useDiscreteApi } from '@renderer/composables/discrete-api/useDiscreteApi'
 import { ref } from 'vue'
 import { getFileIcon } from '@renderer/utils/get-file-icon'
+import { useThemeVars } from 'naive-ui'
+import { DownloadRound } from '@vicons/material'
 
 const props = defineProps<{
   fileItem: SharedFileInfo
   mine?: boolean
   device?: OnlineDevice
 }>()
+const emits = defineEmits(['download'])
 
-const { currentTheme } = useTheme()
+const themeVars = useThemeVars()
+const primaryColor = computed(() => themeVars.value.primaryColor)
 const { confirm } = useDiscreteApi()
 const { t } = useI18n()
 const { mySharedFiles } = useSharing()
@@ -27,13 +30,8 @@ const iconInfo = computed(() => {
   return getFileIcon(file.fileName, file.type, (file as any).isDirectory)
 })
 
-const remainingInfo = computed(() => {
-  const { remaining, total } = props.fileItem.status
-  return `${remaining} / ${total}`
-})
-
 const expireInfo = computed(() => {
-  return dayjs(props.fileItem.status.expiresAt).format('YYYY-MM-DD HH:mm')
+  return dayjs(props.fileItem.status.expiresAt).format('HH:mm:ss')
 })
 
 async function handleUnshare() {
@@ -52,22 +50,31 @@ async function handleUnshare() {
     loading.value = false
   }
 }
+
+function handleDownload() {
+  emits('download')
+}
 </script>
 
 <template>
-  <div class="file-item" :class="currentTheme">
+  <div class="file-item" :style="{}">
     <div class="icon-wrap">
       <n-icon class="icon" :size="24" :component="iconInfo.icon" :color="iconInfo.color" />
     </div>
     <div class="file-meta">
-      <div class="file-item__name">
-        <n-ellipsis style="width: 100%">{{ fileItem.fileName }}</n-ellipsis>
-      </div>
-      <div class="file-item__extra">
-        <n-ellipsis style="width: 100%">
-          <span class="quota">{{ remainingInfo }}</span>
-          <span class="expire">{{ $t('views.shareHub.expirationTime') }}: {{ expireInfo }}</span>
-        </n-ellipsis>
+      <n-ellipsis style="width: 100%">{{ fileItem.fileName }}</n-ellipsis>
+      <n-ellipsis style="width: 100%; font-size: 12px; margin-bottom: 8px">
+        <n-text :depth="3" class="expire"
+          >{{ $t('views.shareHub.expirationTime') }}: {{ expireInfo }}</n-text
+        >
+      </n-ellipsis>
+      <div class="remaining-box">
+        <div
+          v-for="item in fileItem.status.total"
+          :key="item"
+          class="remaining-item"
+          :class="{ active: fileItem.status.remaining >= item }"
+        ></div>
       </div>
     </div>
     <div class="operation">
@@ -81,6 +88,16 @@ async function handleUnshare() {
         :loading="loading"
         @click="handleUnshare"
       />
+      <CommonButton
+        v-if="!mine"
+        tooltip="下载"
+        :icon="DownloadRound"
+        :button-props="{ size: 'small', circle: true, secondary: true }"
+        placement="bottom"
+        :delay="500"
+        :loading="loading"
+        @click="handleDownload"
+      />
     </div>
   </div>
 </template>
@@ -89,75 +106,35 @@ async function handleUnshare() {
 .file-item {
   margin-bottom: 10px;
   padding: 10px 14px;
-  border-radius: 3px;
+  border-radius: var(--n-border-radius);
   display: flex;
   align-items: center;
   gap: 10px;
   transition: all 0.25s ease;
-
-  // 🌞 light 模式
-  &.light {
-    background: rgb(250, 250, 252);
-    border: 1px solid rgb(239, 239, 245);
-
-    .file-item__name {
-      color: #333;
-    }
-    .file-item__extra {
-      color: #666;
-
-      .quota {
-        color: #26a69a;
-      }
-      .expire {
-        color: #ef5350;
-      }
-    }
-  }
-
-  // 🌙 dark 模式
-  &.dark {
-    background: rgba(255, 255, 255, 0.06);
-    border: none;
-
-    .file-item__name {
-      color: #f0f0f0;
-    }
-    .file-item__extra {
-      color: #aaa;
-
-      .quota {
-        color: #4dd0e1; // 青色，夜间更柔和
-      }
-      .expire {
-        color: #ef9a9a; // 浅红，不刺眼
-      }
-    }
-  }
+  border: 1px solid var(--n-border-color);
 
   .file-meta {
     flex: 1;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-  }
 
-  .file-item__name {
-    width: 100%;
-    font-size: 14px;
-    font-weight: 500;
-  }
+    .remaining-box {
+      width: 100%;
+      height: 8px;
+      display: flex;
+      gap: 2px;
+      border-radius: var(--n-border-radius);
+      overflow: hidden;
 
-  .file-item__extra {
-    width: 100%;
-    margin-top: 2px;
-    font-size: 12px;
-    display: flex;
-    gap: 12px;
+      .remaining-item {
+        flex: 1;
+        background: var(--n-border-color);
 
-    .quota {
-      font-weight: 500;
-      margin-right: 6px;
+        &.active {
+          background: v-bind(primaryColor);
+        }
+      }
     }
   }
 
