@@ -31,6 +31,10 @@ footer, header, hgroup, menu, nav, section {
 body {
 	line-height: 1;
   overflow: hidden;
+  font-family:
+    'SF Pro Rounded', 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, 'Segoe UI',
+    'PingFang SC', 'HarmonyOS Sans SC', 'Noto Sans SC', 'Microsoft YaHei', 'WenQuanYi Micro Hei',
+    sans-serif;
 }
 ol, ul {
 	list-style: none;
