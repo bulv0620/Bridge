@@ -80,7 +80,7 @@ function handleDownload() {
     <div class="operation">
       <CommonButton
         v-if="mine"
-        tooltip="取消共享"
+        :tooltip="$t('views.shareHub.cancelSharing')"
         :icon="TrashBinOutline"
         :button-props="{ size: 'small', circle: true, secondary: true }"
         placement="bottom"
@@ -90,7 +90,7 @@ function handleDownload() {
       />
       <CommonButton
         v-if="!mine"
-        tooltip="下载"
+        :tooltip="$t('views.shareHub.download')"
         :icon="DownloadRound"
         :button-props="{ size: 'small', circle: true, secondary: true }"
         placement="bottom"

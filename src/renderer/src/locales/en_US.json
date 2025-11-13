@@ -205,7 +205,8 @@
       "notEnabled": "Sharing not enabled",
       "getSizeFailed": "Unable to get file size",
       "chunkDownloadFailed": "Unable to download chunk",
-      "unshareConfirm": "Confirm to cancel sharing?"
+      "unshareConfirm": "Confirm to cancel sharing?",
+      "cancelSharing": "Cancel sharing"
     },
     "setting": {
       "title": "Settings",
