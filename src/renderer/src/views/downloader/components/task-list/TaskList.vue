@@ -46,7 +46,9 @@ const { tableData, tableRef, handleCellDbClick } = useTaskList()
           <n-progress
             type="line"
             :percentage="row.progress"
+            :status="row.origin.status === 'complete' ? 'success' : 'info'"
             :height="12"
+            :processing="row.origin.status !== 'complete'"
             indicator-placement="inside"
           ></n-progress>
         </template>
