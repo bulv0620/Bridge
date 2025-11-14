@@ -3,81 +3,131 @@ import FileNameWithIcon from './cells/FileNameWithIcon.vue'
 import SyncResolution from './cells/SyncResolution.vue'
 import { useFileList } from '@renderer/composables/file-sync/useFileList'
 import { useSyncForm } from '@renderer/composables/file-sync/useSyncForm'
-import { reactive } from 'vue'
-import { VxeTable, VxeColumn, VxeTablePropTypes } from 'vxe-table'
+import { TableColumnCtx } from 'element-plus'
+import { changeColor } from 'seemly'
+import { formatBytes } from '@renderer/utils/format'
+import dayjs from 'dayjs'
 
-const { diffFileList, cellStyle, rowClassName, getFormatDate, getFileSize, getFileList } =
-  useFileList()
+const { diffFileList } = useFileList()
 const { isComparing, isSyncing } = useSyncForm()
 
-const treeConfig = reactive<VxeTablePropTypes.TreeConfig>({
-  transform: true,
-  rowField: 'id',
-  parentField: 'parentId',
-  lazy: true,
-  hasChildField: 'isDirectory',
-  loadMethod({ row }) {
-    // 异步加载子节点
-    return getFileList(row)
-  },
-})
+function cellStyle({
+  row,
+  column,
+}: {
+  row: FileDifference
+  column: TableColumnCtx<FileDifference>
+  rowIndex: number
+  columnIndex: number
+}) {
+  if (row.isDirectory) return {}
+
+  const successColor = changeColor('#67C23A', { alpha: 0.1 })
+  const infoColor = changeColor('#409EFF', { alpha: 0.1 })
+  const errorColor = changeColor('#F56C6C', { alpha: 0.1 })
+
+  let type = ''
+  if (column.property.includes('left')) {
+    type = 'source'
+  } else if (column.property.includes('right')) {
+    type = 'destination'
+  } else {
+    return {}
+  }
+
+  const filePresent = type === 'source' ? !!row.source : !!row.destination
+  const isLeft = row.resolution === 'toLeft'
+  const isRight = row.resolution === 'toRight'
+
+  const mkStyle = (bg: string, strike = false) =>
+    strike ? { backgroundColor: bg, textDecoration: 'line-through' } : { backgroundColor: bg }
+
+  // 语义化条件
+  const presentAndRemoved =
+    filePresent && ((type === 'source' && isLeft) || (type === 'destination' && isRight))
+  const presentAndAdded =
+    filePresent && ((type === 'source' && isRight) || (type === 'destination' && isLeft))
+  const absentAndAdded =
+    !filePresent && ((type === 'source' && isLeft) || (type === 'destination' && isRight))
+
+  if (presentAndRemoved) return mkStyle(errorColor, true)
+  if (presentAndAdded) return mkStyle(infoColor)
+  if (absentAndAdded) return mkStyle(successColor)
+
+  return {}
+}
+
+function rowClassName({ row }) {
+  if (row.resolution === 'ignore') {
+    return 'grey-row'
+  }
+
+  return ''
+}
+
+async function load(row: FileDifference, _: unknown, resolve: (data: FileDifference[]) => void) {
+  const result = await window.ipc.sync.getDiffItems(row.id)
+
+  resolve(result)
+}
+
+function getFormatDate(type: 'source' | 'destination', differentItem: FileDifference) {
+  if (differentItem.isDirectory) {
+    return '-'
+  }
+  const target = type === 'source' ? differentItem.source : differentItem.destination
+  if (!target) return ''
+  else {
+    return dayjs(target.timestamp).format('YYYY-MM-DD HH:mm:ss')
+  }
+}
+
+function getFileSize(type: 'source' | 'destination', differentItem: FileDifference) {
+  if (differentItem.isDirectory) {
+    return '-'
+  }
+  const target = type === 'source' ? differentItem.source : differentItem.destination
+  if (!target) return ''
+  else {
+    return formatBytes(target.size)
+  }
+}
 </script>
 
 <template>
-  <VxeTable
+  <el-table
+    v-loading="isComparing || isSyncing"
     class="diff-file-table"
     :data="diffFileList"
-    size="small"
-    round
     height="100%"
-    :row-config="{ isHover: true, keyField: 'id' }"
-    :tree-config="treeConfig"
-    :virtual-y-config="{ enabled: true, gt: 0 }"
+    row-key="id"
     :cell-style="cellStyle"
     :row-class-name="rowClassName"
-    :loading="isComparing || isSyncing"
+    lazy
+    :load="load"
+    :tree-props="{ children: 'children', hasChildren: 'isDirectory' }"
   >
-    <template #loading>
-      <n-space vertical>
-        <n-spin size="medium">
-          <template #description>
-            <n-text v-if="isComparing" type="primary">
-              {{ $t('views.fileSync.comparing') }}...
-            </n-text>
-            <n-text v-else-if="isSyncing" type="primary">
-              {{ $t('views.fileSync.syncing') }}...
-            </n-text>
-          </template>
-        </n-spin>
-      </n-space>
-    </template>
-    <VxeColumn
-      field="fileName"
-      :title="$t('views.fileSync.fileName')"
-      :width="200"
-      resizable
-      tree-node
-    >
+    <el-table-column prop="fileName" :label="$t('views.fileSync.fileName')" :width="200" resizable>
       <template #default="{ row }">
         <FileNameWithIcon
           :file-name="row.fileName"
           :is-directory="row.isDirectory"
         ></FileNameWithIcon>
       </template>
-    </VxeColumn>
-    <VxeColumn field="leftSize" :title="$t('views.fileSync.leftSize')" :min-width="120">
+    </el-table-column>
+    <el-table-column prop="leftSize" :label="$t('views.fileSync.leftSize')" :min-width="120">
       <template #default="{ row }">
         {{ getFileSize('source', row) }}
       </template>
-    </VxeColumn>
-    <VxeColumn field="leftDate" :title="$t('views.fileSync.leftDate')" :min-width="200">
+    </el-table-column>
+    <el-table-column prop="leftDate" :label="$t('views.fileSync.leftDate')" :min-width="200">
       <template #default="{ row }">
         {{ getFormatDate('source', row) }}
       </template>
-    </VxeColumn>
-    <VxeColumn
-      field="resolution"
-      :title="$t('views.fileSync.resolution')"
+    </el-table-column>
+    <el-table-column
+      prop="resolution"
+      :label="$t('views.fileSync.resolution')"
       :min-width="120"
       align="center"
     >
@@ -91,22 +141,29 @@ const treeConfig = reactive<VxeTablePropTypes.TreeConfig>({
           :destination="row.destination"
         ></SyncResolution>
       </template>
-    </VxeColumn>
-    <VxeColumn field="rightSize" :title="$t('views.fileSync.rightSize')" :min-width="120">
+    </el-table-column>
+    <el-table-column prop="rightSize" :label="$t('views.fileSync.rightSize')" :min-width="120">
       <template #default="{ row }">
         {{ getFileSize('destination', row) }}
       </template>
-    </VxeColumn>
-    <VxeColumn field="rightDate" :title="$t('views.fileSync.rightDate')" :min-width="200">
+    </el-table-column>
+    <el-table-column prop="rightDate" :label="$t('views.fileSync.rightDate')" :min-width="200">
       <template #default="{ row }">
         {{ getFormatDate('destination', row) }}
       </template>
-    </VxeColumn>
-  </VxeTable>
+    </el-table-column>
+  </el-table>
 </template>
 
-<style lang="less">
-.grey-row {
+<style lang="less" scoped>
+:deep(.grey-row) {
   color: rgba(100, 100, 100, 0.5) !important;
+}
+
+:deep(.el-table__row) {
+  .cell {
+    display: flex;
+    align-items: center;
+  }
 }
 </style>

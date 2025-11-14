@@ -32,7 +32,7 @@ async function handleActionClick(resolution: FileSyncResolition) {
 </script>
 
 <template>
-  <span v-if="isDirectory">{{ '-' }}</span>
+  <div v-if="isDirectory" style="width: 100%; text-align: center">{{ '-' }}</div>
   <div v-else class="resolution-content">
     <n-icon
       size="20"

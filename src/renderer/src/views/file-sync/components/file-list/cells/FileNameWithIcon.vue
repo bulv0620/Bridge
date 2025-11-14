@@ -23,6 +23,8 @@ const iconInfo = computed(() => {
 
 <style lang="less" scoped>
 .filename-content {
+  flex: 1;
+  overflow: hidden;
   display: flex;
   gap: 8px;
   align-items: center;

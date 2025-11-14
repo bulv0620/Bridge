@@ -1,6 +1,5 @@
 import { computed, ref, watch } from 'vue'
 import { darkTheme } from 'naive-ui'
-import { VxeUI } from 'vxe-pc-ui'
 
 export enum EThemeType {
   SYSTEM = 'system',
@@ -35,12 +34,11 @@ if (initThemeColor === EThemeType.SYSTEM) {
   initThemeColor = isLight ? EThemeType.LIGHT : EThemeType.DARK
 }
 const currentTheme = ref<EThemeType>(initThemeColor)
-VxeUI.setTheme(initThemeColor)
 // 监听系统主题自动变化
 window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e) => {
   const theme = e.matches ? EThemeType.LIGHT : EThemeType.DARK
   currentTheme.value = theme
-  VxeUI.setTheme(theme)
+  document.documentElement.className = theme
 })
 
 const themeConfig = computed(() => {

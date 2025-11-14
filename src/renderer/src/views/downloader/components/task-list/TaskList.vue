@@ -1,44 +1,48 @@
 <script setup lang="ts">
 import { NProgress, NTag } from 'naive-ui'
-import { useTaskList } from '@renderer/composables/downloader/useTaskList'
-import { VxeTable, VxeColumn } from 'vxe-table'
+import { DownloadTaskInfo, useTaskList } from '@renderer/composables/downloader/useTaskList'
 
-const { tableData, tableRef, handleCellDbClick } = useTaskList()
+const { tableData, tableRef, checkedRows } = useTaskList()
+
+function handleSelectionChange(rows: DownloadTaskInfo[]) {
+  checkedRows.value = rows
+}
 </script>
 
 <template>
   <div class="table">
-    <VxeTable
+    <el-table
       ref="tableRef"
       :data="tableData"
-      size="small"
-      round
       height="100%"
-      :row-config="{ isHover: true, keyField: 'gid' }"
-      :virtual-y-config="{ enabled: true, gt: 0 }"
-      @cell-dblclick="handleCellDbClick"
+      row-key="gid"
+      @selection-change="handleSelectionChange"
     >
-      <vxe-column type="checkbox" width="45" align="center"></vxe-column>
-      <VxeColumn field="name" :title="$t('views.downloader.taskName')" resizable :min-width="200">
+      <el-table-column type="selection" width="55" reserve-selection />
+      <el-table-column
+        prop="name"
+        :label="$t('views.downloader.taskName')"
+        resizable
+        :min-width="200"
+        show-overflow-tooltip
+      >
         <template #default="{ row }">
-          <n-ellipsis :tooltip="{ delay: 500 }" style="width: 100%; user-select: none">{{
-            row.name
-          }}</n-ellipsis>
+          {{ row.name }}
         </template>
-      </VxeColumn>
-      <VxeColumn
-        field="status"
-        :title="$t('views.downloader.taskStatus')"
+      </el-table-column>
+      <el-table-column
+        prop="status"
+        :label="$t('views.downloader.taskStatus')"
         resizable
         :min-width="110"
       >
         <template #default="{ row }">
           <n-tag :type="row.status.type" size="small">{{ row.status.label }}</n-tag>
         </template>
-      </VxeColumn>
-      <VxeColumn
-        field="progress"
-        :title="$t('views.downloader.taskProgress')"
+      </el-table-column>
+      <el-table-column
+        prop="progress"
+        :label="$t('views.downloader.taskProgress')"
         resizable
         :min-width="200"
       >
@@ -52,28 +56,28 @@ const { tableData, tableRef, handleCellDbClick } = useTaskList()
             indicator-placement="inside"
           ></n-progress>
         </template>
-      </VxeColumn>
-      <VxeColumn
-        field="size"
-        :title="$t('views.downloader.taskSize')"
+      </el-table-column>
+      <el-table-column
+        prop="size"
+        :label="$t('views.downloader.taskSize')"
         resizable
-        :min-width="140"
-        show-overflow="ellipsis"
-      ></VxeColumn>
-      <VxeColumn
-        field="speed"
-        :title="$t('views.downloader.taskSpeed')"
+        :min-width="170"
+        show-overflow-tooltip
+      ></el-table-column>
+      <el-table-column
+        prop="speed"
+        :label="$t('views.downloader.taskSpeed')"
         resizable
-        :min-width="100"
-        show-overflow="ellipsis"
-      ></VxeColumn>
-      <VxeColumn
-        field="eta"
-        :title="$t('views.downloader.taskTimeLeft')"
-        :min-width="100"
-        show-overflow="ellipsis"
-      ></VxeColumn>
-    </VxeTable>
+        :min-width="110"
+        show-overflow-tooltip
+      ></el-table-column>
+      <el-table-column
+        prop="eta"
+        :label="$t('views.downloader.taskTimeLeft')"
+        :min-width="110"
+        show-overflow-tooltip
+      ></el-table-column>
+    </el-table>
   </div>
 </template>
 

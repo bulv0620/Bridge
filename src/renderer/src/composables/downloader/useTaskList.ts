@@ -8,7 +8,7 @@ import {
   getTaskStatus,
   getTaskTimeLeft,
 } from '@renderer/utils/get-task-info'
-import { VxeTable, VxeTableEvents } from 'vxe-table'
+import { ElTable } from 'element-plus'
 
 export interface DownloadTaskInfo {
   gid: string
@@ -47,7 +47,9 @@ const allTasks = computed(() => {
   return [...activeTasks.value, ...waitingTasks.value, ...stoppedTasks.value]
 })
 
-const tableRef = ref<InstanceType<typeof VxeTable> | null>(null)
+const tableRef = ref<InstanceType<typeof ElTable> | null>(null)
+
+const checkedRows = ref<DownloadTaskInfo[]>([])
 const tableData = computed<DownloadTaskInfo[]>(() => {
   let taskList: Aria2Status[] = []
   if (activeTaskListTab.value === 'all') {
@@ -78,13 +80,13 @@ const tableData = computed<DownloadTaskInfo[]>(() => {
 let timer: ReturnType<typeof setInterval> | null = null
 
 function getCheckedRows() {
-  const set = new Set(tableRef.value?.getCheckboxRecords().map((row) => row.gid))
+  const set = new Set(checkedRows.value.map((row) => row.gid))
 
   return allTasks.value.filter((task) => set.has(task.gid))
 }
 
 function clearCheckedRows() {
-  tableRef.value?.clearCheckboxRow()
+  tableRef.value?.clearSelection()
 }
 
 async function fetchStats() {
@@ -130,28 +132,22 @@ function stopPolling() {
   }
 }
 
-const handleCellDbClick: VxeTableEvents.CellDblclick<DownloadTaskInfo> = ({ row }) => {
-  if (row.origin.status === 'complete' && row.origin.files?.[0]?.path) {
-    window.ipc.file.openFolder(row.origin.files[0].path)
-  }
-}
-
 export function useTaskList() {
   return {
+    tableRef,
     activeTaskListTab,
     taskListTabOptions,
     tableData,
-    tableRef,
     activeTasks,
     waitingTasks,
     stoppedTasks,
     allTasks,
     globalStats,
+    checkedRows,
+    getCheckedRows,
+    clearCheckedRows,
     fetchStats,
     startPolling,
     stopPolling,
-    getCheckedRows,
-    clearCheckedRows,
-    handleCellDbClick,
   }
 }
