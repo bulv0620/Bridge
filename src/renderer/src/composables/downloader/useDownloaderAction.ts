@@ -1,11 +1,10 @@
-import { useDiscreteApi } from '../discrete-api/useDiscreteApi'
 import { i18n } from '@renderer/locales'
 import { useAria2 } from './useAria2'
 import { useTaskList } from './useTaskList'
 import { ref } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 const { t } = i18n.global
-const { confirm, message } = useDiscreteApi()
 
 const { aria2 } = useAria2()
 const { getCheckedRows, clearCheckedRows } = useTaskList()
@@ -18,7 +17,7 @@ const removeLoading = ref(false)
 function getTasks(type: 'to-start' | 'to-pause' | 'to-stop' | 'to-remove') {
   const checkedRows = getCheckedRows()
   if (checkedRows.length === 0) {
-    message.info(t('views.downloader.noSelectedRows'))
+    ElMessage.info(t('views.downloader.noSelectedRows'))
     return
   }
 
@@ -41,15 +40,15 @@ async function startTasks() {
   const toStartTasks = getTasks('to-start')
   if (!toStartTasks) return
   if (!toStartTasks.length) {
-    message.info(t('views.downloader.noTaskToStart'))
+    ElMessage.info(t('views.downloader.noTaskToStart'))
     return
   }
   try {
     startLoading.value = true
     await Promise.all(toStartTasks.map((task) => aria2.value?.unpause(task.gid)))
-    message.success(t('views.downloader.startSuccess'))
+    ElMessage.success(t('views.downloader.startSuccess'))
   } catch {
-    message.error(t('views.downloader.startFailed'))
+    ElMessage.error(t('views.downloader.startFailed'))
   } finally {
     startLoading.value = false
     clearCheckedRows()
@@ -60,15 +59,15 @@ async function pauseTasks() {
   const toPauseTasks = getTasks('to-pause')
   if (!toPauseTasks) return
   if (!toPauseTasks.length) {
-    message.info(t('views.downloader.noTaskToPause'))
+    ElMessage.info(t('views.downloader.noTaskToPause'))
     return
   }
   try {
     pauseLoading.value = true
     await Promise.all(toPauseTasks.map((task) => aria2.value?.pause(task.gid)))
-    message.success(t('views.downloader.pauseSuccess'))
+    ElMessage.success(t('views.downloader.pauseSuccess'))
   } catch {
-    message.error(t('views.downloader.pauseFailed'))
+    ElMessage.error(t('views.downloader.pauseFailed'))
   } finally {
     pauseLoading.value = false
     clearCheckedRows()
@@ -79,23 +78,23 @@ async function stopTasks() {
   const toStopTasks = getTasks('to-stop')
   if (!toStopTasks) return
   if (!toStopTasks.length) {
-    message.info(t('views.downloader.noTaskToStop'))
+    ElMessage.info(t('views.downloader.noTaskToStop'))
     return
   }
 
-  await confirm('warning', {
+  await ElMessageBox({
+    type: 'warning',
     title: t('common.warning'),
-    content: t('views.downloader.stopConfirm'),
-    positiveText: t('common.confirm'),
-    negativeText: t('common.cancel'),
+    message: t('views.downloader.stopConfirm'),
+    showCancelButton: true,
   })
 
   try {
     stopLoading.value = true
     await Promise.all(toStopTasks.map((task) => aria2.value?.remove(task.gid)))
-    message.success(t('views.downloader.stopSuccess'))
+    ElMessage.success(t('views.downloader.stopSuccess'))
   } catch {
-    message.error(t('views.downloader.stopFailed'))
+    ElMessage.error(t('views.downloader.stopFailed'))
   } finally {
     stopLoading.value = false
     clearCheckedRows()
@@ -106,23 +105,23 @@ async function removeTasks() {
   const toRemoveTasks = getTasks('to-remove')
   if (!toRemoveTasks) return
   if (!toRemoveTasks.length) {
-    message.info(t('views.downloader.noTaskToRemove'))
+    ElMessage.info(t('views.downloader.noTaskToRemove'))
     return
   }
 
-  await confirm('warning', {
+  await ElMessageBox({
+    type: 'warning',
     title: t('common.warning'),
-    content: t('views.downloader.removeConfirm'),
-    positiveText: t('common.confirm'),
-    negativeText: t('common.cancel'),
+    message: t('views.downloader.removeConfirm'),
+    showCancelButton: true,
   })
 
   try {
     removeLoading.value = true
     await Promise.all(toRemoveTasks.map((task) => aria2.value?.removeDownloadResult(task.gid)))
-    message.success(t('views.downloader.removeSuccess'))
+    ElMessage.success(t('views.downloader.removeSuccess'))
   } catch {
-    message.error(t('views.downloader.removeFailed'))
+    ElMessage.error(t('views.downloader.removeFailed'))
   } finally {
     removeLoading.value = false
     clearCheckedRows()

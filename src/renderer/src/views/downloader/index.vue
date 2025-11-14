@@ -55,12 +55,10 @@ onActivated(() => {
     <div class="header">
       <DownloadToolbar></DownloadToolbar>
     </div>
-    <n-divider style="margin: 0"></n-divider>
     <div class="main">
       <TaskListTab></TaskListTab>
       <TaskList></TaskList>
     </div>
-    <n-divider style="margin: 0"></n-divider>
     <div class="footer">
       <DownloadStatus></DownloadStatus>
     </div>
@@ -80,6 +78,7 @@ onActivated(() => {
     padding: 16px;
     display: flex;
     justify-content: space-between;
+    border-bottom: 1px solid var(--el-border-color);
   }
 
   .main {
@@ -92,11 +91,13 @@ onActivated(() => {
   }
 
   .footer {
-    padding: 16px;
+    height: 48px;
+    padding: 0 16px;
     display: flex;
     gap: 8px;
     justify-content: end;
     align-items: center;
+    border-top: 1px solid var(--el-border-color);
   }
 }
 </style>

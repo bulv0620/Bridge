@@ -5,13 +5,13 @@ const { t } = i18n.global
 
 export function getTaskStatus(row: Aria2Status) {
   const statusMap = {
-    active: { type: 'info', label: t('views.downloader.downloading') },
+    active: { type: 'primary', label: t('views.downloader.downloading') },
     waiting: { type: 'warning', label: t('views.downloader.waiting') },
     complete: { type: 'success', label: t('views.downloader.completed') },
-    paused: { type: 'default', label: t('views.downloader.paused') },
-    error: { type: 'error', label: t('views.downloader.error') },
-    removed: { type: 'error', label: t('views.downloader.removed') },
-    seeding: { type: 'info', label: t('views.downloader.seeding') },
+    paused: { type: 'info', label: t('views.downloader.paused') },
+    error: { type: 'danger', label: t('views.downloader.error') },
+    removed: { type: 'danger', label: t('views.downloader.removed') },
+    seeding: { type: 'primary', label: t('views.downloader.seeding') },
   }
   let info: { type: string; label: string }
   if (

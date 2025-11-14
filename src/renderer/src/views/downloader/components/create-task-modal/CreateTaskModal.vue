@@ -1,36 +1,49 @@
 <script setup lang="ts">
-import { NInput } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 import { useCreateDownloadTaskModal } from '@renderer/composables/downloader/useCreateDownloadTaskModal'
+import { watch, nextTick, useTemplateRef } from 'vue'
+import { ElInput } from 'element-plus'
 
 const { t } = useI18n()
 
-const { show, urlInput, loading, inputRef, submitDownloadTask } = useCreateDownloadTaskModal()
+const { show, urlInput, submitDownloadTask } = useCreateDownloadTaskModal()
+
+const inputRef = useTemplateRef<InstanceType<typeof ElInput>>('inputRef')
+
+/** 点击确认 */
+const handleConfirm = async () => {
+  await submitDownloadTask()
+}
+
+/** 关闭前，重置内容 */
+const handleBeforeClose = async () => {
+  urlInput.value = ''
+}
+
+watch(show, (val) => {
+  if (val) {
+    nextTick(() => {
+      inputRef.value?.focus()
+    })
+  }
+})
 </script>
 
 <template>
-  <n-modal
-    v-model:show="show"
+  <common-dialog
+    v-model:visible="show"
     :title="t('views.downloader.createTask')"
-    preset="card"
-    size="small"
-    style="width: 500px"
+    width="500px"
+    :on-confirm="handleConfirm"
+    :before-close="handleBeforeClose"
   >
-    <n-input
+    <!-- 对话框内容 -->
+    <el-input
       ref="inputRef"
-      v-model:value="urlInput"
+      v-model="urlInput"
       type="textarea"
-      :placeholder="t('views.downloader.urlInputPlaceholder')"
       :rows="5"
+      :placeholder="t('views.downloader.urlInputPlaceholder')"
     />
-
-    <template #footer>
-      <n-space justify="end">
-        <n-button @click="show = false">{{ t('common.cancel') }}</n-button>
-        <n-button type="primary" :loading="loading" @click="submitDownloadTask">
-          {{ t('common.confirm') }}
-        </n-button>
-      </n-space>
-    </template>
-  </n-modal>
+  </common-dialog>
 </template>

@@ -6,7 +6,7 @@ const { globalStats } = useTaskList()
 </script>
 
 <template>
-  <n-space style="font-size: 14px">
+  <div style="display: flex; gap: 12px; font-size: 14px">
     <span>
       {{ $t('views.downloader.uploadSpeed') }}:
       {{ formatBytesPerSecond(globalStats?.uploadSpeed || 0) }}
@@ -15,5 +15,5 @@ const { globalStats } = useTaskList()
       {{ $t('views.downloader.downloadSpeed') }}:
       {{ formatBytesPerSecond(globalStats?.downloadSpeed || 0) }}
     </span>
-  </n-space>
+  </div>
 </template>

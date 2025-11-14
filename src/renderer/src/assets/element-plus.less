@@ -1,0 +1,75 @@
+.el-table {
+  // 表头
+  th.el-table__cell {
+    background-color: var(--el-fill-color-light) !important;
+  }
+  // 行元素
+  tr {
+    background-color: var(--el-bg-color-overlay) !important;
+  }
+}
+
+.el-drawer {
+  .el-drawer__header {
+    margin: 0;
+    padding: 8px 12px;
+  }
+
+  .el-drawer__body {
+    margin: 0;
+    padding: 12px;
+    padding-top: 0;
+  }
+}
+
+// 选择框
+.el-select__wrapper {
+  box-shadow: none !important;
+  background: var(--el-fill-color) !important;
+  box-sizing: border-box;
+  transition: background 0.3s;
+
+  &:hover {
+    background: var(--el-fill-color-dark) !important;
+  }
+
+  &.is-focused {
+    background: var(--el-fill-color-extra-light) !important;
+    outline: 1px solid var(--el-color-primary);
+    outline-offset: -1px; /* 关键 */
+  }
+}
+
+// 输入框
+.el-input__wrapper {
+  box-shadow: none !important;
+  background: var(--el-fill-color) !important;
+  transition: background 0.3s;
+
+  &:hover {
+    background: var(--el-fill-color-dark) !important;
+  }
+
+  &.is-focus {
+    background: var(--el-fill-color-extra-light) !important;
+    outline: 1px solid var(--el-color-primary);
+    outline-offset: -1px; /* 关键 */
+  }
+}
+
+// 多行输入框
+.el-textarea__inner {
+  box-shadow: none !important;
+  background: var(--el-fill-color) !important;
+  transition: background 0.3s;
+
+  &:hover {
+    background: var(--el-fill-color-dark) !important;
+  }
+
+  &.is-focus {
+    background: var(--el-fill-color-extra-light) !important;
+    outline: 1px solid var(--el-color-primary);
+    outline-offset: -1px; /* 关键 */
+  }
+}

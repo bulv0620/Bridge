@@ -1,10 +1,9 @@
 import { ref, toRaw } from 'vue'
 import { useAria2 } from '@renderer/composables/downloader/useAria2'
 import { i18n } from '@renderer/locales'
-import { useDiscreteApi } from '../discrete-api/useDiscreteApi'
+import { ElMessage } from 'element-plus'
 
 const { t } = i18n.global
-const { message } = useDiscreteApi()
 const { aria2 } = useAria2()
 
 const showSettingDrawer = ref(false)
@@ -45,9 +44,9 @@ async function applySettings() {
   try {
     await aria2.value.changeGlobalOption(settingsForm.value)
     await window.ipc.downloader.saveSettings(toRaw(settingsForm.value))
-    message.success(t('views.downloader.applySuccess'))
+    ElMessage.success(t('views.downloader.applySuccess'))
   } catch (err: any) {
-    message.error(t('views.downloader.applyFail') + `: ${err.message}`)
+    ElMessage.error(t('views.downloader.applyFail') + `: ${err.message}`)
   } finally {
     applyingSettings.value = false
   }
@@ -59,9 +58,9 @@ async function fetchLatestTracker() {
     const res = await fetch('https://cf.trackerslist.com/best_aria2.txt')
     const text = await res.text()
     settingsForm.value['bt-tracker'] = text.replace(/\n+/g, ',')
-    message.success(t('views.downloader.trackerSuccess'))
+    ElMessage.success(t('views.downloader.trackerSuccess'))
   } catch (err: any) {
-    message.error(t('views.downloader.trackerFail') + `: ${err.message}`)
+    ElMessage.error(t('views.downloader.trackerFail') + `: ${err.message}`)
   } finally {
     fetchingTracker.value = false
   }

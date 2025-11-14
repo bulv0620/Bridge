@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { NProgress, NTag } from 'naive-ui'
 import { DownloadTaskInfo, useTaskList } from '@renderer/composables/downloader/useTaskList'
 
 const { tableData, tableRef, checkedRows } = useTaskList()
@@ -18,7 +17,7 @@ function handleSelectionChange(rows: DownloadTaskInfo[]) {
       row-key="gid"
       @selection-change="handleSelectionChange"
     >
-      <el-table-column type="selection" width="55" reserve-selection />
+      <el-table-column type="selection" width="40" reserve-selection />
       <el-table-column
         prop="name"
         :label="$t('views.downloader.taskName')"
@@ -37,7 +36,7 @@ function handleSelectionChange(rows: DownloadTaskInfo[]) {
         :min-width="110"
       >
         <template #default="{ row }">
-          <n-tag :type="row.status.type" size="small">{{ row.status.label }}</n-tag>
+          <el-tag :type="row.status.type" size="small">{{ row.status.label }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column
@@ -47,14 +46,18 @@ function handleSelectionChange(rows: DownloadTaskInfo[]) {
         :min-width="200"
       >
         <template #default="{ row }">
-          <n-progress
-            type="line"
+          <el-progress
             :percentage="row.progress"
-            :status="{ active: 'info', complete: 'success' }[row.origin.status] || 'warning'"
-            :height="12"
-            :processing="row.origin.status === 'active'"
-            indicator-placement="inside"
-          ></n-progress>
+            :status="
+              row.origin.status === 'complete'
+                ? 'success'
+                : row.origin.status !== 'active'
+                  ? 'warning'
+                  : ''
+            "
+            :text-inside="true"
+            :stroke-width="14"
+          ></el-progress>
         </template>
       </el-table-column>
       <el-table-column

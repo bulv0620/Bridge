@@ -1,24 +1,19 @@
-import { ref, nextTick } from 'vue'
+import { ref } from 'vue'
 import { useAria2 } from './useAria2'
 import { i18n } from '@renderer/locales'
-import { useDiscreteApi } from '../discrete-api/useDiscreteApi'
+import { ElMessage } from 'element-plus'
 
 const { aria2 } = useAria2()
 
 const { t } = i18n.global
-const { message } = useDiscreteApi()
 
 const show = ref(false)
 const urlInput = ref('')
 const loading = ref(false)
-const inputRef = ref<InstanceType<any> | null>(null)
 
 function openCreateTaskModal(url?: string) {
   show.value = true
   urlInput.value = url ?? ''
-  nextTick(() => {
-    inputRef.value?.focus()
-  })
 }
 
 async function submitDownloadTask() {
@@ -28,18 +23,18 @@ async function submitDownloadTask() {
     .filter((u) => !!u)
 
   if (!urls.length) {
-    message.warning(t('views.downloader.enterValidUrl'))
+    ElMessage.warning(t('views.downloader.enterValidUrl'))
     return
   }
 
   try {
     loading.value = true
     await aria2.value!.addUri(urls)
-    message.success(t('views.downloader.taskAdded'))
+    ElMessage.success(t('views.downloader.taskAdded'))
     show.value = false
     urlInput.value = ''
   } catch (err) {
-    message.error(t('views.downloader.taskAddFailed'))
+    ElMessage.error(t('views.downloader.taskAddFailed'))
   } finally {
     loading.value = false
   }
@@ -50,7 +45,6 @@ export function useCreateDownloadTaskModal() {
     show,
     urlInput,
     loading,
-    inputRef,
     openCreateTaskModal,
     submitDownloadTask,
   }
