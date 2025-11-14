@@ -4,6 +4,7 @@ import { languageOptions } from '@renderer/locales'
 import { EThemeType, useTheme } from '@renderer/composables/setting/useTheme'
 import { computed } from 'vue'
 import { useDiscreteApi } from '@renderer/composables/discrete-api/useDiscreteApi'
+import ThemeCardGroup from './components/ThemeCardGroup.vue'
 
 defineOptions({
   name: 'Setting',
@@ -34,16 +35,12 @@ const handleReset = async () => {
 <template>
   <div class="setting">
     <n-form ref="formRef" label-placement="top" label-width="auto">
+      <n-form-item :label="$t('views.setting.theme') + ':'">
+        <ThemeCardGroup v-model:value="themeMode" :options="themeOptions" />
+      </n-form-item>
       <n-form-item :label="$t('views.setting.language') + ':'">
         <n-radio-group v-model:value="locale">
           <n-radio v-for="option in languageOptions" :key="option.value" :value="option.value">
-            {{ option.label }}
-          </n-radio>
-        </n-radio-group>
-      </n-form-item>
-      <n-form-item :label="$t('views.setting.theme') + ':'">
-        <n-radio-group v-model:value="themeMode">
-          <n-radio v-for="option in themeOptions" :key="option.value" :value="option.value">
             {{ option.label }}
           </n-radio>
         </n-radio-group>
