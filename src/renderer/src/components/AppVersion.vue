@@ -113,6 +113,7 @@ onMounted(getCurrentVersion)
   display: flex;
   flex-direction: column;
   gap: 8px;
+  font-size: 14px;
 }
 
 .row {

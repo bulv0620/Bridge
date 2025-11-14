@@ -155,8 +155,9 @@ const handleSelect = (path: string) => {
   }
 
   .collapse-btn {
+    height: 48px;
     color: var(--el-text-color-regular);
-    padding: 16px;
+    padding: 0 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
