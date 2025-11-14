@@ -224,6 +224,7 @@
     "newVersionNotFound": "没有发现新版本",
     "checkForUpdate": "检查更新",
     "updateNow": "点击立即更新",
-    "downloading": "新版本下载中"
+    "downloading": "新版本下载中",
+    "currentVersion": "当前版本"
   }
 }

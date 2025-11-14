@@ -224,6 +224,7 @@
     "newVersionNotFound": "No new version found",
     "checkForUpdate": "Check for updates",
     "updateNow": "Update now",
-    "downloading": "Downloading new version"
+    "downloading": "Downloading new version",
+    "currentVersion": "Current version"
   }
 }

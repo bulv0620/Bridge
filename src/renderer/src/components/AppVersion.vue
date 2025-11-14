@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { useMessage, useThemeVars } from 'naive-ui'
-import { KeyboardDoubleArrowUpRound, DownloadingFilled, RefreshFilled } from '@vicons/material'
+import { ref, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
+import { Refresh, Top, Loading } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 
-const themeColor = useThemeVars()
-const message = useMessage()
 const { t } = useI18n()
 
 const version = ref('')
@@ -25,12 +23,13 @@ async function checkForUpdate() {
 
     if (result) {
       newVersion.value = result
-      message.info(t('update.findNewVersion') + ' v' + result)
+      ElMessage.success(t('update.findNewVersion') + ' v' + result)
     } else {
-      message.info(t('update.newVersionNotFound'))
+      newVersion.value = ''
+      ElMessage.info(t('update.newVersionNotFound'))
     }
-  } catch (error) {
-    console.error(error)
+  } catch (err) {
+    console.error(err)
   } finally {
     checkLoading.value = false
   }
@@ -40,73 +39,109 @@ async function downloadUpdate() {
   try {
     downloading.value = true
     await window.ipc.update.download()
-  } catch (error) {
-    console.error(error)
+  } catch (err) {
+    console.error(err)
   } finally {
     downloading.value = false
   }
 }
 
-onMounted(() => {
-  getCurrentVersion()
-})
+onMounted(getCurrentVersion)
 </script>
 
 <template>
-  <div class="version-box">
-    <n-text>v{{ version }}</n-text>
+  <div>
+    <el-popover trigger="click" placement="top-start" width="200px">
+      <template #reference>
+        <span class="version-trigger"> v{{ version }} </span>
+      </template>
 
-    <n-popover v-if="!newVersion" trigger="hover">
-      <template #trigger>
-        <n-icon
-          :class="{ rotate: checkLoading }"
-          size="18"
-          :color="themeColor.primaryColor"
-          style="cursor: pointer"
+      <div class="popover-content">
+        <div class="row">
+          <strong>{{ t('update.checkForUpdate') }}</strong>
+        </div>
+
+        <div v-if="!newVersion" class="row muted">
+          {{ t('update.currentVersion') }}: v{{ version }}
+        </div>
+
+        <!-- 检查更新按钮 -->
+        <el-button
+          v-if="!newVersion"
+          size="small"
+          :loading="checkLoading"
+          type="primary"
+          :icon="Refresh"
           @click="checkForUpdate"
         >
-          <RefreshFilled></RefreshFilled>
-        </n-icon>
-      </template>
-      <div>{{ $t('update.checkForUpdate') }}</div>
-    </n-popover>
+          {{ t('update.checkForUpdate') }}
+        </el-button>
 
-    <n-popover v-if="newVersion && !downloading" trigger="hover">
-      <template #trigger>
-        <n-icon size="18" :color="themeColor.primaryColor">
-          <KeyboardDoubleArrowUpRound></KeyboardDoubleArrowUpRound>
-        </n-icon>
-      </template>
-      <div style="margin-bottom: 4px">{{ $t('update.findNewVersion') }} v{{ newVersion }}</div>
-      <n-a style="font-size: 13px" @click="downloadUpdate">{{ $t('update.updateNow') }}</n-a>
-    </n-popover>
+        <!-- 新版本信息 -->
+        <div v-if="newVersion && !downloading" class="row new-version">
+          <el-icon><Top /></el-icon>
+          <span>{{ t('update.findNewVersion') }} v{{ newVersion }}</span>
+        </div>
 
-    <n-popover v-if="downloading" trigger="hover">
-      <template #trigger>
-        <n-icon size="18" :color="themeColor.primaryColor">
-          <DownloadingFilled></DownloadingFilled>
-        </n-icon>
-      </template>
-      <div>{{ $t('update.downloading') }}</div>
-    </n-popover>
+        <!-- 点击下载 -->
+        <el-button
+          v-if="newVersion && !downloading"
+          size="small"
+          type="success"
+          @click="downloadUpdate"
+        >
+          {{ t('update.updateNow') }}
+        </el-button>
+
+        <!-- 下载中 -->
+        <div v-if="downloading" class="row downloading">
+          <el-icon class="spin"><Loading /></el-icon>
+          <span>{{ t('update.downloading') }}</span>
+        </div>
+      </div>
+    </el-popover>
   </div>
 </template>
 
-<style lang="less" scoped>
-.version-box {
-  padding: 16px;
+<style scoped lang="less">
+.version-trigger {
+  cursor: pointer;
+  user-select: none;
+}
 
+.popover-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.row {
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
-.rotate {
-  animation: spin 2s linear infinite;
+.muted {
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+.new-version {
+  font-size: 13px;
+  color: var(--el-color-success);
+}
+
+.downloading {
+  font-size: 13px;
+  color: var(--el-color-primary);
+}
+
+.spin {
+  animation: spin 1.2s linear infinite;
 }
 
 @keyframes spin {
-  to {
+  100% {
     transform: rotate(360deg);
   }
 }

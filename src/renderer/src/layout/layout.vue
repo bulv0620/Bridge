@@ -3,16 +3,21 @@ import Sider from './components/Sider.vue'
 </script>
 
 <template>
-  <n-layout class="layout" style="height: 100vh; width: 100%">
-    <n-layout has-sider style="height: 100vh; overflow: hidden">
-      <Sider></Sider>
-      <n-layout :native-scrollbar="false">
+  <el-container style="height: 100vh; width: 100%">
+    <el-aside width="auto">
+      <Sider />
+    </el-aside>
+
+    <el-container>
+      <el-main style="padding: 0; overflow: hidden">
         <router-view v-slot="{ Component }">
           <keep-alive>
             <component :is="Component" />
           </keep-alive>
         </router-view>
-      </n-layout>
-    </n-layout>
-  </n-layout>
+      </el-main>
+    </el-container>
+  </el-container>
 </template>
+
+<style scoped></style>
