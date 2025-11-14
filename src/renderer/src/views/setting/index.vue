@@ -34,21 +34,19 @@ const handleReset = async () => {
 
 <template>
   <div class="setting">
-    <n-form ref="formRef" label-placement="top" label-width="auto">
-      <n-form-item :label="$t('views.setting.theme') + ':'">
+    <el-form ref="formRef" label-position="top">
+      <el-form-item :label="$t('views.setting.theme') + ':'">
         <ThemeCardGroup v-model:value="themeMode" :options="themeOptions" />
-      </n-form-item>
-      <n-form-item :label="$t('views.setting.language') + ':'">
-        <n-radio-group v-model:value="locale">
-          <n-radio v-for="option in languageOptions" :key="option.value" :value="option.value">
+      </el-form-item>
+      <el-form-item :label="$t('views.setting.language') + ':'">
+        <el-radio-group v-model="locale">
+          <el-radio v-for="option in languageOptions" :key="option.value" :value="option.value">
             {{ option.label }}
-          </n-radio>
-        </n-radio-group>
-      </n-form-item>
-      <n-flex>
-        <n-button @click="handleReset"> {{ $t('views.setting.reset') }} </n-button>
-      </n-flex>
-    </n-form>
+          </el-radio>
+        </el-radio-group>
+      </el-form-item>
+      <el-button @click="handleReset"> {{ $t('views.setting.reset') }} </el-button>
+    </el-form>
   </div>
 </template>
 

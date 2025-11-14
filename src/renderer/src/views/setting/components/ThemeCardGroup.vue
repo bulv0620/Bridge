@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { useThemeVars } from 'naive-ui'
-import { computed } from 'vue'
-
 defineProps<{
   options: { label: string; value: string }[]
   value: string
@@ -12,24 +9,6 @@ const emit = defineEmits(['update:value'])
 const onSelect = (val: string) => {
   emit('update:value', val)
 }
-
-const themeVars = useThemeVars()
-
-const cardColor = computed(() => {
-  return themeVars.value.cardColor
-})
-const borderColor = computed(() => {
-  return themeVars.value.borderColor
-})
-const boxShadow1 = computed(() => {
-  return themeVars.value.boxShadow1
-})
-const primaryColor = computed(() => {
-  return themeVars.value.primaryColor
-})
-const borderRadius = computed(() => {
-  return themeVars.value.borderRadius
-})
 </script>
 
 <template>
@@ -56,32 +35,31 @@ const borderRadius = computed(() => {
 .theme-card {
   width: 120px;
   padding: 12px;
-  border-radius: v-bind(borderRadius);
+  border-radius: 6px;
   border: 2px solid transparent;
   cursor: pointer;
   transition: all 0.25s;
-  background: v-bind(cardColor);
-  border: 1px solid v-bind(borderColor);
+  border: 1px solid var(--el-border-color);
 
   display: flex;
   flex-direction: column;
   align-items: center;
 
   &:hover {
-    box-shadow: v-bind(boxShadow1);
+    box-shadow: var(--el-box-shadow-light);
   }
 
   &.active {
-    border: 1px solid v-bind(primaryColor);
+    border: 1px solid var(--el-color-primary);
   }
 }
 
 .preview {
   width: 100%;
   height: 60px;
-  border-radius: v-bind(borderRadius);
+  border-radius: 6px;
   margin-bottom: 8px;
-  border: 1px solid v-bind(borderColor);
+  border: 1px solid var(--el-border-color);
   overflow: hidden;
   box-sizing: border-box;
 }
