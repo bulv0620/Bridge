@@ -128,6 +128,92 @@ async function removeTasks() {
   }
 }
 
+async function startTask(task: Aria2Status) {
+  if (!task) return
+  if (!(task.status === 'paused' || task.status === 'waiting')) {
+    ElMessage.info(t('views.downloader.noTaskToStart'))
+    return
+  }
+  try {
+    startLoading.value = true
+    await aria2.value?.unpause(task.gid)
+    ElMessage.success(t('views.downloader.startSuccess'))
+  } catch {
+    ElMessage.error(t('views.downloader.startFailed'))
+  } finally {
+    startLoading.value = false
+  }
+}
+
+async function pauseTask(task: Aria2Status) {
+  if (!task) return
+  if (task.status !== 'active') {
+    ElMessage.info(t('views.downloader.noTaskToPause'))
+    return
+  }
+  try {
+    pauseLoading.value = true
+    await aria2.value?.pause(task.gid)
+    ElMessage.success(t('views.downloader.pauseSuccess'))
+  } catch {
+    ElMessage.error(t('views.downloader.pauseFailed'))
+  } finally {
+    pauseLoading.value = false
+  }
+}
+
+async function stopTask(task: Aria2Status) {
+  if (!task) return
+  const activeStates = ['active', 'waiting', 'paused']
+  if (!activeStates.includes(task.status)) {
+    ElMessage.info(t('views.downloader.noTaskToStop'))
+    return
+  }
+
+  await ElMessageBox({
+    type: 'warning',
+    title: t('common.warning'),
+    message: t('views.downloader.stopConfirm'),
+    showCancelButton: true,
+  })
+
+  try {
+    stopLoading.value = true
+    await aria2.value?.remove(task.gid)
+    ElMessage.success(t('views.downloader.stopSuccess'))
+  } catch {
+    ElMessage.error(t('views.downloader.stopFailed'))
+  } finally {
+    stopLoading.value = false
+  }
+}
+
+async function removeTask(task: Aria2Status) {
+  if (!task) return
+  const removableStates = ['complete', 'error', 'removed']
+  if (!removableStates.includes(task.status)) {
+    ElMessage.info(t('views.downloader.noTaskToRemove'))
+    return
+  }
+
+  await ElMessageBox({
+    type: 'warning',
+    title: t('common.warning'),
+    message: t('views.downloader.removeConfirm'),
+    showCancelButton: true,
+  })
+
+  try {
+    removeLoading.value = true
+    await aria2.value?.removeDownloadResult(task.gid)
+    ElMessage.success(t('views.downloader.removeSuccess'))
+  } catch {
+    ElMessage.error(t('views.downloader.removeFailed'))
+  } finally {
+    removeLoading.value = false
+  }
+}
+
 export function useDownloaderActions() {
   return {
     startLoading,
@@ -138,5 +224,9 @@ export function useDownloaderActions() {
     pauseTasks,
     stopTasks,
     removeTasks,
+    startTask,
+    pauseTask,
+    stopTask,
+    removeTask,
   }
 }

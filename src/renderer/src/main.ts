@@ -11,6 +11,7 @@ import './assets/reset.css'
 import 'element-plus/dist/index.css'
 import 'element-plus/theme-chalk/dark/css-vars.css'
 import './assets/element-plus.less'
+import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
 
 const app = createApp(App)
 app.use(router)

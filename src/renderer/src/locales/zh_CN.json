@@ -170,7 +170,8 @@
       "noTaskToRemove": "没有可删除的任务",
       "unknown": "未知文件",
       "noTask": "当前列表为空",
-      "noSelectedRows": "请选择执行操作的任务"
+      "noSelectedRows": "请选择执行操作的任务",
+      "openFolder": "打开所在目录"
     },
     "shareHub": {
       "title": "文件分享",

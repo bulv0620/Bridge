@@ -143,12 +143,12 @@
       "taskSize": "Size",
       "taskSpeed": "Speed",
       "taskTimeLeft": "Time",
-      "createTask": "Create Task",
-      "startTask": "Start Task",
-      "pauseTask": "Pause Task",
-      "stopTask": "Stop Task",
+      "createTask": "Create",
+      "startTask": "Start",
+      "pauseTask": "Pause",
+      "stopTask": "Stop",
       "stopConfirm": "Confirm the end?",
-      "removeTask": "Remove Task",
+      "removeTask": "Remove",
       "removeConfirm": "Confirm the deletion?",
       "setting": "Settings",
       "enterValidUrl": "Please enter at least one valid URL",
@@ -170,7 +170,8 @@
       "noTaskToRemove": "No task to remove",
       "unknown": "unknown",
       "noTask": "No Task",
-      "noSelectedRows": "Please select at least one task."
+      "noSelectedRows": "Please select at least one task.",
+      "openFolder": "Open folder"
     },
     "shareHub": {
       "title": "Share Hub",
