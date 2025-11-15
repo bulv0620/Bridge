@@ -170,8 +170,8 @@ export class FtpStorageEngine extends StorageEngine {
 
   async createWriteStream(filePath: string): Promise<WriteStream> {
     await this.connect()
+    await this.ensureDir(path.posix.dirname(filePath))
     const resolved = this._resolve(filePath)
-    await this.ensureDir(path.posix.dirname(resolved))
 
     const writeStream = new PassThrough()
 
