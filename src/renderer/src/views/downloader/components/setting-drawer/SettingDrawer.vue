@@ -59,7 +59,7 @@ watch(
         <div class="setting-wrapper">
           <div class="setting-form">
             <el-scrollbar height="100%">
-              <el-form label-width="auto" class="form">
+              <el-form label-width="auto" label-position="top" class="form">
                 <el-form-item :label="$t('views.downloader.dir')">
                   <el-input
                     v-model="settingsForm['dir']"

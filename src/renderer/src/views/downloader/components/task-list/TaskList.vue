@@ -56,7 +56,7 @@ function handleSelectionChange(rows: DownloadTaskInfo[]) {
                   : ''
             "
             :text-inside="true"
-            :stroke-width="14"
+            :stroke-width="15"
           ></el-progress>
         </template>
       </el-table-column>
