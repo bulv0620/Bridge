@@ -14,9 +14,11 @@ const iconInfo = computed(() => {
 
 <template>
   <div class="filename-content">
-    <n-icon class="icon" :component="iconInfo.icon" :color="iconInfo.color" />
-    <div style="flex: 1; overflow: hidden">
-      <n-ellipsis class="name" style="width: 100%">{{ fileName }}</n-ellipsis>
+    <el-icon class="icon" :color="iconInfo.color">
+      <component :is="iconInfo.icon"></component>
+    </el-icon>
+    <div style="flex: 1; overflow: hidden; line-height: normal">
+      <el-text truncated class="name" style="width: 100%">{{ fileName }}</el-text>
     </div>
   </div>
 </template>

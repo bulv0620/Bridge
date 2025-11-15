@@ -1,27 +1,53 @@
 <script setup lang="ts">
 import { useIgnoredFoldersModal } from '@renderer/composables/file-sync/useIgnoredFoldersModal'
+import { Delete, Plus } from '@element-plus/icons-vue'
 
 const { visible, edtingIgnoredFolderList, conifrmIgnoredFolders } = useIgnoredFoldersModal()
 </script>
 
 <template>
-  <n-modal
-    v-model:show="visible"
-    style="width: 400px"
-    preset="card"
-    size="small"
+  <CommonDialog
+    v-model:visible="visible"
     :title="$t('views.fileSync.ignoredFolders')"
+    width="400px"
+    :on-confirm="conifrmIgnoredFolders"
   >
-    <n-scrollbar style="max-height: 220px">
-      <n-dynamic-input v-model:value="edtingIgnoredFolderList" />
-    </n-scrollbar>
-    <template #footer>
-      <n-flex justify="end">
-        <n-button size="small" @click="visible = false">{{ $t('common.cancel') }}</n-button>
-        <n-button type="primary" size="small" @click="conifrmIgnoredFolders">
-          {{ $t('common.confirm') }}
-        </n-button>
-      </n-flex>
-    </template>
-  </n-modal>
+    <el-scrollbar height="220px">
+      <div class="dynamic-input-wrapper">
+        <div v-for="(_, index) in edtingIgnoredFolderList" :key="index" class="input-row">
+          <el-input v-model="edtingIgnoredFolderList[index]" />
+          <el-button
+            circle
+            type="danger"
+            :icon="Delete"
+            size="small"
+            @click="edtingIgnoredFolderList.splice(index, 1)"
+          />
+        </div>
+
+        <el-button
+          :icon="Plus"
+          style="border: 1px dashed var(--el-border-color-light)"
+          @click="edtingIgnoredFolderList.push('')"
+          >{{ $t('common.add') }}
+        </el-button>
+      </div>
+    </el-scrollbar>
+  </CommonDialog>
 </template>
+
+<style scoped>
+.dynamic-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px;
+}
+
+.input-row {
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  align-items: center;
+}
+</style>

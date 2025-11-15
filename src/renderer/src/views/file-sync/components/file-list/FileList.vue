@@ -106,8 +106,15 @@ function getFileSize(type: 'source' | 'destination', differentItem: FileDifferen
     lazy
     :load="load"
     :tree-props="{ children: 'children', hasChildren: 'isDirectory' }"
+    border
   >
-    <el-table-column prop="fileName" :label="$t('views.fileSync.fileName')" :width="200" resizable>
+    <el-table-column
+      prop="fileName"
+      :label="$t('views.fileSync.fileName')"
+      :min-width="220"
+      resizable
+      fixed
+    >
       <template #default="{ row }">
         <FileNameWithIcon
           :file-name="row.fileName"

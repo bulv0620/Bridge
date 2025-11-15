@@ -8,35 +8,66 @@ const { resetPlan, savePlan, saveLoading, openPlanListModal, queryLoading } = us
 </script>
 
 <template>
-  <n-space>
-    <CommonButton
-      :tooltip="$t('views.fileSync.newPlan')"
-      :icon="DocumentOutline"
-      :button-props="{ size: 'small', circle: true, type: 'primary' }"
+  <div class="plan-toolbar">
+    <el-tooltip
+      :content="$t('views.fileSync.newPlan')"
       placement="bottom"
-      :delay="500"
+      effect="light"
+      :show-after="500"
+      :hide-after="0"
       :disabled="isSyncing || isComparing"
-      @click="resetPlan"
-    />
-    <CommonButton
-      :tooltip="$t('views.fileSync.savePlan')"
-      :icon="SaveOutline"
-      :button-props="{ size: 'small', circle: true }"
+    >
+      <el-button
+        type="primary"
+        circle
+        :icon="DocumentOutline"
+        :disabled="isSyncing || isComparing"
+        @click="resetPlan()"
+      ></el-button>
+    </el-tooltip>
+
+    <el-tooltip
+      :content="$t('views.fileSync.savePlan')"
       placement="bottom"
-      :delay="500"
+      effect="light"
+      :show-after="500"
+      :hide-after="0"
       :disabled="isSyncing || isComparing"
-      :loading="saveLoading"
-      @click="savePlan"
-    />
-    <CommonButton
-      :tooltip="$t('views.fileSync.savedPlans')"
-      :icon="FileTrayFullOutline"
-      :button-props="{ size: 'small', circle: true }"
+    >
+      <el-button
+        circle
+        text
+        bg
+        :icon="SaveOutline"
+        :disabled="isSyncing || isComparing"
+        :loading="saveLoading"
+        @click="savePlan()"
+      ></el-button>
+    </el-tooltip>
+
+    <el-tooltip
+      :content="$t('views.fileSync.savedPlans')"
       placement="bottom"
-      :delay="500"
+      effect="light"
+      :show-after="500"
+      :hide-after="0"
       :disabled="isSyncing || isComparing"
-      :loading="queryLoading"
-      @click="openPlanListModal"
-    />
-  </n-space>
+    >
+      <el-button
+        circle
+        text
+        bg
+        :icon="FileTrayFullOutline"
+        :disabled="isSyncing || isComparing"
+        :loading="queryLoading"
+        @click="openPlanListModal()"
+      ></el-button>
+    </el-tooltip>
+  </div>
 </template>
+
+<style lang="less" scoped>
+.plan-toolbar {
+  display: flex;
+}
+</style>

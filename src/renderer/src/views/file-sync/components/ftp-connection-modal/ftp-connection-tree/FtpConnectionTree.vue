@@ -1,81 +1,65 @@
 <script setup lang="ts">
-import { Folder, FolderOpenOutline } from '@vicons/ionicons5'
-import { NIcon, TreeOption } from 'naive-ui'
-import { h, ref } from 'vue'
+import { ref } from 'vue'
 
-// 绑定选中的 key
-const selectedPath = defineModel<Array<string>>('selectedPath', { required: true })
+// 双向绑定选择的路径
+const selectedPath = defineModel<string>('selectedPath', { required: true })
 
+// 根节点
 const data = ref([
   {
-    key: '/',
+    id: '/',
     label: 'root',
-    prefix: () =>
-      h(NIcon, null, {
-        default: () => h(Folder),
-      }),
-    isLeaf: false,
+    children: [],
+    leaf: false,
   },
 ])
 
-function updatePrefixWithExpaned(
-  _keys: Array<string | number>,
-  _option: Array<TreeOption | null>,
-  meta: {
-    node: TreeOption | null
-    action: 'expand' | 'collapse' | 'filter'
-  },
-) {
-  if (!meta.node) return
-  switch (meta.action) {
-    case 'expand':
-      meta.node.prefix = () =>
-        h(NIcon, null, {
-          default: () => h(FolderOpenOutline),
-        })
-      break
-    case 'collapse':
-      meta.node.prefix = () =>
-        h(NIcon, null, {
-          default: () => h(Folder),
-        })
-      break
-  }
+/**
+ * 异步加载子节点
+ */
+async function loadNode(node: any, resolve: any) {
+  // node.level === 0 为根（虚拟节点），跳过
+  if (node.level === 0) return resolve(data.value)
+
+  const nodeData = node.data
+  const list = await window.ipc.sync.listInstance(nodeData.id)
+
+  const children = list.map((el: any) => ({
+    id: el.filePath,
+    label: el.fileName,
+    children: [],
+    leaf: false,
+  }))
+
+  resolve(children)
 }
 
-// 异步加载子节点
-async function handleLoad(node: TreeOption) {
-  const list = await window.ipc.sync.listInstance(node.key as string)
-
-  console.log(list)
-
-  node.children = list.map((el) => ({
-    key: el.filePath,
-    label: el.fileName,
-    prefix: () =>
-      h(NIcon, null, {
-        default: () => h(Folder),
-      }),
-    isLeaf: false,
-  }))
+/**
+ * 处理节点选择
+ */
+function handleNodeClick(data: any) {
+  selectedPath.value = data.id
 }
 </script>
 
 <template>
-  <n-p>
-    <n-ellipsis style="width: 100%">
+  <div>
+    <el-text>
       <span style="margin-right: 8px">{{ $t('views.fileSync.selectedPath') }}:</span>
-      <n-a>{{ selectedPath[0] || '/' }}</n-a>
-    </n-ellipsis>
-  </n-p>
-  <n-scrollbar style="height: 190px">
-    <n-tree
-      v-model:selected-keys="selectedPath"
-      block-line
-      show-line
+      <el-text type="primary">{{ selectedPath || '/' }}</el-text>
+    </el-text>
+  </div>
+
+  <el-scrollbar height="190px">
+    <el-tree
       :data="data"
-      :on-update:expanded-keys="updatePrefixWithExpaned"
-      :on-load="handleLoad"
-    />
-  </n-scrollbar>
+      node-key="id"
+      highlight-current
+      lazy
+      :load="loadNode"
+      :expand-on-click-node="false"
+      @node-click="handleNodeClick"
+    >
+    </el-tree>
+  </el-scrollbar>
 </template>

@@ -15,9 +15,11 @@ const {
   startSync,
   stopSync,
 } = useSyncForm()
+
 const { diffFileList } = useFileList()
 const { openIgnoredFoldersModal } = useIgnoredFoldersModal()
 
+// 按钮类型映射到 Element Plus
 const compareButtonType = computed(() => {
   if (isComparing.value || isSyncing.value) return ''
   if (isFormCompleted.value) return 'primary'
@@ -25,13 +27,13 @@ const compareButtonType = computed(() => {
 })
 
 const stopButtonType = computed(() => {
-  if (isComparing.value) return 'error'
+  if (isComparing.value) return 'danger'
   return ''
 })
 
 const syncButtonType = computed(() => {
   if (isComparing.value || isSyncing.value) return ''
-  if (isFormCompleted.value && diffFileList.value.length > 0) return 'info'
+  if (isFormCompleted.value && diffFileList.value.length > 0) return 'success'
   return ''
 })
 
@@ -43,44 +45,53 @@ const pauseButtonType = computed(() => {
 
 <template>
   <div class="sync-toolbar">
-    <n-button
-      size="small"
+    <!-- 比较按钮 -->
+    <el-button
       :type="compareButtonType"
       :disabled="!isFormCompleted || isSyncing"
       :loading="isComparing"
+      :icon="SwapHorizontal"
       @click="startCompare"
     >
-      <template #icon><SwapHorizontal /></template>
       {{ $t('views.fileSync.compare') }}
-    </n-button>
+    </el-button>
 
-    <n-button size="small" :type="stopButtonType" :disabled="!isComparing" @click="stopCompare">
-      <template #icon><Stop /></template>
+    <!-- 停止比较 -->
+    <el-button :type="stopButtonType" :disabled="!isComparing" :icon="Stop" @click="stopCompare">
       {{ $t('views.fileSync.stop') }}
-    </n-button>
+    </el-button>
 
-    <n-button
-      size="small"
+    <!-- 开始同步 -->
+    <el-button
       :type="syncButtonType"
       :disabled="!(isFormCompleted && diffFileList.length > 0) || isComparing"
       :loading="isSyncing"
+      :icon="Play"
       @click="startSync"
     >
-      <template #icon><Play /></template>
       {{ $t('views.fileSync.startSync') }}
-    </n-button>
+    </el-button>
 
-    <n-button size="small" :type="pauseButtonType" :disabled="!isSyncing" @click="stopSync">
-      <template #icon><Pause /></template>
+    <!-- 暂停同步 -->
+    <el-button :type="pauseButtonType" :disabled="!isSyncing" :icon="Pause" @click="stopSync">
       {{ $t('views.fileSync.pauseSync') }}
-    </n-button>
+    </el-button>
 
-    <n-badge :value="syncForm.ignoredFolders.length" type="success" style="margin-left: auto">
-      <n-button size="small" :disabled="isComparing || isSyncing" @click="openIgnoredFoldersModal">
-        <template #icon><Folder /></template>
+    <!-- 忽略文件夹 badge -->
+    <el-badge
+      :show-zero="false"
+      :value="syncForm.ignoredFolders.length"
+      type="success"
+      style="margin-left: auto"
+    >
+      <el-button
+        :disabled="isComparing || isSyncing"
+        :icon="Folder"
+        @click="openIgnoredFoldersModal"
+      >
         {{ $t('views.fileSync.ignoredFolders') }}
-      </n-button>
-    </n-badge>
+      </el-button>
+    </el-badge>
   </div>
 </template>
 
@@ -89,7 +100,6 @@ const pauseButtonType = computed(() => {
   padding: 16px;
   padding-bottom: 0;
   display: flex;
-  gap: 12px;
   align-items: center;
 }
 </style>

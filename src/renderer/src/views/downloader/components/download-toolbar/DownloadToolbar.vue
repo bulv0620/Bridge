@@ -13,7 +13,7 @@ const { openCreateTaskModal } = useCreateDownloadTaskModal()
 </script>
 
 <template>
-  <n-space>
+  <div style="display: flex">
     <el-tooltip
       :content="$t('views.downloader.createTask')"
       placement="bottom"
@@ -106,7 +106,7 @@ const { openCreateTaskModal } = useCreateDownloadTaskModal()
         @click="removeTasks"
       ></el-button>
     </el-tooltip>
-  </n-space>
+  </div>
 
   <el-tooltip
     :content="$t('views.downloader.setting')"

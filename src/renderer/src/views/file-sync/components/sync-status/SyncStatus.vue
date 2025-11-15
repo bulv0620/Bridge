@@ -12,23 +12,43 @@ const percentage = computed(() => {
 </script>
 
 <template>
-  <n-space justify="space-between">
-    <n-text class="text">
+  <div class="sync-status">
+    <el-text class="text">
       {{ formatBytes(syncStatus.bytesTransferred) }}/{{ formatBytes(syncStatus.totalBytes) }}
-    </n-text>
-    <n-space>
-      <n-text class="text"> {{ syncStatus.transferredCount }}/{{ syncStatus.totalCount }} </n-text>
-      <n-progress class="progress" :percentage="percentage"></n-progress>
-    </n-space>
-  </n-space>
+    </el-text>
+    <div class="progress-wrapper">
+      <el-text class="text">
+        {{ syncStatus.transferredCount }}/{{ syncStatus.totalCount }}
+      </el-text>
+      <el-progress class="progress" :percentage="percentage"></el-progress>
+    </div>
+  </div>
 </template>
 
 <style lang="less" scoped>
+.sync-status {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .text {
   font-size: 14px;
 }
 
+.progress-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .progress {
   width: 180px;
+}
+
+:deep(.el-progress__text) {
+  font-size: 14px;
+  min-width: auto;
 }
 </style>

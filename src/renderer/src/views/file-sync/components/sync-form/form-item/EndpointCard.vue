@@ -69,36 +69,64 @@ function removeEndPoint() {
 </script>
 
 <template>
-  <n-card size="small" style="flex: 1; overflow: hidden">
+  <div class="endpoint-card" :class="{ active: !!endpoint }">
     <div class="card-content">
       <img class="endpoint-image" :src="endPointImage" draggable="false" />
       <div class="text">
-        <n-ellipsis style="width: 100%">
-          <n-text :depth="3">{{ title }}</n-text>
-        </n-ellipsis>
-        <n-ellipsis v-if="endpoint" style="width: 100%">
+        <el-text truncated style="width: 100%" type="primary">{{ title }}</el-text>
+        <el-text v-if="endpoint" truncated style="width: 100%">
           {{ endpoint?.path }}
-        </n-ellipsis>
-        <n-dropdown v-else trigger="hover" :options="endPointOptions" @select="selectStorageType">
-          <n-a>{{ $t('views.fileSync.notSelected') }}</n-a>
-        </n-dropdown>
+        </el-text>
+
+        <el-dropdown
+          v-else
+          trigger="click"
+          :disabled="isComparing || isSyncing"
+          @command="selectStorageType"
+        >
+          <!-- 触发按钮 -->
+          <el-text type="info" style="cursor: pointer; user-select: none">{{
+            $t('views.fileSync.notSelected')
+          }}</el-text>
+
+          <!-- 下拉内容 -->
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item v-for="opt in endPointOptions" :key="opt.key" :command="opt.key">
+                {{ opt.label }}
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
       </div>
-      <n-button
+      <el-button
         v-if="endpoint"
-        type="text"
-        size="small"
         :disabled="isSyncing || isComparing"
+        :icon="Close"
+        circle
+        text
+        bg
         @click="removeEndPoint"
       >
-        <template #icon>
-          <Close></Close>
-        </template>
-      </n-button>
+      </el-button>
     </div>
-  </n-card>
+  </div>
 </template>
 
 <style lang="less" scoped>
+.endpoint-card {
+  flex: 1;
+  overflow: hidden;
+  border-radius: var(--el-border-radius-base);
+  border: 1px solid var(--el-border-color);
+  background: var(--el-fill-color);
+  padding: 12px;
+
+  &.active {
+    background: var(--el-bg-color);
+  }
+}
+
 .card-content {
   display: flex;
   gap: 12px;
@@ -112,6 +140,12 @@ function removeEndPoint() {
   .text {
     flex: 1;
     overflow: hidden;
+    line-height: normal;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: start;
+    height: 40px;
   }
 }
 </style>

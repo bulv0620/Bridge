@@ -1,7 +1,7 @@
 import { computed, reactive, ref, toRaw, watch } from 'vue'
 import { i18n } from '@renderer/locales'
-import { useDiscreteApi } from '../discrete-api/useDiscreteApi'
 import { useFileList } from './useFileList'
+import { ElMessage } from 'element-plus'
 
 interface SyncStatus {
   bytesTransferred: number
@@ -11,7 +11,6 @@ interface SyncStatus {
 }
 
 const { t } = i18n.global
-const { message } = useDiscreteApi()
 
 const { diffFileList, getRootList } = useFileList()
 
@@ -84,11 +83,11 @@ async function startCompare() {
     const [sourceValid, destValid] = await window.ipc.sync.validate()
 
     if (!sourceValid) {
-      message.error(t('views.fileSync.sourceInvalid'))
+      ElMessage.error(t('views.fileSync.sourceInvalid'))
       return
     }
     if (!destValid) {
-      message.error(t('views.fileSync.destInvalid'))
+      ElMessage.error(t('views.fileSync.destInvalid'))
       return
     }
 
@@ -99,7 +98,7 @@ async function startCompare() {
     getRootList()
   } catch (error) {
     console.log(error)
-    message.error(t('views.fileSync.compareFailed'))
+    ElMessage.error(t('views.fileSync.compareFailed'))
   } finally {
     isComparing.value = false
   }
@@ -115,11 +114,11 @@ async function startSync() {
     const [sourceValid, destValid] = await window.ipc.sync.validate()
 
     if (!sourceValid) {
-      message.error(t('views.fileSync.sourceInvalid'))
+      ElMessage.error(t('views.fileSync.sourceInvalid'))
       return
     }
     if (!destValid) {
-      message.error(t('views.fileSync.destInvalid'))
+      ElMessage.error(t('views.fileSync.destInvalid'))
       return
     }
 
@@ -127,7 +126,7 @@ async function startSync() {
     await window.ipc.sync.startSync()
   } catch (error) {
     console.log(error)
-    message.error(t('views.fileSync.syncFailed'))
+    ElMessage.error(t('views.fileSync.syncFailed'))
   } finally {
     isSyncing.value = false
     window.events.off('sync:updateStatus', syncStatusHanlder)

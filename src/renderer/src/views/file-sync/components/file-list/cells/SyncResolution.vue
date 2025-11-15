@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useSyncForm } from '@renderer/composables/file-sync/useSyncForm'
 import { ArrowBackCircle, ArrowForwardCircle } from '@vicons/ionicons5'
-import { useThemeVars } from 'naive-ui'
 import { nextTick } from 'vue'
 const props = defineProps<{
   id: string
@@ -11,8 +10,6 @@ const props = defineProps<{
 }>()
 
 const type = defineModel<FileSyncResolition>('type', { required: true })
-
-const themeVars = useThemeVars()
 
 const { syncStatus } = useSyncForm()
 
@@ -34,22 +31,22 @@ async function handleActionClick(resolution: FileSyncResolition) {
 <template>
   <div v-if="isDirectory" style="width: 100%; text-align: center">{{ '-' }}</div>
   <div v-else class="resolution-content">
-    <n-icon
-      size="20"
-      :color="type === 'toLeft' ? themeVars.successColor : themeVars.borderColor"
+    <el-icon
+      :size="20"
       class="icon-button"
+      :class="{ active: type === 'toLeft' }"
       @click="handleActionClick('toLeft')"
     >
       <ArrowBackCircle />
-    </n-icon>
-    <n-icon
-      size="20"
-      :color="type === 'toRight' ? themeVars.successColor : themeVars.borderColor"
+    </el-icon>
+    <el-icon
+      :size="20"
       class="icon-button"
+      :class="{ active: type === 'toRight' }"
       @click="handleActionClick('toRight')"
     >
       <ArrowForwardCircle />
-    </n-icon>
+    </el-icon>
   </div>
 </template>
 
@@ -66,5 +63,10 @@ async function handleActionClick(resolution: FileSyncResolition) {
 }
 .icon-button {
   cursor: pointer;
+  color: var(--el-fill-color-darker);
+
+  &.active {
+    color: var(--el-color-success);
+  }
 }
 </style>

@@ -1,124 +1,131 @@
 <script setup lang="ts">
-import { FormRules, NForm } from 'naive-ui'
-import { computed, useTemplateRef } from 'vue'
+import { ref, computed } from 'vue'
+import { ElForm } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 
-const formRef = useTemplateRef<InstanceType<typeof NForm>>('formRef')
+const formRef = ref<InstanceType<typeof ElForm> | null>(null)
 
 const ftpConfig = defineModel<FtpConfig>('ftpConfig', { required: true })
 
-const rules = computed<FormRules>(() => ({
+const rules = computed(() => ({
   host: [
     {
       required: true,
-      trigger: ['change'],
       message: t('views.fileSync.ftpHostRequired'),
+      trigger: 'blur',
     },
     {
-      trigger: ['change'],
-      validator(_, value) {
+      validator: (_, value, callback) => {
         const reg =
           /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
         if (!reg.test(value)) {
-          return new Error(t('views.fileSync.ftpHostFormat'))
+          callback(new Error(t('views.fileSync.ftpHostFormat')))
+        } else {
+          callback()
         }
-        return true
       },
+      trigger: 'blur',
     },
   ],
   port: [
     {
-      type: 'number',
-      min: 1,
-      max: 65535,
-      trigger: ['change'],
-      message: t('views.fileSync.ftpPortRange'),
+      validator: (_, value, callback) => {
+        if (value < 1 || value > 65535) {
+          callback(new Error(t('views.fileSync.ftpPortRange')))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'blur',
     },
   ],
-  user: [
-    {
-      required: true,
-      trigger: ['change'],
-      message: t('views.fileSync.ftpUserRequired'),
-    },
-  ],
-  password: [
-    {
-      required: true,
-      trigger: ['change'],
-      message: t('views.fileSync.ftpPasswordRequired'),
-    },
-  ],
+  user: [{ required: true, message: t('views.fileSync.ftpUserRequired'), trigger: 'blur' }],
+  password: [{ required: true, message: t('views.fileSync.ftpPasswordRequired'), trigger: 'blur' }],
 }))
 
+/** 暴露给父组件 */
 function validate() {
   return formRef.value?.validate()
 }
 
-function restoreValidation() {
-  return formRef.value?.restoreValidation()
+function clearValidate() {
+  return formRef.value?.clearValidate()
 }
 
 defineExpose({
   validate,
-  restoreValidation,
+  clearValidate,
 })
 </script>
 
 <template>
-  <n-form ref="formRef" size="small" :model="ftpConfig" :rules="rules" label-width="120px">
-    <n-grid x-gap="12" :cols="2">
-      <n-gi>
-        <n-form-item :label="t('views.fileSync.ftpHost')" path="host">
-          <n-input
-            v-model:value="ftpConfig.host"
+  <el-form ref="formRef" :model="ftpConfig" :rules="rules" label-position="top">
+    <el-row :gutter="12">
+      <!-- Host -->
+      <el-col :span="12">
+        <el-form-item :label="t('views.fileSync.ftpHost')" prop="host">
+          <el-input
+            v-model="ftpConfig.host"
             :placeholder="t('views.fileSync.ftpHostPlaceholder')"
+            clearable
           />
-        </n-form-item>
-      </n-gi>
-      <n-gi>
-        <n-form-item :label="t('views.fileSync.ftpPort')" path="port">
-          <n-input-number
-            v-model:value="ftpConfig.port"
-            style="width: 100%"
+        </el-form-item>
+      </el-col>
+
+      <!-- Port -->
+      <el-col :span="12">
+        <el-form-item :label="t('views.fileSync.ftpPort')" prop="port">
+          <el-input-number
+            v-model="ftpConfig.port"
             :min="1"
             :max="65535"
+            style="width: 100%"
             :placeholder="t('views.fileSync.ftpPortPlaceholder')"
           />
-        </n-form-item>
-      </n-gi>
-      <n-gi>
-        <n-form-item :label="t('views.fileSync.ftpUser')" path="user">
-          <n-input
-            v-model:value="ftpConfig.user"
+        </el-form-item>
+      </el-col>
+
+      <!-- User -->
+      <el-col :span="12">
+        <el-form-item :label="t('views.fileSync.ftpUser')" prop="user">
+          <el-input
+            v-model="ftpConfig.user"
             :placeholder="t('views.fileSync.ftpUserPlaceholder')"
+            clearable
           />
-        </n-form-item>
-      </n-gi>
-      <n-gi>
-        <n-form-item :label="t('views.fileSync.ftpPassword')" path="password">
-          <n-input
-            v-model:value="ftpConfig.password"
+        </el-form-item>
+      </el-col>
+
+      <!-- Password -->
+      <el-col :span="12">
+        <el-form-item :label="t('views.fileSync.ftpPassword')" prop="password">
+          <el-input
+            v-model="ftpConfig.password"
             type="password"
+            show-password
             :placeholder="t('views.fileSync.ftpPasswordPlaceholder')"
           />
-        </n-form-item>
-      </n-gi>
-      <n-gi>
-        <n-form-item :label="t('views.fileSync.ftpSecure')" path="secure">
-          <n-switch v-model:value="ftpConfig.secure" />
-        </n-form-item>
-      </n-gi>
-      <n-gi>
-        <n-form-item
+        </el-form-item>
+      </el-col>
+
+      <!-- Secure -->
+      <el-col :span="12">
+        <el-form-item :label="t('views.fileSync.ftpSecure')" prop="secure">
+          <el-switch v-model="ftpConfig.secure" />
+        </el-form-item>
+      </el-col>
+
+      <!-- rejectUnauthorized -->
+      <el-col :span="12">
+        <el-form-item
           :label="t('views.fileSync.ftpRejectUnauthorized')"
-          path="secureOptions.rejectUnauthorized"
+          prop="secureOptions.rejectUnauthorized"
         >
-          <n-switch v-model:value="ftpConfig.secureOptions.rejectUnauthorized" />
-        </n-form-item>
-      </n-gi>
-    </n-grid>
-  </n-form>
+          <el-switch v-model="ftpConfig.secureOptions.rejectUnauthorized" />
+        </el-form-item>
+      </el-col>
+    </el-row>
+  </el-form>
 </template>

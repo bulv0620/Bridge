@@ -1,14 +1,13 @@
 import { ref, toRaw, watch } from 'vue'
 import FtpConnectionForm from '@renderer/views/file-sync/components/ftp-connection-form/FtpConnectionForm.vue'
-import { useDiscreteApi } from '../discrete-api/useDiscreteApi'
 import { i18n } from '@renderer/locales'
+import { ElMessage } from 'element-plus'
 
 type PromiseState<T> = {
   resolve: (value: T | PromiseLike<T>) => void
   reject: (reason?: unknown) => void
 } | null
 
-const { message } = useDiscreteApi()
 const { t } = i18n.global
 
 const promiseState = ref<PromiseState<StorageEngineConfig>>(null)
@@ -27,7 +26,7 @@ const ftpConfig = ref<FtpConfig>({
   },
 })
 const connectLoading = ref(false)
-const selectedPath = ref<string[]>([])
+const selectedPath = ref<string>('')
 
 watch(visible, (val) => {
   if (!val && promiseState.value && promiseState.value.reject) {
@@ -44,25 +43,25 @@ async function submitForm() {
   if (currentStep.value === 1) {
     connectLoading.value = true
     // 配置ftp确认
-    await ftpFormRef.value?.validate()
     try {
+      await ftpFormRef.value?.validate()
       // 创建连接实例
       await window.ipc.sync.createInstance({
         storageType: 'ftp',
         path: '/',
         connectionConfig: toRaw(ftpConfig.value),
       })
-      selectedPath.value = []
+      selectedPath.value = ''
       currentStep.value++
     } catch (error) {
-      message.error(t('views.fileSync.connectionFailed'))
+      ElMessage.error(t('views.fileSync.connectionFailed'))
     } finally {
       connectLoading.value = false
     }
   } else {
     promiseState.value?.resolve({
       storageType: 'ftp',
-      path: toRaw(selectedPath.value[0]),
+      path: selectedPath.value || '/',
       connectionConfig: toRaw(ftpConfig.value),
     })
     promiseState.value = null

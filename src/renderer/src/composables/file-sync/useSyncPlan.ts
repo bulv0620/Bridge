@@ -1,10 +1,9 @@
 import { ref, toRaw } from 'vue'
 import { useSyncForm } from './useSyncForm'
-import { useDiscreteApi } from '../discrete-api/useDiscreteApi'
 import { i18n } from '@renderer/locales'
+import { ElMessageBox } from 'element-plus'
 
 const { syncForm } = useSyncForm()
-const { confirm } = useDiscreteApi()
 const { t } = i18n.global
 
 const saveLoading = ref(false)
@@ -29,21 +28,21 @@ async function savePlan() {
     saveLoading.value = true
     if (syncForm.id) {
       // 修改
-      await confirm('warning', {
+      await ElMessageBox({
+        type: 'warning',
         title: t('common.warning'),
-        content: t('views.fileSync.updatePlanConfirm'),
-        positiveText: t('common.confirm'),
-        negativeText: t('common.cancel'),
+        message: t('views.fileSync.updatePlanConfirm'),
+        showCancelButton: true,
       })
 
       await window.ipc.sync.updatePlan(toRaw(syncForm))
     } else {
       // 新增
-      await confirm('info', {
-        title: t('common.info'),
-        content: t('views.fileSync.savePlanConfirm'),
-        positiveText: t('common.confirm'),
-        negativeText: t('common.cancel'),
+      await ElMessageBox({
+        type: 'warning',
+        title: t('common.warning'),
+        message: t('views.fileSync.savePlanConfirm'),
+        showCancelButton: true,
       })
 
       const planInfo = await window.ipc.sync.addPlan(toRaw(syncForm))
@@ -61,11 +60,11 @@ async function removePlan(plan: FileSyncPlan) {
   try {
     removeLoading.value = true
 
-    await confirm('warning', {
+    await ElMessageBox({
+      type: 'warning',
       title: t('common.warning'),
-      content: t('views.fileSync.removePlanConfirm'),
-      positiveText: t('common.confirm'),
-      negativeText: t('common.cancel'),
+      message: t('views.fileSync.removePlanConfirm'),
+      showCancelButton: true,
     })
 
     if (plan.id === syncForm.id) {
@@ -89,11 +88,11 @@ async function selectPlan(plan: FileSyncPlan) {
 }
 
 async function resetPlan() {
-  await confirm('warning', {
+  await ElMessageBox({
+    type: 'warning',
     title: t('common.warning'),
-    content: t('views.fileSync.newPlanConfirm'),
-    positiveText: t('common.confirm'),
-    negativeText: t('common.cancel'),
+    message: t('views.fileSync.newPlanConfirm'),
+    showCancelButton: true,
   })
 
   syncForm.id = undefined

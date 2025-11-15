@@ -8,11 +8,15 @@ export interface CommonDialogProps {
   onConfirm?: () => Promise<any>
   beforeClose?: () => Promise<any>
   afterClose?: () => Promise<any>
+  showCancel?: boolean
+  showConfirm?: boolean
 }
 
 const props = withDefaults(defineProps<CommonDialogProps>(), {
   title: () => '弹窗',
   width: () => '50%',
+  showCancel: () => true,
+  showConfirm: () => true,
 })
 
 const isVisible = defineModel<boolean>('visible', { required: true }) // 弹窗显示
@@ -69,23 +73,28 @@ const handleConfirm = async () => {
               {{ title }}
             </el-text>
             <div class="my-header__btn">
-              <el-tooltip content="关闭" placement="bottom" :show-after="500">
-                <el-button size="small" text :icon="ElIcon.CloseBold" @click.stop="handleClose" />
-              </el-tooltip>
+              <el-button size="small" text :icon="ElIcon.CloseBold" @click.stop="handleClose" />
             </div>
           </div>
         </template>
         <slot :visible="isVisible"></slot>
 
         <template #footer>
-          <slot name="footer">
-            <div class="dialog-footer">
-              <el-button @click="handleClose">{{ $t('common.cancel') }}</el-button>
-              <el-button type="primary" :loading="loading" @click="handleConfirm">
+          <div class="dialog-footer">
+            <slot name="footer">
+              <el-button v-if="showCancel" @click="handleClose">{{
+                $t('common.cancel')
+              }}</el-button>
+              <el-button
+                v-if="showConfirm"
+                type="primary"
+                :loading="loading"
+                @click="handleConfirm"
+              >
                 {{ $t('common.confirm') }}
               </el-button>
-            </div>
-          </slot>
+            </slot>
+          </div>
         </template>
       </el-dialog>
     </div>

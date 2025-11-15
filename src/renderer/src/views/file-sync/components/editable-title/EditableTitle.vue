@@ -1,16 +1,14 @@
 <script setup lang="ts">
 import { ref, watch, nextTick } from 'vue'
-import { NInput, useThemeVars } from 'naive-ui'
 import { useSyncForm } from '@renderer/composables/file-sync/useSyncForm'
 import { FiberNewFilled } from '@vicons/material'
-
-const themeVars = useThemeVars()
+import { ElInput } from 'element-plus'
 
 const { syncForm } = useSyncForm()
 
 const isEditing = ref(false)
 const tempValue = ref('')
-const inputRef = ref<InstanceType<typeof NInput> | null>(null)
+const inputRef = ref<InstanceType<typeof ElInput> | null>(null)
 
 const startEdit = async () => {
   tempValue.value = syncForm.name
@@ -50,21 +48,19 @@ watch(
       {{ syncForm.name }}
     </span>
     <!-- 编辑模式 -->
-    <n-input
+    <el-input
       v-else
       ref="inputRef"
-      v-model:value="tempValue"
+      v-model="tempValue"
       class="inline-editor-input"
-      size="small"
-      input-grade="secondary"
       style="width: auto; min-width: 100px"
       autofocus
       @change="confirmEdit"
       @blur="confirmEdit"
     />
 
-    <n-icon v-if="!syncForm.id" style="margin-left: 8px" :color="themeVars.primaryColor">
+    <el-icon v-if="!syncForm.id" style="margin-left: 6px; color: var(--el-color-primary)">
       <FiberNewFilled></FiberNewFilled>
-    </n-icon>
+    </el-icon>
   </div>
 </template>

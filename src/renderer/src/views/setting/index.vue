@@ -3,8 +3,8 @@ import { useI18n } from 'vue-i18n'
 import { languageOptions } from '@renderer/locales'
 import { EThemeType, useTheme } from '@renderer/composables/setting/useTheme'
 import { computed } from 'vue'
-import { useDiscreteApi } from '@renderer/composables/discrete-api/useDiscreteApi'
 import ThemeCardGroup from './components/ThemeCardGroup.vue'
+import { ElMessageBox } from 'element-plus'
 
 defineOptions({
   name: 'Setting',
@@ -12,7 +12,6 @@ defineOptions({
 
 const { locale, t } = useI18n()
 const { themeMode } = useTheme()
-const { confirm } = useDiscreteApi()
 
 const themeOptions = computed(() => [
   { label: t('theme.system'), value: 'system' },
@@ -21,11 +20,11 @@ const themeOptions = computed(() => [
 ])
 
 const handleReset = async () => {
-  await confirm('info', {
-    title: t('common.info'),
-    content: t('views.setting.resetConfirm'),
-    positiveText: t('common.confirm'),
-    negativeText: t('common.cancel'),
+  await ElMessageBox({
+    type: 'warning',
+    title: t('common.warning'),
+    message: t('views.setting.resetConfirm'),
+    showCancelButton: true,
   })
   locale.value = 'en_US'
   themeMode.value = EThemeType.SYSTEM

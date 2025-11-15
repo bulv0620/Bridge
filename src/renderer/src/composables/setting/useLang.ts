@@ -1,6 +1,5 @@
 import { useI18n } from 'vue-i18n'
 import { computed, watch } from 'vue'
-import { zhCN as nZhCn, dateZhCN, enUS as nEnUs, dateEnUS } from 'naive-ui'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import en from 'element-plus/es/locale/lang/en'
 
@@ -29,23 +28,7 @@ export const useLang = () => {
     return en
   })
 
-  const naiveLocale = computed(() => {
-    if (locale.value === 'zh_CN') {
-      return nZhCn
-    }
-    return nEnUs
-  })
-
-  const naiveDateLocale = computed(() => {
-    if (locale.value === 'zh_CN') {
-      return dateZhCN
-    }
-    return dateEnUS
-  })
-
   return {
     elLocale,
-    naiveLocale,
-    naiveDateLocale,
   }
 }

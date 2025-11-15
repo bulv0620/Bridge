@@ -1,5 +1,4 @@
-import { computed, ref, watch } from 'vue'
-import { darkTheme } from 'naive-ui'
+import { ref, watch } from 'vue'
 
 export enum EThemeType {
   SYSTEM = 'system',
@@ -41,17 +40,9 @@ window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e
   document.documentElement.className = theme
 })
 
-const themeConfig = computed(() => {
-  if (currentTheme.value === EThemeType.DARK) {
-    return darkTheme
-  }
-  return null
-})
-
 export const useTheme = () => {
   return {
     themeMode,
     currentTheme,
-    themeConfig,
   }
 }

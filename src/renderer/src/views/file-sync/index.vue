@@ -20,7 +20,6 @@ defineOptions({
       <EditableTitle></EditableTitle>
       <PlanToolbar></PlanToolbar>
     </div>
-    <n-divider style="margin: 0"></n-divider>
 
     <div class="main">
       <SyncForm></SyncForm>
@@ -30,7 +29,6 @@ defineOptions({
       </div>
     </div>
 
-    <n-divider style="margin: 0"></n-divider>
     <div class="footer"><SyncStatus></SyncStatus></div>
   </div>
   <IgnoredFoldersModal></IgnoredFoldersModal>
@@ -50,6 +48,7 @@ defineOptions({
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-bottom: 1px solid var(--el-border-color);
   }
 
   .main {
@@ -66,7 +65,9 @@ defineOptions({
   }
 
   .footer {
-    padding: 16px;
+    height: 48px;
+    padding: 0 16px;
+    border-top: 1px solid var(--el-border-color);
   }
 }
 </style>
