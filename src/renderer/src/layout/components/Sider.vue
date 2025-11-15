@@ -5,14 +5,7 @@ import { useI18n } from 'vue-i18n'
 
 import AppVersion from '@renderer/components/AppVersion.vue'
 
-import {
-  FolderOpened,
-  UploadFilled,
-  Download,
-  Setting,
-  Expand,
-  Fold,
-} from '@element-plus/icons-vue'
+import { FolderOpened, Promotion, Download, Setting, Expand, Fold } from '@element-plus/icons-vue'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -29,7 +22,7 @@ const menu = computed(() => [
   {
     label: t('views.shareHub.title'),
     index: '/share-hub',
-    icon: UploadFilled,
+    icon: Promotion,
   },
   {
     label: t('views.downloader.title'),
@@ -60,7 +53,7 @@ const handleSelect = (path: string) => {
 
     <!-- 底部版本号、收起按钮 -->
     <div class="collapse-btn" :class="{ collapsed }">
-      <AppVersion v-show="!collapsed" />
+      <AppVersion v-if="!collapsed" />
       <el-icon style="cursor: pointer" @click="collapsed = !collapsed"
         ><Fold v-if="!collapsed" /><Expand v-else
       /></el-icon>
