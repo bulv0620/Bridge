@@ -1,6 +1,6 @@
 {
   "name": "electron-vite-template",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "An Electron application with Vue and TypeScript",
   "main": "./out/main/index.js",
   "author": "example.com",
@@ -23,6 +23,7 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.0",
     "@electron-toolkit/utils": "^3.0.0",
+    "@imengyu/vue3-context-menu": "^1.5.2",
     "@vueuse/core": "^13.6.0",
     "basic-ftp": "^5.0.5",
     "better-sqlite3": "^12.2.0",
