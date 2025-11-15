@@ -119,7 +119,7 @@ function removeEndPoint() {
   overflow: hidden;
   border-radius: var(--el-border-radius-base);
   border: 1px solid var(--el-border-color);
-  background: var(--el-fill-color);
+  background: var(--el-fill-color-light);
   padding: 12px;
 
   &.active {
