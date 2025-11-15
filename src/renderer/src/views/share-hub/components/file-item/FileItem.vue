@@ -60,7 +60,7 @@ function handleDownload() {
       </el-icon>
     </div>
     <div class="file-meta">
-      <el-text style="width: 100%; margin-bottom: 6px" truncated>{{ fileItem.fileName }}</el-text>
+      <el-text style="width: 100%; margin-bottom: 4px" truncated>{{ fileItem.fileName }}</el-text>
       <el-text style="width: 100%; margin-bottom: 8px" truncated size="small" type="info">
         {{ $t('views.shareHub.expirationTime') }}: {{ expireInfo }}
       </el-text>
@@ -108,6 +108,7 @@ function handleDownload() {
   gap: 10px;
   transition: all 0.25s ease;
   border: 1px solid var(--el-border-color-lighter);
+  line-height: normal;
 
   .file-meta {
     flex: 1;

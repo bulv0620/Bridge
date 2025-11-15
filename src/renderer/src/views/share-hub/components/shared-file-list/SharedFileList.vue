@@ -140,7 +140,6 @@ function handleDownload(item: SharedFileInfo, device: OnlineDevice) {
 }
 
 :deep(.el-collapse-item__content) {
-  line-height: normal;
   padding-bottom: 0;
 }
 
