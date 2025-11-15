@@ -5,17 +5,15 @@ const { enableSharing, enableSharingLoading, handleUpdateEnableSharing } = useSh
 </script>
 
 <template>
-  <n-form-item
+  <el-form-item
     :label="$t('views.shareHub.enableSharing')"
-    :show-feedback="false"
-    label-placement="left"
-    size="small"
+    label-width="auto"
+    style="margin-bottom: 0"
   >
-    <n-switch
-      :rubber-band="false"
-      :value="enableSharing"
+    <el-switch
+      :model-value="enableSharing"
       :loading="enableSharingLoading"
-      @update:value="handleUpdateEnableSharing"
+      @update:model-value="handleUpdateEnableSharing"
     />
-  </n-form-item>
+  </el-form-item>
 </template>

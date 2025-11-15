@@ -4,13 +4,13 @@ import { CloudOfflineOutline } from '@vicons/ionicons5'
 
 <template>
   <div class="empty-main">
-    <n-empty :description="$t('views.shareHub.notEnabled')" size="huge">
-      <template #icon>
-        <n-icon>
+    <el-empty :description="$t('views.shareHub.notEnabled')">
+      <template #image>
+        <el-icon :size="60">
           <CloudOfflineOutline />
-        </n-icon>
+        </el-icon>
       </template>
-    </n-empty>
+    </el-empty>
   </div>
 </template>
 

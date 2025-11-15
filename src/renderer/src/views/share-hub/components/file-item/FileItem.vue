@@ -4,11 +4,10 @@ import { computed } from 'vue'
 import dayjs from 'dayjs'
 import { useI18n } from 'vue-i18n'
 import { useSharing } from '@renderer/composables/share-hub/useSharing'
-import { useDiscreteApi } from '@renderer/composables/discrete-api/useDiscreteApi'
 import { ref } from 'vue'
 import { getFileIcon } from '@renderer/utils/get-file-icon'
-import { useThemeVars } from 'naive-ui'
 import { DownloadRound } from '@vicons/material'
+import { ElMessageBox } from 'element-plus'
 
 const props = defineProps<{
   fileItem: SharedFileInfo
@@ -17,9 +16,6 @@ const props = defineProps<{
 }>()
 const emits = defineEmits(['download'])
 
-const themeVars = useThemeVars()
-const primaryColor = computed(() => themeVars.value.primaryColor)
-const { confirm } = useDiscreteApi()
 const { t } = useI18n()
 const { mySharedFiles } = useSharing()
 
@@ -37,11 +33,11 @@ const expireInfo = computed(() => {
 async function handleUnshare() {
   try {
     loading.value = true
-    await confirm('warning', {
+    await ElMessageBox({
+      type: 'warning',
       title: t('common.warning'),
-      content: t('views.shareHub.unshareConfirm'),
-      positiveText: t('common.confirm'),
-      negativeText: t('common.cancel'),
+      message: t('views.shareHub.unshareConfirm'),
+      showCancelButton: true,
     })
     mySharedFiles.value = mySharedFiles.value.filter((file) => file.id !== props.fileItem.id)
   } catch (error) {
@@ -59,15 +55,16 @@ function handleDownload() {
 <template>
   <div class="file-item" :style="{}">
     <div class="icon-wrap">
-      <n-icon class="icon" :size="24" :component="iconInfo.icon" :color="iconInfo.color" />
+      <el-icon class="icon" :size="24" :color="iconInfo.color">
+        <component :is="iconInfo.icon"></component>
+      </el-icon>
     </div>
     <div class="file-meta">
-      <n-ellipsis style="width: 100%">{{ fileItem.fileName }}</n-ellipsis>
-      <n-ellipsis style="width: 100%; font-size: 12px; margin-bottom: 8px">
-        <n-text :depth="3" class="expire"
-          >{{ $t('views.shareHub.expirationTime') }}: {{ expireInfo }}</n-text
-        >
-      </n-ellipsis>
+      <el-text style="width: 100%; margin-bottom: 6px" truncated>{{ fileItem.fileName }}</el-text>
+      <el-text style="width: 100%; margin-bottom: 8px" truncated size="small" type="info">
+        {{ $t('views.shareHub.expirationTime') }}: {{ expireInfo }}
+      </el-text>
+
       <div class="remaining-box">
         <div
           v-for="item in fileItem.status.total"
@@ -78,26 +75,25 @@ function handleDownload() {
       </div>
     </div>
     <div class="operation">
-      <CommonButton
+      <el-button
         v-if="mine"
-        :tooltip="$t('views.shareHub.cancelSharing')"
+        circle
         :icon="TrashBinOutline"
-        :button-props="{ size: 'small', circle: true, secondary: true }"
-        placement="bottom"
-        :delay="500"
         :loading="loading"
+        text
+        bg
         @click="handleUnshare"
-      />
-      <CommonButton
-        v-if="!mine"
-        :tooltip="$t('views.shareHub.download')"
+      ></el-button>
+
+      <el-button
+        v-else
+        circle
         :icon="DownloadRound"
-        :button-props="{ size: 'small', circle: true, secondary: true }"
-        placement="bottom"
-        :delay="500"
         :loading="loading"
+        text
+        bg
         @click="handleDownload"
-      />
+      ></el-button>
     </div>
   </div>
 </template>
@@ -106,12 +102,12 @@ function handleDownload() {
 .file-item {
   margin-bottom: 10px;
   padding: 10px 14px;
-  border-radius: var(--n-border-radius);
+  border-radius: var(--el-border-radius-base);
   display: flex;
   align-items: center;
   gap: 10px;
   transition: all 0.25s ease;
-  border: 1px solid var(--n-border-color);
+  border: 1px solid var(--el-border-color-lighter);
 
   .file-meta {
     flex: 1;
@@ -124,15 +120,15 @@ function handleDownload() {
       height: 8px;
       display: flex;
       gap: 2px;
-      border-radius: var(--n-border-radius);
+      border-radius: var(--el-border-radius-base);
       overflow: hidden;
 
       .remaining-item {
         flex: 1;
-        background: var(--n-border-color);
+        background: var(--el-fill-color);
 
         &.active {
-          background: v-bind(primaryColor);
+          background: var(--el-color-primary-light-5);
         }
       }
     }

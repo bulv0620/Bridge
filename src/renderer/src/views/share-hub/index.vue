@@ -15,11 +15,10 @@ const { enableSharing } = useSharing()
 </script>
 
 <template>
-  <div id="share-hub-drawer-target" class="shareHub">
+  <div id="share-hub-target" class="shareHub">
     <div class="header">
       <ShareToolbar></ShareToolbar>
     </div>
-    <n-divider style="margin: 0"></n-divider>
 
     <div v-if="enableSharing" class="main">
       <div class="left">
@@ -46,6 +45,7 @@ const { enableSharing } = useSharing()
     padding: 16px;
     display: flex;
     justify-content: space-between;
+    border-bottom: 1px solid var(--el-border-color);
   }
 
   .main {
