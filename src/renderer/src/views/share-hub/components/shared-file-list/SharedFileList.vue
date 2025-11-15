@@ -44,6 +44,18 @@ function handleDownload(item: SharedFileInfo, device: OnlineDevice) {
               @download="handleDownload(item, device)"
             />
 
+            <div
+              v-if="device.data.files.length === 0"
+              style="
+                height: 28px;
+                display: flex;
+                justify-content: center;
+                color: var(--el-text-color-placeholder);
+              "
+            >
+              {{ $t('views.shareHub.noFiles') }}
+            </div>
+
             <!-- 右侧平台图标 -->
             <template #title="{ isActive }">
               <div
