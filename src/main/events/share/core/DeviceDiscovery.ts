@@ -130,6 +130,7 @@ export class DeviceDiscovery {
   /** 启动广播 */
   private setupBroadcast(server: dgram.Socket) {
     server.setBroadcast(true)
+    server.setSendBufferSize(1024 * 1024)
     this.timer = setInterval(() => {
       this.broadcastMessage(server)
       this.cleanupOfflineDevices()
