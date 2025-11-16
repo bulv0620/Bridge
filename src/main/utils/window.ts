@@ -1,7 +1,7 @@
 import { BrowserWindow, nativeTheme, shell } from 'electron'
 import { is } from '@electron-toolkit/utils'
 import { join } from 'path'
-import icon from '../../../resources/icon.png?asset'
+import { icon } from './iconPath'
 
 const windowInstances = new Map<string, BrowserWindow>()
 

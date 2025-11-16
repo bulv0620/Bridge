@@ -1,8 +1,7 @@
 import { BrowserWindow, Tray, app, Menu, nativeImage } from 'electron'
-import icon from '../../../resources/icon.png?asset'
-import iconMac from '../../../resources/icon_plain.png?asset'
 import { messages } from '../locales'
 import { getWindow } from './window'
+import { icon, iconMac } from './iconPath'
 
 let tray: Tray
 let contextMenu: Menu

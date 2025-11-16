@@ -1,5 +1,3 @@
-import { Aria2GlobalOption, Aria2GlobalStat, Aria2Status } from './Aria2Types'
-
 interface Aria2Options {
   /**
    * aria2 RPC 服务的完整地址，例如：http://localhost:6800/jsonrpc
