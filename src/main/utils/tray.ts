@@ -4,11 +4,8 @@ import iconMac from '../../../resources/icon_plain.png?asset'
 import { messages } from '../locales'
 import { getWindow } from './window'
 
-let tray: Tray | null = null
-
-export function getTray() {
-  return tray
-}
+let tray: Tray
+let contextMenu: Menu
 
 export function createTray(): Tray {
   let trayIcon = nativeImage.createFromPath(icon)
@@ -18,7 +15,7 @@ export function createTray(): Tray {
   }
   tray = new Tray(trayIcon)
 
-  const contextMenu = Menu.buildFromTemplate([
+  contextMenu = Menu.buildFromTemplate([
     {
       label: messages.en_US.tray.quit,
       click: () => {
@@ -28,18 +25,24 @@ export function createTray(): Tray {
   ])
 
   tray.setToolTip('Bridge')
-  tray.setContextMenu(contextMenu)
 
-  tray.on('double-click', () => {
+  // 左键：打开窗口
+  tray.on('click', () => {
     const mainWindow = getWindow('main')
     mainWindow!.show()
+    mainWindow!.focus()
+  })
+
+  // 右键：弹出菜单
+  tray.on('right-click', () => {
+    tray.popUpContextMenu(contextMenu)
   })
 
   return tray
 }
 
-export function updateTray(tray: Tray, lang: string, options: { mainWindow: BrowserWindow }) {
-  const contextMenu = Menu.buildFromTemplate([
+export function updateTray(lang: string, options: { mainWindow: BrowserWindow }) {
+  contextMenu = Menu.buildFromTemplate([
     {
       label: messages[lang].tray.fileSync,
       click: () => {
@@ -84,6 +87,4 @@ export function updateTray(tray: Tray, lang: string, options: { mainWindow: Brow
       },
     },
   ])
-
-  tray.setContextMenu(contextMenu)
 }

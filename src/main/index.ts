@@ -39,6 +39,12 @@ app.whenReady().then(() => {
   const tray = createTray()
   registerAllEvents()
 
+  app.on('activate', () => {
+    if (mainWindow) {
+      mainWindow.show()
+    }
+  })
+
   app.on('second-instance', (_event, _commandLine, _workingDirectory) => {
     // 如果用户再次打开应用，显示主窗口
     if (mainWindow) {
