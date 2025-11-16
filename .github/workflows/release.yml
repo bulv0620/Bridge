@@ -3,14 +3,36 @@ name: Build & Release on Tag
 on:
   push:
     tags:
-      - 'v*'  # 例如 v1.0.0
+      - 'v*'   # 匹配 v1.0.0
 
 jobs:
   build-and-publish:
-    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        include:
+          # macOS
+          - os: macos-latest
+            arch: x64
+            build_script: build:mac
+          - os: macos-latest
+            arch: arm64
+            build_script: build:mac
+
+          # Linux
+          - os: ubuntu-latest
+            arch: x64
+            build_script: build:linux
+          - os: ubuntu-latest
+            arch: arm64
+            build_script: build:linux
+
+          # Windows
+          - os: windows-latest
+            arch: x64
+            build_script: build:win
+
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout code
@@ -24,21 +46,26 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build and Publish on Linux/macOS
+      # macOS / Linux 构建
+      - name: Build & Publish (macOS/Linux)
         if: matrix.os != 'windows-latest'
         shell: bash
         run: |
-          if [ "${{ matrix.os }}" = "macos-latest" ]; then
-            npm run build:mac -- --publish always
-          else
-            npm run build:linux -- --publish always
-          fi
+          echo "Building target: ${{ matrix.os }} / ${{ matrix.arch }}"
+
+          # electron-builder 支持 --arm64 --x64
+          npm run ${{ matrix.build_script }} -- \
+            --${{ matrix.arch }} \
+            --publish always
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
 
-      - name: Build and Publish on Windows
+      # Windows 构建
+      - name: Build & Publish (Windows)
         if: matrix.os == 'windows-latest'
         shell: powershell
-        run: npm run build:win -- --publish always
+        run: |
+          Write-Host "Building target: ${{ matrix.os }} / ${{ matrix.arch }}"
+          npm run ${{ matrix.build_script }} -- --${{ matrix.arch }} --publish always
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
