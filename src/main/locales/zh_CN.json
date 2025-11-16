@@ -14,5 +14,9 @@
     "later": "稍后",
     "prompt": "提示",
     "confirmMessage": "新版本已就绪，是否立即安装？"
+  },
+  "menu": {
+    "about": "关于",
+    "quit": "退出"
   }
 }

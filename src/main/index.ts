@@ -6,7 +6,7 @@ import { installExtension, VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import { registerAllEvents } from './events/eventLoader'
 import { stopAllTasks } from './utils/pluginUtils'
 
-const gotTheLock = app.requestSingleInstanceLock({ myKey: 'key' })
+const gotTheLock = app.requestSingleInstanceLock({ myKey: 'bulv' })
 if (!gotTheLock) {
   app.quit()
 }
@@ -16,7 +16,7 @@ app.whenReady().then(() => {
     .then(() => console.log(`vue_devtools installed`))
     .catch(() => console.error('vue_devtolls install failed'))
 
-  electronApp.setAppUserModelId('com.electron')
+  electronApp.setAppUserModelId('cc.bulv')
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)

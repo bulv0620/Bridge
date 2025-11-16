@@ -14,5 +14,9 @@
     "later": "later",
     "prompt": "prompt",
     "confirmMessage": "New version is ready, update now?"
+  },
+  "menu": {
+    "about": "About",
+    "quit": "Quit"
   }
 }
