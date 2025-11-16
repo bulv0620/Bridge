@@ -24,6 +24,9 @@ export function createTray(): Tray {
   ])
 
   tray.setToolTip('Bridge')
+  if (process.platform === 'linux') {
+    tray.setContextMenu(contextMenu)
+  }
 
   // 左键：打开窗口
   tray.on('click', () => {
@@ -86,4 +89,7 @@ export function updateTray(lang: string, options: { mainWindow: BrowserWindow })
       },
     },
   ])
+  if (process.platform === 'linux') {
+    tray.setContextMenu(contextMenu)
+  }
 }
