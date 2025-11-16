@@ -242,9 +242,9 @@ export class DeviceDiscovery {
         return []
       }
 
-      const json = await res.json()
+      const files = await res.json()
 
-      return Array.isArray(json?.files) ? json.files : []
+      return Array.isArray(files) ? files : []
     } catch {
       return []
     } finally {
