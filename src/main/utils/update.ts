@@ -3,7 +3,7 @@ import { autoUpdater } from 'electron-updater'
 import { messages } from '../locales'
 
 export function checkUpdate() {
-  return new Promise<string>((resolve) => {
+  return new Promise<string>((resolve, reject) => {
     // 开发模式跳过更新检测
     if (process.env.NODE_ENV === 'development') {
       resolve('')
@@ -22,6 +22,11 @@ export function checkUpdate() {
     // 没有新版本
     autoUpdater.once('update-not-available', () => {
       resolve('')
+    })
+
+    // 错误处理
+    autoUpdater.once('error', (err) => {
+      reject(err)
     })
   })
 }
