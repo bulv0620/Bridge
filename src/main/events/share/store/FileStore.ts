@@ -38,8 +38,8 @@ export class FileStore {
   private async cleanupExpired() {
     if (this.list.value.length === 0) return
     const now = Date.now()
-    if (this.list.value.find((el) => el.status.expiresAt < now)) {
-      this.list.value = this.list.value.filter((file) => file.status.expiresAt > now)
+    if (this.list.value.find((el) => el.status.expiresAt! < now)) {
+      this.list.value = this.list.value.filter((file) => file.status.expiresAt! > now)
     }
   }
 }
