@@ -16,7 +16,7 @@ app.whenReady().then(() => {
     .then(() => console.log(`vue_devtools installed`))
     .catch(() => console.error('vue_devtolls install failed'))
 
-  electronApp.setAppUserModelId('cc.bulv')
+  electronApp.setAppUserModelId('cc.bulv.bridge')
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
