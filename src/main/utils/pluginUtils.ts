@@ -63,20 +63,34 @@ function initPluginMap() {
     const plugin: PluginInfo = {
       name,
       desc,
-      platforms: {},
-    }
-
-    for (const platform of ['mac', 'win', 'linux'] as const) {
-      const platformPath = path.join(pluginPath, platform)
-      if (fs.existsSync(platformPath) && fs.statSync(platformPath).isDirectory()) {
-        const files = fs.readdirSync(platformPath)
-        const execFile = files.find((f) => f.startsWith('entry'))
-        plugin.platforms[platform] = {
-          exec: execFile ? path.resolve(platformPath, execFile) : null,
-          config: desc['configPath'] ? path.resolve(platformPath, desc['configPath']) : null,
-          log: desc['logPath'] ? path.resolve(platformPath, desc['logPath']) : null,
-        }
-      }
+      platforms: {
+        darwin: {
+          x64: {
+            configPath: path.join(pluginPath, 'darwin', 'x64', desc.configPath),
+            entryPath: path.join(pluginPath, 'darwin', 'x64', desc.entryPath),
+          },
+          arm64: {
+            configPath: path.join(pluginPath, 'darwin', 'arm64', desc.configPath),
+            entryPath: path.join(pluginPath, 'darwin', 'arm64', desc.entryPath),
+          },
+        },
+        linux: {
+          x64: {
+            configPath: path.join(pluginPath, 'linux', 'x64', desc.configPath),
+            entryPath: path.join(pluginPath, 'linux', 'x64', desc.entryPath),
+          },
+          arm64: {
+            configPath: path.join(pluginPath, 'linux', 'arm64', desc.configPath),
+            entryPath: path.join(pluginPath, 'linux', 'arm64', desc.entryPath),
+          },
+        },
+        win32: {
+          x64: {
+            configPath: path.join(pluginPath, 'win32', 'x64', desc.configPath),
+            entryPath: path.join(pluginPath, 'win32', 'x64', desc.entryPath + '.exe'),
+          },
+        },
+      },
     }
 
     availablePlugin.set(plugin.name, plugin)
@@ -98,21 +112,16 @@ export async function runTask(pluginInfo: PluginInfo) {
   if (pluginProcess.find((p) => p.name === pluginInfo.name)) return
 
   const platform = os.platform()
-  const platformInfo =
-    platform === 'darwin'
-      ? pluginInfo.platforms.mac
-      : platform === 'win32'
-        ? pluginInfo.platforms.win
-        : pluginInfo.platforms.linux
+  const platformInfo = getPluginArchInfo(pluginInfo)
 
-  if (!platformInfo || !platformInfo.exec) {
+  if (!platformInfo || !platformInfo.entryPath) {
     throw new Error(`No executable for platform: ${platform}`)
   }
 
-  const execPath = path.resolve(platformInfo.exec)
+  const entryPath = path.resolve(platformInfo.entryPath)
 
-  const child = spawn(execPath, [...pluginInfo.desc['cliArgs']], {
-    cwd: path.dirname(execPath),
+  const child = spawn(entryPath, [...pluginInfo.desc['cliArgs']], {
+    cwd: path.dirname(entryPath),
     stdio: ['ignore', 'pipe', 'pipe'],
   })
 
@@ -151,17 +160,18 @@ export function checkPluginStatus(name: string) {
 
 /** 获取插件的配置文件路径 */
 export function getPluginConfPath(pluginInfo: PluginInfo) {
-  const platform = os.platform()
-  const platformInfo =
-    platform === 'darwin'
-      ? pluginInfo.platforms.mac
-      : platform === 'win32'
-        ? pluginInfo.platforms.win
-        : pluginInfo.platforms.linux
+  const platformInfo = getPluginArchInfo(pluginInfo)
 
-  if (!platformInfo || !platformInfo.config) {
+  if (!platformInfo || !platformInfo.configPath) {
     return ''
   }
 
-  return platformInfo.config || ''
+  return platformInfo.configPath || ''
+}
+
+export function getPluginArchInfo(plugin: PluginInfo): PluginArchInfo | undefined {
+  const platform = os.platform() as Platform
+  const arch = os.arch() as Arch
+
+  return plugin.platforms[platform]?.[arch]
 }

@@ -1,20 +1,21 @@
-declare interface PluginPlatformInfo {
-  exec: string | null
-  config: string | null
-  log: string | null
+type Platform = NodeJS.Platform
+
+type Arch = 'x64' | 'arm64'
+
+interface PluginArchInfo {
+  entryPath: string // 可执行文件路径
+  configPath: string // 配置文件路径
 }
 
-declare interface PluginInfo {
+type PluginPlatformInfo = Partial<Record<Arch, PluginArchInfo>>
+
+interface PluginInfo {
   name: string
   desc: Record<string, any>
-  platforms: {
-    mac?: PluginPlatformInfo
-    win?: PluginPlatformInfo
-    linux?: PluginPlatformInfo
-  }
+  platforms: Partial<Record<Platform, PluginPlatformInfo>>
 }
 
-declare interface PluginProcess {
+interface PluginProcess {
   name: string
   pid?: number
 }
