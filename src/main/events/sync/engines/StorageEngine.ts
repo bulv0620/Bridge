@@ -1,5 +1,5 @@
 import { ReadStream, WriteStream } from 'fs'
-
+import os from 'os'
 // 存储系统抽象类
 export abstract class StorageEngine {
   protected basePath: string
@@ -29,7 +29,7 @@ export const IGNORE_FILES: Record<string, string[]> = {
 }
 
 export function shouldIgnoreFile(fileName: string): boolean {
-  const platform = process.platform
+  const platform = os.platform()
   const ignoreList = IGNORE_FILES[platform] || []
   return !!ignoreList.find((f) => fileName.includes(f))
 }

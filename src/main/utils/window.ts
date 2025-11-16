@@ -2,6 +2,7 @@ import { BrowserWindow, nativeTheme, shell } from 'electron'
 import { is } from '@electron-toolkit/utils'
 import { join } from 'path'
 import { icon } from './iconPath'
+import os from 'os'
 
 const windowInstances = new Map<string, BrowserWindow>()
 
@@ -22,13 +23,13 @@ export function createCustomWindow(
     resizable: windowOption?.resizable,
     show: false,
     autoHideMenuBar: windowOption?.hideMenuBar || true,
-    ...(process.platform === 'linux' ? { icon } : {}),
+    ...(os.platform() === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
     },
     parent: windowOption?.parent,
     modal: windowOption?.modal,
-    ...(process.platform !== 'darwin'
+    ...(os.platform() !== 'darwin'
       ? {
           titleBarOverlay: {
             color: '#ffffff00',

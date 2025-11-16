@@ -1,7 +1,7 @@
 import path from 'path'
 import fs from 'fs'
 import { spawn } from 'child_process'
-import * as os from 'os'
+import os from 'os'
 
 let resourcesPath = ''
 let pluginProcess: PluginProcess[] = []

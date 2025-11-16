@@ -2,13 +2,14 @@ import { BrowserWindow, Tray, app, Menu, nativeImage } from 'electron'
 import { messages } from '../locales'
 import { getWindow } from './window'
 import { icon, iconMac } from './iconPath'
+import os from 'os'
 
 let tray: Tray
 let contextMenu: Menu
 
 export function createTray(): Tray {
   let trayIcon = nativeImage.createFromPath(icon)
-  if (process.platform === 'darwin') {
+  if (os.platform() === 'darwin') {
     trayIcon = nativeImage.createFromPath(iconMac).resize({ width: 18, height: 18 })
     trayIcon.setTemplateImage(true)
   }
@@ -24,7 +25,7 @@ export function createTray(): Tray {
   ])
 
   tray.setToolTip('Bridge')
-  if (process.platform === 'linux') {
+  if (os.platform() === 'linux') {
     tray.setContextMenu(contextMenu)
   }
 
@@ -89,7 +90,7 @@ export function updateTray(lang: string, options: { mainWindow: BrowserWindow })
       },
     },
   ])
-  if (process.platform === 'linux') {
+  if (os.platform() === 'linux') {
     tray.setContextMenu(contextMenu)
   }
 }
