@@ -7,7 +7,7 @@ const UDP_PORT = 9520
 const HTTP_PORT = 9520
 
 const fileStore = new FileStore()
-const deviceDiscovery = new DeviceDiscovery(fileStore, {
+const deviceDiscovery = new DeviceDiscovery({
   udpPort: UDP_PORT,
   httpPort: HTTP_PORT,
 })

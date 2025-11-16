@@ -1,7 +1,8 @@
 declare interface BroadcastMessage {
-  files: SharedFileInfo[]
   id: string
   platform: NodeJS.Platform
+  udpPort: number
+  httpPort: number
 }
 
 declare interface OnlineDeviceData {

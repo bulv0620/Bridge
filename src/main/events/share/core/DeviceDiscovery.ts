@@ -1,7 +1,7 @@
 import dgram, { RemoteInfo } from 'dgram'
 import os from 'os'
-import { FileStore } from '../store/FileStore'
 import { getWindow } from '../../../utils/window'
+import { remoteRef, RemoteRefMain } from '../../../utils/remoteRef'
 
 export interface DeviceDiscoveryOptions {
   channel?: string
@@ -18,24 +18,20 @@ export class DeviceDiscovery {
   private interval: number
   private server: dgram.Socket | undefined
 
-  private onlineDevices: Record<string, OnlineDevice>
+  private onlineDevices: RemoteRefMain<OnlineDevice[]>
   private timer: NodeJS.Timeout | null
   private running: boolean
 
-  private fileStore: FileStore
-
-  constructor(store: FileStore, options: DeviceDiscoveryOptions = {}) {
+  constructor(options: DeviceDiscoveryOptions = {}) {
     this.id = crypto.randomUUID()
     this.platform = os.platform()
     this.udpPort = options.udpPort ?? 9520
     this.httpPort = options.httpPort ?? 9520
     this.interval = options.interval ?? 1000
 
-    this.onlineDevices = {}
+    this.onlineDevices = remoteRef('online-device', [])
     this.timer = null
     this.running = false
-
-    this.fileStore = store
   }
 
   /** 启动服务 */
@@ -74,7 +70,7 @@ export class DeviceDiscovery {
       if (this.timer) clearInterval(this.timer)
 
       this.timer = null
-      this.onlineDevices = {}
+      this.onlineDevices.value = []
 
       this.server.removeAllListeners()
       this.server.close(() => {
@@ -88,7 +84,7 @@ export class DeviceDiscovery {
 
   /** 绑定消息监听器 */
   private setupListeners(server: dgram.Socket) {
-    server.on('message', (msg: Buffer, rinfo: RemoteInfo) => {
+    server.on('message', async (msg: Buffer, rinfo: RemoteInfo) => {
       const ip = rinfo.address
 
       let message: BroadcastMessage
@@ -102,27 +98,34 @@ export class DeviceDiscovery {
       }
 
       const id = message.id
-
       if (id === this.id) return
 
-      if (!this.onlineDevices[id]) {
-        this.onlineDevices[id] = {
-          id,
-          ip: ip,
-          udpPort: this.udpPort,
-          httpPort: this.httpPort,
-          platform: message.platform,
-          lastSeen: Date.now(),
-          data: {
-            files: message.files,
+      const files = await this.fetchFileList(ip, message.httpPort)
+
+      const device = this.onlineDevices.value.find((device) => device.id === id)
+      if (!device) {
+        this.onlineDevices.value = [
+          ...this.onlineDevices.value,
+          {
+            id,
+            ip: ip,
+            udpPort: message.udpPort,
+            httpPort: message.httpPort,
+            platform: message.platform,
+            lastSeen: Date.now(),
+            data: {
+              files,
+            },
+            mine: id === this.id,
           },
-          mine: id === this.id,
-        }
+        ]
       } else {
-        this.onlineDevices[id].lastSeen = Date.now()
-        this.onlineDevices[id].data = {
-          files: message.files,
-        }
+        this.onlineDevices.update(() => {
+          device.lastSeen = Date.now()
+          device.data = {
+            files,
+          }
+        })
       }
     })
   }
@@ -149,11 +152,11 @@ export class DeviceDiscovery {
    * @returns
    */
   private async broadcastMessage(server: dgram.Socket) {
-    const files = await this.fileStore.getAll()
     const message: BroadcastMessage = {
       id: this.id,
-      files,
       platform: this.platform,
+      udpPort: this.udpPort,
+      httpPort: this.httpPort,
     }
     const messageStr = JSON.stringify(message)
 
@@ -202,11 +205,9 @@ export class DeviceDiscovery {
    */
   private cleanupOfflineDevices() {
     const currentTime = Date.now()
-    Object.keys(this.onlineDevices).forEach((id) => {
-      if (currentTime - this.onlineDevices[id].lastSeen > this.interval * 2) {
-        delete this.onlineDevices[id]
-      }
-    })
+    this.onlineDevices.value = this.onlineDevices.value.filter(
+      (device) => currentTime - device.lastSeen < this.interval * 2,
+    )
   }
 
   /**
@@ -214,6 +215,40 @@ export class DeviceDiscovery {
    * @returns
    */
   public getOnlineDevices(): OnlineDevice[] {
-    return Object.values(this.onlineDevices)
+    return this.onlineDevices.value
+  }
+
+  /**
+   * 请求设备分享的文件列表
+   * @param ip
+   * @param httpPort
+   * @returns
+   */
+  private async fetchFileList(ip: string, httpPort: number): Promise<SharedFileInfo[]> {
+    const url = `http://${ip}:${httpPort}/list`
+    const controller = new AbortController()
+
+    // 设置超时：this.interval
+    const timeout = setTimeout(() => controller.abort(), this.interval)
+
+    try {
+      const res = await fetch(url, {
+        method: 'GET',
+        signal: controller.signal,
+        headers: { 'Content-Type': 'application/json' },
+      })
+
+      if (!res.ok) {
+        return []
+      }
+
+      const json = await res.json()
+
+      return Array.isArray(json?.files) ? json.files : []
+    } catch {
+      return []
+    } finally {
+      clearTimeout(timeout)
+    }
   }
 }

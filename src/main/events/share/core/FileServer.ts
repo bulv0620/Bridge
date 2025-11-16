@@ -27,6 +27,7 @@ export class FileServer {
     this.app = express()
 
     this.app.get('/download/:id', this.handleDownload.bind(this))
+    this.app.get('/list', this.handleQuery.bind(this))
   }
 
   /** 启动服务器 */
@@ -74,7 +75,7 @@ export class FileServer {
   }
 
   /** 下载处理 */
-  private async handleDownload(req: Request<{ id: string }>, res: Response): Promise<void> {
+  private async handleDownload(req: Request<{ id: string }>, res: Response) {
     const fileId = req.params.id
     const fileItem: SharedFileInfo | undefined = await this.fileStore.getById(fileId)
 
@@ -134,5 +135,12 @@ export class FileServer {
       'Content-Disposition': `attachment; filename="${path.basename(fileItem.filePath)}"`,
     })
     fileStream.pipe(res)
+  }
+
+  /** 获取文件列表 */
+  private async handleQuery(_: Request<void>, res: Response) {
+    const fileList = await this.fileStore.getAll()
+
+    res.json(fileList)
   }
 }
