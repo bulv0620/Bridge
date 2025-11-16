@@ -31,6 +31,7 @@ let initThemeColor = themeMode.value
 if (initThemeColor === EThemeType.SYSTEM) {
   const isLight = window.matchMedia('(prefers-color-scheme: light)').matches
   initThemeColor = isLight ? EThemeType.LIGHT : EThemeType.DARK
+  document.documentElement.className = initThemeColor
 }
 const currentTheme = ref<EThemeType>(initThemeColor)
 // 监听系统主题自动变化
