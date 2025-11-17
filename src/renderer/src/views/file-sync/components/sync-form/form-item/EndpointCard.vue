@@ -5,8 +5,8 @@ import Drive from '@renderer/assets/imgs/drive.png'
 import CloudDrive from '@renderer/assets/imgs/cloud_drive.png'
 import Search from '@renderer/assets/imgs/search.png'
 import { Close } from '@vicons/ionicons5'
-import { useFtpConectionModal } from '@renderer/composables/file-sync/useFtpConnectionModal'
 import { useSyncForm } from '@renderer/composables/file-sync/useSyncForm'
+import { useConectionModal } from '@renderer/composables/file-sync/useConnectionModal'
 
 const props = defineProps<{
   type: 'source' | 'destination'
@@ -16,7 +16,7 @@ const endpoint = defineModel<StorageEngineConfig | null>('endpoint', { required:
 
 const { isSyncing, isComparing } = useSyncForm()
 const { t } = useI18n()
-const { openFtpConnectionModal } = useFtpConectionModal()
+const { openConnectionModal } = useConectionModal()
 
 const title = computed(() => {
   if (props.type === 'source') {
@@ -46,9 +46,13 @@ const endPointOptions = computed(() => [
     label: t('views.fileSync.ftp'),
     key: 'ftp',
   },
+  {
+    label: t('views.fileSync.s3'),
+    key: 's3',
+  },
 ])
 
-async function selectStorageType(key: string) {
+async function selectStorageType(key: StorageType) {
   if (key === 'local') {
     const path = await window.ipc.file.selectFolder()
     if (path) {
@@ -57,8 +61,8 @@ async function selectStorageType(key: string) {
         path: path,
       }
     }
-  } else if (key === 'ftp') {
-    const config = await openFtpConnectionModal()
+  } else {
+    const config = await openConnectionModal(key)
     endpoint.value = config
   }
 }

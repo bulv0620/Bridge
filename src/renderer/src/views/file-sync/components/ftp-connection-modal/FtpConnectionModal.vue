@@ -2,7 +2,6 @@
 import { useFtpConectionModal } from '@renderer/composables/file-sync/useFtpConnectionModal'
 import FtpConnectionForm from './ftp-connection-form/FtpConnectionForm.vue'
 import FtpConnectionTree from './ftp-connection-tree/FtpConnectionTree.vue'
-import { nextTick, watch } from 'vue'
 
 const {
   ftpFormRef,
@@ -14,14 +13,6 @@ const {
   prevStep,
   submitForm,
 } = useFtpConectionModal()
-
-watch(visible, (val) => {
-  if (val) {
-    nextTick(() => {
-      ftpFormRef.value.clearValidate()
-    })
-  }
-})
 </script>
 
 <template>

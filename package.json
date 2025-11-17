@@ -20,6 +20,8 @@
     "build:linux": "npm run build && electron-builder --linux"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.932.0",
+    "@aws-sdk/lib-storage": "^3.932.0",
     "@electron-toolkit/preload": "^3.0.0",
     "@electron-toolkit/utils": "^3.0.0",
     "@imengyu/vue3-context-menu": "^1.5.2",

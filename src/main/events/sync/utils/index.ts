@@ -1,5 +1,6 @@
 import { FtpStorageEngine } from '../engines/FtpStorageEngine'
 import { LocalStorageEngine } from '../engines/LocalStorageEngine'
+import { S3StorageEngine } from '../engines/S3StorageEngine'
 import { StorageEngine } from '../engines/StorageEngine'
 
 /**
@@ -68,7 +69,9 @@ export function getResolution(
  */
 export function createStorageEngineInstance(config: StorageEngineConfig): StorageEngine {
   if (config.storageType === 'ftp') {
-    return new FtpStorageEngine(config.connectionConfig!, config.path)
+    return new FtpStorageEngine(config.connectionConfig as FtpConfig, config.path)
+  } else if (config.storageType === 's3') {
+    return new S3StorageEngine(config.connectionConfig as S3Config, config.path)
   } else {
     return new LocalStorageEngine(config.path)
   }

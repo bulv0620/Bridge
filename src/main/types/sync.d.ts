@@ -3,13 +3,15 @@
  * - ftp: FTP/FTPS服务目录
  * - local: 本地存储目录
  */
-declare type StorageType = 'ftp' | 'local' | ''
+declare type StorageType = 'ftp' | 'local' | 's3'
+
+declare type ConnectionConfig = FtpConfig | S3Config
 
 // 通用存储位置信息
 declare interface StorageEngineConfig {
   storageType: StorageType
   path: string
-  connectionConfig?: FtpConfig
+  connectionConfig?: ConnectionConfig
 }
 
 // ftp配置信息
@@ -22,6 +24,16 @@ declare interface FtpConfig {
   secureOptions: {
     rejectUnauthorized: boolean
   }
+}
+
+// s3 配置信息
+declare interface S3Config {
+  region: string
+  accessKeyId: string
+  secretAccessKey: string
+  bucket: string
+  endpoint?: string // 可选：用于兼容 S3 兼容服务
+  forcePathStyle?: boolean
 }
 
 /**
