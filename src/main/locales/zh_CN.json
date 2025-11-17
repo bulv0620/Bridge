@@ -16,7 +16,27 @@
     "confirmMessage": "新版本已就绪，是否立即安装？"
   },
   "menu": {
-    "about": "关于",
-    "quit": "退出"
+    "about": "关于 Bridge",
+    "quit": "退出 Bridge",
+    "edit": {
+      "label": "编辑",
+      "undo": "撤销",
+      "redo": "重做",
+      "cut": "剪切",
+      "copy": "复制",
+      "paste": "粘贴",
+      "selectAll": "全选"
+    },
+    "view": {
+      "label": "视图",
+      "reload": "重新加载",
+      "toggleFullscreen": "切换全屏",
+      "devtools": "开发者工具"
+    },
+    "window": {
+      "label": "窗口",
+      "minimize": "最小化",
+      "close": "关闭窗口"
+    }
   }
 }

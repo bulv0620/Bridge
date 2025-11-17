@@ -16,7 +16,27 @@
     "confirmMessage": "New version is ready, update now?"
   },
   "menu": {
-    "about": "About",
-    "quit": "Quit"
+    "about": "About Bridge",
+    "quit": "Quit Bridge",
+    "edit": {
+      "label": "Edit",
+      "undo": "Undo",
+      "redo": "Redo",
+      "cut": "Cut",
+      "copy": "Copy",
+      "paste": "Paste",
+      "selectAll": "Select All"
+    },
+    "view": {
+      "label": "View",
+      "reload": "Reload",
+      "toggleFullscreen": "Toggle Fullscreen",
+      "devtools": "Toggle Developer Tools"
+    },
+    "window": {
+      "label": "Window",
+      "minimize": "Minimize",
+      "close": "Close Window"
+    }
   }
 }
