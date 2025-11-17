@@ -3,7 +3,6 @@ import { StorageEngine } from '../engines/StorageEngine'
 import { DiffStore } from '../store/DiffStore'
 import { getResolution, getTransferByte, createStorageEngineInstance } from '../utils'
 import { getWindow } from '../../../utils/window'
-import { sendToRenderer } from '../../../utils/sender'
 
 export class SyncManager {
   private sourceStorageEngine: StorageEngine | null = null
@@ -310,7 +309,7 @@ export class SyncManager {
         this.transferredCount++
       }
 
-      sendToRenderer(mainWindow!, 'sync:updateStatus', {
+      mainWindow!.webContents.send('sync:updateStatus', {
         bytesTransferred: this.bytesTransferred,
         transferredCount: this.transferredCount,
       })
