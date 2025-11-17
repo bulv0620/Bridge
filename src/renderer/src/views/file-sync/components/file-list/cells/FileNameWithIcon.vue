@@ -17,7 +17,7 @@ const iconInfo = computed(() => {
     <el-icon class="icon" :color="iconInfo.color">
       <component :is="iconInfo.icon"></component>
     </el-icon>
-    <div style="flex: 1; overflow: hidden; line-height: normal">
+    <div class="title">
       <el-text truncated class="name" style="width: 100%">{{ fileName }}</el-text>
     </div>
   </div>
@@ -29,6 +29,14 @@ const iconInfo = computed(() => {
   overflow: hidden;
   display: flex;
   gap: 8px;
+  align-items: center;
+}
+
+.title {
+  flex: 1;
+  overflow: hidden;
+  line-height: normal;
+  display: flex;
   align-items: center;
 }
 </style>
