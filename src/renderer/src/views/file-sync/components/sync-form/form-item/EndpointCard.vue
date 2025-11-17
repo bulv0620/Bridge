@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import Drive from '@renderer/assets/imgs/drive.png'
-import CloudDrive from '@renderer/assets/imgs/cloud_drive.png'
-import Search from '@renderer/assets/imgs/search.png'
+import FtpSvg from '@renderer/assets/svg/ftp.svg'
+import BucketSvg from '@renderer/assets/svg/bucket.svg'
+import DiskSvg from '@renderer/assets/svg/disk.svg'
+import NotSelectedSvg from '@renderer/assets/svg/not-selected.svg'
 import { Close } from '@vicons/ionicons5'
 import { useSyncForm } from '@renderer/composables/file-sync/useSyncForm'
 import { useConectionModal } from '@renderer/composables/file-sync/useConnectionModal'
@@ -23,17 +24,6 @@ const title = computed(() => {
     return t('views.fileSync.syncSource')
   } else {
     return t('views.fileSync.syncDestination')
-  }
-})
-
-const endPointImage = computed(() => {
-  if (!endpoint.value) {
-    return Search
-  }
-  if (endpoint.value?.storageType === 'local') {
-    return Drive
-  } else {
-    return CloudDrive
   }
 })
 
@@ -75,7 +65,14 @@ function removeEndPoint() {
 <template>
   <div class="endpoint-card" :class="{ active: !!endpoint }">
     <div class="card-content">
-      <img class="endpoint-image" :src="endPointImage" draggable="false" />
+      <div class="endpoint-image">
+        <SvgIcon v-if="!endpoint" :icon="NotSelectedSvg" :size="32"></SvgIcon>
+        <template v-else>
+          <SvgIcon v-if="endpoint.storageType === 'ftp'" :icon="FtpSvg" :size="32"></SvgIcon>
+          <SvgIcon v-else-if="endpoint.storageType === 's3'" :icon="BucketSvg" :size="32"></SvgIcon>
+          <SvgIcon v-else :icon="DiskSvg" :size="32"></SvgIcon>
+        </template>
+      </div>
       <div class="text">
         <el-text truncated style="width: 100%" type="primary">{{ title }}</el-text>
         <el-text v-if="endpoint" truncated style="width: 100%">
@@ -137,7 +134,6 @@ function removeEndPoint() {
   align-items: center;
 
   .endpoint-image {
-    width: 32px;
     user-select: none;
   }
 

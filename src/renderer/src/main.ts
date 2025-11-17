@@ -6,6 +6,7 @@ import { i18n } from './locales/index'
 
 import { loadDirectives } from './directives'
 import CommonDialog from './components/CommonDialog.vue'
+import SvgIcon from './components/SvgIcon.vue'
 
 import './assets/reset.css'
 import 'element-plus/dist/index.css'
@@ -19,6 +20,7 @@ app.use(i18n)
 app.use(ElementPlus)
 
 app.component('CommonDialog', CommonDialog)
+app.component('SvgIcon', SvgIcon)
 
 /** 加载自定义指令 */
 loadDirectives(app)
