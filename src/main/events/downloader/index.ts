@@ -1,6 +1,6 @@
 import { IpcMainInvokeEvent } from 'electron'
-import { Aria2Server } from './core/Aria2Server'
-import { MagnetWatcher } from './core/MagnetWatcher'
+import { Aria2Server } from './service/Aria2Server'
+import { MagnetWatcher } from './service/MagnetWatcher'
 
 const aria2Server = new Aria2Server()
 const magnetWatcher = new MagnetWatcher()

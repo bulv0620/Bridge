@@ -1,7 +1,7 @@
 import { IpcMainInvokeEvent } from 'electron'
-import { DeviceDiscovery } from './core/DeviceDiscovery'
+import { DeviceDiscovery } from './service/DeviceDiscovery'
 import { FileStore } from './store/FileStore'
-import { FileServer } from './core/FileServer'
+import { FileServer } from './service/FileServer'
 
 const UDP_PORT = 9520
 const HTTP_PORT = 9520

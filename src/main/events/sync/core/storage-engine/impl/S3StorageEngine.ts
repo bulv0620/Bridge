@@ -12,7 +12,7 @@ import { Upload } from '@aws-sdk/lib-storage'
 import path from 'path'
 import { PassThrough, Readable } from 'stream'
 import { ReadStream, WriteStream } from 'fs'
-import { StorageEngine, shouldIgnoreFile } from './StorageEngine'
+import { StorageEngine, shouldIgnoreFile } from '../StorageEngine'
 
 export class S3StorageEngine extends StorageEngine {
   private client: S3Client

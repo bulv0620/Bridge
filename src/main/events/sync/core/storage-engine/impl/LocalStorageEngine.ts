@@ -1,5 +1,5 @@
 import { ReadStream, WriteStream } from 'fs'
-import { shouldIgnoreFile, StorageEngine } from './StorageEngine'
+import { shouldIgnoreFile, StorageEngine } from '../StorageEngine'
 import path from 'path'
 import fs from 'fs'
 

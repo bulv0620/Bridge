@@ -1,8 +1,9 @@
 import { pipeline } from 'stream/promises'
-import { StorageEngine } from '../engines/StorageEngine'
-import { DiffStore } from '../store/DiffStore'
-import { getResolution, getTransferByte, createStorageEngineInstance } from '../utils'
-import { getWindow } from '../../../utils/window'
+import { StorageEngine } from '../../core/storage-engine/StorageEngine'
+import { DiffStore } from '../../store/DiffStore'
+import { getResolution, getTransferByte } from './utils'
+import { getWindow } from '../../../../utils/window'
+import { createStorageEngineInstance } from '../../core/storage-engine/utils/StorageEngineFactory'
 
 export class SyncManager {
   private sourceStorageEngine: StorageEngine | null = null
@@ -10,14 +11,16 @@ export class SyncManager {
   private ignoredFolders: string[] = []
   private syncStrategy: SyncStrategy = 'mirror'
   private stopFlag: boolean = false
-  private diffStore: DiffStore = new DiffStore()
+  private diffStore: DiffStore
 
   private totalBytes: number = 0
   private totalCount: number = 0
   private bytesTransferred: number = 0
   private transferredCount: number = 0
 
-  constructor() {}
+  constructor() {
+    this.diffStore = new DiffStore()
+  }
 
   /**
    * 设置存储引擎配置

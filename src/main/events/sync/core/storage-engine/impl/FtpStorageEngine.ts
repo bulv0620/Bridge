@@ -1,7 +1,7 @@
 import type { Client, AccessOptions } from 'basic-ftp'
 import ftp from 'basic-ftp'
 import path from 'path'
-import { shouldIgnoreFile, StorageEngine } from './StorageEngine'
+import { shouldIgnoreFile, StorageEngine } from '../StorageEngine'
 import streamBuffers from 'stream-buffers'
 import { PassThrough, Readable } from 'stream'
 import { ReadStream, WriteStream } from 'fs'

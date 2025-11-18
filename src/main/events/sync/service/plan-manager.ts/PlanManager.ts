@@ -1,4 +1,4 @@
-import { PlanStore } from '../store/PlanStore'
+import { PlanStore } from '../../store/PlanStore'
 
 export class PlanManager {
   private store: PlanStore = new PlanStore()

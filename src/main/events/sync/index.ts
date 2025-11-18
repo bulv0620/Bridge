@@ -1,7 +1,7 @@
 import { IpcMainInvokeEvent } from 'electron'
-import { SyncManager } from './core/SyncManager'
-import { PlanManager } from './core/PlanManager'
-import { InstanceManager } from './core/InstanceManager'
+import { SyncManager } from './service/sync-manager/SyncManager'
+import { PlanManager } from './service/plan-manager.ts/PlanManager'
+import { InstanceManager } from './service/instance-manager/InstanceManager'
 
 const syncManager = new SyncManager()
 const planManager = new PlanManager()

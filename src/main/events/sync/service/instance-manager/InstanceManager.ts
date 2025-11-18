@@ -1,5 +1,5 @@
-import { StorageEngine } from '../engines/StorageEngine'
-import { createStorageEngineInstance } from '../utils'
+import { StorageEngine } from '../../core/storage-engine/StorageEngine'
+import { createStorageEngineInstance } from '../../core/storage-engine/utils/StorageEngineFactory'
 
 export class InstanceManager {
   private instance: StorageEngine | null = null
@@ -8,8 +8,11 @@ export class InstanceManager {
   constructor() {}
 
   async createInstance(config: StorageEngineConfig) {
-    this.instanceConfig = config
+    if (this.instance) {
+      this.clearInstance()
+    }
 
+    this.instanceConfig = config
     this.instance = createStorageEngineInstance(config)
 
     const valid = await this.instance.validate()
