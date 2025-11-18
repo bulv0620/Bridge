@@ -41,6 +41,9 @@ const connectionConfigInitData = new Map<StorageType, ConnectionConfig>([
 
 const visible = ref(false)
 const connectLoading = ref(false)
+
+const sessionId = ref('')
+
 const formRef = ref<any>(null)
 const currentStep = ref(1) // 当前步骤
 const storageType = ref<StorageType>('ftp') // 配置类型
@@ -51,6 +54,9 @@ watch(visible, (val) => {
   if (!val && promiseState.value && promiseState.value.reject) {
     promiseState.value.reject()
     promiseState.value = null
+  }
+  if (sessionId.value) {
+    window.ipc.sync.releaseSession(sessionId.value)
   }
 })
 
@@ -65,11 +71,12 @@ async function submitForm() {
     try {
       connectLoading.value = true
       // 创建连接实例
-      await window.ipc.sync.createInstance({
+      const id = await window.ipc.sync.createStorageSession({
         storageType: storageType.value,
         path: '/',
         connectionConfig: toRaw(connectionConfig.value),
       })
+      sessionId.value = id // 记录session id
       selectedPath.value = ''
       currentStep.value++
     } catch (error) {
@@ -89,6 +96,7 @@ async function submitForm() {
 }
 
 function openConnectionModal(type: StorageType) {
+  sessionId.value = ''
   storageType.value = type
 
   connectionConfig.value = JSON.parse(JSON.stringify(connectionConfigInitData.get(type)))
@@ -110,6 +118,7 @@ function openConnectionModal(type: StorageType) {
 
 export function useConectionModal() {
   return {
+    sessionId,
     storageType,
     formRef,
     visible,

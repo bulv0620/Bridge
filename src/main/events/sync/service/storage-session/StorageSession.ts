@@ -1,29 +1,25 @@
 import { StorageEngine } from '../../core/storage-engine/StorageEngine'
 import { createStorageEngineInstance } from '../../core/storage-engine/utils/StorageEngineFactory'
 
-export class InstanceManager {
-  private instance: StorageEngine | null = null
-  private instanceConfig: StorageEngineConfig | null = null
+export class StorageSession {
+  private instance: StorageEngine
+  private instanceConfig: StorageEngineConfig
 
-  constructor() {}
-
-  async createInstance(config: StorageEngineConfig) {
-    if (this.instance) {
-      this.clearInstance()
-    }
-
+  constructor(config: StorageEngineConfig) {
     this.instanceConfig = config
     this.instance = createStorageEngineInstance(config)
+  }
 
+  async validate() {
     const valid = await this.instance.validate()
 
     if (!valid) {
-      this.clearInstance()
+      this.disconnect()
       throw new Error('Invalid instance.')
     }
   }
 
-  async listInstance(dir: string, ignoredFolders?: string[]) {
+  async list(dir: string, ignoredFolders?: string[]) {
     if (!this.instance) return []
     const list = await this.instance.list(dir, ignoredFolders || [])
 
@@ -31,12 +27,11 @@ export class InstanceManager {
     return list.filter((item) => item.isDirectory)
   }
 
-  getInstanceConfig() {
+  getSessionConfig() {
     return this.instanceConfig
   }
 
-  clearInstance() {
+  disconnect() {
     this.instance?.disconnect()
-    this.instance = null
   }
 }

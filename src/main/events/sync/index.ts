@@ -1,11 +1,11 @@
 import { IpcMainInvokeEvent } from 'electron'
 import { SyncManager } from './service/sync-manager/SyncManager'
 import { PlanManager } from './service/plan-manager.ts/PlanManager'
-import { InstanceManager } from './service/instance-manager/InstanceManager'
+import { StorageSession } from './service/storage-session/StorageSession'
 
 const syncManager = new SyncManager()
 const planManager = new PlanManager()
-const instanceManager = new InstanceManager()
+const storageSessionMap = new Map<string, StorageSession>() // 连接会话
 
 // 设置同步引擎配置
 export function setStorageEngineConfig(
@@ -82,21 +82,35 @@ export function getAllPlan(_: IpcMainInvokeEvent) {
 }
 
 // 创建连接实例
-export function createInstance(_: IpcMainInvokeEvent, config: StorageEngineConfig) {
-  return instanceManager.createInstance(config)
+export async function createStorageSession(_: IpcMainInvokeEvent, config: StorageEngineConfig) {
+  const session = new StorageSession(config)
+
+  await session.validate()
+
+  const uuid = crypto.randomUUID()
+  storageSessionMap.set(uuid, session)
+
+  return uuid
 }
 
 // 实例目录列表获取
-export function listInstance(_: IpcMainInvokeEvent, dir: string) {
-  return instanceManager.listInstance(dir)
+export function listStorageSession(_: IpcMainInvokeEvent, id: string, dir: string) {
+  const session = storageSessionMap.get(id)
+
+  return session?.list(dir) || []
 }
 
 // 获取实例配置
-export function getInstanceConfig(_: IpcMainInvokeEvent) {
-  return instanceManager.getInstanceConfig()
+export function getSessionConfig(_: IpcMainInvokeEvent, id: string) {
+  const session = storageSessionMap.get(id)
+
+  return session?.getSessionConfig()
 }
 
 // 释放实例
-export function clearInstance(_: IpcMainInvokeEvent) {
-  return instanceManager.clearInstance()
+export function releaseSession(_: IpcMainInvokeEvent, id: string) {
+  const session = storageSessionMap.get(id)
+  session?.disconnect()
+
+  storageSessionMap.delete(id)
 }

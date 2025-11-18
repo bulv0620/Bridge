@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { useConectionModal } from '@renderer/composables/file-sync/useConnectionModal'
 import { ref } from 'vue'
+
+const { sessionId } = useConectionModal()
 
 // 双向绑定选择的路径
 const selectedPath = defineModel<string>('selectedPath', { required: true })
@@ -22,7 +25,7 @@ async function loadNode(node: any, resolve: any) {
   if (node.level === 0) return resolve(data.value)
 
   const nodeData = node.data
-  const list = await window.ipc.sync.listInstance(nodeData.id)
+  const list = await window.ipc.sync.listStorageSession(sessionId.value, nodeData.id)
 
   const children = list.map((el: any) => ({
     id: el.filePath,
