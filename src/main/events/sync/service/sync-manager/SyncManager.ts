@@ -57,7 +57,7 @@ export class SyncManager {
    */
   async setSyncStrategy(strategy: SyncStrategy): Promise<CompareResult> {
     this.syncStrategy = strategy
-    const diffItems = await this.diffStore.getAll()
+    const diffItems = this.diffStore.getAll()
 
     diffItems.forEach((item) => {
       if (item.isDirectory) return
@@ -78,7 +78,7 @@ export class SyncManager {
       }
     })
 
-    await this.diffStore.updateAll(diffItems)
+    this.diffStore.updateAll(diffItems)
 
     return {
       totalBytes: this.totalBytes,
@@ -92,7 +92,7 @@ export class SyncManager {
    * @param resolution
    */
   async setResolution(id: string, resolution: FileSyncResolition): Promise<CompareResult> {
-    const diffItem = await this.diffStore.getById(id)
+    const diffItem = this.diffStore.getById(id)
 
     if (!diffItem) throw new Error('Not found')
 
@@ -104,7 +104,7 @@ export class SyncManager {
     const byteChangeValue = diffItem.transferBytes - transferByteTemp
     this.totalBytes += byteChangeValue
 
-    await this.diffStore.updateById(diffItem.id, diffItem)
+    this.diffStore.updateById(diffItem.id, diffItem)
 
     return {
       totalBytes: this.totalBytes,
@@ -158,7 +158,7 @@ export class SyncManager {
    */
   async compare(): Promise<CompareResult> {
     this.clearStatus()
-    await this.diffStore.delAll()
+    this.diffStore.delAll()
 
     const differentStack: FileDifference[] = [
       {
@@ -184,7 +184,7 @@ export class SyncManager {
       await this.clearEmptyDirectory(differentItem.parentId)
 
       if (differentItem.id) {
-        await this.diffStore.add(differentItem)
+        this.diffStore.add(differentItem)
         if (!differentItem.isDirectory) {
           this.totalCount++
           this.totalBytes += differentItem.transferBytes
@@ -288,10 +288,10 @@ export class SyncManager {
   }
 
   private async clearEmptyDirectory(parentId: string | null) {
-    let lastItem = await this.diffStore.getLast()
+    let lastItem = this.diffStore.getLast()
     while (lastItem && lastItem.isDirectory && (!parentId || parentId !== lastItem.id)) {
-      await this.diffStore.delById(lastItem.id)
-      lastItem = await this.diffStore.getLast()
+      this.diffStore.delLast()
+      lastItem = this.diffStore.getLast()
     }
   }
 
@@ -300,12 +300,9 @@ export class SyncManager {
    */
   async startSync() {
     const mainWindow = getWindow('main')
-    const differentItems = await this.diffStore.getAll()
 
-    let i = differentItems.length - 1
-    while (i > -1 && !this.stopFlag) {
-      const differentItem = differentItems[i]
-
+    let differentItem = this.diffStore.getLast()
+    while (!!differentItem && !this.stopFlag) {
       await this.syncFile(differentItem)
       if (!differentItem.isDirectory) {
         this.bytesTransferred += differentItem.transferBytes
@@ -317,8 +314,9 @@ export class SyncManager {
         transferredCount: this.transferredCount,
       })
 
-      await this.diffStore.delById(differentItem.id)
-      i--
+      this.diffStore.delLast()
+      this.clearEmptyDirectory(null)
+      differentItem = this.diffStore.getLast()
     }
 
     if (this.stopFlag) this.stopFlag = false

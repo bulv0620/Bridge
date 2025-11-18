@@ -4,9 +4,8 @@ export class DiffStore {
   private list: FileDifference[] = []
   private idIndex: Map<string, FileDifference> = new Map()
   private parentIdIndex: Map<string, FileDifference[]> = new Map()
-  private deletedIds: Set<string> = new Set()
 
-  async add(diff: FileDifference) {
+  add(diff: FileDifference) {
     this.list.push(diff)
     this.idIndex.set(diff.id, diff)
 
@@ -17,27 +16,37 @@ export class DiffStore {
     this.parentIdIndex.get(pid)!.push(diff)
   }
 
-  async delById(id: string) {
-    this.deletedIds.add(id)
+  delLast() {
+    const item = this.list.pop()
+    if (!item) return
 
-    if (this.deletedIds.size === this.list.length) {
-      await this.clear()
+    // 删除索引
+    this.idIndex.delete(item.id)
+    this.parentIdIndex.delete(item.id)
+
+    // 删除父级索引
+    const parentId = item.parentId ?? ROOT_KEY
+    const siblings = this.parentIdIndex.get(parentId)
+
+    if (siblings) {
+      this.parentIdIndex.set(
+        parentId,
+        siblings.filter((child) => child.id !== item.id),
+      )
     }
   }
 
-  async delAll() {
-    await this.clear()
+  delAll() {
+    this.clear()
   }
 
-  private async clear() {
+  clear() {
     this.list = []
     this.idIndex.clear()
     this.parentIdIndex.clear()
-    this.deletedIds.clear()
   }
 
-  async updateById(id: string, diffItem: FileDifference) {
-    if (this.deletedIds.has(id)) return
+  updateById(id: string, diffItem: FileDifference) {
     const oldItem = this.idIndex.get(id)
     if (!oldItem) return
 
@@ -62,7 +71,7 @@ export class DiffStore {
     }
   }
 
-  async updateAll(list: FileDifference[]) {
+  updateAll(list: FileDifference[]) {
     this.list = list
     this.idIndex.clear()
     this.parentIdIndex.clear()
@@ -75,44 +84,23 @@ export class DiffStore {
       }
       this.parentIdIndex.get(pid)!.push(diff)
     }
-
-    // 清理掉已删除但不再存在的 id
-    this.deletedIds.forEach((id) => {
-      if (!this.idIndex.has(id)) this.deletedIds.delete(id)
-    })
   }
 
-  async getLast(): Promise<FileDifference | undefined> {
-    if (!this.list.length) return
-
-    let i = this.list.length - 1
-    while (i > -1) {
-      const diffItem = this.list[i]
-
-      if (!this.deletedIds.has(diffItem.id)) {
-        return structuredClone(diffItem)
-      }
-
-      i--
-    }
-
-    return
+  getLast(): FileDifference | undefined {
+    return this.list[this.list.length - 1]
   }
 
-  async getById(id: string): Promise<FileDifference | undefined> {
-    if (this.deletedIds.has(id)) return
-    const item = this.idIndex.get(id)
-    return item ? structuredClone(item) : undefined
+  getById(id: string): FileDifference | undefined {
+    return this.idIndex.get(id)
   }
 
-  async getChildren(parentId: string | null): Promise<FileDifference[]> {
+  getChildren(parentId: string | null): FileDifference[] {
     const pid = parentId ?? ROOT_KEY
-    return structuredClone(
-      (this.parentIdIndex.get(pid) || []).filter((item) => !this.deletedIds.has(item.id)),
-    )
+    console.log(this.list)
+    return this.parentIdIndex.get(pid) || []
   }
 
-  async getAll(): Promise<FileDifference[]> {
-    return structuredClone(this.list.filter((item) => !this.deletedIds.has(item.id)))
+  getAll(): FileDifference[] {
+    return this.list
   }
 }
