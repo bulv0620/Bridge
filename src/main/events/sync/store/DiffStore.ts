@@ -96,7 +96,6 @@ export class DiffStore {
 
   getChildren(parentId: string | null): FileDifference[] {
     const pid = parentId ?? ROOT_KEY
-    console.log(this.list)
     return this.parentIdIndex.get(pid) || []
   }
 

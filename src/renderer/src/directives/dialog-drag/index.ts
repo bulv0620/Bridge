@@ -38,8 +38,6 @@ export const dialogDrag: Directive = {
         const l = e.clientX - disX
         const t = e.clientY - disY
 
-        console.log()
-
         const offsetW = -Math.ceil((window.innerWidth - dragDom.offsetWidth) / 2)
         const offsetH = -Math.ceil(styMt)
 

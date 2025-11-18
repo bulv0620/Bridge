@@ -22,7 +22,6 @@ function handleContextmenu(
   _: TableColumnCtx<DownloadTaskInfo>,
   e: MouseEvent,
 ) {
-  console.log(row.origin.status)
   ContextMenu.showContextMenu({
     x: e.x,
     y: e.y + 15,
