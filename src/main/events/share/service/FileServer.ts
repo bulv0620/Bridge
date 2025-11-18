@@ -2,7 +2,7 @@ import express, { Express, Request, Response } from 'express'
 import { Server } from 'http'
 import fs from 'fs'
 import path from 'path'
-import { FileStore } from '../store/FileStore'
+import { remoteRef, RemoteRefMain } from '../../../utils/remoteRef'
 
 export interface FileServerOptions {
   /** 监听端口号，默认 9525 */
@@ -17,13 +17,14 @@ export interface FileItem {
 
 export class FileServer {
   private readonly port: number
-  private readonly fileStore: FileStore
+  private readonly mySharedFileList: RemoteRefMain<SharedFileInfo[]>
   private readonly app: Express
   private server: Server | null = null
 
-  constructor(store: FileStore, options: FileServerOptions = {}) {
+  constructor(options: FileServerOptions = {}) {
+    this.mySharedFileList = remoteRef('shared-file-list', [])
+
     this.port = options.port ?? 9520
-    this.fileStore = store
     this.app = express()
 
     this.app.get('/download/:id', this.handleDownload.bind(this))
@@ -55,6 +56,8 @@ export class FileServer {
         return
       }
 
+      this.mySharedFileList.value = [] // 清空共享文件列表
+
       this.server.close((err?: Error) => {
         if (err) return reject(err)
         console.log('🛑 HTTP server stopped')
@@ -77,7 +80,7 @@ export class FileServer {
   /** 下载处理 */
   private async handleDownload(req: Request<{ id: string }>, res: Response) {
     const fileId = req.params.id
-    const fileItem: SharedFileInfo | undefined = await this.fileStore.getById(fileId)
+    const fileItem = this.mySharedFileList.value.find((file) => file.id === fileId)
 
     // 校验文件是否存在
     if (!fileItem || !fs.existsSync(fileItem.filePath) || fileItem.status.remaining < 1) {
@@ -85,11 +88,12 @@ export class FileServer {
       return
     }
 
-    fileItem.status.remaining -= 1
+    this.mySharedFileList.update(() => {
+      fileItem.status.remaining -= 1
+    })
+
     if (fileItem.status.remaining < 1) {
-      this.fileStore.delById(fileId)
-    } else {
-      this.fileStore.updateById(fileId, fileItem)
+      this.mySharedFileList.value = this.mySharedFileList.value.filter((file) => file.id !== fileId)
     }
 
     const stat = fs.statSync(fileItem.filePath)
@@ -139,8 +143,6 @@ export class FileServer {
 
   /** 获取文件列表 */
   private async handleQuery(_: Request<void>, res: Response) {
-    const fileList = await this.fileStore.getAll()
-
-    res.json(fileList)
+    res.json(this.mySharedFileList.value)
   }
 }
