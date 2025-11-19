@@ -24,7 +24,7 @@ const connectionConfigInitData = new Map<StorageType, ConnectionConfig>([
       secureOptions: {
         rejectUnauthorized: false,
       },
-    },
+    } satisfies FtpConfig,
   ],
   [
     's3',
@@ -35,7 +35,7 @@ const connectionConfigInitData = new Map<StorageType, ConnectionConfig>([
       bucket: '',
       endpoint: '',
       forcePathStyle: true,
-    },
+    } satisfies S3Config,
   ],
 ])
 
@@ -47,7 +47,7 @@ const sessionId = ref('')
 const formRef = ref<any>(null)
 const currentStep = ref(1) // 当前步骤
 const storageType = ref<StorageType>('ftp') // 配置类型
-const connectionConfig = ref<ConnectionConfig>() // 配置form内容
+const connectionConfig = ref<ConnectionConfig>(connectionConfigInitData.get('ftp')!) // 配置form内容
 const selectedPath = ref<string>('') // 选择的路径
 
 watch(visible, (val) => {
@@ -99,7 +99,7 @@ function openConnectionModal(type: StorageType) {
   sessionId.value = ''
   storageType.value = type
 
-  connectionConfig.value = JSON.parse(JSON.stringify(connectionConfigInitData.get(type)))
+  connectionConfig.value = structuredClone(connectionConfigInitData.get(type)!)
 
   currentStep.value = 1
   visible.value = true
