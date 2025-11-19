@@ -1,23 +1,36 @@
 # 🛰️ Bridge
 
-> ⚡ A cross-platform LAN collaboration tool built with **Electron + Vite + Vue3**, designed for fast, private, and intelligent local network communication.
+> ⚡ A cross-platform file synchronization tool built with **Electron + Vite + Vue3**.
 
-**Bridge** turns your local network into a small, intelligent ecosystem — enabling device discovery, file synchronization, and shared downloading with a single click.
+**Bridge** — Making file backup, sharing, and downloading as intuitive and effortless as breathing.
 
 English | [简体中文](./README.zh-CN.md)
 
 ## ✨ Features
-- 📁 **File Sync & Compare**
 
-  Compare directory trees between local and remote (FTP) paths and synchronize files intelligently.
+### 📁 **File Comparison & Synchronization**
 
-- 🌐 **LAN File Sharing**
+Automatically generates a differential file tree and performs synchronization after selecting source and target directories.
 
-  Auto-discovers devices over UDP broadcast. Share local files instantly — peers download via an HTTP service by file ID, without exposing your paths.
+Offers three flexible synchronization strategies:
 
-- ⬇️ **Integrated Downloader**
+- **Mirror Sync**: Target directory becomes an exact replica of the source directory structure.
+- **Incremental Sync**: Overwrites identical files, copies new files, and retains old files existing only in the target directory.
+- **Bidirectional Sync**: Copies newer files in both directions; conflicting files are ignored by default.
 
-  Built-in **Aria2** engine supporting HTTP, FTP, and BitTorrent. Unified task list for both Internet and LAN downloads.
+### 🌐 **LAN File Sharing**
+
+Automatically discovers devices on the same network via UDP broadcast.
+
+Securely share local files—receivers download using a unique file ID through the built-in HTTP service, without exposing the actual file path.
+
+### ⬇️ **Integrated Download Management**
+
+Built-in **Aria2** download engine with comprehensive support for HTTP, FTP, BitTorrent, and other protocols.
+
+Unified management for both internet downloads and LAN shared transfers, with an intuitive and clear interface.
+
+
 
 ## 📦 Tech Stack
 - **Frontend:** Vue 3 + Vite + TypeScript
@@ -25,8 +38,44 @@ English | [简体中文](./README.zh-CN.md)
 - **Network:** UDP broadcast discovery + HTTP transfer
 - **Downloader:** Aria2 RPC integration
 
-## 🚀 Cross-Platform
 
-Works on **Windows**, **macOS**, and **Linux**.
- Optimized for offline or intranet environments.
+
+## 🚀 Quick Start
+
+### Supported Platforms
+
+Bridge supports the following platforms:
+
+- **macOS**: `x86_64` (Intel) and `arm64` (Apple Silicon)
+- **Linux**: `x86_64` / `amd64` and `aarch64` (ARM 64-bit)
+- **Windows**: `x86_64` (64-bit)
+
+### Download & Install
+
+1. **Direct Download**:
+
+   - Go to the [Releases](https://github.com/bulv0620/Bridge/releases) page.
+   - Download the latest installer for your operating system.
+   - Run the installer and follow the setup instructions.
+
+2. **Build from Source** (For Developers):
+
+   ```bash
+   # Clone the repository
+   git clone https://github.com/bulv0620/Bridge.git
+   
+   # Navigate into the directory
+   cd bridge
+   
+   # Install dependencies
+   npm install
+   
+   # Start development mode
+   npm run dev
+   
+   # Build for production
+   npm run build:[your-system]
+   ```
+
+   
 
