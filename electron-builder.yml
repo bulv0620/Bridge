@@ -42,5 +42,7 @@ publish:
   owner: bulv0620
   repo: Bridge
   releaseType: release
+releaseInfo:
+  releaseName: v${version}
 electronDownload:
   mirror: https://npmmirror.com/mirrors/electron/
