@@ -17,7 +17,8 @@
     "build:unpack": "npm run build && electron-builder --dir",
     "build:win": "npm run build && electron-builder --win",
     "build:mac": "npm run build && electron-builder --mac",
-    "build:linux": "npm run build && electron-builder --linux"
+    "build:linux": "npm run build && electron-builder --linux",
+    "release": "standard-version"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.932.0",
@@ -64,6 +65,7 @@
     "less-loader": "^12.2.0",
     "prettier": "^3.3.2",
     "sass-embedded": "^1.90.0",
+    "standard-version": "^9.5.0",
     "typescript": "^5.5.2",
     "vfonts": "^0.0.3",
     "vite": "^5.3.1",
