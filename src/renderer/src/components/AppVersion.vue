@@ -1,52 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
 import { Refresh, Top, Loading } from '@element-plus/icons-vue'
-import { useI18n } from 'vue-i18n'
+import { useAppUpdate } from '@renderer/composables/update/useAppUpdate'
 
-const { t } = useI18n()
-
-const version = ref('')
-const newVersion = ref('')
-const downloading = ref(false)
-const checkLoading = ref(false)
-
-async function getCurrentVersion() {
-  version.value = await window.ipc.update.getCurrentVersion()
-}
-
-async function checkForUpdate() {
-  if (checkLoading.value) return
-  try {
-    checkLoading.value = true
-    const result = await window.ipc.update.check()
-
-    if (result) {
-      newVersion.value = result
-      ElMessage.success(t('update.findNewVersion') + ' v' + result)
-    } else {
-      newVersion.value = ''
-      ElMessage.info(t('update.newVersionNotFound'))
-    }
-  } catch (err) {
-    console.error(err)
-  } finally {
-    checkLoading.value = false
-  }
-}
-
-async function downloadUpdate() {
-  try {
-    downloading.value = true
-    await window.ipc.update.download()
-  } catch (err) {
-    console.error(err)
-  } finally {
-    downloading.value = false
-  }
-}
-
-onMounted(getCurrentVersion)
+const { version, newVersion, downloading, checkLoading, checkForUpdate, downloadUpdate } =
+  useAppUpdate()
 </script>
 
 <template>
@@ -58,11 +15,11 @@ onMounted(getCurrentVersion)
 
       <div class="popover-content">
         <div class="row">
-          <strong>{{ t('update.checkForUpdate') }}</strong>
+          <strong>{{ $t('update.checkForUpdate') }}</strong>
         </div>
 
         <div v-if="!newVersion" class="row muted">
-          {{ t('update.currentVersion') }}: v{{ version }}
+          {{ $t('update.currentVersion') }}: v{{ version }}
         </div>
 
         <!-- 检查更新按钮 -->
@@ -74,13 +31,13 @@ onMounted(getCurrentVersion)
           :icon="Refresh"
           @click="checkForUpdate"
         >
-          {{ t('update.checkForUpdate') }}
+          {{ $t('update.checkForUpdate') }}
         </el-button>
 
         <!-- 新版本信息 -->
         <div v-if="newVersion && !downloading" class="row new-version">
           <el-icon><Top /></el-icon>
-          <span>{{ t('update.findNewVersion') }} v{{ newVersion }}</span>
+          <span>{{ $t('update.findNewVersion') }} v{{ newVersion }}</span>
         </div>
 
         <!-- 点击下载 -->
@@ -90,13 +47,13 @@ onMounted(getCurrentVersion)
           type="success"
           @click="downloadUpdate"
         >
-          {{ t('update.updateNow') }}
+          {{ $t('update.updateNow') }}
         </el-button>
 
         <!-- 下载中 -->
         <div v-if="downloading" class="row downloading">
           <el-icon class="spin"><Loading /></el-icon>
-          <span>{{ t('update.downloading') }}</span>
+          <span>{{ $t('update.downloading') }}</span>
         </div>
       </div>
     </el-popover>
