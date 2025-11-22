@@ -15,7 +15,7 @@ const props = defineProps<{
 
 const endpoint = defineModel<StorageEngineConfig | null>('endpoint', { required: true })
 
-const { activeSessionState, activeSession } = useActiveSyncSession()
+const { activeSessionState } = useActiveSyncSession()
 const { t } = useI18n()
 const { openConnectionModal } = useConectionModal()
 
@@ -55,13 +55,10 @@ async function selectStorageType(key: StorageType) {
     const config = await openConnectionModal(key)
     endpoint.value = config
   }
-
-  activeSession.value.handleConfigChange(props.type)
 }
 
 function removeEndPoint() {
   endpoint.value = null
-  activeSession.value.handleConfigChange(props.type)
 }
 </script>
 

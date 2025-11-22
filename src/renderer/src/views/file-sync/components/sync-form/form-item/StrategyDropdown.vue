@@ -4,7 +4,7 @@ import { ArrowRight20Filled, ArrowStepOver20Filled, ArrowSplit20Filled } from '@
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
-const { activeSessionState, activeSession } = useActiveSyncSession()
+const { activeSessionState } = useActiveSyncSession()
 
 const strategy = defineModel<SyncStrategy>('strategy', { required: true })
 
@@ -28,7 +28,6 @@ const strategyOptions = [
 
 function selectStrategy(type: SyncStrategy) {
   strategy.value = type
-  activeSession.value.handleStrategyChange()
 }
 </script>
 

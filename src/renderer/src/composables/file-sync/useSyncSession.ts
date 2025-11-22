@@ -97,6 +97,30 @@ export function useSyncSession(
     { immediate: true, deep: true },
   )
 
+  watch(
+    () => sessionState.formData.sourceConfig,
+    () => {
+      handleConfigChange('source')
+    },
+    { immediate: true },
+  )
+
+  watch(
+    () => sessionState.formData.destinationConfig,
+    () => {
+      handleConfigChange('destination')
+    },
+    { immediate: true },
+  )
+
+  watch(
+    () => sessionState.formData.syncStrategy,
+    () => {
+      handleStrategyChange()
+    },
+    { immediate: true },
+  )
+
   // 获取比对结果树的root列表
   async function getRootList() {
     sessionState.tableData = []
