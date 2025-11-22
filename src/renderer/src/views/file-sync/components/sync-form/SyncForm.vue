@@ -1,16 +1,24 @@
 <script setup lang="ts">
-import { useSyncForm } from '@renderer/composables/file-sync/useSyncForm'
+import { useActiveSyncSession } from '@renderer/composables/file-sync/useActiveSyncSession'
 import EndpointCard from './form-item/EndpointCard.vue'
 import StrategyDropdown from './form-item/StrategyDropdown.vue'
 
-const { syncForm } = useSyncForm()
+const { activeSessionState } = useActiveSyncSession()
 </script>
 
 <template>
   <div class="sync-form">
-    <EndpointCard v-model:endpoint="syncForm.sourceConfig" type="source"></EndpointCard>
-    <StrategyDropdown v-model:strategy="syncForm.syncStrategy"></StrategyDropdown>
-    <EndpointCard v-model:endpoint="syncForm.destinationConfig" type="destination"></EndpointCard>
+    <EndpointCard
+      v-model:endpoint="activeSessionState.formData.sourceConfig"
+      type="source"
+    ></EndpointCard>
+    <StrategyDropdown
+      v-model:strategy="activeSessionState.formData.syncStrategy"
+    ></StrategyDropdown>
+    <EndpointCard
+      v-model:endpoint="activeSessionState.formData.destinationConfig"
+      type="destination"
+    ></EndpointCard>
   </div>
 </template>
 

@@ -112,7 +112,10 @@
       "s3Endpoint": "Custom Endpoint (Optional)",
       "s3EndpointPlaceholder": "e.g., https://s3.amazonaws.com",
       "s3EndpointFormat": "Invalid endpoint URL format",
-      "s3ForcePathStyle": "Force Path Style"
+      "s3ForcePathStyle": "Force Path Style",
+      "tabsFull": "Maximum number of tabs reached",
+      "newTab": "New Tab",
+      "lastCannotClose": "The last tab cannot be closed"
     },
     "downloader": {
       "title": "Downloader",

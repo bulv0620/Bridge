@@ -1,18 +1,24 @@
-import { ref } from 'vue'
-import { useSyncForm } from './useSyncForm'
+import { ref, toRaw } from 'vue'
+import { useActiveSyncSession } from './useActiveSyncSession'
 
-const { syncForm } = useSyncForm()
+const { activeSessionState, activeSessionId } = useActiveSyncSession()
 
 const visible = ref(false)
 const edtingIgnoredFolderList = ref<string[]>([])
 
 function openIgnoredFoldersModal() {
-  edtingIgnoredFolderList.value = [...syncForm.ignoredFolders]
+  edtingIgnoredFolderList.value = [...activeSessionState.value.formData.ignoredFolders]
   visible.value = true
 }
 
 function conifrmIgnoredFolders() {
-  syncForm.ignoredFolders = edtingIgnoredFolderList.value.filter((folder) => !!folder)
+  activeSessionState.value.formData.ignoredFolders = edtingIgnoredFolderList.value.filter(
+    (folder) => !!folder,
+  )
+  window.ipc.sync.setIgnoredFolders(
+    activeSessionId.value,
+    toRaw(activeSessionState.value.formData.ignoredFolders),
+  )
   closeModal()
 }
 

@@ -1,24 +1,30 @@
 <script setup lang="ts">
-import { useSyncForm } from '@renderer/composables/file-sync/useSyncForm'
+import { useActiveSyncSession } from '@renderer/composables/file-sync/useActiveSyncSession'
 import { formatBytes } from '@renderer/utils/format'
 import { computed } from 'vue'
 
-const { syncStatus } = useSyncForm()
+const { activeSessionState } = useActiveSyncSession()
 
 const percentage = computed(() => {
-  if (syncStatus.totalCount === 0) return 0
-  return Math.round((syncStatus.transferredCount / syncStatus.totalCount) * 100)
+  if (activeSessionState.value.status.totalCount === 0) return 0
+  return Math.round(
+    (activeSessionState.value.status.transferredCount /
+      activeSessionState.value.status.totalCount) *
+      100,
+  )
 })
 </script>
 
 <template>
   <div class="sync-status">
     <el-text class="text">
-      {{ formatBytes(syncStatus.bytesTransferred) }}/{{ formatBytes(syncStatus.totalBytes) }}
+      {{ formatBytes(activeSessionState.status.bytesTransferred) }}/{{
+        formatBytes(activeSessionState.status.totalBytes)
+      }}
     </el-text>
     <div class="progress-wrapper">
       <el-text class="text">
-        {{ syncStatus.transferredCount }}/{{ syncStatus.totalCount }}
+        {{ activeSessionState.status.transferredCount }}/{{ activeSessionState.status.totalCount }}
       </el-text>
       <el-progress class="progress" :percentage="percentage"></el-progress>
     </div>

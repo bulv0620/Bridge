@@ -112,7 +112,10 @@
       "s3Endpoint": "自定义 Endpoint（可选）",
       "s3EndpointPlaceholder": "例如：https://s3.amazonaws.com",
       "s3EndpointFormat": "Endpoint 格式不正确，请输入合法的 URL",
-      "s3ForcePathStyle": "强制使用 Path Style"
+      "s3ForcePathStyle": "强制使用 Path Style",
+      "tabsFull": "标签数量已达上限",
+      "newTab": "新标签",
+      "lastCannotClose": "最后一个标签不可关闭"
     },
     "downloader": {
       "title": "下载器",

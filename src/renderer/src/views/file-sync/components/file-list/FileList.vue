@@ -1,15 +1,13 @@
 <script setup lang="ts">
 import FileNameWithIcon from './cells/FileNameWithIcon.vue'
 import SyncResolution from './cells/SyncResolution.vue'
-import { useFileList } from '@renderer/composables/file-sync/useFileList'
-import { useSyncForm } from '@renderer/composables/file-sync/useSyncForm'
 import { TableColumnCtx } from 'element-plus'
 import { changeColor } from 'seemly'
 import { formatBytes } from '@renderer/utils/format'
 import dayjs from 'dayjs'
+import { useActiveSyncSession } from '@renderer/composables/file-sync/useActiveSyncSession'
 
-const { diffFileList } = useFileList()
-const { isComparing, isSyncing } = useSyncForm()
+const { activeSessionId, activeSessionState } = useActiveSyncSession()
 
 function cellStyle({
   row,
@@ -66,7 +64,7 @@ function rowClassName({ row }) {
 }
 
 async function load(row: FileDifference, _: unknown, resolve: (data: FileDifference[]) => void) {
-  const result = await window.ipc.sync.getDiffItems(row.id)
+  const result = await window.ipc.sync.getDiffItems(activeSessionId.value, row.id)
 
   resolve(result)
 }
@@ -96,9 +94,9 @@ function getFileSize(type: 'source' | 'destination', differentItem: FileDifferen
 
 <template>
   <el-table
-    v-loading="isComparing || isSyncing"
+    v-loading="activeSessionState.isComparing || activeSessionState.isSyncing"
     class="diff-file-table"
-    :data="diffFileList"
+    :data="activeSessionState.tableData"
     height="100%"
     row-key="id"
     :cell-style="cellStyle"

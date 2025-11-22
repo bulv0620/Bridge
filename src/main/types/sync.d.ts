@@ -44,17 +44,6 @@ declare interface S3Config {
  */
 declare type SyncStrategy = 'incremental' | 'bidirectional' | 'mirror'
 
-// 同步方案
-declare interface FileSyncPlan {
-  id?: string
-  timestamp?: number
-  name: string
-  sourceConfig: StorageEngineConfig | null // 源
-  destinationConfig: StorageEngineConfig | null // 目标
-  ignoredFolders: string[] // 忽略文件夹
-  syncStrategy: SyncStrategy // 同步策略
-}
-
 // 文件元数据接口
 declare interface FileMetaData {
   atime: Date

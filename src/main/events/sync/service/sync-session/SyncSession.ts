@@ -5,7 +5,7 @@ import { getResolution, getTransferByte } from './utils'
 import { getWindow } from '../../../../utils/window'
 import { createStorageEngineInstance } from '../../core/storage-engine/utils/StorageEngineFactory'
 
-export class SyncManager {
+export class SyncSession {
   private sourceStorageEngine: StorageEngine | null = null
   private destinationStorageEngine: StorageEngine | null = null
   private ignoredFolders: string[] = []
@@ -18,7 +18,7 @@ export class SyncManager {
   private bytesTransferred: number = 0
   private transferredCount: number = 0
 
-  constructor() {
+  constructor(private sessionId: string) {
     this.diffStore = new DiffStore()
   }
 
@@ -309,7 +309,7 @@ export class SyncManager {
         this.transferredCount++
       }
 
-      mainWindow!.webContents.send('sync:updateStatus', {
+      mainWindow!.webContents.send(`sync:updateStatus:${this.sessionId}`, {
         bytesTransferred: this.bytesTransferred,
         transferredCount: this.transferredCount,
       })

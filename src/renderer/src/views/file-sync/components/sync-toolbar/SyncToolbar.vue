@@ -1,44 +1,40 @@
 <script setup lang="ts">
-import { useFileList } from '@renderer/composables/file-sync/useFileList'
-import { useSyncForm } from '@renderer/composables/file-sync/useSyncForm'
 import { Folder, Pause, Play, Stop, SwapHorizontal } from '@vicons/ionicons5'
 import { computed } from 'vue'
 import { useIgnoredFoldersModal } from '@renderer/composables/file-sync/useIgnoredFoldersModal'
+import { useActiveSyncSession } from '@renderer/composables/file-sync/useActiveSyncSession'
 
-const {
-  syncForm,
-  isFormCompleted,
-  isComparing,
-  isSyncing,
-  startCompare,
-  stopCompare,
-  startSync,
-  stopSync,
-} = useSyncForm()
+const { activeSessionState, activeSession } = useActiveSyncSession()
 
-const { diffFileList } = useFileList()
 const { openIgnoredFoldersModal } = useIgnoredFoldersModal()
+
+const isFormCompleted = computed(() => {
+  return (
+    !!activeSessionState.value.formData.sourceConfig &&
+    !!activeSessionState.value.formData.destinationConfig
+  )
+})
 
 // 按钮类型映射到 Element Plus
 const compareButtonType = computed(() => {
-  if (isComparing.value || isSyncing.value) return ''
+  if (activeSessionState.value.isComparing || activeSessionState.value.isSyncing) return ''
   if (isFormCompleted.value) return 'primary'
   return ''
 })
 
 const stopButtonType = computed(() => {
-  if (isComparing.value) return 'danger'
+  if (activeSessionState.value.isComparing) return 'danger'
   return ''
 })
 
 const syncButtonType = computed(() => {
-  if (isComparing.value || isSyncing.value) return ''
-  if (isFormCompleted.value && diffFileList.value.length > 0) return 'success'
+  if (activeSessionState.value.isComparing || activeSessionState.value.isSyncing) return ''
+  if (isFormCompleted.value && activeSessionState.value.tableData.length > 0) return 'success'
   return ''
 })
 
 const pauseButtonType = computed(() => {
-  if (isSyncing.value) return 'warning'
+  if (activeSessionState.value.isSyncing) return 'warning'
   return ''
 })
 </script>
@@ -48,44 +44,57 @@ const pauseButtonType = computed(() => {
     <!-- 比较按钮 -->
     <el-button
       :type="compareButtonType"
-      :disabled="!isFormCompleted || isSyncing"
-      :loading="isComparing"
+      :disabled="!isFormCompleted || activeSessionState.isSyncing"
+      :loading="activeSessionState.isComparing"
       :icon="SwapHorizontal"
-      @click="startCompare"
+      @click="activeSession.startCompare"
     >
       {{ $t('views.fileSync.compare') }}
     </el-button>
 
     <!-- 停止比较 -->
-    <el-button :type="stopButtonType" :disabled="!isComparing" :icon="Stop" @click="stopCompare">
+    <el-button
+      :type="stopButtonType"
+      :disabled="!activeSessionState.isComparing"
+      :icon="Stop"
+      @click="activeSession.stopCompare"
+    >
       {{ $t('views.fileSync.stop') }}
     </el-button>
 
     <!-- 开始同步 -->
     <el-button
       :type="syncButtonType"
-      :disabled="!(isFormCompleted && diffFileList.length > 0) || isComparing"
-      :loading="isSyncing"
+      :disabled="
+        !(isFormCompleted && activeSessionState.tableData.length > 0) ||
+        activeSessionState.isComparing
+      "
+      :loading="activeSessionState.isSyncing"
       :icon="Play"
-      @click="startSync"
+      @click="activeSession.startSync"
     >
       {{ $t('views.fileSync.startSync') }}
     </el-button>
 
     <!-- 暂停同步 -->
-    <el-button :type="pauseButtonType" :disabled="!isSyncing" :icon="Pause" @click="stopSync">
+    <el-button
+      :type="pauseButtonType"
+      :disabled="!activeSessionState.isSyncing"
+      :icon="Pause"
+      @click="activeSession.stopSync"
+    >
       {{ $t('views.fileSync.pauseSync') }}
     </el-button>
 
     <!-- 忽略文件夹 badge -->
     <el-badge
       :show-zero="false"
-      :value="syncForm.ignoredFolders.length"
+      :value="activeSessionState.formData.ignoredFolders.length"
       type="success"
       style="margin-left: auto"
     >
       <el-button
-        :disabled="isComparing || isSyncing"
+        :disabled="activeSessionState.isComparing || activeSessionState.isSyncing"
         :icon="Folder"
         @click="openIgnoredFoldersModal"
       >

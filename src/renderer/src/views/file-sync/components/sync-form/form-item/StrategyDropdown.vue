@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import { useActiveSyncSession } from '@renderer/composables/file-sync/useActiveSyncSession'
 import { ArrowRight20Filled, ArrowStepOver20Filled, ArrowSplit20Filled } from '@vicons/fluent'
 import { useI18n } from 'vue-i18n'
-import { useSyncForm } from '@renderer/composables/file-sync/useSyncForm'
 
 const { t } = useI18n()
-const { isComparing, isSyncing } = useSyncForm()
+const { activeSessionState, activeSession } = useActiveSyncSession()
 
 const strategy = defineModel<SyncStrategy>('strategy', { required: true })
 
@@ -28,13 +28,18 @@ const strategyOptions = [
 
 function selectStrategy(type: SyncStrategy) {
   strategy.value = type
+  activeSession.value.handleStrategyChange()
 }
 </script>
 
 <template>
-  <el-dropdown trigger="click" :disabled="isComparing || isSyncing" @command="selectStrategy">
+  <el-dropdown
+    trigger="click"
+    :disabled="activeSessionState.isComparing || activeSessionState.isSyncing"
+    @command="selectStrategy"
+  >
     <!-- 触发按钮 -->
-    <el-button circle :disabled="isComparing || isSyncing">
+    <el-button circle :disabled="activeSessionState.isComparing || activeSessionState.isSyncing">
       <el-icon>
         <component :is="strategyIconMap[strategy]" />
       </el-icon>

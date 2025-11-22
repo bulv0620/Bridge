@@ -6,8 +6,8 @@ import BucketSvg from '@renderer/assets/svg/bucket.svg'
 import DiskSvg from '@renderer/assets/svg/disk.svg'
 import NotSelectedSvg from '@renderer/assets/svg/not-selected.svg'
 import { Close } from '@vicons/ionicons5'
-import { useSyncForm } from '@renderer/composables/file-sync/useSyncForm'
 import { useConectionModal } from '@renderer/composables/file-sync/useConnectionModal'
+import { useActiveSyncSession } from '@renderer/composables/file-sync/useActiveSyncSession'
 
 const props = defineProps<{
   type: 'source' | 'destination'
@@ -15,7 +15,7 @@ const props = defineProps<{
 
 const endpoint = defineModel<StorageEngineConfig | null>('endpoint', { required: true })
 
-const { isSyncing, isComparing } = useSyncForm()
+const { activeSessionState, activeSession } = useActiveSyncSession()
 const { t } = useI18n()
 const { openConnectionModal } = useConectionModal()
 
@@ -55,10 +55,13 @@ async function selectStorageType(key: StorageType) {
     const config = await openConnectionModal(key)
     endpoint.value = config
   }
+
+  activeSession.value.handleConfigChange(props.type)
 }
 
 function removeEndPoint() {
   endpoint.value = null
+  activeSession.value.handleConfigChange(props.type)
 }
 </script>
 
@@ -82,7 +85,7 @@ function removeEndPoint() {
         <el-dropdown
           v-else
           trigger="click"
-          :disabled="isComparing || isSyncing"
+          :disabled="activeSessionState.isComparing || activeSessionState.isSyncing"
           @command="selectStorageType"
         >
           <!-- 触发按钮 -->
@@ -102,7 +105,7 @@ function removeEndPoint() {
       </div>
       <el-button
         v-if="endpoint"
-        :disabled="isSyncing || isComparing"
+        :disabled="activeSessionState.isSyncing || activeSessionState.isComparing"
         :icon="Close"
         circle
         text

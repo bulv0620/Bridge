@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useSyncForm } from '@renderer/composables/file-sync/useSyncForm'
+import { useActiveSyncSession } from '@renderer/composables/file-sync/useActiveSyncSession'
 import { ArrowBackCircle, ArrowForwardCircle } from '@vicons/ionicons5'
 import { nextTick } from 'vue'
 const props = defineProps<{
@@ -11,7 +11,7 @@ const props = defineProps<{
 
 const type = defineModel<FileSyncResolition>('type', { required: true })
 
-const { syncStatus } = useSyncForm()
+const { activeSessionState, activeSessionId } = useActiveSyncSession()
 
 async function handleActionClick(resolution: FileSyncResolition) {
   if (type.value === resolution) {
@@ -22,9 +22,13 @@ async function handleActionClick(resolution: FileSyncResolition) {
 
   await nextTick()
 
-  const compareResult = await window.ipc.sync.setResolution(props.id, type.value)
-  syncStatus.totalCount = compareResult.totalCount
-  syncStatus.totalBytes = compareResult.totalBytes
+  const compareResult = await window.ipc.sync.setResolution(
+    activeSessionId.value,
+    props.id,
+    type.value,
+  )
+  activeSessionState.value.status.totalCount = compareResult.totalCount
+  activeSessionState.value.status.totalBytes = compareResult.totalBytes
 }
 </script>
 

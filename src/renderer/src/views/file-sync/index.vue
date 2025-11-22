@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import EditableTitle from './components/editable-title/EditableTitle.vue'
 import FileList from './components/file-list/FileList.vue'
-import PlanToolbar from './components/plan-toolbar/PlanToolbar.vue'
 import SyncForm from './components/sync-form/SyncForm.vue'
 import SyncToolbar from './components/sync-toolbar/SyncToolbar.vue'
 import IgnoredFoldersModal from './components/ignored-folders-modal/IgnoredFoldersModal.vue'
 import SyncStatus from './components/sync-status/SyncStatus.vue'
-import PlanListModal from './components/plan-list-modal/PlanListModal.vue'
 import ConnectionModal from './components/connection-modal/ConnectionModal.vue'
+import TabHeader from './components/tab-header/TabHeader.vue'
 
 defineOptions({
   name: 'FileSync',
@@ -16,10 +14,7 @@ defineOptions({
 
 <template>
   <div class="file-sync">
-    <div class="header">
-      <EditableTitle></EditableTitle>
-      <PlanToolbar></PlanToolbar>
-    </div>
+    <TabHeader></TabHeader>
 
     <div class="main">
       <SyncForm></SyncForm>
@@ -33,7 +28,6 @@ defineOptions({
   </div>
   <IgnoredFoldersModal></IgnoredFoldersModal>
   <ConnectionModal></ConnectionModal>
-  <PlanListModal></PlanListModal>
 </template>
 
 <style lang="less" scoped>
@@ -42,14 +36,6 @@ defineOptions({
   height: 100vh;
   display: flex;
   flex-direction: column;
-
-  .header {
-    padding: 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--el-border-color);
-  }
 
   .main {
     flex: 1;

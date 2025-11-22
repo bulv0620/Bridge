@@ -1,84 +1,94 @@
 import { IpcMainInvokeEvent } from 'electron'
-import { SyncManager } from './service/sync-manager/SyncManager'
-import { PlanManager } from './service/plan-manager.ts/PlanManager'
 import { StorageSession } from './service/storage-session/StorageSession'
+import { SyncSession } from './service/sync-session/SyncSession'
 
-const syncManager = new SyncManager()
-const planManager = new PlanManager()
 const storageSessionMap = new Map<string, StorageSession>() // 连接会话
+const syncSessionMap = new Map<string, SyncSession>() // 同步会话
+
+// 创建同步会话
+export function createSyncSession(_: IpcMainInvokeEvent, id?: string) {
+  const uuid = id ?? crypto.randomUUID()
+  const syncSession = new SyncSession(uuid)
+
+  syncSessionMap.set(uuid, syncSession)
+
+  return uuid
+}
+
+// 销毁同步会话
+export function closeSyncSession(_: IpcMainInvokeEvent, id: string) {
+  syncSessionMap.delete(id)
+}
 
 // 设置同步引擎配置
 export function setStorageEngineConfig(
   _: IpcMainInvokeEvent,
+  id: string,
   type: 'source' | 'destination',
   config: StorageEngineConfig | null,
 ) {
-  syncManager.setStorageEngineConfig(type, config)
+  const session = syncSessionMap.get(id)
+  if (!session) return
+  session.setStorageEngineConfig(type, config)
 }
 
 // 验证同步引擎是否可用
-export function validate(_: IpcMainInvokeEvent) {
-  return syncManager.validateStorageEngine()
+export function validate(_: IpcMainInvokeEvent, id: string) {
+  const session = syncSessionMap.get(id)!
+  return session.validateStorageEngine()
 }
 
 // 设置忽略文件夹
-export function setIgnoredFolders(_: IpcMainInvokeEvent, folders: string[]) {
-  syncManager.setIgnoredFolders(folders)
+export function setIgnoredFolders(_: IpcMainInvokeEvent, id: string, folders: string[]) {
+  const session = syncSessionMap.get(id)!
+  session.setIgnoredFolders(folders)
 }
 
 // 设置同步策略
-export function setSyncStrategy(_: IpcMainInvokeEvent, strategy: SyncStrategy) {
-  return syncManager.setSyncStrategy(strategy)
+export function setSyncStrategy(_: IpcMainInvokeEvent, id: string, strategy: SyncStrategy) {
+  const session = syncSessionMap.get(id)!
+  return session.setSyncStrategy(strategy)
 }
 
 // 设置差异项操作
-export function setResolution(_: IpcMainInvokeEvent, id: string, resolution: FileSyncResolition) {
-  return syncManager.setResolution(id, resolution)
+export function setResolution(
+  _: IpcMainInvokeEvent,
+  sessionId: string,
+  rowId: string,
+  resolution: FileSyncResolition,
+) {
+  const session = syncSessionMap.get(sessionId)!
+  return session.setResolution(rowId, resolution)
 }
 
 // 比对
-export function startCompare(_: IpcMainInvokeEvent) {
-  return syncManager.compare()
+export function startCompare(_: IpcMainInvokeEvent, id: string) {
+  const session = syncSessionMap.get(id)!
+  return session.compare()
 }
 
 // 停止比对
-export function stopCompare(_: IpcMainInvokeEvent) {
-  return syncManager.setStopFlag(true)
+export function stopCompare(_: IpcMainInvokeEvent, id: string) {
+  const session = syncSessionMap.get(id)!
+  return session.setStopFlag(true)
 }
 
 // 获取差异项（树形懒加载）
-export function getDiffItems(_: IpcMainInvokeEvent, parentId: string | null) {
-  return syncManager.getChildren(parentId)
+export function getDiffItems(_: IpcMainInvokeEvent, id: string, parentId: string | null) {
+  const session = syncSessionMap.get(id)!
+  return session.getChildren(parentId)
 }
 
 // 同步
-export function startSync(_: IpcMainInvokeEvent) {
-  return syncManager.startSync()
+export function startSync(_: IpcMainInvokeEvent, id: string) {
+  const session = syncSessionMap.get(id)!
+  return session.startSync()
 }
 
 // 停止同步
-export function stopSync(_: IpcMainInvokeEvent) {
-  return syncManager.setStopFlag(true)
-}
-
-// 新增方案
-export function addPlan(_: IpcMainInvokeEvent, plan: FileSyncPlan) {
-  return planManager.add(plan)
-}
-
-// 更新方案
-export function updatePlan(_: IpcMainInvokeEvent, plan: FileSyncPlan) {
-  return planManager.update(plan.id!, plan)
-}
-
-// 删除方案
-export function removePlan(_: IpcMainInvokeEvent, plan: FileSyncPlan) {
-  return planManager.remove(plan.id!)
-}
-
-// 获取所有方案
-export function getAllPlan(_: IpcMainInvokeEvent) {
-  return planManager.getAll()
+export function stopSync(_: IpcMainInvokeEvent, id: string) {
+  const session = syncSessionMap.get(id)!
+  return session.setStopFlag(true)
 }
 
 // 创建连接实例
