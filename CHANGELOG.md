@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.2.3](https://github.com/bulv0620/file-bridge/compare/v0.2.2...v0.2.3) (2025-11-23)
+
+
+### Bug Fixes
+
+* prevent closing session while running ([fe08145](https://github.com/bulv0620/file-bridge/commit/fe081458e85d8c542abdc7c5dee1e22a2f9d71de))
+* resolve ignore folders cache issue ([5fcdc29](https://github.com/bulv0620/file-bridge/commit/5fcdc29290a12035e8e0fa13dc308d6ba975754e))
+
+
+
 ## [0.2.2](https://github.com/bulv0620/file-bridge/compare/v0.2.1...v0.2.2) (2025-11-22)
 
 
