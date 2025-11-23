@@ -122,6 +122,17 @@ export function useSyncSession(
     { immediate: true },
   )
 
+  const stopIgnoreFoldersWatch = watch(
+    () => sessionState.formData.ignoredFolders,
+    () => {
+      window.ipc.sync.setIgnoredFolders(
+        sessionState.sessionId,
+        toRaw(sessionState.formData.ignoredFolders),
+      )
+    },
+    { immediate: true },
+  )
+
   // 获取比对结果树的root列表
   async function getRootList() {
     sessionState.tableData = []
@@ -232,6 +243,7 @@ export function useSyncSession(
     stopSourceWatch()
     stopDestWatch()
     stopStrategyWatch()
+    stopIgnoreFoldersWatch()
 
     // 清理cache
     const cachedSessions = getCachedSyncSession()
