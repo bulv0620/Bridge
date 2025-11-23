@@ -52,6 +52,15 @@ async function closeSyncSession(id: string, index: number) {
     ElMessage.error(t('views.fileSync.lastCannotClose'))
     return
   }
+
+  if (
+    sessions.value[index].sessionState.isSyncing ||
+    sessions.value[index].sessionState.isComparing
+  ) {
+    ElMessage.error(t('views.fileSync.inProgressPauseBeforeClose'))
+    return
+  }
+
   if (activeSessionId.value === id) {
     if (sessions.value[index + 1]) {
       activeSessionId.value = sessions.value[index + 1].sessionState.sessionId
