@@ -1,6 +1,10 @@
 import { computed, ref } from 'vue'
 import { SyncSession, useSyncSession } from './useSyncSession'
-import { getCachedSyncSession, setCachedSyncSession } from '@renderer/utils/local-cache'
+import { getCachedSyncSession } from '@renderer/utils/local-cache'
+import { ElMessage } from 'element-plus'
+import { i18n } from '@renderer/locales'
+
+const { t } = i18n.global
 
 const sessions = ref<SyncSession[]>([])
 // 当前激活的会话
@@ -43,14 +47,22 @@ async function createSyncSession() {
 }
 
 // 结束会话
-async function closeSyncSession(id: string) {
-  const cachedSessions = getCachedSyncSession()
-
-  const index = cachedSessions.findIndex((s) => s.sessionId === id)
-  if (index > -1) {
-    cachedSessions.splice(index, 1)
+async function closeSyncSession(id: string, index: number) {
+  if (sessions.value.length === 1) {
+    ElMessage.error(t('views.fileSync.lastCannotClose'))
+    return
   }
-  setCachedSyncSession(cachedSessions)
+  if (activeSessionId.value === id) {
+    if (sessions.value[index + 1]) {
+      activeSessionId.value = sessions.value[index + 1].sessionState.sessionId
+    } else {
+      activeSessionId.value = sessions.value[index + -1].sessionState.sessionId
+    }
+  }
+
+  // 删除操作
+  sessions.value[index].dispose()
+  sessions.value.splice(index, 1)
 
   await window.ipc.sync.closeSyncSession(id)
 }

@@ -23,6 +23,19 @@ export class SyncSession {
   }
 
   /**
+   * 清理
+   */
+  dispose() {
+    this.stopFlag = true
+    this.sourceStorageEngine?.disconnect()
+    this.destinationStorageEngine?.disconnect()
+    this.sourceStorageEngine = null
+    this.destinationStorageEngine = null
+    this.ignoredFolders = []
+    this.diffStore.delAll()
+  }
+
+  /**
    * 设置存储引擎配置
    * @param type
    * @param config

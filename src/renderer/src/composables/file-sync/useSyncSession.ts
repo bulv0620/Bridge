@@ -36,6 +36,7 @@ export interface SyncSession {
   stopCompare(): void
   startSync(): Promise<void>
   stopSync(): void
+  dispose(): void
 }
 
 const { t } = i18n.global
@@ -65,7 +66,7 @@ export function useSyncSession(
     isSyncing: false,
   })
 
-  watch(
+  const stopCacheWatch = watch(
     () => [sessionState.name, sessionState.formData],
     () => {
       const cachedSessions = getCachedSyncSession()
@@ -97,7 +98,7 @@ export function useSyncSession(
     { immediate: true, deep: true },
   )
 
-  watch(
+  const stopSourceWatch = watch(
     () => sessionState.formData.sourceConfig,
     () => {
       handleConfigChange('source')
@@ -105,7 +106,7 @@ export function useSyncSession(
     { immediate: true },
   )
 
-  watch(
+  const stopDestWatch = watch(
     () => sessionState.formData.destinationConfig,
     () => {
       handleConfigChange('destination')
@@ -113,7 +114,7 @@ export function useSyncSession(
     { immediate: true },
   )
 
-  watch(
+  const stopStrategyWatch = watch(
     () => sessionState.formData.syncStrategy,
     () => {
       handleStrategyChange()
@@ -226,8 +227,24 @@ export function useSyncSession(
     sessionState.status.transferredCount = 0
   }
 
+  function dispose() {
+    stopCacheWatch()
+    stopSourceWatch()
+    stopDestWatch()
+    stopStrategyWatch()
+
+    // 清理cache
+    const cachedSessions = getCachedSyncSession()
+    const cacheIndex = cachedSessions.findIndex((s) => s.sessionId === sessionState.sessionId)
+    if (cacheIndex > -1) {
+      cachedSessions.splice(cacheIndex, 1)
+    }
+    setCachedSyncSession(cachedSessions)
+  }
+
   return {
     sessionState,
+    dispose,
     getRootList,
     startCompare,
     stopCompare,

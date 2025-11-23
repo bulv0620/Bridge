@@ -17,6 +17,8 @@ export function createSyncSession(_: IpcMainInvokeEvent, id?: string) {
 
 // 销毁同步会话
 export function closeSyncSession(_: IpcMainInvokeEvent, id: string) {
+  const item = syncSessionMap.get(id)!
+  item.dispose()
   syncSessionMap.delete(id)
 }
 

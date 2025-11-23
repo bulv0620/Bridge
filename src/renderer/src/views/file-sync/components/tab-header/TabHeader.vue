@@ -66,20 +66,7 @@ const cancelEdit = () => {
 
 // 处理关闭标签
 const handleCloseTab = (sessionId: string, index: number) => {
-  if (sessions.value.length === 1) {
-    ElMessage.error(t('views.fileSync.lastCannotClose'))
-    return
-  }
-  if (activeSessionId.value === sessionId) {
-    if (sessions.value[index + 1]) {
-      activeSessionId.value = sessions.value[index + 1].sessionState.sessionId
-    } else {
-      activeSessionId.value = sessions.value[index + -1].sessionState.sessionId
-    }
-  }
-
-  sessions.value.splice(index, 1)
-  closeSyncSession(sessionId)
+  closeSyncSession(sessionId, index)
 }
 
 // 新增标签
