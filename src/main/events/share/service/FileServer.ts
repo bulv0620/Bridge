@@ -5,8 +5,8 @@ import path from 'path'
 import { remoteRef, RemoteRefMain } from '../../../utils/remoteRef'
 
 export interface FileServerOptions {
-  /** 监听端口号，默认 9525 */
   port?: number
+  interval?: number
 }
 
 export interface FileItem {
@@ -20,11 +20,15 @@ export class FileServer {
   private readonly mySharedFileList: RemoteRefMain<SharedFileInfo[]>
   private readonly app: Express
   private server: Server | null = null
+  private timer: NodeJS.Timeout | null = null
+  private interval: number
 
   constructor(options: FileServerOptions = {}) {
     this.mySharedFileList = remoteRef('shared-file-list', [])
 
     this.port = options.port ?? 9520
+    this.interval = options.interval ?? 1000
+
     this.app = express()
 
     this.app.get('/download/:id', this.handleDownload.bind(this))
@@ -39,6 +43,12 @@ export class FileServer {
         resolve()
         return
       }
+
+      this.timer = setInterval(() => {
+        this.mySharedFileList.value = this.mySharedFileList.value.filter(
+          (file) => file.status.expiresAt! > Date.now(),
+        )
+      }, this.interval)
 
       this.server = this.app.listen(this.port, () => {
         console.log(`✅ HTTP server listening on port ${this.port}`)
@@ -56,6 +66,8 @@ export class FileServer {
         return
       }
 
+      if (this.timer) clearInterval(this.timer)
+      this.timer = null
       this.mySharedFileList.value = [] // 清空共享文件列表
 
       this.server.close((err?: Error) => {
@@ -143,6 +155,9 @@ export class FileServer {
 
   /** 获取文件列表 */
   private async handleQuery(_: Request<void>, res: Response) {
+    this.mySharedFileList.value = this.mySharedFileList.value.filter(
+      (file) => file.status.expiresAt! > Date.now(),
+    )
     res.json(this.mySharedFileList.value)
   }
 }
