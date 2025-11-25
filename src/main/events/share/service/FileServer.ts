@@ -110,47 +110,14 @@ export class FileServer {
 
     const stat = fs.statSync(fileItem.filePath)
     const total = stat.size
-    const range = req.headers.range
 
-    if (!range) {
-      // 没有 Range，返回整个文件
-      res.writeHead(200, {
-        'Content-Length': total,
-        'Content-Type': 'application/octet-stream',
-        'Content-Disposition': `attachment; filename="${path.basename(fileItem.filePath)}"`,
-      })
-      fs.createReadStream(fileItem.filePath).pipe(res)
-      console.log(`⬇️ Download: ${fileItem.filePath}`)
-      return
-    }
-
-    // Range 模式
-    const match = range.match(/bytes=(\d*)-(\d*)/)
-    if (!match) {
-      res.status(400).json({ error: 'Invalid range' })
-      return
-    }
-
-    const start = parseInt(match[1], 10)
-    const end = match[2] ? parseInt(match[2], 10) : total - 1
-
-    if (Number.isNaN(start) || start >= total || end >= total) {
-      res.status(416).set('Content-Range', `bytes */${total}`).end()
-      return
-    }
-
-    const chunkSize = end - start + 1
-    console.log(`📦 Chunk Request: File ID=${fileId} (${start}-${end}) ${chunkSize} bytes`)
-
-    const fileStream = fs.createReadStream(fileItem.filePath, { start, end })
-    res.writeHead(206, {
-      'Content-Range': `bytes ${start}-${end}/${total}`,
-      'Accept-Ranges': 'bytes',
-      'Content-Length': chunkSize,
+    res.writeHead(200, {
+      'Content-Length': total,
       'Content-Type': 'application/octet-stream',
       'Content-Disposition': `attachment; filename="${path.basename(fileItem.filePath)}"`,
     })
-    fileStream.pipe(res)
+    fs.createReadStream(fileItem.filePath).pipe(res)
+    console.log(`⬇️ Download: ${fileItem.filePath}`)
   }
 
   /** 获取文件列表 */
