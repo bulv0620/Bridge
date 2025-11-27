@@ -63,6 +63,24 @@ export function setResolution(
   return session.setResolution(rowId, resolution)
 }
 
+// 获取父节点和祖父节点
+export function getAncestorChain(_: IpcMainInvokeEvent, sessionId: string, id: string) {
+  const session = syncSessionMap.get(sessionId)!
+
+  const parent = session.getParent(id)
+  if (!parent) {
+    return {
+      parent: undefined,
+      grandParent: undefined,
+    }
+  }
+  const grandParent = session.getParent(parent?.id)
+  return {
+    parent,
+    grandParent,
+  }
+}
+
 // 比对
 export function startCompare(_: IpcMainInvokeEvent, id: string) {
   const session = syncSessionMap.get(id)!

@@ -1,4 +1,4 @@
-const ROOT_KEY = '__ROOT__'
+export const ROOT_KEY = '__ROOT__'
 
 export class DiffStore {
   private list: FileDifference[] = []

@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import FileNameWithIcon from './cells/FileNameWithIcon.vue'
 import SyncResolution from './cells/SyncResolution.vue'
-import { TableColumnCtx } from 'element-plus'
+import { ElTable, TableColumnCtx } from 'element-plus'
 import { changeColor } from 'seemly'
 import { formatBytes } from '@renderer/utils/format'
 import dayjs from 'dayjs'
 import { useActiveSyncSession } from '@renderer/composables/file-sync/useActiveSyncSession'
+import { ref } from 'vue'
 
 const { activeSessionId, activeSessionState } = useActiveSyncSession()
+
+const tableRef = ref<InstanceType<typeof ElTable> | null>(null)
 
 function cellStyle({
   row,
@@ -90,10 +93,53 @@ function getFileSize(type: 'source' | 'destination', differentItem: FileDifferen
     return formatBytes(target.size)
   }
 }
+
+// 更新表格中上层文件夹的count数量 !危险的hack方式
+async function handleResolutionChange(
+  id: string,
+  newResolution: FileSyncResolition,
+  oldResolution: FileSyncResolition,
+) {
+  const inst = (tableRef.value as any).$
+  const treeMap = inst.setupState.store.states.lazyTreeNodeMap
+  const rootList = inst.setupState.store.states.data
+
+  let leftNum = 0
+  let rightNum = 0
+
+  if (oldResolution === 'toLeft') {
+    leftNum--
+  } else if (oldResolution === 'toRight') {
+    rightNum--
+  }
+
+  if (newResolution === 'toLeft') {
+    leftNum++
+  } else if (newResolution === 'toRight') {
+    rightNum++
+  }
+
+  let chain = await window.ipc.sync.getAncestorChain(activeSessionId.value, id)
+
+  while (chain.parent) {
+    if (chain.grandParent) {
+      const list = treeMap.value[chain.grandParent.id]
+      const item = list.find((el: FileDifference) => el.id === chain.parent!.id)
+      item.toLeftCount += leftNum
+      item.toRightCount += rightNum
+    } else {
+      const item = rootList.value.find((el: FileDifference) => el.id === chain.parent!.id)
+      item.toLeftCount += leftNum
+      item.toRightCount += rightNum
+    }
+    chain = await window.ipc.sync.getAncestorChain(activeSessionId.value, chain.parent!.id)
+  }
+}
 </script>
 
 <template>
   <el-table
+    ref="tableRef"
     v-loading="activeSessionState.isComparing || activeSessionState.isSyncing"
     class="diff-file-table"
     :data="activeSessionState.tableData"
@@ -134,7 +180,7 @@ function getFileSize(type: 'source' | 'destination', differentItem: FileDifferen
     <el-table-column
       prop="resolution"
       :label="$t('views.fileSync.resolution')"
-      :min-width="120"
+      :min-width="150"
       align="center"
     >
       <template #default="{ row }">
@@ -145,6 +191,9 @@ function getFileSize(type: 'source' | 'destination', differentItem: FileDifferen
           :is-directory="row.isDirectory"
           :source="row.source"
           :destination="row.destination"
+          :to-left-count="row.toLeftCount"
+          :to-right-count="row.toRightCount"
+          @change="handleResolutionChange"
         ></SyncResolution>
       </template>
     </el-table-column>

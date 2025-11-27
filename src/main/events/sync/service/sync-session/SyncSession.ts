@@ -1,6 +1,6 @@
 import { pipeline } from 'stream/promises'
 import { StorageEngine } from '../../core/storage-engine/StorageEngine'
-import { DiffStore } from '../../store/DiffStore'
+import { DiffStore, ROOT_KEY } from '../../store/DiffStore'
 import { getResolution, getTransferByte } from './utils'
 import { getWindow } from '../../../../utils/window'
 import { createStorageEngineInstance } from '../../core/storage-engine/utils/StorageEngineFactory'
@@ -95,6 +95,8 @@ export class SyncSession {
 
     this.diffStore.updateAll(diffItems)
 
+    this.computeResolutionCount()
+
     return {
       totalBytes: this.totalBytes,
       totalCount: this.totalCount,
@@ -124,6 +126,8 @@ export class SyncSession {
 
     this.diffStore.updateById(diffItem.id, diffItem)
 
+    this.computeResolutionCount()
+
     return {
       totalBytes: this.totalBytes,
       totalCount: this.totalCount,
@@ -148,6 +152,18 @@ export class SyncSession {
    */
   getChildren(parentId: string | null) {
     return this.diffStore.getChildren(parentId)
+  }
+
+  /**
+   * 获取父项
+   * @param id
+   * @returns
+   */
+  getParent(id: string) {
+    const item = this.diffStore.getById(id)
+    if (!item) return
+    if (!item.parentId) return
+    return this.diffStore.getById(item.parentId)
   }
 
   /**
@@ -219,6 +235,8 @@ export class SyncSession {
       this.sourceStorageEngine?.disconnect(),
       this.destinationStorageEngine?.disconnect(),
     ])
+
+    this.computeResolutionCount()
 
     return {
       totalBytes: this.totalBytes,
@@ -309,11 +327,69 @@ export class SyncSession {
     )
   }
 
+  /**
+   * 清理空目录
+   * @param parentId
+   */
   private async clearEmptyDirectory(parentId: string | null) {
     let lastItem = this.diffStore.getLast()
     while (lastItem && lastItem.isDirectory && (!parentId || parentId !== lastItem.id)) {
       this.diffStore.delLast()
       lastItem = this.diffStore.getLast()
+    }
+  }
+
+  /**
+   * 后序遍历得到文件夹的信息
+   */
+  computeResolutionCount() {
+    const fileList = this.diffStore.getAll()
+    for (const item of fileList) {
+      if (item.isDirectory) {
+        item.toLeftCount = 0
+        item.toRightCount = 0
+      }
+    }
+
+    const ROOT = ROOT_KEY
+
+    // 栈元素格式：{ node, visited }
+    const stack: { node: FileDifference; visited: boolean }[] = []
+
+    // 所有根节点推栈
+    const roots = this.diffStore.getChildren(ROOT) || []
+    for (const root of roots) {
+      stack.push({ node: root, visited: false })
+    }
+
+    while (stack.length) {
+      const { node, visited } = stack.pop()!
+      if (!visited) {
+        // 第一次访问：标记一下，并把它的 children 推入栈
+        stack.push({ node, visited: true })
+
+        const children = this.diffStore.getChildren(node.id) || []
+        for (const child of children.filter((c) => c.isDirectory)) {
+          stack.push({ node: child, visited: false })
+        }
+      } else {
+        // 第二次访问：children 都处理完了，可以统计
+        let left = 0
+        let right = 0
+
+        // 累加子节点
+        const children = this.diffStore.getChildren(node.id) || []
+        for (const c of children) {
+          left += c.toLeftCount ?? (c.resolution === 'toLeft' ? 1 : 0)
+          right += c.toRightCount ?? (c.resolution === 'toRight' ? 1 : 0)
+        }
+
+        // 写回（只给目录）
+        if (node.isDirectory) {
+          node.toLeftCount = left
+          node.toRightCount = right
+        }
+      }
     }
   }
 
@@ -413,6 +489,9 @@ export class SyncSession {
     }
   }
 
+  /**
+   * 清空状态
+   */
   private clearStatus() {
     this.totalBytes = 0
     this.totalCount = 0

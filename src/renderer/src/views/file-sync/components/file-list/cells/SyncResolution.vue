@@ -1,19 +1,25 @@
 <script setup lang="ts">
 import { useActiveSyncSession } from '@renderer/composables/file-sync/useActiveSyncSession'
-import { ArrowBackCircle, ArrowForwardCircle } from '@vicons/ionicons5'
+import { ArrowBackCircle, ArrowForwardCircle, ChevronBack, ChevronForward } from '@vicons/ionicons5'
 import { nextTick } from 'vue'
 const props = defineProps<{
   id: string
   isDirectory: boolean
   source: FileInfo | null
   destination: FileInfo | null
+  toLeftCount?: number
+  toRightCount?: number
 }>()
+
+const emits = defineEmits(['change'])
 
 const type = defineModel<FileSyncResolition>('type', { required: true })
 
 const { activeSession } = useActiveSyncSession()
 
 async function handleActionClick(resolution: FileSyncResolition) {
+  const temp = type.value
+
   if (type.value === resolution) {
     type.value = 'ignore'
   } else {
@@ -23,11 +29,22 @@ async function handleActionClick(resolution: FileSyncResolition) {
   await nextTick()
 
   await activeSession.value.handleChangeResolution(props.id, type.value)
+
+  emits('change', props.id, type.value, temp)
 }
 </script>
 
 <template>
-  <div v-if="isDirectory" style="width: 100%; text-align: center">{{ '-' }}</div>
+  <div v-if="isDirectory" class="directory-detail" style="width: 100%; text-align: center">
+    <el-text class="text left" type="success">
+      {{ toLeftCount }}
+      <el-icon><ChevronBack></ChevronBack></el-icon>
+    </el-text>
+    <el-text class="text right" type="primary">
+      <el-icon><ChevronForward></ChevronForward></el-icon>
+      {{ toRightCount }}
+    </el-text>
+  </div>
   <div v-else class="resolution-content">
     <el-icon
       :size="20"
@@ -49,6 +66,25 @@ async function handleActionClick(resolution: FileSyncResolition) {
 </template>
 
 <style lang="less" scoped>
+.directory-detail {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .text {
+    font-size: 12px;
+    flex: 1;
+
+    &.left {
+      text-align: right;
+    }
+
+    &.right {
+      text-align: left;
+    }
+  }
+}
+
 .resolution-content {
   display: flex;
   justify-content: center;

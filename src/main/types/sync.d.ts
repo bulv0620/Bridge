@@ -77,6 +77,8 @@ declare interface FileDifference {
   source: FileInfo | null // 源文件信息
   destination: FileInfo | null // 目标文件信息
   transferBytes: number // 传输的数据量
+  toLeftCount?: number // 文件夹下<-操作的文件数
+  toRightCount?: number // 文件夹下->操作的文件数
 }
 
 declare interface CompareResult {
