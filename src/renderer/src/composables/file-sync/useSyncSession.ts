@@ -53,9 +53,9 @@ export function useSyncSession(
     status: {
       totalBytes: 0,
       totalCount: 0,
-      totalToLeft: 0,
-      totalToRight: 0,
-      totalIgnore: 0,
+      toLeftCount: 0,
+      toRightCount: 0,
+      ignoreCount: 0,
       bytesTransferred: 0,
       transferredCount: 0,
     },
@@ -82,9 +82,9 @@ export function useSyncSession(
           status: {
             totalBytes: 0,
             totalCount: 0,
-            totalToLeft: 0,
-            totalToRight: 0,
-            totalIgnore: 0,
+            toLeftCount: 0,
+            toRightCount: 0,
+            ignoreCount: 0,
             bytesTransferred: 0,
             transferredCount: 0,
           },
@@ -244,9 +244,9 @@ export function useSyncSession(
   function resetSyncStatus() {
     sessionState.status.totalBytes = 0
     sessionState.status.totalCount = 0
-    sessionState.status.totalIgnore = 0
-    sessionState.status.totalToLeft = 0
-    sessionState.status.totalToRight = 0
+    sessionState.status.ignoreCount = 0
+    sessionState.status.toLeftCount = 0
+    sessionState.status.toRightCount = 0
     sessionState.status.bytesTransferred = 0
     sessionState.status.transferredCount = 0
   }

@@ -24,15 +24,15 @@ const percentage = computed(() => {
     </el-text>
     <el-text type="primary">
       <el-icon><ChevronForward></ChevronForward></el-icon>
-      {{ activeSessionState.status.totalToRight }}
+      {{ activeSessionState.status.toRightCount }}
     </el-text>
     <el-text type="success">
       <el-icon><ChevronBack></ChevronBack></el-icon>
-      {{ activeSessionState.status.totalToLeft }}
+      {{ activeSessionState.status.toLeftCount }}
     </el-text>
     <el-text type="info">
       <el-icon><Ban></Ban></el-icon>
-      {{ activeSessionState.status.totalIgnore }}
+      {{ activeSessionState.status.ignoreCount }}
     </el-text>
 
     <div class="progress-wrapper">

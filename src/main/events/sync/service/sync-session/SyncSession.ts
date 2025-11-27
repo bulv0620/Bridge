@@ -13,9 +13,9 @@ export class SyncSession {
   private stopFlag: boolean = false // 暂停标记
   private diffStore: DiffStore // 比对数据存储（内存存储，比对量巨大容易引起内存暴增）
 
-  private totalToLeft: number = 0 // <-的总数
-  private totalToRight: number = 0 // ->的总数
-  private totalIgnore: number = 0 // 忽略的总数
+  private toLeftCount: number = 0 // <-的总数
+  private toRightCount: number = 0 // ->的总数
+  private ignoreCount: number = 0 // 忽略的总数
   private totalBytes: number = 0 // 需要同步的bytes
   private totalCount: number = 0 // 需要同步的文件数
   private bytesTransferred: number = 0 // 已经同步的bytes
@@ -98,9 +98,9 @@ export class SyncSession {
     return {
       totalBytes: this.totalBytes,
       totalCount: this.totalCount,
-      totalToLeft: this.totalToLeft,
-      totalToRight: this.totalToRight,
-      totalIgnore: this.totalIgnore,
+      toLeftCount: this.toLeftCount,
+      toRightCount: this.toRightCount,
+      ignoreCount: this.ignoreCount,
     }
   }
 
@@ -127,9 +127,9 @@ export class SyncSession {
     return {
       totalBytes: this.totalBytes,
       totalCount: this.totalCount,
-      totalToLeft: this.totalToLeft,
-      totalToRight: this.totalToRight,
-      totalIgnore: this.totalIgnore,
+      toLeftCount: this.toLeftCount,
+      toRightCount: this.toRightCount,
+      ignoreCount: this.ignoreCount,
     }
   }
 
@@ -223,9 +223,9 @@ export class SyncSession {
     return {
       totalBytes: this.totalBytes,
       totalCount: this.totalCount,
-      totalToLeft: this.totalToLeft,
-      totalToRight: this.totalToRight,
-      totalIgnore: this.totalIgnore,
+      toLeftCount: this.toLeftCount,
+      toRightCount: this.toRightCount,
+      ignoreCount: this.ignoreCount,
     }
   }
 
@@ -416,9 +416,9 @@ export class SyncSession {
   private clearStatus() {
     this.totalBytes = 0
     this.totalCount = 0
-    this.totalIgnore = 0
-    this.totalToLeft = 0
-    this.totalToRight = 0
+    this.ignoreCount = 0
+    this.toLeftCount = 0
+    this.toRightCount = 0
     this.bytesTransferred = 0
     this.transferredCount = 0
   }
@@ -438,13 +438,13 @@ export class SyncSession {
       // resolution counts
       switch (oldItem.resolution) {
         case 'toLeft':
-          this.totalToLeft = this.clampNonNegative(this.totalToLeft - 1)
+          this.toLeftCount = this.clampNonNegative(this.toLeftCount - 1)
           break
         case 'toRight':
-          this.totalToRight = this.clampNonNegative(this.totalToRight - 1)
+          this.toRightCount = this.clampNonNegative(this.toRightCount - 1)
           break
         case 'ignore':
-          this.totalIgnore = this.clampNonNegative(this.totalIgnore - 1)
+          this.ignoreCount = this.clampNonNegative(this.ignoreCount - 1)
           break
         default:
           break
@@ -460,13 +460,13 @@ export class SyncSession {
 
       switch (newItem.resolution) {
         case 'toLeft':
-          this.totalToLeft++
+          this.toLeftCount++
           break
         case 'toRight':
-          this.totalToRight++
+          this.toRightCount++
           break
         case 'ignore':
-          this.totalIgnore++
+          this.ignoreCount++
           break
         default:
           break
