@@ -5,6 +5,7 @@ import { computed } from 'vue'
 const props = defineProps<{
   fileName: string
   isDirectory: boolean
+  resolution: FileSyncResolition
 }>()
 
 const iconInfo = computed(() => {
@@ -14,11 +15,20 @@ const iconInfo = computed(() => {
 
 <template>
   <div class="filename-content">
-    <el-icon class="icon" :color="iconInfo.color">
+    <el-icon
+      class="icon"
+      :color="resolution === 'ignore' ? 'var(--el-text-color-placeholder)' : iconInfo.color"
+    >
       <component :is="iconInfo.icon"></component>
     </el-icon>
     <div class="title">
-      <el-text truncated class="name" style="width: 100%">{{ fileName }}</el-text>
+      <el-text
+        :class="{ ignore: resolution === 'ignore' }"
+        truncated
+        class="name"
+        style="width: 100%"
+        >{{ fileName }}</el-text
+      >
     </div>
   </div>
 </template>
@@ -38,5 +48,9 @@ const iconInfo = computed(() => {
   line-height: normal;
   display: flex;
   align-items: center;
+
+  .ignore {
+    color: var(--el-text-color-placeholder) !important;
+  }
 }
 </style>

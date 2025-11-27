@@ -117,6 +117,7 @@ function getFileSize(type: 'source' | 'destination', differentItem: FileDifferen
         <FileNameWithIcon
           :file-name="row.fileName"
           :is-directory="row.isDirectory"
+          :resolution="row.resolution"
         ></FileNameWithIcon>
       </template>
     </el-table-column>
@@ -162,7 +163,7 @@ function getFileSize(type: 'source' | 'destination', differentItem: FileDifferen
 
 <style lang="less" scoped>
 :deep(.grey-row) {
-  color: rgba(100, 100, 100, 0.5) !important;
+  color: var(--el-text-color-placeholder) !important;
 }
 
 :deep(.el-table__row) {
