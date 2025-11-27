@@ -6,19 +6,24 @@ import { getWindow } from '../../../../utils/window'
 import { createStorageEngineInstance } from '../../core/storage-engine/utils/StorageEngineFactory'
 
 export class SyncSession {
-  private sourceStorageEngine: StorageEngine | null = null
-  private destinationStorageEngine: StorageEngine | null = null
-  private ignoredFolders: string[] = []
-  private syncStrategy: SyncStrategy = 'mirror'
-  private stopFlag: boolean = false
-  private diffStore: DiffStore
+  private sourceStorageEngine: StorageEngine | null = null // 源
+  private destinationStorageEngine: StorageEngine | null = null // 目标
+  private ignoredFolders: string[] = [] // 忽略文件夹
+  private syncStrategy: SyncStrategy = 'mirror' // 同步策略
+  private stopFlag: boolean = false // 暂停标记
+  private diffStore: DiffStore // 比对数据存储（内存存储，比对量巨大容易引起内存暴增）
 
-  private totalBytes: number = 0
-  private totalCount: number = 0
-  private bytesTransferred: number = 0
-  private transferredCount: number = 0
+  private totalToLeft: number = 0 // <-的总数
+  private totalToRight: number = 0 // ->的总数
+  private totalIgnore: number = 0 // 忽略的总数
+  private totalBytes: number = 0 // 需要同步的bytes
+  private totalCount: number = 0 // 需要同步的文件数
+  private bytesTransferred: number = 0 // 已经同步的bytes
+  private transferredCount: number = 0 // 已经同步的文件数
 
-  constructor(private sessionId: string) {
+  constructor(
+    private sessionId: string, // sessionId
+  ) {
     this.diffStore = new DiffStore()
   }
 
@@ -76,7 +81,7 @@ export class SyncSession {
       if (item.isDirectory) return
 
       const transferByteTemp = item.transferBytes
-      const resolutionTemp = item.resolution
+      const itemTemp = { ...item }
 
       item.resolution = getResolution(strategy, !!item.source, !!item.destination)
       item.transferBytes = getTransferByte(item.resolution, item.source, item.destination)
@@ -84,11 +89,8 @@ export class SyncSession {
       const byteChangeValue = item.transferBytes - transferByteTemp
       this.totalBytes += byteChangeValue
 
-      if (resolutionTemp === 'ignore' && item.resolution !== 'ignore') {
-        this.totalCount += 1
-      } else if (resolutionTemp !== 'ignore' && item.resolution === 'ignore') {
-        this.totalCount -= 1
-      }
+      // 更新总数
+      this.updateTotals(item, itemTemp)
     })
 
     this.diffStore.updateAll(diffItems)
@@ -96,6 +98,9 @@ export class SyncSession {
     return {
       totalBytes: this.totalBytes,
       totalCount: this.totalCount,
+      totalToLeft: this.totalToLeft,
+      totalToRight: this.totalToRight,
+      totalIgnore: this.totalIgnore,
     }
   }
 
@@ -109,19 +114,22 @@ export class SyncSession {
 
     if (!diffItem) throw new Error('Not found')
 
-    const transferByteTemp = diffItem.transferBytes
+    const itemItem = { ...diffItem }
 
     diffItem.resolution = resolution
     diffItem.transferBytes = getTransferByte(resolution, diffItem.source, diffItem.destination)
 
-    const byteChangeValue = diffItem.transferBytes - transferByteTemp
-    this.totalBytes += byteChangeValue
+    // 更新总数
+    this.updateTotals(diffItem, itemItem)
 
     this.diffStore.updateById(diffItem.id, diffItem)
 
     return {
       totalBytes: this.totalBytes,
       totalCount: this.totalCount,
+      totalToLeft: this.totalToLeft,
+      totalToRight: this.totalToRight,
+      totalIgnore: this.totalIgnore,
     }
   }
 
@@ -198,10 +206,8 @@ export class SyncSession {
 
       if (differentItem.id) {
         this.diffStore.add(differentItem)
-        if (!differentItem.isDirectory) {
-          this.totalCount++
-          this.totalBytes += differentItem.transferBytes
-        }
+        // 更新记数
+        this.updateTotals(differentItem, null)
       }
     }
 
@@ -217,6 +223,9 @@ export class SyncSession {
     return {
       totalBytes: this.totalBytes,
       totalCount: this.totalCount,
+      totalToLeft: this.totalToLeft,
+      totalToRight: this.totalToRight,
+      totalIgnore: this.totalIgnore,
     }
   }
 
@@ -407,7 +416,67 @@ export class SyncSession {
   private clearStatus() {
     this.totalBytes = 0
     this.totalCount = 0
+    this.totalIgnore = 0
+    this.totalToLeft = 0
+    this.totalToRight = 0
     this.bytesTransferred = 0
     this.transferredCount = 0
+  }
+
+  /**
+   * 更新总体统计（通用记数函数）
+   * @param newItem
+   * @param oldItem
+   */
+  private updateTotals(newItem: FileDifference | null, oldItem: FileDifference | null) {
+    // 先撤销 oldItem 的贡献（如果存在且是文件）
+    if (oldItem && !oldItem.isDirectory) {
+      // bytes
+      const oldBytes = oldItem.transferBytes || 0
+      this.totalBytes = this.clampNonNegative(this.totalBytes - oldBytes)
+
+      // resolution counts
+      switch (oldItem.resolution) {
+        case 'toLeft':
+          this.totalToLeft = this.clampNonNegative(this.totalToLeft - 1)
+          break
+        case 'toRight':
+          this.totalToRight = this.clampNonNegative(this.totalToRight - 1)
+          break
+        case 'ignore':
+          this.totalIgnore = this.clampNonNegative(this.totalIgnore - 1)
+          break
+        default:
+          break
+      }
+
+      this.totalCount = this.clampNonNegative(this.totalCount - 1)
+    }
+
+    // 再应用 newItem 的贡献（如果存在且是文件）
+    if (newItem && !newItem.isDirectory) {
+      const newBytes = newItem.transferBytes || 0
+      this.totalBytes += newBytes
+
+      switch (newItem.resolution) {
+        case 'toLeft':
+          this.totalToLeft++
+          break
+        case 'toRight':
+          this.totalToRight++
+          break
+        case 'ignore':
+          this.totalIgnore++
+          break
+        default:
+          break
+      }
+
+      this.totalCount++
+    }
+  }
+
+  private clampNonNegative(n: number) {
+    return n < 0 ? 0 : n
   }
 }

@@ -10,19 +10,12 @@ interface SyncForm {
   syncStrategy: SyncStrategy // 同步策略
 }
 
-interface SyncStatus {
-  bytesTransferred: number
-  totalBytes: number
-  transferredCount: number
-  totalCount: number
-}
-
 export interface SyncSessionState {
   sessionId: string
   name: string
   formData: SyncForm
   tableData: FileDifference[]
-  status: SyncStatus
+  status: CompareResult & SyncStatus
   isComparing: boolean
   isSyncing: boolean
 }
@@ -32,6 +25,7 @@ export interface SyncSession {
   getRootList(): Promise<void>
   handleConfigChange(type: 'source' | 'destination'): Promise<void>
   handleStrategyChange(): Promise<void>
+  handleChangeResolution: (id: string, type: FileSyncResolition) => Promise<void>
   startCompare(): Promise<void>
   stopCompare(): void
   startSync(): Promise<void>
@@ -57,10 +51,13 @@ export function useSyncSession(
     },
     tableData: [],
     status: {
-      bytesTransferred: 0,
       totalBytes: 0,
-      transferredCount: 0,
       totalCount: 0,
+      totalToLeft: 0,
+      totalToRight: 0,
+      totalIgnore: 0,
+      bytesTransferred: 0,
+      transferredCount: 0,
     },
     isComparing: false,
     isSyncing: false,
@@ -83,10 +80,13 @@ export function useSyncSession(
           formData: sessionState.formData,
           tableData: [],
           status: {
-            bytesTransferred: 0,
             totalBytes: 0,
-            transferredCount: 0,
             totalCount: 0,
+            totalToLeft: 0,
+            totalToRight: 0,
+            totalIgnore: 0,
+            bytesTransferred: 0,
+            transferredCount: 0,
           },
           isComparing: false,
           isSyncing: false,
@@ -157,11 +157,17 @@ export function useSyncSession(
       sessionState.sessionId,
       sessionState.formData.syncStrategy,
     )
-    sessionState.status.totalCount = compareResult.totalCount
-    sessionState.status.totalBytes = compareResult.totalBytes
+    Object.assign(sessionState.status, compareResult)
     getRootList()
   }
 
+  // 处理单行的行为变化
+  async function handleChangeResolution(id: string, type: FileSyncResolition) {
+    const compareResult = await window.ipc.sync.setResolution(sessionState.sessionId, id, type)
+    Object.assign(sessionState.status, compareResult)
+  }
+
+  // 开始对比
   async function startCompare() {
     sessionState.isComparing = true
     sessionState.tableData = []
@@ -179,8 +185,7 @@ export function useSyncSession(
       }
 
       const compareResult = await window.ipc.sync.startCompare(sessionState.sessionId)
-      sessionState.status.totalCount = compareResult.totalCount
-      sessionState.status.totalBytes = compareResult.totalBytes
+      Object.assign(sessionState.status, compareResult)
 
       getRootList()
     } catch (error) {
@@ -191,10 +196,12 @@ export function useSyncSession(
     }
   }
 
+  // 停止对比
   function stopCompare() {
     window.ipc.sync.stopCompare(sessionState.sessionId)
   }
 
+  // 开始同步
   async function startSync() {
     sessionState.isSyncing = true
     try {
@@ -222,22 +229,29 @@ export function useSyncSession(
     }
   }
 
+  // 停止同步
   function stopSync() {
     window.ipc.sync.stopSync(sessionState.sessionId)
   }
 
+  // 接收同步状态变更
   function syncStatusHanlder(status: SyncStatus) {
     sessionState.status.bytesTransferred = status.bytesTransferred
     sessionState.status.transferredCount = status.transferredCount
   }
 
+  // 重置同步状态
   function resetSyncStatus() {
     sessionState.status.totalBytes = 0
-    sessionState.status.bytesTransferred = 0
     sessionState.status.totalCount = 0
+    sessionState.status.totalIgnore = 0
+    sessionState.status.totalToLeft = 0
+    sessionState.status.totalToRight = 0
+    sessionState.status.bytesTransferred = 0
     sessionState.status.transferredCount = 0
   }
 
+  // 清理函数
   function dispose() {
     stopCacheWatch()
     stopSourceWatch()
@@ -264,5 +278,6 @@ export function useSyncSession(
     stopSync,
     handleConfigChange,
     handleStrategyChange,
+    handleChangeResolution,
   }
 }

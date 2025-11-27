@@ -82,6 +82,9 @@ declare interface FileDifference {
 declare interface CompareResult {
   totalBytes: number
   totalCount: number
+  totalToLeft: number
+  totalToRight: number
+  totalIgnore: number
 }
 
 declare interface SyncStatus {

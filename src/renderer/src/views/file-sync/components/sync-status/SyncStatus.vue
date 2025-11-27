@@ -2,6 +2,7 @@
 import { useActiveSyncSession } from '@renderer/composables/file-sync/useActiveSyncSession'
 import { formatBytes } from '@renderer/utils/format'
 import { computed } from 'vue'
+import { ChevronBack, ChevronForward, Ban, PieChart } from '@vicons/ionicons5'
 
 const { activeSessionState } = useActiveSyncSession()
 
@@ -18,13 +19,27 @@ const percentage = computed(() => {
 <template>
   <div class="sync-status">
     <el-text class="text">
-      {{ formatBytes(activeSessionState.status.bytesTransferred) }}/{{
-        formatBytes(activeSessionState.status.totalBytes)
-      }}
+      <el-icon><PieChart></PieChart></el-icon>
+      {{ activeSessionState.status.transferredCount }}/{{ activeSessionState.status.totalCount }}
     </el-text>
+    <el-text type="primary">
+      <el-icon><ChevronForward></ChevronForward></el-icon>
+      {{ activeSessionState.status.totalToRight }}
+    </el-text>
+    <el-text type="success">
+      <el-icon><ChevronBack></ChevronBack></el-icon>
+      {{ activeSessionState.status.totalToLeft }}
+    </el-text>
+    <el-text type="info">
+      <el-icon><Ban></Ban></el-icon>
+      {{ activeSessionState.status.totalIgnore }}
+    </el-text>
+
     <div class="progress-wrapper">
       <el-text class="text">
-        {{ activeSessionState.status.transferredCount }}/{{ activeSessionState.status.totalCount }}
+        {{ formatBytes(activeSessionState.status.bytesTransferred) }}/{{
+          formatBytes(activeSessionState.status.totalBytes)
+        }}
       </el-text>
       <el-progress class="progress" :percentage="percentage"></el-progress>
     </div>
@@ -36,7 +51,7 @@ const percentage = computed(() => {
   height: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 12px;
 }
 
 .text {
@@ -44,6 +59,7 @@ const percentage = computed(() => {
 }
 
 .progress-wrapper {
+  margin-left: auto;
   display: flex;
   align-items: center;
   gap: 6px;

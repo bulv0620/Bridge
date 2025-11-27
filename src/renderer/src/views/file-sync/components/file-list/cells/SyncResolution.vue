@@ -11,7 +11,7 @@ const props = defineProps<{
 
 const type = defineModel<FileSyncResolition>('type', { required: true })
 
-const { activeSessionState, activeSessionId } = useActiveSyncSession()
+const { activeSession } = useActiveSyncSession()
 
 async function handleActionClick(resolution: FileSyncResolition) {
   if (type.value === resolution) {
@@ -22,13 +22,7 @@ async function handleActionClick(resolution: FileSyncResolition) {
 
   await nextTick()
 
-  const compareResult = await window.ipc.sync.setResolution(
-    activeSessionId.value,
-    props.id,
-    type.value,
-  )
-  activeSessionState.value.status.totalCount = compareResult.totalCount
-  activeSessionState.value.status.totalBytes = compareResult.totalBytes
+  await activeSession.value.handleChangeResolution(props.id, type.value)
 }
 </script>
 
