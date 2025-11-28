@@ -5,7 +5,8 @@ import { useI18n } from 'vue-i18n'
 
 import AppVersion from '@renderer/components/AppVersion.vue'
 
-import { FolderOpened, Promotion, Download, Setting, Expand, Fold } from '@element-plus/icons-vue'
+import { FolderOpened, Promotion, Download, Setting } from '@element-plus/icons-vue'
+import { CaretBack, CaretForward } from '@vicons/ionicons5'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -54,9 +55,12 @@ const handleSelect = (path: string) => {
     <!-- 底部版本号、收起按钮 -->
     <div class="collapse-btn" :class="{ collapsed }">
       <AppVersion v-if="!collapsed" />
-      <el-icon style="cursor: pointer" @click="collapsed = !collapsed"
-        ><Fold v-if="!collapsed" /><Expand v-else
-      /></el-icon>
+      <el-button circle text @click="collapsed = !collapsed">
+        <template #icon>
+          <CaretBack v-if="!collapsed" />
+          <CaretForward v-else />
+        </template>
+      </el-button>
     </div>
   </div>
 </template>
