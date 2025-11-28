@@ -5,7 +5,7 @@ import FtpSvg from '@renderer/assets/svg/ftp.svg'
 import BucketSvg from '@renderer/assets/svg/bucket.svg'
 import DiskSvg from '@renderer/assets/svg/disk.svg'
 import NotSelectedSvg from '@renderer/assets/svg/not-selected.svg'
-import { Close } from '@vicons/ionicons5'
+import { Close, MoreFilled } from '@element-plus/icons-vue'
 import { useConectionModal } from '@renderer/composables/file-sync/useConnectionModal'
 import { useActiveSyncSession } from '@renderer/composables/file-sync/useActiveSyncSession'
 
@@ -73,43 +73,46 @@ function removeEndPoint() {
           <SvgIcon v-else :icon="DiskSvg" :size="32"></SvgIcon>
         </template>
       </div>
-      <div class="text">
-        <el-text truncated style="width: 100%" type="primary">{{ title }}</el-text>
-        <el-text v-if="endpoint" truncated style="width: 100%">
-          {{ endpoint?.path }}
+      <div class="detail">
+        <el-text truncated style="width: 100%" type="primary">
+          {{ endpoint?.storageType.toUpperCase() ?? title }}
         </el-text>
 
-        <el-dropdown
-          v-else
-          trigger="click"
-          :disabled="activeSessionState.isComparing || activeSessionState.isSyncing"
-          @command="selectStorageType"
-        >
-          <!-- 触发按钮 -->
-          <el-text type="info" style="cursor: pointer; user-select: none">{{
-            $t('views.fileSync.notSelected')
-          }}</el-text>
+        <!-- 目录信息 -->
+        <div style="width: 100%">
+          <el-text truncated style="width: 100%">
+            {{ endpoint?.path ?? $t('views.fileSync.notSelected') }}
+          </el-text>
+        </div>
 
-          <!-- 下拉内容 -->
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item v-for="opt in endPointOptions" :key="opt.key" :command="opt.key">
-                {{ opt.label }}
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
+        <!-- <el-progress style="width: 100%" :show-text="false" :percentage="0"> </el-progress> -->
       </div>
+
       <el-button
         v-if="endpoint"
         :disabled="activeSessionState.isSyncing || activeSessionState.isComparing"
         :icon="Close"
         circle
-        text
-        bg
         @click="removeEndPoint"
       >
       </el-button>
+      <el-dropdown
+        v-else
+        trigger="click"
+        :disabled="activeSessionState.isComparing || activeSessionState.isSyncing"
+        @command="selectStorageType"
+      >
+        <!-- 触发按钮 -->
+        <el-button :icon="MoreFilled" circle></el-button>
+        <!-- 下拉内容 -->
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item v-for="opt in endPointOptions" :key="opt.key" :command="opt.key">
+              {{ opt.label }}
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
     </div>
   </div>
 </template>
@@ -137,15 +140,14 @@ function removeEndPoint() {
     user-select: none;
   }
 
-  .text {
+  .detail {
     flex: 1;
     overflow: hidden;
     line-height: normal;
     display: flex;
     flex-direction: column;
-    gap: 6px;
     align-items: start;
-    height: 40px;
+    gap: 4px;
   }
 }
 </style>
