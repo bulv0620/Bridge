@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+# [0.3.0](https://github.com/bulv0620/Bridge/compare/v0.2.3...v0.3.0) (2025-12-05)
+
+
+### Bug Fixes
+
+* resolve expired shared files not being cleaned up ([0e3b8d2](https://github.com/bulv0620/Bridge/commit/0e3b8d298aeb97080a1980ff3deb85b621a2d636))
+* resolve shared file download error ([4a26b64](https://github.com/bulv0620/Bridge/commit/4a26b641becbe4816f5c0d4b9901bf7df9ccc7cc))
+
+
+### Features
+
+* add folder comparison stats (toLeft/toRight counts) ([f0baeb7](https://github.com/bulv0620/Bridge/commit/f0baeb7e77d34e6ec5d590adcf35a684e6b417f1))
+* add more detailed file comparison result info ([10cf049](https://github.com/bulv0620/Bridge/commit/10cf0490fca8205be00a76b2eac10ddaa9e46621))
+
+
+
 ## [0.2.3](https://github.com/bulv0620/file-bridge/compare/v0.2.2...v0.2.3) (2025-11-23)
 
 
