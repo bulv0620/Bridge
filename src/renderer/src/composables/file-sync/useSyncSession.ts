@@ -149,6 +149,21 @@ export function useSyncSession(
     window.ipc.sync.setStorageEngineConfig(sessionState.sessionId, type, toRaw(configData))
     sessionState.tableData = []
     resetSyncStatus()
+
+    getCapacity(type)
+  }
+
+  // 更新容量信息
+  async function getCapacity(type: 'source' | 'destination') {
+    const capacity = await window.ipc.sync.getCapacity(sessionState.sessionId, type)
+
+    if (type === 'source' && sessionState.formData.sourceConfig) {
+      sessionState.formData.sourceConfig.storageCapacity = capacity
+    }
+
+    if (type === 'destination' && sessionState.formData.destinationConfig) {
+      sessionState.formData.destinationConfig.storageCapacity = capacity
+    }
   }
 
   // 策略变化
@@ -226,6 +241,10 @@ export function useSyncSession(
       window.events.off(`sync:updateStatus:${sessionState.sessionId}`, syncStatusHanlder)
       // 重新获取差异项
       getRootList()
+
+      // 更新容量信息
+      getCapacity('source')
+      getCapacity('destination')
     }
   }
 

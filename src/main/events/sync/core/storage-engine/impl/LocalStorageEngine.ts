@@ -2,6 +2,9 @@ import { ReadStream, WriteStream } from 'fs'
 import { shouldIgnoreFile, StorageEngine } from '../StorageEngine'
 import path from 'path'
 import fs from 'fs'
+import { exec as execCb } from 'child_process'
+import util from 'util'
+const exec = util.promisify(execCb)
 
 /**
  * 本地文件系统实现
@@ -167,5 +170,79 @@ export class LocalStorageEngine extends StorageEngine {
     const resolvedPath = this._resolve(filePath)
     await fs.promises.utimes(resolvedPath, meta.atime, meta.mtime)
     await fs.promises.chmod(resolvedPath, meta.mode)
+  }
+
+  async getCapacity(): Promise<StorageCapacity | undefined> {
+    try {
+      // 以 basePath 为目标挂载点 / 驱动器；当 basePath 为空时使用当前工作目录
+      const targetPath = this.basePath && this.basePath !== '' ? this.basePath : process.cwd()
+      if (process.platform === 'win32') {
+        // Windows: 找到驱动盘符，例如 C:
+        const root = path.parse(targetPath).root // like 'C:\\'
+        const drive = root.replace(/\\+$/, '') // -> 'C:'
+        if (!drive) return undefined
+
+        // 使用 wmic 查询（在部分新版 Windows 可能不可用）
+        const cmd = `wmic logicaldisk where "DeviceID='${drive}'" get Size,FreeSpace /format:list`
+        const { stdout } = await exec(cmd)
+        // stdout 形如:
+        // FreeSpace=123456789
+        // Size=234567890
+        // \r\n
+        const lines = String(stdout)
+          .split(/\r?\n/)
+          .map((l) => l.trim())
+          .filter(Boolean)
+        const map: Record<string, string> = {}
+        for (const line of lines) {
+          const idx = line.indexOf('=')
+          if (idx > -1) {
+            const k = line.slice(0, idx)
+            const v = line.slice(idx + 1)
+            map[k] = v
+          }
+        }
+        const free = map.FreeSpace ? parseInt(map.FreeSpace, 10) : NaN
+        const total = map.Size ? parseInt(map.Size, 10) : NaN
+        if (isNaN(total) || isNaN(free)) return undefined
+        const used = total - free
+        return { total, used }
+      } else {
+        // Unix-like: 使用 df -k 获取基于 targetPath 的文件系统
+        // df 输出的块单位为 1K-blocks，乘以 1024 得到字节
+        const cmd = `df -k "${targetPath}"`
+        const { stdout } = await exec(cmd)
+        const lines = String(stdout).trim().split(/\r?\n/)
+        if (lines.length < 2) return undefined
+        // 第二行通常包含数据：Filesystem 1K-blocks Used Available Use% Mounted on
+        // 解析时用正则分割空白
+        const parts = lines[1].trim().split(/\s+/)
+        // 在某些系统上输出可能折行，尝试找到一行包含数字块
+        let dataParts = parts
+        if (parts.length < 4) {
+          // 找到第一行包含 1K-blocks 的行之后的下一行（防护性处理）
+          for (let i = 2; i < lines.length; i++) {
+            const p = lines[i].trim().split(/\s+/)
+            if (p.length >= 4) {
+              dataParts = p
+              break
+            }
+          }
+        }
+        if (dataParts.length < 4) return undefined
+        const totalK = parseInt(dataParts[1], 10)
+        const usedK = parseInt(dataParts[2], 10)
+        const availK = parseInt(dataParts[3], 10)
+        if (isNaN(totalK) || isNaN(usedK) || isNaN(availK)) return undefined
+        const total = totalK * 1024
+        const used = usedK * 1024
+        return { total, used }
+      }
+    } catch (err) {
+      // 出错时返回 undefined（调用方可以决定是否降级处理）
+      // 可以根据需要把错误打印出来
+      // console.error('getCapacity error:', err)
+      return
+    }
   }
 }

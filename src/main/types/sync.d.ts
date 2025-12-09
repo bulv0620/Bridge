@@ -12,6 +12,13 @@ declare interface StorageEngineConfig {
   storageType: StorageType
   path: string
   connectionConfig?: ConnectionConfig
+  storageCapacity?: StorageCapacity
+}
+
+// 存储容量信息
+declare interface StorageCapacity {
+  used: number
+  total: number
 }
 
 // ftp配置信息

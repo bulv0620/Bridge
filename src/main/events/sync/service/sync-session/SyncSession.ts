@@ -190,6 +190,17 @@ export class SyncSession {
   }
 
   /**
+   * 获取容量信息
+   */
+  async getCapacity(type: 'source' | 'destination') {
+    if (type === 'source') {
+      return this.sourceStorageEngine?.getCapacity()
+    } else {
+      return this.destinationStorageEngine?.getCapacity()
+    }
+  }
+
+  /**
    * 对比函数
    * @returns
    */

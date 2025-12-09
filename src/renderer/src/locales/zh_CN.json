@@ -116,7 +116,8 @@
       "tabsFull": "标签数量已达上限",
       "newTab": "新标签",
       "lastCannotClose": "最后一个标签不可关闭",
-      "inProgressPauseBeforeClose": "任务执行中，请先暂停任务后关闭"
+      "inProgressPauseBeforeClose": "任务执行中，请先暂停任务后关闭",
+      "capacity": "容量"
     },
     "downloader": {
       "title": "下载器",

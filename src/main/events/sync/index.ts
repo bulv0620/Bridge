@@ -111,6 +111,12 @@ export function stopSync(_: IpcMainInvokeEvent, id: string) {
   return session.setStopFlag(true)
 }
 
+// 获取容量
+export function getCapacity(_: IpcMainInvokeEvent, id: string, type: 'source' | 'destination') {
+  const session = syncSessionMap.get(id)!
+  return session.getCapacity(type)
+}
+
 // 创建连接实例
 export async function createStorageSession(_: IpcMainInvokeEvent, config: StorageEngineConfig) {
   const session = new StorageSession(config)

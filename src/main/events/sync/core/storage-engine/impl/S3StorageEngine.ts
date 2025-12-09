@@ -320,6 +320,10 @@ export class S3StorageEngine extends StorageEngine {
     }
   }
 
+  async getCapacity(): Promise<StorageCapacity | undefined> {
+    return
+  }
+
   async disconnect(): Promise<void> {
     // S3Client 支持 destroy()
     try {

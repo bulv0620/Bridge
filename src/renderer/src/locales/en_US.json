@@ -116,7 +116,8 @@
       "tabsFull": "Maximum number of tabs reached",
       "newTab": "New Tab",
       "lastCannotClose": "The last tab cannot be closed",
-      "inProgressPauseBeforeClose": "Task is running, please pause it before closing."
+      "inProgressPauseBeforeClose": "Task is running, please pause it before closing.",
+      "capacity": "Storage Capacity"
     },
     "downloader": {
       "title": "Downloader",
