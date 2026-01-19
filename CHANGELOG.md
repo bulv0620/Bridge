@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+# [0.4.0](https://github.com/bulv0620/Bridge/compare/v0.3.0...v0.4.0) (2026-01-19)
+
+
+### Features
+
+* add storage capacity display feature ([6db8423](https://github.com/bulv0620/Bridge/commit/6db84236be4ca6f5e77144f7f645422097852516))
+
+
+
 # [0.3.0](https://github.com/bulv0620/Bridge/compare/v0.2.3...v0.3.0) (2025-12-05)
 
 
