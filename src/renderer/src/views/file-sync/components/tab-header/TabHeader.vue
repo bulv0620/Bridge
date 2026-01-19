@@ -215,14 +215,14 @@ const borderColor = computed(() => {
       border-bottom: none;
       border-radius: 6px 6px 0 0;
       cursor: pointer;
-      transition: all 0.2s var(--el-transition-function-fast-bezier);
+      transition: border 0.2s;
 
       &.active {
         background: var(--el-bg-color);
         // border-color: var(--el-color-primary);
         z-index: 1;
-        transform: translateY(1px);
         padding-bottom: 1px;
+        margin-bottom: -1px;
       }
 
       &.comparing {
