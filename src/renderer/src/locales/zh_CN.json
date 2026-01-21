@@ -155,6 +155,9 @@
       "unshareConfirm": "确认取消分享?",
       "cancelSharing": "取消共享"
     },
+    "sharedZone": {
+      "title": "共享空间"
+    },
     "setting": {
       "title": "设置",
       "description": "全局参数设置",

@@ -26,6 +26,11 @@ const menu = computed(() => [
     icon: Promotion,
   },
   {
+    label: t('views.sharedZone.title'),
+    index: '/shared-zone',
+    icon: Promotion,
+  },
+  {
     label: t('views.setting.title'),
     index: '/setting',
     icon: Setting,

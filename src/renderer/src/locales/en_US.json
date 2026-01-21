@@ -155,6 +155,9 @@
       "unshareConfirm": "Confirm to cancel sharing?",
       "cancelSharing": "Cancel sharing"
     },
+    "sharedZone": {
+      "title": "Shared Zone"
+    },
     "setting": {
       "title": "Settings",
       "description": "Global parameter settings",
