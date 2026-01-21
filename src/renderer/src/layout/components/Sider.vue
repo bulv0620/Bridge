@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 
 import AppVersion from '@renderer/components/AppVersion.vue'
 
-import { FolderOpened, Promotion, Download, Setting } from '@element-plus/icons-vue'
+import { FolderOpened, Promotion, Setting } from '@element-plus/icons-vue'
 import { CaretBack, CaretForward } from '@vicons/ionicons5'
 
 const { t } = useI18n()
@@ -24,11 +24,6 @@ const menu = computed(() => [
     label: t('views.shareHub.title'),
     index: '/share-hub',
     icon: Promotion,
-  },
-  {
-    label: t('views.downloader.title'),
-    index: '/downloader',
-    icon: Download,
   },
   {
     label: t('views.setting.title'),

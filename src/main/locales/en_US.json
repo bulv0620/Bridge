@@ -1,10 +1,7 @@
 {
   "tray": {
     "fileSync": "File Sync",
-    "ftpClient": "Ftp Client",
-    "downloader": "Downloader",
     "shareHub": "Share Hub",
-    "pluginCenter": "Plugin Center",
     "setting": "Setting",
     "show": "show",
     "quit": "quit"

@@ -64,15 +64,6 @@ export function updateTray(lang: string, options: { mainWindow: BrowserWindow })
         options.mainWindow.show()
       },
     },
-    {
-      label: messages[lang].tray.downloader,
-      click: () => {
-        options.mainWindow.webContents.send('page:link', {
-          to: 'Downloader',
-        })
-        options.mainWindow.show()
-      },
-    },
     { type: 'separator' },
     {
       label: messages[lang].tray.setting,

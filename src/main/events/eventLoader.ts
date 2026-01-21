@@ -4,7 +4,6 @@ import * as langEvents from './lang'
 import * as fileEvents from './file'
 import * as syncEvents from './sync'
 import * as shareEvents from './share'
-import * as downloaderEvents from './downloader'
 import * as updateEvents from './update'
 
 // 事件映射
@@ -14,7 +13,6 @@ export const eventsMap = {
   file: fileEvents,
   sync: syncEvents,
   share: shareEvents,
-  downloader: downloaderEvents,
   update: updateEvents,
 }
 
