@@ -3,7 +3,7 @@
     <!-- Header -->
     <el-header class="header">
       <div class="logo">
-        <span class="logo-text">Shared Zone</span>
+        <span class="logo-text">{{ $t('views.sharedZone.title') }}</span>
       </div>
       <div class="header-right">
         <el-button :icon="Setting" circle />
@@ -32,9 +32,8 @@
         <div class="devices">
           <div class="devices-header">
             <span>可发送的设备</span>
-            <span class="online-dot" />
           </div>
-          <el-scrollbar class="device-list">
+          <el-scrollbar v-if="devices.length" class="device-list">
             <div v-for="d in devices" :key="d.name" class="device-card" @click="sendTo(d)">
               <el-icon class="device-icon"><component :is="d.icon" /></el-icon>
               <div class="device-info">
@@ -43,6 +42,7 @@
               </div>
             </div>
           </el-scrollbar>
+          <EmptyBox v-else description="无在线设备"></EmptyBox>
         </div>
       </div>
     </el-main>
@@ -51,12 +51,12 @@
     <el-footer class="footer">
       <div class="footer-header">
         <div class="title">共享剪切板</div>
-        <el-button link size="small" @click="addDummy">模拟接收新内容</el-button>
+        <el-button link size="small">清空历史记录</el-button>
       </div>
-      <el-scrollbar class="clipboard">
+      <el-scrollbar v-if="clips.length" class="clipboard">
         <div class="clipboard-list">
           <div v-for="(c, i) in clips" :key="i" class="clip">
-            <p>{{ c.text }}</p>
+            <p :title="c.text">{{ c.text }}</p>
             <div class="clip-footer">
               <span>{{ c.from }}</span>
               <el-button type="primary" link size="small" @click="copy(c.text)">复制</el-button>
@@ -64,6 +64,7 @@
           </div>
         </div>
       </el-scrollbar>
+      <div v-else class="empty">共享剪切板为空</div>
     </el-footer>
   </el-container>
 </template>
@@ -72,17 +73,13 @@
 import { ref, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { UploadFilled, Iphone, Monitor, Setting } from '@element-plus/icons-vue'
+import EmptyBox from './components/EmptyBox.vue'
 
-const autoCopy = ref(false)
 const file = ref<File | null>(null)
 
 const devices = [
   { name: 'iPhone 15 Pro', icon: Iphone },
   { name: 'Windows PC - Home', icon: Monitor },
-  { name: 'iPad Pro 12.9', icon: Iphone },
-  { name: 'iPad Pro 12.9', icon: Iphone },
-  { name: 'iPad Pro 12.9', icon: Iphone },
-  { name: 'iPad Pro 12.9', icon: Iphone },
   { name: 'iPad Pro 12.9', icon: Iphone },
 ]
 
@@ -116,22 +113,6 @@ function sendTo(device: any) {
 function copy(text: string) {
   navigator.clipboard.writeText(text)
   ElMessage.success('已成功复制内容')
-}
-
-function addDummy() {
-  const texts = [
-    '新的验证码是：882931',
-    '请查收这份文档：https://docs.cloudshare.com/v/123',
-    '今天的晚餐吃火锅吗？',
-    'npm install lucide-react',
-  ]
-  const t = texts[Math.floor(Math.random() * texts.length)]
-  clips.value.unshift({ text: t, from: '刚刚 · 来自 远端设备' })
-
-  if (autoCopy.value) {
-    navigator.clipboard.writeText(t)
-    ElMessage.success('【自动复制】已捕获新内容')
-  }
 }
 </script>
 
@@ -210,7 +191,11 @@ function addDummy() {
 
     .upload-icon {
       font-size: 48px;
-      color: var(--el-color-primary);
+      color: var(--el-text-color-placeholder);
+    }
+
+    .el-upload__text {
+      color: var(--el-text-color-placeholder);
     }
 
     .file-preview {
@@ -235,13 +220,6 @@ function addDummy() {
       margin-bottom: 12px;
       font-weight: 600;
       font-size: 14px;
-
-      .online-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: var(--el-color-success);
-      }
     }
 
     .device-list {
@@ -287,7 +265,7 @@ function addDummy() {
 
 .footer {
   border-top: 1px solid var(--el-border-color);
-  background: var(--el-bg-color-page);
+  background: var(--el-fill-color-light);
   padding: 12px;
   padding-bottom: 16px;
   height: 180px;
@@ -303,6 +281,15 @@ function addDummy() {
       font-size: 14px;
       font-weight: 600;
     }
+  }
+
+  .empty {
+    flex: 1;
+    font-size: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--el-text-color-placeholder);
   }
 
   .clipboard {
@@ -334,6 +321,13 @@ function addDummy() {
           font-size: 14px;
           color: var(--el-text-color-regular);
           margin-bottom: 8px;
+          word-break: break-all;
+          text-overflow: ellipsis;
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          line-clamp: 3;
+          -webkit-line-clamp: 3; /* 超出几行省略 */
+          overflow: hidden;
         }
 
         .clip-footer {
