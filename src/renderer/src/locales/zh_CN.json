@@ -120,7 +120,19 @@
       "capacity": "容量"
     },
     "sharedZone": {
-      "title": "共享空间"
+      "title": "共享空间",
+      "copy": "复制",
+      "emptyClipboard": "剪切板为空",
+      "clearHistory": "清空历史记录",
+      "sharedClipboard": "共享剪切板",
+      "availableDevices": "可发送的设备",
+      "noDevice": "无可用设备",
+      "selectFileFirst": "请先选择要发送的文件",
+      "sendingTo": "正在向 {device} 发送文件...",
+      "sendSuccess": "发送成功",
+      "uploadHint": "点击或拖拽文件到此处",
+      "selected": "已选择",
+      "copySuccess": "复制成功"
     },
     "setting": {
       "title": "设置",

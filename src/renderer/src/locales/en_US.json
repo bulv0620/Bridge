@@ -120,7 +120,19 @@
       "capacity": "Storage Capacity"
     },
     "sharedZone": {
-      "title": "Shared Zone"
+      "title": "Shared Zone",
+      "copy": "Copy",
+      "emptyClipboard": "Empty",
+      "clearHistory": "Clear History",
+      "sharedClipboard": "Shared Clipboard",
+      "availableDevices": "Available Devices",
+      "noDevice": "No Device",
+      "selectFileFirst": "Please select a file first",
+      "sendingTo": "Sending file to {device}...",
+      "sendSuccess": "Sent successfully",
+      "uploadHint": "Click or drag file here to upload",
+      "selected": "Selected",
+      "copySuccess": "Copied"
     },
     "setting": {
       "title": "Settings",
