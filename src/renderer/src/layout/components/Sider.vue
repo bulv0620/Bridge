@@ -21,11 +21,6 @@ const menu = computed(() => [
     icon: FolderOpened,
   },
   {
-    label: t('views.shareHub.title'),
-    index: '/share-hub',
-    icon: Promotion,
-  },
-  {
     label: t('views.sharedZone.title'),
     index: '/shared-zone',
     icon: Promotion,
