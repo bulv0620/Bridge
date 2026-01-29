@@ -1,6 +1,5 @@
 import dgram, { RemoteInfo } from 'dgram'
 import os from 'os'
-import { getWindow } from '../../../utils/window'
 import { remoteRef, RemoteRefMain } from '../../../utils/remoteRef'
 
 export interface DeviceDiscoveryOptions {
@@ -11,244 +10,253 @@ export interface DeviceDiscoveryOptions {
 }
 
 export class DeviceDiscovery {
-  private id: string
-  private platform: NodeJS.Platform
-  private udpPort: number
-  private httpPort: number
-  private interval: number
-  private server: dgram.Socket | undefined
+  private readonly id: string
+  private readonly udpPort: number
+  private readonly httpPort: number
+  private readonly interval: number
+  private readonly deviceName: string
 
+  private server?: dgram.Socket
+  private timer: NodeJS.Timeout | null = null
+  private running = false
+
+  // 在线设备
+  private onlineDeviceMap = new Map<string, OnlineDevice>()
   private onlineDevices: RemoteRefMain<OnlineDevice[]>
-  private timer: NodeJS.Timeout | null
-  private running: boolean
 
   constructor(options: DeviceDiscoveryOptions = {}) {
     this.id = crypto.randomUUID()
-    this.platform = os.platform()
     this.udpPort = options.udpPort ?? 9520
-    this.httpPort = options.httpPort ?? 9520
+    this.httpPort = options.httpPort ?? 9521
     this.interval = options.interval ?? 1000
+    this.deviceName = os.hostname()
 
-    this.onlineDevices = remoteRef('online-device', [])
-    this.timer = null
-    this.running = false
+    this.onlineDevices = remoteRef('online-devices', [])
   }
 
-  /** 启动服务 */
-  public start(): Promise<void> {
-    return new Promise((resolve) => {
-      if (this.running) {
-        console.log('⚠️ UDP server already started')
-        resolve()
-        return
-      }
+  public async start(): Promise<void> {
+    if (this.running) return
 
-      const server = dgram.createSocket('udp4')
-      this.server = server
+    const server = dgram.createSocket('udp4')
+    this.server = server
 
-      this.server.bind(this.udpPort, () => {
-        this.setupListeners(server)
-        this.setupBroadcast(server)
-        console.log(`✅ UDP server listening on port ${this.udpPort}`)
-        resolve()
-      })
+    await new Promise<void>((resolve) => {
+      server.bind(this.udpPort, resolve)
     })
-  }
 
-  /**
-   * 停止服务
-   * @returns
-   */
-  public stop(): Promise<void> {
-    return new Promise((resolve) => {
-      if (!this.running || !this.server) {
-        console.log('⚠️ UDP server is not running')
-        resolve()
-        return
-      }
-
-      if (this.timer) clearInterval(this.timer)
-
-      this.timer = null
-      this.onlineDevices.value = []
-
-      this.server.removeAllListeners()
-      this.server.close(() => {
-        console.log('🛑 UDP server stopped')
-        this.running = false
-        this.server = undefined
-        resolve()
-      })
-    })
-  }
-
-  /** 绑定消息监听器 */
-  private setupListeners(server: dgram.Socket) {
-    server.on('message', async (msg: Buffer, rinfo: RemoteInfo) => {
-      const ip = rinfo.address
-
-      let message: BroadcastMessage
-
-      try {
-        message = JSON.parse(msg.toString())
-        // console.log(`📦 UDP receive : ${message}`)
-      } catch {
-        console.log('⚠️ UDP received an abnormal message')
-        return
-      }
-
-      const id = message.id
-      if (id === this.id) return
-
-      const files = await this.fetchFileList(ip, message.httpPort)
-
-      const device = this.onlineDevices.value.find((device) => device.id === id)
-      if (!device) {
-        this.onlineDevices.value = [
-          ...this.onlineDevices.value,
-          {
-            id,
-            ip: ip,
-            udpPort: message.udpPort,
-            httpPort: message.httpPort,
-            platform: message.platform,
-            lastSeen: Date.now(),
-            data: {
-              files,
-            },
-            mine: id === this.id,
-          },
-        ]
-      } else {
-        this.onlineDevices.update(() => {
-          device.lastSeen = Date.now()
-          device.data = {
-            files,
-          }
-        })
-      }
-    })
-  }
-
-  /** 启动广播 */
-  private setupBroadcast(server: dgram.Socket) {
     server.setBroadcast(true)
     server.setSendBufferSize(1024 * 1024)
-    this.timer = setInterval(() => {
-      this.broadcastMessage(server)
-      this.cleanupOfflineDevices()
 
-      const mainWindow = getWindow('main')
-      mainWindow!.webContents.send('share:message', {
-        onlineDevices: this.getOnlineDevices(),
-      })
+    this.setupListeners(server)
+
+    this.timer = setInterval(() => {
+      this.broadcastAnnounce()
+      this.cleanupOfflineDevices()
     }, this.interval)
 
     this.running = true
+    console.log(`✅ DeviceDiscovery started on UDP ${this.udpPort}`)
   }
 
-  /**
-   * 广播本机状态到所有网卡
-   * @returns
-   */
-  private async broadcastMessage(server: dgram.Socket) {
-    const message: BroadcastMessage = {
-      id: this.id,
-      platform: this.platform,
-      udpPort: this.udpPort,
-      httpPort: this.httpPort,
-    }
-    const messageStr = JSON.stringify(message)
+  public async stop(): Promise<void> {
+    if (!this.running || !this.server) return
 
-    const broadcastAddresses = this.getBroadcastAddresses()
-    if (broadcastAddresses.length === 0) {
-      console.log('⚠️ No UDP broadcast address available')
-      return
-    }
+    this.broadcastBye()
 
-    for (const addr of broadcastAddresses) {
-      server.send(messageStr, 0, messageStr.length, this.udpPort, addr, (err) => {
-        if (err) {
-          console.error('⚠️ UDP broadcast error:', err)
-        } else {
-          // console.log(`📦 UDP broadcast to ${addr}:${this.udpPort}`)
-        }
-      })
-    }
+    if (this.timer) clearInterval(this.timer)
+    this.timer = null
+
+    this.server.close()
+    this.server.removeAllListeners()
+
+    this.onlineDeviceMap.clear()
+    this.syncOnlineDevices()
+
+    this.running = false
+    this.server = undefined
+
+    console.log('🛑 DeviceDiscovery stopped')
   }
 
-  /**
-   * 获取所有可用网段
-   * @returns
-   */
-  private getBroadcastAddresses(): string[] {
-    const interfaces = os.networkInterfaces()
-    const broadcasts: string[] = []
-
-    for (const name of Object.keys(interfaces)) {
-      for (const net of interfaces[name] || []) {
-        if (net.family === 'IPv4' && !net.internal && net.netmask) {
-          const ipParts = net.address.split('.').map(Number)
-          const maskParts = net.netmask.split('.').map(Number)
-
-          const broadcastParts = ipParts.map((p, i) => (p & maskParts[i]) | (~maskParts[i] & 255))
-          broadcasts.push(broadcastParts.join('.'))
-        }
-      }
-    }
-
-    return broadcasts
-  }
-
-  /**
-   * 清理不活跃设备
-   */
-  private cleanupOfflineDevices() {
-    const currentTime = Date.now()
-    this.onlineDevices.value = this.onlineDevices.value.filter(
-      (device) => currentTime - device.lastSeen < this.interval * 2,
-    )
-  }
-
-  /**
-   * 获取所有在线设备
-   * @returns
-   */
   public getOnlineDevices(): OnlineDevice[] {
     return this.onlineDevices.value
   }
 
-  /**
-   * 请求设备分享的文件列表
-   * @param ip
-   * @param httpPort
-   * @returns
-   */
-  private async fetchFileList(ip: string, httpPort: number): Promise<SharedFileInfo[]> {
-    const url = `http://${ip}:${httpPort}/list`
-    const controller = new AbortController()
+  private setupListeners(server: dgram.Socket) {
+    server.on('message', (buf: Buffer, rinfo: RemoteInfo) => {
+      let msg: AnnounceMessage
 
-    // 设置超时：this.interval
-    const timeout = setTimeout(() => controller.abort(), this.interval)
-
-    try {
-      const res = await fetch(url, {
-        method: 'GET',
-        signal: controller.signal,
-        headers: { 'Content-Type': 'application/json' },
-      })
-
-      if (!res.ok) {
-        return []
+      try {
+        msg = JSON.parse(buf.toString())
+      } catch {
+        return
       }
 
-      const files = await res.json()
+      if (msg.v !== 1 || !msg.device?.id) return
+      if (msg.device.id === this.id) return
 
-      return Array.isArray(files) ? files : []
-    } catch {
-      return []
-    } finally {
-      clearTimeout(timeout)
+      const now = Date.now()
+      const deviceId = msg.device.id
+      const ip = rinfo.address
+
+      const existing = this.onlineDeviceMap.get(deviceId)
+
+      // bye
+      if (msg.type === 'bye') {
+        if (existing) {
+          this.onlineDeviceMap.delete(deviceId)
+          this.syncOnlineDevices()
+        }
+        return
+      }
+
+      // new
+      if (!existing) {
+        const dev: OnlineDevice = {
+          id: deviceId,
+          ip,
+          device: msg.device,
+          services: msg.services,
+          state: msg.state,
+
+          trusted: false,
+          status: 'online',
+          sources: new Set(['udp']),
+
+          firstSeenAt: now,
+          lastSeenAt: now,
+
+          hasActiveConnection: false,
+          lastAnnounce: msg,
+        }
+
+        this.onlineDeviceMap.set(deviceId, dev)
+        this.syncOnlineDevices()
+        return
+      }
+
+      // update
+      let changed = false
+
+      if (existing.ip !== ip) {
+        existing.ip = ip
+        changed = true
+      }
+
+      existing.device = msg.device
+      existing.services = msg.services
+      existing.state = msg.state
+      existing.lastSeenAt = now
+      existing.status = 'online'
+      existing.sources.add('udp')
+      existing.lastAnnounce = msg
+
+      if (msg.state?.clipboard) {
+        existing.lastStateChangeAt = now
+      }
+
+      if (changed) {
+        this.syncOnlineDevices()
+      }
+    })
+  }
+
+  private broadcastAnnounce() {
+    if (!this.server) return
+
+    const msg: AnnounceMessage = {
+      v: 1,
+      type: 'announce',
+      device: {
+        id: this.id,
+        name: this.deviceName,
+        platform: os.platform() as any,
+      },
+      services: {
+        udp: this.udpPort,
+        http: this.httpPort,
+        cap: ['clipboard'],
+      },
+      ts: Date.now(),
     }
+
+    this.sendBroadcast(msg)
+  }
+
+  private broadcastBye() {
+    if (!this.server) return
+
+    const msg: AnnounceMessage = {
+      v: 1,
+      type: 'bye',
+      device: {
+        id: this.id,
+        name: this.deviceName,
+        platform: os.platform() as any,
+      },
+      services: {
+        udp: this.udpPort,
+        cap: [],
+      },
+      ts: Date.now(),
+    }
+
+    this.sendBroadcast(msg)
+  }
+
+  private sendBroadcast(message: AnnounceMessage) {
+    if (!this.server) return
+
+    const payload = Buffer.from(JSON.stringify(message))
+    const addrs = this.getBroadcastAddresses()
+
+    for (const addr of addrs) {
+      this.server.send(payload, this.udpPort, addr)
+    }
+  }
+
+  private cleanupOfflineDevices() {
+    const now = Date.now()
+    let changed = false
+
+    for (const [id, dev] of this.onlineDeviceMap) {
+      const delta = now - dev.lastSeenAt
+
+      if (delta > this.interval * 5) {
+        this.onlineDeviceMap.delete(id)
+        changed = true
+      } else if (delta > this.interval * 2 && dev.status !== 'stale') {
+        dev.status = 'stale'
+        changed = true
+      }
+    }
+
+    if (changed) {
+      this.syncOnlineDevices()
+    }
+  }
+
+  private syncOnlineDevices() {
+    this.onlineDevices.value = Array.from(this.onlineDeviceMap.values())
+  }
+
+  private getBroadcastAddresses(): string[] {
+    const interfaces = os.networkInterfaces()
+    const result: string[] = []
+
+    for (const nets of Object.values(interfaces)) {
+      for (const net of nets ?? []) {
+        if (net.family === 'IPv4' && !net.internal && net.netmask) {
+          const ip = net.address.split('.').map(Number)
+          const mask = net.netmask.split('.').map(Number)
+
+          const broadcast = ip.map((p, i) => (p & mask[i]) | (~mask[i] & 255))
+
+          result.push(broadcast.join('.'))
+        }
+      }
+    }
+
+    return result
   }
 }
