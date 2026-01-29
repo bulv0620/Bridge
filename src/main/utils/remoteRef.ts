@@ -4,6 +4,7 @@ export interface RemoteRefMain<T> {
   value: T
   destroy(): void
   update(fn: (v: T) => void): void
+  onUpdate(fn: (v: T) => void): void
 }
 
 /**
@@ -11,6 +12,8 @@ export interface RemoteRefMain<T> {
  */
 export function remoteRef<T>(channel: string, initialValue: T): RemoteRefMain<T> {
   let value = structuredClone(initialValue)
+
+  const cb: ((v: T) => void)[] = []
 
   // 广播更新
   const broadcast = (payload: { value: T; txnId?: string }) => {
@@ -26,6 +29,8 @@ export function remoteRef<T>(channel: string, initialValue: T): RemoteRefMain<T>
     if (ch === channel) {
       value = payload.value
       broadcast(payload)
+
+      cb.forEach((fn) => fn(value))
     }
   }
 
@@ -50,6 +55,9 @@ export function remoteRef<T>(channel: string, initialValue: T): RemoteRefMain<T>
     update(fn: (v: T) => void) {
       fn(value)
       broadcast({ value })
+    },
+    onUpdate(fn: (v: T) => void) {
+      cb.push(fn)
     },
     destroy() {
       ipcMain.removeListener('remote-ref:change', changeListener)

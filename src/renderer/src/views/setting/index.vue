@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { languageOptions } from '@renderer/locales'
-import { EThemeType, useTheme } from '@renderer/composables/setting/useTheme'
+import { useTheme } from '@renderer/composables/setting/useTheme'
 import { computed } from 'vue'
 import ThemeCardGroup from './components/ThemeCardGroup.vue'
 import { ElMessageBox } from 'element-plus'
@@ -27,7 +27,7 @@ const handleReset = async () => {
     showCancelButton: true,
   })
   locale.value = 'en_US'
-  themeMode.value = EThemeType.SYSTEM
+  themeMode.value = 'system'
 }
 </script>
 

@@ -1,45 +1,17 @@
-import { ref, watch } from 'vue'
-
-export enum EThemeType {
-  SYSTEM = 'system',
-  DARK = 'dark',
-  LIGHT = 'light',
-}
+import { watch } from 'vue'
+import { useRemoteRef } from '../remote-ref/useRemoteRef'
 
 // 主题模式
-const themeMode = ref<EThemeType>(
-  (localStorage.getItem('theme') as EThemeType) || EThemeType.SYSTEM,
-)
+const themeMode = useRemoteRef<ThemeMode>('theme-mode', 'system')
+// 主题实际值
+const currentTheme = useRemoteRef<Theme>('current-theme', 'light')
 
-// 更新theme模式
 watch(
-  themeMode,
-  (theme: EThemeType) => {
-    themeMode.value = theme
-    localStorage.setItem('theme', theme)
-    window.ipc.theme.change(theme)
+  () => currentTheme.value,
+  (val) => {
+    document.documentElement.className = val
   },
-  { immediate: true },
 )
-
-// 监听主题更新（多窗口store独立，需要手动更新）
-window.events.on('theme:switch', (type: EThemeType) => {
-  themeMode.value = type
-})
-
-let initThemeColor = themeMode.value
-if (initThemeColor === EThemeType.SYSTEM) {
-  const isLight = window.matchMedia('(prefers-color-scheme: light)').matches
-  initThemeColor = isLight ? EThemeType.LIGHT : EThemeType.DARK
-  document.documentElement.className = initThemeColor
-}
-const currentTheme = ref<EThemeType>(initThemeColor)
-// 监听系统主题自动变化
-window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e) => {
-  const theme = e.matches ? EThemeType.LIGHT : EThemeType.DARK
-  currentTheme.value = theme
-  document.documentElement.className = theme
-})
 
 export const useTheme = () => {
   return {
