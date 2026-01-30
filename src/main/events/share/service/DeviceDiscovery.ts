@@ -1,14 +1,7 @@
 import dgram, { RemoteInfo } from 'dgram'
 import os from 'os'
 import { remoteRef, RemoteRefMain } from '../../../utils/remoteRef'
-
-export interface DeviceDiscoveryOptions {
-  channel?: string
-  udpPort?: number
-  httpPort?: number
-  interval?: number
-}
-
+import { getStore } from '../../../store'
 export class DeviceDiscovery {
   private readonly id: string
   private readonly udpPort: number
@@ -24,12 +17,28 @@ export class DeviceDiscovery {
   private onlineDeviceMap = new Map<string, OnlineDevice>()
   private onlineDevices: RemoteRefMain<OnlineDevice[]>
 
-  constructor(options: DeviceDiscoveryOptions = {}) {
-    this.id = crypto.randomUUID()
-    this.udpPort = options.udpPort ?? 9520
-    this.httpPort = options.httpPort ?? 9521
-    this.interval = options.interval ?? 1000
-    this.deviceName = os.hostname()
+  constructor() {
+    const store = getStore()
+
+    const deviceId = store.get('deviceId')
+    if (!deviceId) {
+      this.id = crypto.randomUUID()
+      store.set('deviceId', this.id)
+    } else {
+      this.id = deviceId
+    }
+
+    const deviceName = store.get('deviceName')
+    if (!deviceName) {
+      this.deviceName = os.hostname()
+      store.set('deviceName', this.deviceName)
+    } else {
+      this.deviceName = deviceName
+    }
+
+    this.udpPort = store.get('ports').udp
+    this.httpPort = store.get('ports').http
+    this.interval = 1000
 
     this.onlineDevices = remoteRef('online-devices', [])
   }

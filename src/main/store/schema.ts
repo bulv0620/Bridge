@@ -12,4 +12,34 @@ export const schema: Schema<AppStoreSchema> = {
     enum: ['zh_CN', 'en_US'],
     default: 'en_US',
   },
+  deviceId: {
+    type: 'string',
+  },
+  deviceName: {
+    type: 'string',
+  },
+  ports: {
+    type: 'object',
+    properties: {
+      udp: {
+        type: 'number',
+        minimum: 1,
+        maximum: 65535,
+        default: 9520,
+      },
+      http: {
+        type: 'number',
+        minimum: 1,
+        maximum: 65535,
+        default: 9521,
+      },
+    },
+  },
+  capabilities: {
+    type: 'array',
+    items: {
+      type: 'string',
+    },
+    default: [],
+  },
 }

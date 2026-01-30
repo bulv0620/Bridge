@@ -1,11 +1,7 @@
 import { IpcMainInvokeEvent } from 'electron'
 import { DeviceDiscovery } from './service/DeviceDiscovery'
 
-const UDP_PORT = 9520
-
-const deviceDiscovery = new DeviceDiscovery({
-  udpPort: UDP_PORT,
-})
+const deviceDiscovery = new DeviceDiscovery()
 
 export function start(_: IpcMainInvokeEvent) {
   deviceDiscovery.start()

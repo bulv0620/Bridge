@@ -16,7 +16,7 @@ declare interface ServiceInfo {
 
 declare type ClipboardMime = 'text/plain' | 'text/html' | 'image/png' | 'image/jpeg' | string
 declare interface ClipboardState {
-  v: number // 剪切板版本号（单调递增）
+  v: string // 剪切板版本号
   mime: ClipboardMime // 当前内容 MIME
 }
 declare interface DeviceState {
