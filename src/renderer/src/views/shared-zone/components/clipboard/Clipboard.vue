@@ -5,13 +5,7 @@ import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 
-const clips = ref([
-  { text: 'https://github.com/google-gemini/cloud-share-demo', from: '10:24 AM · 来自 MacBook' },
-  {
-    text: '项目会议纪要：1. 确定UI风格 2. 完成API联调 3. 准备灰度测试。',
-    from: '昨天 · 来自 iPhone',
-  },
-])
+const clips = ref<any[]>([])
 
 function copy(text: string) {
   navigator.clipboard.writeText(text)

@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { UploadFilled } from '@element-plus/icons-vue'
+import { UploadFilled, Close } from '@element-plus/icons-vue'
+import { useFile } from '@renderer/composables/share-zone/useFile'
 
-const file = ref<File | null>(null)
+const { file } = useFile()
 
 function onFileChange(uploadFile: any) {
   file.value = uploadFile.raw
+}
+
+function removeFile() {
+  file.value = null
 }
 </script>
 
@@ -24,7 +28,10 @@ function onFileChange(uploadFile: any) {
       </div>
     </el-upload>
     <div v-if="file" class="file-preview">
-      {{ $t('views.sharedZone.selected') }}: {{ file.name }}
+      <div class="text">{{ $t('views.sharedZone.selected') }}: {{ file.name }}</div>
+      <div class="close-button">
+        <el-button :icon="Close" link type="danger" @click="removeFile"></el-button>
+      </div>
     </div>
   </div>
 </template>
@@ -68,9 +75,19 @@ function onFileChange(uploadFile: any) {
 
   .file-preview {
     margin-top: 12px;
-    color: var(--el-color-primary);
-    font-weight: 500;
-    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    .text {
+      color: var(--el-color-primary);
+      font-weight: 500;
+      font-size: 14px;
+      flex: 1;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
   }
 }
 </style>

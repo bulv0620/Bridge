@@ -1,19 +1,15 @@
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
-import { Iphone, Monitor } from '@element-plus/icons-vue'
-import { ref } from 'vue'
-import { Wifi } from '@vicons/ionicons5'
+import { Monitor } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
+import { useRemoteRef } from '@renderer/composables/remote-ref/useRemoteRef'
+import { useFile } from '@renderer/composables/share-zone/useFile'
 
 const { t } = useI18n()
 
-const file = ref<File | null>(null)
+const { file } = useFile()
 
-const devices = [
-  { name: 'iphone15Pro', icon: Iphone },
-  { name: 'windowsPcHome', icon: Monitor },
-  { name: 'ipadPro129', icon: Iphone },
-]
+const devices = useRemoteRef<OnlineDevice[]>('online-devices', [])
 
 function sendTo(device: any) {
   if (!file.value) {
@@ -36,11 +32,11 @@ function sendTo(device: any) {
       <span>{{ $t('views.sharedZone.availableDevices') }}</span>
     </div>
     <el-scrollbar v-if="devices.length" class="device-list">
-      <div v-for="d in devices" :key="d.name" class="device-card" @click="sendTo(d)">
-        <el-icon class="device-icon"><component :is="d.icon" /></el-icon>
+      <div v-for="d in devices" :key="d.id" class="device-card" @click="sendTo(d)">
+        <el-icon class="device-icon"><Monitor></Monitor></el-icon>
         <div class="device-info">
-          <div class="name">{{ d.name }}</div>
-          <div class="status">192.168.1.105</div>
+          <div class="name">{{ d.device.name }}</div>
+          <div class="status">{{ d.ip }}</div>
         </div>
       </div>
     </el-scrollbar>
@@ -48,7 +44,7 @@ function sendTo(device: any) {
       <el-empty :description="$t('views.sharedZone.noDevice')">
         <template #image>
           <el-icon :size="60">
-            <Wifi />
+            <Monitor />
           </el-icon>
         </template>
       </el-empty>
