@@ -5,13 +5,15 @@ import { useTheme } from '@renderer/composables/setting/useTheme'
 import { computed } from 'vue'
 import ThemeCardGroup from './components/ThemeCardGroup.vue'
 import { ElMessageBox } from 'element-plus'
+import { useLang } from '@renderer/composables/setting/useLang'
 
 defineOptions({
   name: 'Setting',
 })
 
-const { locale, t } = useI18n()
+const { t } = useI18n()
 const { themeMode } = useTheme()
+const { currentLocale } = useLang()
 
 const themeOptions = computed(() => [
   { label: t('theme.system'), value: 'system' },
@@ -26,7 +28,7 @@ const handleReset = async () => {
     message: t('views.setting.resetConfirm'),
     showCancelButton: true,
   })
-  locale.value = 'en_US'
+  currentLocale.value = 'en_US'
   themeMode.value = 'system'
 }
 </script>
@@ -38,7 +40,7 @@ const handleReset = async () => {
         <ThemeCardGroup v-model:value="themeMode" :options="themeOptions" />
       </el-form-item>
       <el-form-item :label="$t('views.setting.language') + ':'">
-        <el-radio-group v-model="locale">
+        <el-radio-group v-model="currentLocale">
           <el-radio v-for="option in languageOptions" :key="option.value" :value="option.value">
             {{ option.label }}
           </el-radio>

@@ -2,33 +2,29 @@ import { useI18n } from 'vue-i18n'
 import { computed, watch } from 'vue'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import en from 'element-plus/es/locale/lang/en'
+import { useRemoteRef } from '../remote-ref/useRemoteRef'
 
 export const useLang = () => {
+  const currentLocale = useRemoteRef<Locales>('current-locale', 'en_US')
+
   const { locale } = useI18n()
 
-  // 主题变化更新（多窗口store独立，需要手动更新）
-  window.events.on('lang:switch', (lang: string) => {
-    locale.value = lang
-  })
-
-  // 向渲染线程更新lang
   watch(
-    locale,
-    (lang) => {
-      window.ipc.lang.change(lang)
-      localStorage.setItem('lang', lang)
+    () => currentLocale.value,
+    (val) => {
+      locale.value = val
     },
-    { immediate: true },
   )
 
   const elLocale = computed(() => {
-    if (locale.value === 'zh_CN') {
+    if (currentLocale.value === 'zh_CN') {
       return zhCn
     }
     return en
   })
 
   return {
+    currentLocale,
     elLocale,
   }
 }

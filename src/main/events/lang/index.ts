@@ -1,13 +1,16 @@
-import { BrowserWindow, IpcMainInvokeEvent } from 'electron'
 import { updateTray } from '../../utils/tray'
 import { getWindow } from '../../utils/window'
 import { updateMenu } from '../../utils/menu'
+import { remoteRef } from '../../utils/remoteRef'
+import { getStore } from '../../store'
 
-export function change(_: IpcMainInvokeEvent, lang: string) {
+const store = getStore()
+
+const locale = remoteRef<Locales>('current-locale', store.get('locale'))
+
+locale.onUpdate((lang) => {
   const mainWindow = getWindow('main')
-  BrowserWindow.getAllWindows().forEach((win) => {
-    win.webContents.send('lang:switch', lang)
-  })
   updateTray(lang, { mainWindow: mainWindow! })
   updateMenu(lang)
-}
+  store.set('locale', lang)
+})

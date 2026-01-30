@@ -1,7 +1,6 @@
 export type ThemeMode = 'light' | 'dark' | 'system'
 
 export interface AppStoreSchema {
-  theme: {
-    mode: ThemeMode
-  }
+  theme: ThemeMode
+  locale: Locales
 }

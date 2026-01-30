@@ -5,7 +5,7 @@ import { getStore } from '../../store'
 const store = getStore()
 
 // 初始化主题
-nativeTheme.themeSource = store.get('theme')?.mode || 'system'
+nativeTheme.themeSource = store.get('theme')
 const themeMode = remoteRef('theme-mode', nativeTheme.themeSource)
 const currentTheme = remoteRef('current-theme', nativeTheme.shouldUseDarkColors ? 'dark' : 'light')
 
@@ -15,5 +15,5 @@ nativeTheme.on('updated', () => {
 
 themeMode.onUpdate((mode: ThemeMode) => {
   nativeTheme.themeSource = mode
-  store.set('theme.mode', themeMode.value)
+  store.set('theme', themeMode.value)
 })
