@@ -20,7 +20,7 @@ const { visible, configForm, confirm } = useSettingModal()
         <el-switch v-model="configForm.lanDiscoverable" />
       </div>
 
-      <hr v-if="configForm.lanDiscoverable" class="divider" />
+      <el-divider v-if="configForm.lanDiscoverable" class="divider" />
 
       <div v-if="configForm.lanDiscoverable" class="setting-item">
         <div class="label">
@@ -41,7 +41,7 @@ const { visible, configForm, confirm } = useSettingModal()
   </CommonDialog>
 </template>
 
-<style scoped>
+<style scoped lang="less">
 .settings-container {
   padding: 0 12px;
 }
@@ -71,8 +71,6 @@ const { visible, configForm, confirm } = useSettingModal()
 }
 
 .divider {
-  border: none;
-  border-top: 1px solid #eee;
   margin: 8px 0;
 }
 </style>
