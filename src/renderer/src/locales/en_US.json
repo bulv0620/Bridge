@@ -132,7 +132,14 @@
       "sendSuccess": "Sent successfully",
       "uploadHint": "Click or drag file here to upload",
       "selected": "Selected",
-      "copySuccess": "Copied"
+      "copySuccess": "Copied",
+      "settingTitle": "Settings",
+      "lanDiscoverable": "LAN Discoverable",
+      "lanDiscoverableDesc": "Allow other devices on the same network to find this device",
+      "filePush": "File Receiving",
+      "filePushDesc": "Allow receiving files pushed from other devices",
+      "clipboardShare": "Clipboard Sharing",
+      "clipboardShareDesc": "Automatically sync clipboard text across devices"
     },
     "setting": {
       "title": "Settings",

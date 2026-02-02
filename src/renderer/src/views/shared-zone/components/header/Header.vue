@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { Setting } from '@element-plus/icons-vue'
+import { useSettingModal } from '@renderer/composables/share-zone/useSettingModal'
+
+const { openSettingModal } = useSettingModal()
 </script>
 
 <template>
@@ -8,7 +11,7 @@ import { Setting } from '@element-plus/icons-vue'
       <span class="logo-text">{{ $t('views.sharedZone.title') }}</span>
     </div>
     <div class="header-right">
-      <el-button :icon="Setting" circle />
+      <el-button :icon="Setting" circle @click="openSettingModal" />
     </div>
   </el-header>
 </template>

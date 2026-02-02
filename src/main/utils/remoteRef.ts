@@ -4,7 +4,7 @@ export interface RemoteRefMain<T> {
   value: T
   destroy(): void
   update(fn: (v: T) => void): void
-  onUpdate(fn: (v: T) => void): void
+  onUpdate(fn: (v: T) => void, options?: { immediate?: boolean }): void
 }
 
 /**
@@ -51,16 +51,24 @@ export function remoteRef<T>(channel: string, initialValue: T): RemoteRefMain<T>
       broadcast({
         value,
       })
+      cb.forEach((fn) => fn(value))
     },
     update(fn: (v: T) => void) {
       fn(value)
       broadcast({ value })
+      cb.forEach((fn) => fn(value))
     },
-    onUpdate(fn: (v: T) => void) {
+    onUpdate(fn: (v: T) => void, options?: { immediate?: boolean }) {
       cb.push(fn)
+
+      // 如果配置了 immediate，立即执行一次
+      if (options?.immediate) {
+        fn(value)
+      }
     },
     destroy() {
       ipcMain.removeListener('remote-ref:change', changeListener)
+      cb.length = 0
     },
   }
 }

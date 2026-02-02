@@ -1,12 +1,11 @@
-import { IpcMainInvokeEvent } from 'electron'
 import { DeviceDiscovery } from './service/DeviceDiscovery'
 
 const deviceDiscovery = new DeviceDiscovery()
 
-export function start(_: IpcMainInvokeEvent) {
+export function startUdpService() {
   deviceDiscovery.start()
 }
 
-export function stop(_: IpcMainInvokeEvent) {
+export function stopUdpService() {
   deviceDiscovery.stop()
 }

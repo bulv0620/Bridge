@@ -3,6 +3,7 @@ import Clipboard from './components/clipboard/Clipboard.vue'
 import Devices from './components/devices/Devices.vue'
 import Header from './components/header/Header.vue'
 import Uploader from './components/uploader/Uploader.vue'
+import SettingModal from './components/setting-modal/SettingModal.vue'
 </script>
 
 <template>
@@ -16,6 +17,7 @@ import Uploader from './components/uploader/Uploader.vue'
 
     <Clipboard></Clipboard>
   </div>
+  <SettingModal></SettingModal>
 </template>
 
 <style lang="less" scoped>

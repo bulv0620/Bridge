@@ -132,7 +132,14 @@
       "sendSuccess": "发送成功",
       "uploadHint": "点击或拖拽文件到此处",
       "selected": "已选择",
-      "copySuccess": "复制成功"
+      "copySuccess": "复制成功",
+      "settingTitle": "共享设置",
+      "lanDiscoverable": "局域网发现",
+      "lanDiscoverableDesc": "允许同一网络下的其他设备发现此设备",
+      "filePush": "文件接收",
+      "filePushDesc": "允许接收从其他设备推送过来的文件",
+      "clipboardShare": "剪切板共享",
+      "clipboardShareDesc": "在设备之间自动同步剪切板文本"
     },
     "setting": {
       "title": "设置",
