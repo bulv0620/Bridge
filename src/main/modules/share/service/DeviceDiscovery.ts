@@ -2,7 +2,11 @@ import dgram, { RemoteInfo } from 'dgram'
 import os from 'os'
 import { remoteRef, RemoteRefMain } from '../../../utils/remoteRef'
 import { getStore } from '../../../store'
+import { AppStoreSchema } from '../../../store/types'
+import ElectronStore from 'electron-store'
+
 export class DeviceDiscovery {
+  private readonly store: ElectronStore<AppStoreSchema>
   private readonly id: string
   private readonly udpPort: number
   private readonly httpPort: number
@@ -18,26 +22,13 @@ export class DeviceDiscovery {
   private onlineDevices: RemoteRefMain<OnlineDevice[]>
 
   constructor() {
-    const store = getStore()
+    this.store = getStore()
 
-    const deviceId = store.get('deviceId')
-    if (!deviceId) {
-      this.id = crypto.randomUUID()
-      store.set('deviceId', this.id)
-    } else {
-      this.id = deviceId
-    }
+    this.id = this.store.get('deviceId')
+    this.deviceName = this.store.get('deviceName')
 
-    const deviceName = store.get('deviceName')
-    if (!deviceName) {
-      this.deviceName = os.hostname()
-      store.set('deviceName', this.deviceName)
-    } else {
-      this.deviceName = deviceName
-    }
-
-    this.udpPort = store.get('ports').udp
-    this.httpPort = store.get('ports').http
+    this.udpPort = this.store.get('ports').udp
+    this.httpPort = this.store.get('ports').http
     this.interval = 1000
 
     this.onlineDevices = remoteRef('online-devices', [])
@@ -114,7 +105,6 @@ export class DeviceDiscovery {
       if (msg.type === 'bye') {
         if (existing) {
           this.onlineDeviceMap.delete(deviceId)
-          this.syncOnlineDevices()
         }
         return
       }
@@ -130,7 +120,7 @@ export class DeviceDiscovery {
 
           trusted: false,
           status: 'online',
-          sources: new Set(['udp']),
+          sources: ['udp'],
 
           firstSeenAt: now,
           lastSeenAt: now,
@@ -140,16 +130,12 @@ export class DeviceDiscovery {
         }
 
         this.onlineDeviceMap.set(deviceId, dev)
-        this.syncOnlineDevices()
         return
       }
 
       // update
-      let changed = false
-
       if (existing.ip !== ip) {
         existing.ip = ip
-        changed = true
       }
 
       existing.device = msg.device
@@ -157,16 +143,14 @@ export class DeviceDiscovery {
       existing.state = msg.state
       existing.lastSeenAt = now
       existing.status = 'online'
-      existing.sources.add('udp')
+      existing.sources.includes('udp') || existing.sources.push('udp')
       existing.lastAnnounce = msg
 
       if (msg.state?.clipboard) {
         existing.lastStateChangeAt = now
       }
 
-      if (changed) {
-        this.syncOnlineDevices()
-      }
+      this.syncOnlineDevices()
     })
   }
 
@@ -179,12 +163,12 @@ export class DeviceDiscovery {
       device: {
         id: this.id,
         name: this.deviceName,
-        platform: os.platform() as any,
+        platform: os.platform(),
       },
       services: {
         udp: this.udpPort,
         http: this.httpPort,
-        cap: ['clipboard'],
+        cap: this.store.get('capabilities'),
       },
       ts: Date.now(),
     }
@@ -201,7 +185,7 @@ export class DeviceDiscovery {
       device: {
         id: this.id,
         name: this.deviceName,
-        platform: os.platform() as any,
+        platform: os.platform(),
       },
       services: {
         udp: this.udpPort,

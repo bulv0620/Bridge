@@ -3,14 +3,17 @@ import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { createCustomWindow } from './utils/window'
 import { createTray } from './utils/tray'
 import { installExtension, VUEJS_DEVTOOLS } from 'electron-devtools-installer'
-import { registerAllEvents } from './events/eventLoader'
+import { initConfig } from './config/index'
+import { registerAllEvents } from './modules/eventLoader'
 
 const gotTheLock = app.requestSingleInstanceLock({ myKey: 'bulv' })
 if (!gotTheLock) {
   app.quit()
 }
 
-app.whenReady().then(() => {
+;(async () => {
+  await app.whenReady()
+
   installExtension(VUEJS_DEVTOOLS)
     .then(() => console.log(`vue_devtools installed`))
     .catch(() => console.error('vue_devtolls install failed'))
@@ -36,6 +39,7 @@ app.whenReady().then(() => {
   })
 
   const tray = createTray()
+  await initConfig()
   registerAllEvents()
 
   app.on('activate', () => {
@@ -62,4 +66,4 @@ app.whenReady().then(() => {
       app.quit() // 继续退出流程
     }
   })
-})
+})()

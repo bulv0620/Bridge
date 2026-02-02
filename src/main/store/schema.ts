@@ -18,6 +18,10 @@ export const schema: Schema<AppStoreSchema> = {
   deviceName: {
     type: 'string',
   },
+  lanDiscoverable: {
+    type: 'boolean',
+    default: false,
+  },
   ports: {
     type: 'object',
     properties: {
@@ -25,14 +29,16 @@ export const schema: Schema<AppStoreSchema> = {
         type: 'number',
         minimum: 1,
         maximum: 65535,
-        default: 9520,
       },
       http: {
         type: 'number',
         minimum: 1,
         maximum: 65535,
-        default: 9521,
       },
+    },
+    default: {
+      udp: 9520,
+      http: 9521,
     },
   },
   capabilities: {

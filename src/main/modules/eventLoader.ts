@@ -1,6 +1,4 @@
 import { ipcMain } from 'electron'
-import * as themeEvents from './theme'
-import * as langEvents from './lang'
 import * as fileEvents from './file'
 import * as syncEvents from './sync'
 import * as shareEvents from './share'
@@ -8,8 +6,6 @@ import * as updateEvents from './update'
 
 // 事件映射
 export const eventsMap = {
-  theme: themeEvents,
-  lang: langEvents,
   file: fileEvents,
   sync: syncEvents,
   share: shareEvents,

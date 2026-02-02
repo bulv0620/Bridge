@@ -46,7 +46,7 @@ declare interface OnlineDevice {
   state?: DeviceState // 最近一次 announce 的状态快照
   trusted: boolean // 是否已被用户信任
   status: OnlineStatus // 在线状态
-  sources: Set<DiscoverySource> // 发现来源（可能多个）
+  sources: DiscoverySource[] // 发现来源（可能多个）
   lastSeenAt: number // 最近一次收到 announce 的时间（本地时间）
   firstSeenAt: number // 第一次发现时间
   lastStateChangeAt?: number // 最近一次状态变化（clipboard 变化等）

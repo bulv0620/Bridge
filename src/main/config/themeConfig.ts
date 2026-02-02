@@ -1,6 +1,6 @@
 import { nativeTheme } from 'electron'
-import { remoteRef } from '../../utils/remoteRef'
-import { getStore } from '../../store'
+import { remoteRef } from '../utils/remoteRef'
+import { getStore } from '../store'
 
 const store = getStore()
 
