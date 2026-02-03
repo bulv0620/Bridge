@@ -9,7 +9,7 @@ declare interface DeviceInfo {
 declare type ServiceCapability = 'clipboard' | 'file-push' | 'message' | string
 declare interface ServiceInfo {
   udp: number // UDP announce 端口
-  http?: number // HTTP 服务端口
+  http: number // HTTP 服务端口
   ws?: number // WebSocket 端口
   cap: ServiceCapability[] // 设备支持的能力
 }

@@ -1,12 +1,20 @@
 import { clipboard, nativeImage } from 'electron'
 import crypto from 'crypto'
+import { remoteRef, RemoteRefMain } from '../../../utils/remoteRef'
 
 export class ClipboardManager {
+  // 剪切板记录
+  private clipboardHistory: RemoteRefMain<ClipboardContent[]>
+
   //上一次状态
   private lastState: ClipboardState | null = null
 
   // 图片快速特征（避免重复 hash 大图）
   private lastImageMeta: { width: number; height: number } | null = null
+
+  constructor() {
+    this.clipboardHistory = remoteRef('clipboard-history', [])
+  }
 
   private sha1(): crypto.Hash {
     return crypto.createHash('sha1')
@@ -16,7 +24,6 @@ export class ClipboardManager {
     const formats = clipboard.availableFormats()
 
     if (formats.includes('image/png')) return 'image/png'
-    if (formats.includes('text/html')) return 'text/html'
     if (formats.includes('text/plain')) return 'text/plain'
 
     return 'unknown'
@@ -92,5 +99,32 @@ export class ClipboardManager {
     }
 
     this.lastState = this.computeState()
+  }
+
+  async fetchClipboard(url: string, msg: AnnounceMessage): Promise<void> {
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+      // 可选：超时
+      signal: AbortSignal.timeout(3000),
+    })
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`)
+    }
+
+    const { content } = (await res.json()) as { content: string }
+
+    this.clipboardHistory.update((list) => {
+      list.unshift({
+        v: msg.state!.clipboard!.v,
+        mime: msg.state!.clipboard!.mime,
+        text: content,
+        createdAt: new Date().getTime(),
+        device: msg.device,
+      })
+    })
   }
 }

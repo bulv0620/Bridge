@@ -1,6 +1,6 @@
 import { getStore } from '../store'
 import { remoteRef } from '../utils/remoteRef'
-import { startUdpService, stopUdpService } from '../modules/share'
+import { startService, stopService } from '../modules/share'
 
 const store = getStore()
 
@@ -11,9 +11,9 @@ lanDiscoverable.onUpdate(
   (val) => {
     store.set('lanDiscoverable', val)
     if (val) {
-      startUdpService()
+      startService()
     } else {
-      stopUdpService()
+      stopService()
     }
   },
   { immediate: true },

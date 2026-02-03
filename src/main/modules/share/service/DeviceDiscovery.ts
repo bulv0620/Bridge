@@ -135,6 +135,15 @@ export class DeviceDiscovery {
       }
 
       // update
+      if (existing.services.cap.includes('clipboard') && msg.state && msg.state.clipboard) {
+        if (existing.state?.clipboard?.v !== msg.state.clipboard.v) {
+          this.clipboardManager.fetchClipboard(
+            `http://${ip}:${existing.services.http}/api/clipboard`,
+            msg,
+          )
+        }
+      }
+
       existing.device = msg.device
       existing.services = msg.services
       existing.state = msg.state
@@ -175,9 +184,7 @@ export class DeviceDiscovery {
       ts: Date.now(),
     }
 
-    console.log(msg)
-
-    // this.sendBroadcast(msg)
+    this.sendBroadcast(msg)
   }
 
   private broadcastBye() {
@@ -193,6 +200,7 @@ export class DeviceDiscovery {
       },
       services: {
         udp: this.udpPort,
+        http: this.httpPort,
         cap: [],
       },
       ts: Date.now(),
