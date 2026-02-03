@@ -4,6 +4,7 @@ import { remoteRef, RemoteRefMain } from '../../../utils/remoteRef'
 import { getStore } from '../../../store'
 import { AppStoreSchema } from '../../../store/types'
 import ElectronStore from 'electron-store'
+import { ClipboardManager } from './ClipboardManager'
 
 export class DeviceDiscovery {
   private readonly store: ElectronStore<AppStoreSchema>
@@ -21,7 +22,7 @@ export class DeviceDiscovery {
   private onlineDeviceMap = new Map<string, OnlineDevice>()
   private onlineDevices: RemoteRefMain<OnlineDevice[]>
 
-  constructor() {
+  constructor(private clipboardManager: ClipboardManager) {
     this.store = getStore()
 
     this.id = this.store.get('deviceId')
@@ -134,10 +135,6 @@ export class DeviceDiscovery {
       }
 
       // update
-      if (existing.ip !== ip) {
-        existing.ip = ip
-      }
-
       existing.device = msg.device
       existing.services = msg.services
       existing.state = msg.state
@@ -146,16 +143,20 @@ export class DeviceDiscovery {
       existing.sources.includes('udp') || existing.sources.push('udp')
       existing.lastAnnounce = msg
 
-      if (msg.state?.clipboard) {
-        existing.lastStateChangeAt = now
-      }
-
       this.syncOnlineDevices()
     })
   }
 
   private broadcastAnnounce() {
     if (!this.server) return
+
+    const caps = this.store.get('capabilities')
+    const clipboardShareEnabled = caps.includes('clipboard')
+
+    const state: DeviceState = {}
+    if (clipboardShareEnabled) {
+      state.clipboard = this.clipboardManager.computeState()
+    }
 
     const msg: AnnounceMessage = {
       v: 1,
@@ -168,12 +169,15 @@ export class DeviceDiscovery {
       services: {
         udp: this.udpPort,
         http: this.httpPort,
-        cap: this.store.get('capabilities'),
+        cap: caps,
       },
+      state,
       ts: Date.now(),
     }
 
-    this.sendBroadcast(msg)
+    console.log(msg)
+
+    // this.sendBroadcast(msg)
   }
 
   private broadcastBye() {

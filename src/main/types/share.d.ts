@@ -19,6 +19,14 @@ declare interface ClipboardState {
   v: string // 剪切板版本号
   mime: ClipboardMime // 当前内容 MIME
 }
+declare interface ClipboardContent {
+  v: string
+  mime: ClipboardMime
+  path?: string // 图片 / 大内容：文件路径
+  text?: string // 小文本
+  createdAt: number
+  device: DeviceInfo // 设备信息
+}
 declare interface DeviceState {
   clipboard?: ClipboardState // 剪切板状态（可选）
 }

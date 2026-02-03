@@ -1,10 +1,12 @@
+import { ClipboardManager } from './service/ClipboardManager'
 import { DeviceDiscovery } from './service/DeviceDiscovery'
 
 let deviceDiscovery: DeviceDiscovery | null
+const clipboardManager = new ClipboardManager()
 
 export function startUdpService() {
   if (!deviceDiscovery) {
-    deviceDiscovery = new DeviceDiscovery()
+    deviceDiscovery = new DeviceDiscovery(clipboardManager)
   }
   deviceDiscovery.start()
 }
