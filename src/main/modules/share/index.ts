@@ -11,9 +11,10 @@ export function startService() {
     deviceDiscovery = new DeviceDiscovery(clipboardManager)
   }
   if (!shareServer) {
-    shareServer = new ShareServer()
+    shareServer = new ShareServer(clipboardManager)
   }
   deviceDiscovery.start()
+  shareServer.start()
 }
 
 export function stopService() {

@@ -136,7 +136,13 @@ export class DeviceDiscovery {
 
       // update
       if (existing.services.cap.includes('clipboard') && msg.state && msg.state.clipboard) {
-        if (existing.state?.clipboard?.v !== msg.state.clipboard.v) {
+        // 目标设备剪切板产生更新，并且内容不在本地历史记录中
+        if (
+          existing.state?.clipboard?.v !== msg.state.clipboard.v &&
+          !this.clipboardManager.clipboardHistory.value.find(
+            (historyItem) => historyItem.v === msg.state?.clipboard?.v,
+          )
+        ) {
           this.clipboardManager.fetchClipboard(
             `http://${ip}:${existing.services.http}/api/clipboard`,
             msg,

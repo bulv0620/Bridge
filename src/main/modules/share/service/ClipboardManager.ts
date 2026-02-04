@@ -4,7 +4,7 @@ import { remoteRef, RemoteRefMain } from '../../../utils/remoteRef'
 
 export class ClipboardManager {
   // 剪切板记录
-  private clipboardHistory: RemoteRefMain<ClipboardContent[]>
+  public clipboardHistory: RemoteRefMain<ClipboardContent[]>
 
   //上一次状态
   private lastState: ClipboardState | null = null
@@ -29,6 +29,7 @@ export class ClipboardManager {
     return 'unknown'
   }
 
+  // 获取本地剪切板状态
   computeState(): ClipboardState {
     const mime = this.getMime()
     const hash = this.sha1()
@@ -65,7 +66,8 @@ export class ClipboardManager {
     return this.lastState
   }
 
-  getContent(): { mime: ClipboardMime; data: any } {
+  // 获取本地剪切板内容
+  getContent(): { mime: ClipboardMime; data: string | Buffer | null } {
     const mime = this.getMime()
 
     switch (mime) {
@@ -83,25 +85,28 @@ export class ClipboardManager {
     }
   }
 
-  setContent(mime: ClipboardMime, data: any) {
+  // 设置本地剪切板内容
+  setContent(mime: ClipboardMime, data: string | Buffer) {
     switch (mime) {
       case 'text/plain':
-        clipboard.writeText(data)
+        clipboard.writeText(data as string)
         break
 
       case 'text/html':
-        clipboard.writeHTML(data)
+        clipboard.writeHTML(data as string)
         break
 
       case 'image/png':
-        clipboard.writeImage(nativeImage.createFromBuffer(data))
+        clipboard.writeImage(nativeImage.createFromBuffer(data as Buffer))
         break
     }
 
     this.lastState = this.computeState()
   }
 
+  // 获取远程剪切板内容
   async fetchClipboard(url: string, msg: AnnounceMessage): Promise<void> {
+    if (msg.state?.clipboard?.mime === 'unknown') return
     const res = await fetch(url, {
       method: 'GET',
       headers: {
@@ -115,7 +120,10 @@ export class ClipboardManager {
       throw new Error(`HTTP ${res.status}`)
     }
 
+    // todo 需要正确处理返回：文本、buffer buffer需要缓存到本地，然后获得一个本地path
     const { content } = (await res.json()) as { content: string }
+
+    // todo 加入之前需要判断是否已存在
 
     this.clipboardHistory.update((list) => {
       list.unshift({
@@ -125,6 +133,10 @@ export class ClipboardManager {
         createdAt: new Date().getTime(),
         device: msg.device,
       })
+
+      // todo 如果超过10个记录就pop一个，pop的是文件则根据文件path删除
     })
+
+    // todo 完成后将内容写入到本地剪切板
   }
 }
