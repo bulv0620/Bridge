@@ -22,10 +22,18 @@ async function checkForUpdate() {
 
     if (result) {
       newVersion.value = result
-      ElMessage.success(t('update.findNewVersion') + ' v' + result)
+      ElMessage({
+        message: t('update.findNewVersion') + ' v' + result,
+        type: 'success',
+        plain: true,
+      })
     } else {
       newVersion.value = ''
-      ElMessage.info(t('update.newVersionNotFound'))
+      ElMessage({
+        message: t('update.newVersionNotFound'),
+        type: 'info',
+        plain: true,
+      })
     }
   } catch (err) {
     console.error(err)

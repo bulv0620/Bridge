@@ -191,11 +191,19 @@ export function useSyncSession(
       const [sourceValid, destValid] = await window.ipc.sync.validate(sessionState.sessionId)
 
       if (!sourceValid) {
-        ElMessage.error(t('views.fileSync.sourceInvalid'))
+        ElMessage({
+          message: t('views.fileSync.sourceInvalid'),
+          type: 'error',
+          plain: true,
+        })
         return
       }
       if (!destValid) {
-        ElMessage.error(t('views.fileSync.destInvalid'))
+        ElMessage({
+          message: t('views.fileSync.destInvalid'),
+          type: 'error',
+          plain: true,
+        })
         return
       }
 
@@ -205,7 +213,11 @@ export function useSyncSession(
       getRootList()
     } catch (error) {
       console.log(error)
-      ElMessage.error(t('views.fileSync.compareFailed'))
+      ElMessage({
+        message: t('views.fileSync.compareFailed'),
+        type: 'error',
+        plain: true,
+      })
     } finally {
       sessionState.isComparing = false
     }
@@ -223,11 +235,19 @@ export function useSyncSession(
       const [sourceValid, destValid] = await window.ipc.sync.validate(sessionState.sessionId)
 
       if (!sourceValid) {
-        ElMessage.error(t('views.fileSync.sourceInvalid'))
+        ElMessage({
+          message: t('views.fileSync.sourceInvalid'),
+          type: 'error',
+          plain: true,
+        })
         return
       }
       if (!destValid) {
-        ElMessage.error(t('views.fileSync.destInvalid'))
+        ElMessage({
+          message: t('views.fileSync.destInvalid'),
+          type: 'error',
+          plain: true,
+        })
         return
       }
 
@@ -235,7 +255,11 @@ export function useSyncSession(
       await window.ipc.sync.startSync(sessionState.sessionId)
     } catch (error) {
       console.log(error)
-      ElMessage.error(t('views.fileSync.syncFailed'))
+      ElMessage({
+        message: t('views.fileSync.syncFailed'),
+        type: 'error',
+        plain: true,
+      })
     } finally {
       sessionState.isSyncing = false
       window.events.off(`sync:updateStatus:${sessionState.sessionId}`, syncStatusHanlder)

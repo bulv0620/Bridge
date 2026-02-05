@@ -72,7 +72,11 @@ const handleCloseTab = (sessionId: string, index: number) => {
 // 新增标签
 const handleAddTab = () => {
   if (tabNameRef.value[0].clientWidth < 20) {
-    ElMessage.error(t('views.fileSync.tabsFull'))
+    ElMessage({
+      message: t('views.fileSync.tabsFull'),
+      type: 'error',
+      plain: true,
+    })
     return
   }
   createSyncSession()

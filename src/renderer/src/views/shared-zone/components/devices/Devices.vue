@@ -13,14 +13,22 @@ const devices = useRemoteRef<OnlineDevice[]>('online-devices', [])
 
 function sendTo(device: any) {
   if (!file.value) {
-    ElMessage.warning(t('views.sharedZone.selectFileFirst'))
+    ElMessage({
+      message: t('views.sharedZone.selectFileFirst'),
+      type: 'warning',
+      plain: true,
+    })
     return
   }
 
-  ElMessage.info(t('views.sharedZone.sendingTo', { device: t(`devices.${device.name}`) }))
+  console.log(device)
 
   setTimeout(() => {
-    ElMessage.success(t('views.sharedZone.sendSuccess'))
+    ElMessage({
+      message: t('views.sharedZone.sendSuccess'),
+      type: 'warning',
+      plain: true,
+    })
     file.value = null
   }, 1500)
 }
