@@ -4,21 +4,27 @@ import { startService, stopService } from '../modules/share'
 
 const store = getStore()
 
-const lanDiscoverable = remoteRef('lan-discoverable', store.get('lanDiscoverable'))
-const capabilities = remoteRef('share-capabilities', store.get('capabilities'))
+export const shareInterval = remoteRef('share-interval', store.get('shareInterval'))
+export const httpPort = remoteRef('http-port', store.get('ports').http)
+export const updPort = remoteRef('udp-port', store.get('ports').udp)
 
-lanDiscoverable.onUpdate(
-  (val) => {
-    store.set('lanDiscoverable', val)
-    if (val) {
-      startService()
-    } else {
-      stopService()
-    }
-  },
-  { immediate: true },
-)
+export const lanDiscoverable = remoteRef('lan-discoverable', store.get('lanDiscoverable'))
+export const capabilities = remoteRef('share-capabilities', store.get('capabilities'))
 
-capabilities.onUpdate((val) => {
-  store.set('capabilities', val)
-})
+export function initShareConfig() {
+  lanDiscoverable.onUpdate(
+    (val) => {
+      store.set('lanDiscoverable', val)
+      if (val) {
+        startService()
+      } else {
+        stopService()
+      }
+    },
+    { immediate: true },
+  )
+
+  capabilities.onUpdate((val) => {
+    store.set('capabilities', val)
+  })
+}

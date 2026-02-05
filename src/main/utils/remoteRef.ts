@@ -19,27 +19,23 @@ export function remoteRef<T>(channel: string, initialValue: T): RemoteRefMain<T>
   const broadcast = (payload: { value: T; txnId?: string }) => {
     for (const win of BrowserWindow.getAllWindows()) {
       if (!win.isDestroyed()) {
-        win.webContents.send('remote-ref:update', channel, payload)
+        win.webContents.send('remote-ref:update:' + channel, payload)
       }
     }
   }
 
   // 接收渲染进程修改
-  const changeListener = (_event: any, ch: string, payload: { value: T; txnId?: string }) => {
-    if (ch === channel) {
-      value = payload.value
-      broadcast(payload)
+  const changeListener = (_event: any, payload: { value: T; txnId?: string }) => {
+    value = payload.value
+    broadcast(payload)
 
-      cb.forEach((fn) => fn(value))
-    }
+    cb.forEach((fn) => fn(value))
   }
 
-  ipcMain.on('remote-ref:change', changeListener)
+  ipcMain.on('remote-ref:change:' + channel, changeListener)
 
-  ipcMain.on('remote-ref:request-init', (event, ch) => {
-    if (ch === channel) {
-      event.sender.send('remote-ref:update', ch, { value: value })
-    }
+  ipcMain.on('remote-ref:request-init:' + channel, (event) => {
+    event.sender.send('remote-ref:update:' + channel, { value: value })
   })
 
   return {
@@ -67,7 +63,7 @@ export function remoteRef<T>(channel: string, initialValue: T): RemoteRefMain<T>
       }
     },
     destroy() {
-      ipcMain.removeListener('remote-ref:change', changeListener)
+      ipcMain.removeListener('remote-ref:change:' + channel, changeListener)
       cb.length = 0
     },
   }

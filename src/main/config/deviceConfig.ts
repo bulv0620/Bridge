@@ -4,25 +4,17 @@ import os from 'os'
 
 const store = getStore()
 
-remoteRef('device-id', initDeviceId())
-remoteRef('device-name', initDeviceName())
+export const deviceId = remoteRef('device-id', store.get('deviceId'))
+export const deviceName = remoteRef('device-name', store.get('deviceName'))
 
-function initDeviceId() {
-  let id = store.get('deviceId')
-  if (!id) {
-    id = crypto.randomUUID()
-    store.set('deviceId', id)
+export function initDeviceConfig() {
+  if (!deviceId.value) {
+    deviceId.value = crypto.randomUUID()
+    store.set('deviceId', deviceId.value)
   }
 
-  return id
-}
-
-function initDeviceName() {
-  let name = store.get('deviceName')
-  if (!name) {
-    name = os.hostname()
-    store.set('deviceName', name)
+  if (!deviceName.value) {
+    deviceName.value = os.hostname()
+    store.set('deviceName', deviceName.value)
   }
-
-  return name
 }

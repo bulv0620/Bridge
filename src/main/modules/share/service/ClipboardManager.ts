@@ -1,23 +1,52 @@
-import { clipboard, nativeImage } from 'electron'
+import { app, clipboard, NativeImage, nativeImage } from 'electron'
 import crypto from 'crypto'
+import fs from 'fs'
+import fsPromises from 'fs/promises'
+import path from 'path'
+import os from 'os'
+import { pipeline } from 'stream/promises'
 import { remoteRef, RemoteRefMain } from '../../../utils/remoteRef'
+import { deviceId, deviceName } from '../../../config'
+
+// 本地剪贴板缓存目录
+const CLIPBOARD_DIR = path.join(app.getPath('userData'), 'clipboard')
+const IMAGE_DIR = path.join(CLIPBOARD_DIR, 'images')
+const FILE_DIR = path.join(CLIPBOARD_DIR, 'files')
+
+// 最大历史记录数
+const MAX_HISTORY = 100
+
+async function ensureDir(dir: string) {
+  await fsPromises.mkdir(dir, { recursive: true })
+}
+
+interface ClipboardSnapshot {
+  v: string
+  mime: ClipboardMime
+  text?: string
+  image?: NativeImage
+}
 
 export class ClipboardManager {
-  // 剪切板记录
   public clipboardHistory: RemoteRefMain<ClipboardContent[]>
 
-  //上一次状态
+  // 最近一次剪贴板状态（用于去重 & 防回环）
   private lastState: ClipboardState | null = null
-
-  // 图片快速特征（避免重复 hash 大图）
-  private lastImageMeta: { width: number; height: number } | null = null
 
   constructor() {
     this.clipboardHistory = remoteRef('clipboard-history', [])
   }
 
-  private sha1(): crypto.Hash {
+  private sha1() {
     return crypto.createHash('sha1')
+  }
+
+  private localDevice() {
+    return {
+      id: deviceId.value,
+      name: deviceName.value,
+      platform: os.platform(),
+    }
   }
 
   private getMime(): ClipboardMime {
@@ -25,94 +54,165 @@ export class ClipboardManager {
 
     if (formats.includes('image/png')) return 'image/png'
     if (formats.includes('text/plain')) return 'text/plain'
+    if (formats.includes('text/html')) return 'text/html'
 
     return 'unknown'
   }
 
-  // 获取本地剪切板状态
-  computeState(): ClipboardState {
+  // 读取 & 计算剪贴板快照
+  private readClipboardSnapshot(): ClipboardSnapshot | undefined {
     const mime = this.getMime()
-    const hash = this.sha1()
+    if (mime === 'unknown') return undefined
 
+    const hash = this.sha1()
     hash.update(mime)
 
     if (mime === 'text/plain') {
-      hash.update(clipboard.readText())
-    } else if (mime === 'text/html') {
-      hash.update(clipboard.readHTML())
-    } else if (mime === 'image/png') {
-      const img = clipboard.readImage()
-      const size = img.getSize()
-
-      // 如果图片尺寸完全一致，极大概率没变
-      if (
-        this.lastImageMeta &&
-        size.width === this.lastImageMeta.width &&
-        size.height === this.lastImageMeta.height &&
-        this.lastState?.mime === 'image/png'
-      ) {
-        return this.lastState
+      const text = clipboard.readText()
+      hash.update(text)
+      return {
+        mime,
+        text,
+        v: hash.digest('hex'),
       }
-
-      this.lastImageMeta = size
-      hash.update(img.toPNG())
     }
 
+    if (mime === 'text/html') {
+      const text = clipboard.readHTML()
+      hash.update(text)
+      return {
+        mime,
+        text,
+        v: hash.digest('hex'),
+      }
+    }
+
+    if (mime === 'image/png') {
+      const image = clipboard.readImage()
+      const buffer = image.toPNG()
+      hash.update(buffer)
+      return {
+        mime,
+        image,
+        v: hash.digest('hex'),
+      }
+    }
+
+    return undefined
+  }
+
+  // 计算本地剪贴板状态
+  computeState(): ClipboardState | undefined {
+    const snapshot = this.readClipboardSnapshot()
+    if (!snapshot) return undefined
+
+    // 状态未变化
+    if (this.lastState?.v === snapshot.v) {
+      return this.lastState
+    }
+
+    // 持久化并写入历史
+    this.persistSnapshot(snapshot)
+
     this.lastState = {
-      mime,
-      v: hash.digest('hex'),
+      v: snapshot.v,
+      mime: snapshot.mime,
     }
 
     return this.lastState
   }
 
-  // 获取本地剪切板内容
-  getContent(): { mime: ClipboardMime; data: string | Buffer | null } {
-    const mime = this.getMime()
+  // 快照持久化
+  private persistSnapshot(snapshot: ClipboardSnapshot) {
+    const now = Date.now()
+
+    if (snapshot.mime.startsWith('text/')) {
+      this.pushHistory({
+        v: snapshot.v,
+        mime: snapshot.mime,
+        text: snapshot.text!,
+        createdAt: now,
+        device: this.localDevice(),
+      })
+      return
+    }
+
+    if (snapshot.mime === 'image/png') {
+      const filePath = this.saveImage(snapshot.v, snapshot.image!)
+      this.pushHistory({
+        v: snapshot.v,
+        mime: snapshot.mime,
+        path: filePath,
+        createdAt: now,
+        device: this.localDevice(),
+      })
+    }
+  }
+
+  private saveImage(v: string, image: NativeImage): string {
+    if (!fs.existsSync(IMAGE_DIR)) {
+      fs.mkdirSync(IMAGE_DIR, { recursive: true })
+    }
+
+    const filePath = path.join(IMAGE_DIR, `${v}.png`)
+    if (!fs.existsSync(filePath)) {
+      fs.writeFileSync(filePath, image.toPNG())
+    }
+
+    return filePath
+  }
+
+  // 添加历史记录
+  private pushHistory(item: ClipboardContent) {
+    this.clipboardHistory.update((list) => {
+      if (list[0]?.v === item.v) return list
+
+      list.unshift(item)
+
+      if (list.length > MAX_HISTORY) {
+        list.length = MAX_HISTORY
+      }
+
+      return list
+    })
+  }
+
+  // 设置系统剪贴板
+  setContent(content: ClipboardContent) {
+    const { mime, text, path: filePath } = content
 
     switch (mime) {
       case 'text/plain':
-        return { mime, data: clipboard.readText() }
+        text != null && clipboard.writeText(text)
+        break
 
       case 'text/html':
-        return { mime, data: clipboard.readHTML() }
+        text != null && clipboard.writeHTML(text)
+        break
 
       case 'image/png':
-        return { mime, data: clipboard.readImage().toPNG() }
+        if (!filePath) return
+        clipboard.writeImage(nativeImage.createFromBuffer(fs.readFileSync(filePath)))
+        break
 
       default:
-        return { mime: 'unknown', data: null }
+        break
     }
   }
 
-  // 设置本地剪切板内容
-  setContent(mime: ClipboardMime, data: string | Buffer) {
-    switch (mime) {
-      case 'text/plain':
-        clipboard.writeText(data as string)
-        break
-
-      case 'text/html':
-        clipboard.writeHTML(data as string)
-        break
-
-      case 'image/png':
-        clipboard.writeImage(nativeImage.createFromBuffer(data as Buffer))
-        break
-    }
-
-    this.lastState = this.computeState()
-  }
-
-  // 获取远程剪切板内容
+  // 从远端拉取剪贴板内容
   async fetchClipboard(url: string, msg: AnnounceMessage): Promise<void> {
-    if (msg.state?.clipboard?.mime === 'unknown') return
-    const res = await fetch(url, {
+    const state = msg.state?.clipboard
+    if (!state || state.mime === 'unknown') return
+
+    // 防止同步回环
+    if (msg.device.id === deviceId.value) return
+    if (this.lastState?.v === state.v) return
+
+    const { v, mime } = state
+
+    const res = await fetch(`${url}/api/clipboard/${v}`, {
       method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-      // 可选：超时
       signal: AbortSignal.timeout(3000),
     })
 
@@ -120,23 +220,55 @@ export class ClipboardManager {
       throw new Error(`HTTP ${res.status}`)
     }
 
-    // todo 需要正确处理返回：文本、buffer buffer需要缓存到本地，然后获得一个本地path
-    const { content } = (await res.json()) as { content: string }
+    const now = Date.now()
 
-    // todo 加入之前需要判断是否已存在
-
-    this.clipboardHistory.update((list) => {
-      list.unshift({
-        v: msg.state!.clipboard!.v,
-        mime: msg.state!.clipboard!.mime,
-        text: content,
-        createdAt: new Date().getTime(),
+    if (mime.startsWith('text/')) {
+      const text = await res.text()
+      this.pushHistory({
+        v,
+        mime,
+        text,
+        createdAt: now,
         device: msg.device,
       })
+    } else {
+      const ext = this.getExtensionByMime(mime)
+      await ensureDir(FILE_DIR)
 
-      // todo 如果超过10个记录就pop一个，pop的是文件则根据文件path删除
-    })
+      const filePath = path.join(FILE_DIR, `${v}.${ext}`)
+      if (!fs.existsSync(filePath)) {
+        if (!res.body) throw new Error('Response body is null')
+        await pipeline(res.body as unknown as NodeJS.ReadableStream, fs.createWriteStream(filePath))
+      }
 
-    // todo 完成后将内容写入到本地剪切板
+      this.pushHistory({
+        v,
+        mime,
+        path: filePath,
+        createdAt: now,
+        device: msg.device,
+      })
+    }
+
+    // 写入系统剪贴板并更新 lastState
+    const latest = this.clipboardHistory.value[0]
+    this.setContent(latest)
+
+    this.lastState = { v, mime }
+  }
+
+  private getExtensionByMime(mime: string): string {
+    switch (mime) {
+      case 'image/png':
+        return 'png'
+      case 'image/jpeg':
+        return 'jpg'
+      case 'text/html':
+        return 'html'
+      case 'text/plain':
+        return 'txt'
+      default:
+        return 'bin'
+    }
   }
 }

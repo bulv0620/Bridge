@@ -1,56 +1,63 @@
 import express from 'express'
-import { AppStoreSchema } from '../../../store/types'
-import ElectronStore from 'electron-store'
-import { getStore } from '../../../store'
 import http from 'http'
 import { ClipboardManager } from './ClipboardManager'
+import { httpPort } from '../../../config'
+import fs from 'fs'
 
 export class ShareServer {
   private app = express()
   private server?: http.Server
-  private readonly store: ElectronStore<AppStoreSchema>
-  private port: number
 
   constructor(private clipboardManager: ClipboardManager) {
-    this.store = getStore()
-    this.port = this.store.get('ports').http
-
     this.setup()
   }
 
   private setup() {
-    this.app.use(express.json())
+    // this.app.use(express.json())
 
     // 剪切板
-    this.app.get('/api/clipboard', (_req, res) => {
-      const content = this.clipboardManager.getContent()
+    this.app.get('/api/clipboard/:v', (req, res) => {
+      const { v } = req.params
 
-      if (!content || !content.data) {
-        res.status(204).end()
+      const clipboardHistory = this.clipboardManager.clipboardHistory
+      const clipboardItem = clipboardHistory.value.find((c) => c.v === v)
+
+      if (!clipboardItem) {
+        res.status(404).end()
         return
       }
 
-      const { mime, data } = content
+      const { mime, text, path } = clipboardItem
 
-      // 设置 MIME
       res.setHeader('Content-Type', mime)
 
-      // Buffer（图片等）
-      if (Buffer.isBuffer(data)) {
-        res.send(data)
+      // 文本内容
+      if (text != null) {
+        res.send(text)
         return
       }
 
-      // 字符串（文本 / HTML）
-      res.send(data)
+      // 文件内容（图片 / 大内容）
+      if (path) {
+        // 文件不存在
+        if (!fs.existsSync(path)) {
+          res.status(410).end()
+          return
+        }
+
+        res.sendFile(path)
+        return
+      }
+
+      res.status(500).end()
     })
   }
 
   start() {
     if (this.server) return
 
-    this.server = this.app.listen(this.port, () => {
-      console.log(`✅ ShareServer started on HTTP ${this.port}`)
+    this.server = this.app.listen(httpPort.value, () => {
+      console.log(`✅ ShareServer started on HTTP ${httpPort.value}`)
     })
   }
 

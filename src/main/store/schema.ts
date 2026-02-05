@@ -14,9 +14,11 @@ export const schema: Schema<AppStoreSchema> = {
   },
   deviceId: {
     type: 'string',
+    default: '',
   },
   deviceName: {
     type: 'string',
+    default: '',
   },
   lanDiscoverable: {
     type: 'boolean',
@@ -40,6 +42,10 @@ export const schema: Schema<AppStoreSchema> = {
       udp: 9520,
       http: 9521,
     },
+  },
+  shareInterval: {
+    type: 'number',
+    default: 1000,
   },
   capabilities: {
     type: 'array',

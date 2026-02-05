@@ -1,19 +1,17 @@
 import dgram, { RemoteInfo } from 'dgram'
 import os from 'os'
 import { remoteRef, RemoteRefMain } from '../../../utils/remoteRef'
-import { getStore } from '../../../store'
-import { AppStoreSchema } from '../../../store/types'
-import ElectronStore from 'electron-store'
 import { ClipboardManager } from './ClipboardManager'
+import {
+  capabilities,
+  httpPort,
+  shareInterval,
+  updPort,
+  deviceId,
+  deviceName,
+} from '../../../config/index'
 
 export class DeviceDiscovery {
-  private readonly store: ElectronStore<AppStoreSchema>
-  private readonly id: string
-  private readonly udpPort: number
-  private readonly httpPort: number
-  private readonly interval: number
-  private readonly deviceName: string
-
   private server?: dgram.Socket
   private timer: NodeJS.Timeout | null = null
   private running = false
@@ -23,15 +21,6 @@ export class DeviceDiscovery {
   private onlineDevices: RemoteRefMain<OnlineDevice[]>
 
   constructor(private clipboardManager: ClipboardManager) {
-    this.store = getStore()
-
-    this.id = this.store.get('deviceId')
-    this.deviceName = this.store.get('deviceName')
-
-    this.udpPort = this.store.get('ports').udp
-    this.httpPort = this.store.get('ports').http
-    this.interval = 1000
-
     this.onlineDevices = remoteRef('online-devices', [])
   }
 
@@ -42,7 +31,7 @@ export class DeviceDiscovery {
     this.server = server
 
     await new Promise<void>((resolve) => {
-      server.bind(this.udpPort, resolve)
+      server.bind(updPort.value, resolve)
     })
 
     server.setBroadcast(true)
@@ -53,10 +42,10 @@ export class DeviceDiscovery {
     this.timer = setInterval(() => {
       this.broadcastAnnounce()
       this.cleanupOfflineDevices()
-    }, this.interval)
+    }, shareInterval.value)
 
     this.running = true
-    console.log(`✅ DeviceDiscovery started on UDP ${this.udpPort}`)
+    console.log(`✅ DeviceDiscovery started on UDP ${updPort.value}`)
   }
 
   public async stop(): Promise<void> {
@@ -94,18 +83,18 @@ export class DeviceDiscovery {
       }
 
       if (msg.v !== 1 || !msg.device?.id) return
-      if (msg.device.id === this.id) return
+      if (msg.device.id === deviceId.value) return
 
       const now = Date.now()
-      const deviceId = msg.device.id
+      const sourceDeviceId = msg.device.id
       const ip = rinfo.address
 
-      const existing = this.onlineDeviceMap.get(deviceId)
+      const existing = this.onlineDeviceMap.get(sourceDeviceId)
 
       // bye
       if (msg.type === 'bye') {
         if (existing) {
-          this.onlineDeviceMap.delete(deviceId)
+          this.onlineDeviceMap.delete(sourceDeviceId)
         }
         return
       }
@@ -113,7 +102,7 @@ export class DeviceDiscovery {
       // new
       if (!existing) {
         const dev: OnlineDevice = {
-          id: deviceId,
+          id: sourceDeviceId,
           ip,
           device: msg.device,
           services: msg.services,
@@ -130,23 +119,27 @@ export class DeviceDiscovery {
           lastAnnounce: msg,
         }
 
-        this.onlineDeviceMap.set(deviceId, dev)
+        this.onlineDeviceMap.set(sourceDeviceId, dev)
         return
       }
 
       // update
-      if (existing.services.cap.includes('clipboard') && msg.state && msg.state.clipboard) {
-        // 目标设备剪切板产生更新，并且内容不在本地历史记录中
+      const clipboardShareEnabled = capabilities.value.includes('clipboard')
+      if (
+        clipboardShareEnabled &&
+        existing.services.cap.includes('clipboard') &&
+        msg.state &&
+        msg.state.clipboard
+      ) {
+        // 本地启用了剪切板共享、来源设备启用了剪切板共享，来源消息中存在剪切板信息
         if (
           existing.state?.clipboard?.v !== msg.state.clipboard.v &&
           !this.clipboardManager.clipboardHistory.value.find(
             (historyItem) => historyItem.v === msg.state?.clipboard?.v,
           )
         ) {
-          this.clipboardManager.fetchClipboard(
-            `http://${ip}:${existing.services.http}/api/clipboard`,
-            msg,
-          )
+          // 目标设备剪切板产生更新，并且内容不在本地历史记录中
+          this.clipboardManager.fetchClipboard(`http://${ip}:${existing.services.http}`, msg)
         }
       }
 
@@ -165,8 +158,7 @@ export class DeviceDiscovery {
   private broadcastAnnounce() {
     if (!this.server) return
 
-    const caps = this.store.get('capabilities')
-    const clipboardShareEnabled = caps.includes('clipboard')
+    const clipboardShareEnabled = capabilities.value.includes('clipboard')
 
     const state: DeviceState = {}
     if (clipboardShareEnabled) {
@@ -177,14 +169,14 @@ export class DeviceDiscovery {
       v: 1,
       type: 'announce',
       device: {
-        id: this.id,
-        name: this.deviceName,
+        id: deviceId.value,
+        name: deviceName.value,
         platform: os.platform(),
       },
       services: {
-        udp: this.udpPort,
-        http: this.httpPort,
-        cap: caps,
+        udp: updPort.value,
+        http: httpPort.value,
+        cap: capabilities.value,
       },
       state,
       ts: Date.now(),
@@ -200,13 +192,13 @@ export class DeviceDiscovery {
       v: 1,
       type: 'bye',
       device: {
-        id: this.id,
-        name: this.deviceName,
+        id: deviceId.value,
+        name: deviceName.value,
         platform: os.platform(),
       },
       services: {
-        udp: this.udpPort,
-        http: this.httpPort,
+        udp: updPort.value,
+        http: httpPort.value,
         cap: [],
       },
       ts: Date.now(),
@@ -222,7 +214,7 @@ export class DeviceDiscovery {
     const addrs = this.getBroadcastAddresses()
 
     for (const addr of addrs) {
-      this.server.send(payload, this.udpPort, addr)
+      this.server.send(payload, updPort.value, addr)
     }
   }
 
@@ -233,10 +225,10 @@ export class DeviceDiscovery {
     for (const [id, dev] of this.onlineDeviceMap) {
       const delta = now - dev.lastSeenAt
 
-      if (delta > this.interval * 5) {
+      if (delta > shareInterval.value * 5) {
         this.onlineDeviceMap.delete(id)
         changed = true
-      } else if (delta > this.interval * 2 && dev.status !== 'stale') {
+      } else if (delta > shareInterval.value * 2 && dev.status !== 'stale') {
         dev.status = 'stale'
         changed = true
       }

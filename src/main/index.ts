@@ -3,8 +3,9 @@ import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { createCustomWindow } from './utils/window'
 import { createTray } from './utils/tray'
 import { installExtension, VUEJS_DEVTOOLS } from 'electron-devtools-installer'
-import { initConfig } from './config/index'
+import { initAppConfig } from './config/index'
 import { registerAllEvents } from './modules/eventLoader'
+import { registerClipboardProtocol } from './utils/clipboardProtocol'
 
 const gotTheLock = app.requestSingleInstanceLock({ myKey: 'bulv' })
 if (!gotTheLock) {
@@ -13,6 +14,8 @@ if (!gotTheLock) {
 
 ;(async () => {
   await app.whenReady()
+
+  registerClipboardProtocol()
 
   installExtension(VUEJS_DEVTOOLS)
     .then(() => console.log(`vue_devtools installed`))
@@ -39,7 +42,7 @@ if (!gotTheLock) {
   })
 
   const tray = createTray()
-  await initConfig()
+  initAppConfig()
   registerAllEvents()
 
   app.on('activate', () => {

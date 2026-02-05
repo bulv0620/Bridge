@@ -11,5 +11,6 @@ export interface AppStoreSchema {
     udp: number
     http: number
   }
+  shareInterval: number
   capabilities: ServiceCapability[]
 }
