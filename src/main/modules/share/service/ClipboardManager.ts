@@ -14,7 +14,7 @@ const IMAGE_DIR = path.join(CLIPBOARD_DIR, 'images')
 const FILE_DIR = path.join(CLIPBOARD_DIR, 'files')
 
 // 最大历史记录数
-const MAX_HISTORY = 100
+const MAX_HISTORY = 25
 
 async function ensureDir(dir: string) {
   await fsPromises.mkdir(dir, { recursive: true })
@@ -165,15 +165,13 @@ export class ClipboardManager {
   // 添加历史记录
   private pushHistory(item: ClipboardContent) {
     this.clipboardHistory.update((list) => {
-      if (list[0]?.v === item.v) return list
+      if (list[0]?.v === item.v) return
 
       list.unshift(item)
 
       if (list.length > MAX_HISTORY) {
         list.length = MAX_HISTORY
       }
-
-      return list
     })
   }
 
