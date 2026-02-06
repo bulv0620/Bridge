@@ -54,4 +54,8 @@ export const schema: Schema<AppStoreSchema> = {
     },
     default: [],
   },
+  downloadPath: {
+    type: 'string',
+    default: '',
+  },
 }

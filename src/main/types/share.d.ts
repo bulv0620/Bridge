@@ -61,3 +61,59 @@ declare interface OnlineDevice {
   hasActiveConnection: boolean // 当前是否有活动连接（WS / HTTP）
   lastAnnounce?: AnnounceMessage // 原始 announce（调试 / 诊断用，可选）
 }
+
+// 传输文件信息
+declare interface FileMeta {
+  filename: string
+  size: number // bytes
+  mime?: string
+  device: DeviceInfo
+}
+
+// 接收状态
+declare type ReceivingStatus =
+  | 'pending' // 已允许，未开始
+  | 'receiving' // 接收中
+  | 'received' // 接收完成
+
+// 接收进度
+declare interface TransferProgress {
+  transferred: number
+  total: number
+  percentage: number // 0 ~ 1
+  speed?: number // bytes/s
+  eta?: number // seconds
+}
+
+// 接收文件项
+declare interface ReceivingItem {
+  id: string // uploadId
+  meta: FileMeta // 文件元信息
+  status: ReceivingStatus // 状态
+  progress: TransferProgress // 进度
+  savePath: string // 用户选择的保存路径
+  createdAt: number // 创建时间
+}
+
+// 接收结果
+declare type ReceivedResult = 'success' | 'failed' | 'cancelled'
+
+// 保存信息
+declare interface ReceivedSaveInfo {
+  path: string // 本地保存路径
+  filename: string
+  size: number
+}
+
+// 已接收文件项
+declare interface ReceivedItem {
+  id: string // uploadId
+  meta: FileMeta // 文件元信息
+  result: ReceivedResult // 接收结果
+  save?: ReceivedSaveInfo // 保存信息 (成功时存在)
+  error?: {
+    message: string
+  } // 错误信息（失败时存在）
+  createdAt: number
+  finishedAt: number
+}

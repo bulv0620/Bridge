@@ -28,14 +28,10 @@ interface ClipboardSnapshot {
 }
 
 export class ClipboardManager {
-  public clipboardHistory: RemoteRefMain<ClipboardContent[]>
+  public clipboardHistory: RemoteRefMain<ClipboardContent[]> = remoteRef('clipboard-history', [])
 
   // 最近一次剪贴板状态（用于去重 & 防回环）
   private lastState: ClipboardState | null = null
-
-  constructor() {
-    this.clipboardHistory = remoteRef('clipboard-history', [])
-  }
 
   private sha1() {
     return crypto.createHash('sha1')

@@ -18,11 +18,9 @@ export class DeviceDiscovery {
 
   // 在线设备
   private onlineDeviceMap = new Map<string, OnlineDevice>()
-  private onlineDevices: RemoteRefMain<OnlineDevice[]>
+  private onlineDevices: RemoteRefMain<OnlineDevice[]> = remoteRef('online-devices', [])
 
-  constructor(private clipboardManager: ClipboardManager) {
-    this.onlineDevices = remoteRef('online-devices', [])
-  }
+  constructor(private clipboardManager: ClipboardManager) {}
 
   public async start(): Promise<void> {
     if (this.running) return
