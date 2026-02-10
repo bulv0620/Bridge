@@ -18,7 +18,7 @@ const { receivedList } = useTaskList()
         color: 'var(--el-text-color-secondary)',
       }"
     >
-      <el-table-column label="文件名称" min-width="220">
+      <el-table-column :label="$t('views.sharedZone.filename')" min-width="220">
         <template #default="{ row }">
           <div class="file-info">
             <el-icon class="file-icon"><Document /></el-icon>
@@ -27,20 +27,20 @@ const { receivedList } = useTaskList()
         </template>
       </el-table-column>
 
-      <el-table-column label="来源" min-width="150">
+      <el-table-column :label="$t('views.sharedZone.sourceDevice')" min-width="150">
         <template #default="{ row }">
           <span class="source-device">{{ row.meta.device.name }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="结果" min-width="120">
+      <el-table-column :label="$t('views.sharedZone.result')" min-width="120">
         <template #default="{ row }">
-          <el-tag v-if="row.result === 'success'" type="success">成功</el-tag>
-          <el-tag v-else type="danger">失败</el-tag>
+          <el-tag v-if="row.result === 'success'" type="success">{{ $t('common.success') }}</el-tag>
+          <el-tag v-else type="danger">{{ $t('common.failed') }}</el-tag>
         </template>
       </el-table-column>
 
-      <el-table-column label="结束时间" min-width="200">
+      <el-table-column :label="$t('views.sharedZone.finishedTime')" min-width="200">
         <template #default="{ row }">
           <span class="finished-time">
             {{ dayjs(row.finishedAt).format('YYYY-MM-DD HH:mm:ss') }}
@@ -48,17 +48,27 @@ const { receivedList } = useTaskList()
         </template>
       </el-table-column>
 
-      <el-table-column label="操作" width="100" fixed="right">
+      <el-table-column :label="$t('views.sharedZone.operation')" width="100" fixed="right">
         <template #default>
           <div class="action-btns">
-            <el-button :icon="FolderOpen" link type="warning" title="打开目录" />
-            <el-button :icon="TrashBin" link type="danger" />
+            <el-button
+              :icon="FolderOpen"
+              link
+              type="warning"
+              :title="$t('views.sharedZone.openFolder')"
+            />
+            <el-button
+              :icon="TrashBin"
+              link
+              type="danger"
+              :title="$t('views.sharedZone.deleteTask')"
+            />
           </div>
         </template>
       </el-table-column>
 
       <template #empty>
-        <div class="empty-status">暂无传输任务</div>
+        <div class="empty-status">{{ $t('views.sharedZone.noTasks') }}</div>
       </template>
     </el-table>
   </div>
@@ -68,7 +78,6 @@ const { receivedList } = useTaskList()
 .table-container {
   height: 100%;
 
-  // 深度美化表格样式
   :deep(.el-table) {
     .file-info {
       display: flex;

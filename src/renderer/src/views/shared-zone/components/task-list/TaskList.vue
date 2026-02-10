@@ -3,7 +3,7 @@ import { CaretBottom, CaretTop } from '@element-plus/icons-vue'
 import { useCollapse } from '@renderer/composables/share-zone/useCollapse'
 import ReceivedTable from './received-table/ReceivedTable.vue'
 import ReceivingTable from './receiving-table/ReceivingTable.vue'
-import UploadingTable from './uploading-table/UploadingTable.vue'
+import SendingTable from './sending-table/SendingTable.vue'
 import { useTaskList } from '@renderer/composables/share-zone/useTaskList'
 
 const { tasksActive } = useCollapse()
@@ -39,7 +39,7 @@ const { activeTab, tabs } = useTaskList()
     </div>
 
     <div class="clipboard-wrapper" :class="{ active: tasksActive }">
-      <UploadingTable v-if="activeTab === 0"></UploadingTable>
+      <SendingTable v-if="activeTab === 0"></SendingTable>
       <ReceivingTable v-else-if="activeTab === 1"></ReceivingTable>
       <ReceivedTable v-else-if="activeTab === 2"></ReceivedTable>
     </div>

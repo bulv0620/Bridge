@@ -3,13 +3,13 @@ import { TrashBin, Document } from '@vicons/ionicons5'
 import { useTaskList } from '@renderer/composables/share-zone/useTaskList'
 import { formatBytes, formatBytesPerSecond } from '@renderer/utils/format'
 
-const { uploadingList } = useTaskList()
+const { sendingList } = useTaskList()
 </script>
 
 <template>
   <div class="table-container">
     <el-table
-      :data="uploadingList"
+      :data="sendingList"
       style="width: 100%"
       height="100%"
       :header-cell-style="{
@@ -18,7 +18,7 @@ const { uploadingList } = useTaskList()
         color: 'var(--el-text-color-secondary)',
       }"
     >
-      <el-table-column label="文件名称" min-width="220">
+      <el-table-column :label="$t('views.sharedZone.filename')" min-width="220">
         <template #default="{ row }">
           <div class="file-info">
             <el-icon class="file-icon"><Document /></el-icon>
@@ -27,7 +27,7 @@ const { uploadingList } = useTaskList()
         </template>
       </el-table-column>
 
-      <el-table-column label="来源" min-width="120">
+      <el-table-column :label="$t('views.sharedZone.targetDevice')" min-width="120">
         <template #default="{ row }">
           <span class="source-device">{{ row.meta.device.name }}</span>
         </template>
@@ -40,7 +40,7 @@ const { uploadingList } = useTaskList()
         </template>
       </el-table-column> -->
 
-      <el-table-column label="进度" min-width="170">
+      <el-table-column :label="$t('views.sharedZone.progress')" min-width="170">
         <template #default="{ row }">
           <el-progress
             :percentage="row.progress.percentage * 100"
@@ -51,13 +51,13 @@ const { uploadingList } = useTaskList()
         </template>
       </el-table-column>
 
-      <el-table-column label="速度" min-width="120">
+      <el-table-column :label="$t('views.sharedZone.speed')" min-width="120">
         <template #default="{ row }">
           <span class="speed-text">{{ formatBytesPerSecond(row.progress.speed) }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="大小" min-width="120">
+      <el-table-column :label="$t('views.sharedZone.size')" min-width="120">
         <template #default="{ row }">
           <span class="speed-text">
             {{ formatBytes(row.progress.transferred) }}/{{ formatBytes(row.progress.total) }}
@@ -65,16 +65,21 @@ const { uploadingList } = useTaskList()
         </template>
       </el-table-column>
 
-      <el-table-column label="操作" width="100" fixed="right">
+      <el-table-column :label="$t('views.sharedZone.operation')" width="100" fixed="right">
         <template #default>
           <div class="action-btns">
-            <el-button :icon="TrashBin" link type="danger" />
+            <el-button
+              :icon="TrashBin"
+              link
+              type="danger"
+              :title="$t('views.sharedZone.deleteTask')"
+            />
           </div>
         </template>
       </el-table-column>
 
       <template #empty>
-        <div class="empty-status">暂无传输任务</div>
+        <div class="empty-status">{{ $t('views.sharedZone.noTasks') }}</div>
       </template>
     </el-table>
   </div>
@@ -84,7 +89,6 @@ const { uploadingList } = useTaskList()
 .table-container {
   height: 100%;
 
-  // 深度美化表格样式
   :deep(.el-table) {
     .file-info {
       display: flex;
