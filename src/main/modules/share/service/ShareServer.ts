@@ -1,13 +1,15 @@
 import express from 'express'
 import http from 'http'
 import { ClipboardManager } from './ClipboardManager'
-import { downloadPath, httpPort } from '../../../config'
+import { capabilities, downloadPath, httpPort } from '../../../config'
 import fs from 'fs'
 import { dialog } from 'electron'
 import { getWindow } from '../../../utils/window'
 import path from 'path'
 import { formatBytes } from '../../../utils/format'
 import { remoteRef, RemoteRefMain } from '../../../utils/remoteRef'
+import { locale } from '../../../config'
+import { messages } from '../../../locales'
 
 export class ShareServer {
   private app = express()
@@ -70,6 +72,12 @@ export class ShareServer {
 
     if (!fileMeta.filename || !fileMeta.size || !fileMeta.device) {
       res.status(400).end()
+      return
+    }
+
+    const filePushEnabled = capabilities.value.includes('file-push')
+    if (!filePushEnabled) {
+      res.status(403).json({ allowed: false })
       return
     }
 
@@ -259,14 +267,19 @@ export class ShareServer {
     win?.show()
     win?.focus()
 
+    const t = messages[locale.value].share
+
     const { response } = await dialog.showMessageBox(win!, {
       type: 'question',
-      buttons: ['接收', '拒绝'],
+      buttons: [t.accept, t.reject],
       defaultId: 0,
       cancelId: 1,
-      title: '接收文件',
-      message: '是否接收文件？',
-      detail: `文件名: ${fileMeta.filename}\n大小: ${formatBytes(fileMeta.size)}\n来自: ${fileMeta.device.name}`,
+      title: t.title,
+      message: t.message,
+      detail:
+        `${t.detail.filename}: ${fileMeta.filename}\n` +
+        `${t.detail.size}: ${formatBytes(fileMeta.size)}\n` +
+        `${t.detail.from}: ${fileMeta.device.name}`,
     })
 
     return response === 0

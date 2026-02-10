@@ -35,5 +35,16 @@
       "minimize": "Minimize",
       "close": "Close Window"
     }
+  },
+  "share": {
+    "title": "Receive File",
+    "message": "Do you want to receive this file?",
+    "accept": "Accept",
+    "reject": "Reject",
+    "detail": {
+      "filename": "Filename",
+      "size": "Size",
+      "from": "From"
+    }
   }
 }

@@ -35,5 +35,16 @@
       "minimize": "最小化",
       "close": "关闭窗口"
     }
+  },
+  "share": {
+    "title": "接收文件",
+    "message": "是否接收文件？",
+    "accept": "接收",
+    "reject": "拒绝",
+    "detail": {
+      "filename": "文件名",
+      "size": "大小",
+      "from": "来自"
+    }
   }
 }
