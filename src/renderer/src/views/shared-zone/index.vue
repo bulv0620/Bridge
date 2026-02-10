@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import TaskList from './components/task-list/TaskList.vue'
 import Clipboard from './components/clipboard/Clipboard.vue'
 import Devices from './components/devices/Devices.vue'
 import Header from './components/header/Header.vue'
@@ -7,14 +8,14 @@ import SettingModal from './components/setting-modal/SettingModal.vue'
 </script>
 
 <template>
-  <div class="share-zone">
+  <div id="share-zone" class="share-zone">
     <Header></Header>
 
     <div class="main">
       <Uploader></Uploader>
       <Devices></Devices>
     </div>
-
+    <TaskList></TaskList>
     <Clipboard></Clipboard>
   </div>
   <SettingModal></SettingModal>
@@ -34,6 +35,7 @@ import SettingModal from './components/setting-modal/SettingModal.vue'
     display: flex;
     gap: 16px;
     height: 100%;
+    z-index: 10;
   }
 }
 </style>

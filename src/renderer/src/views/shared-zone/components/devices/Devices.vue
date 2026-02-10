@@ -49,13 +49,7 @@ function sendTo(device: any) {
       </div>
     </el-scrollbar>
     <div v-else class="devices-empty">
-      <el-empty :description="$t('views.sharedZone.noDevice')">
-        <template #image>
-          <el-icon :size="60">
-            <Monitor />
-          </el-icon>
-        </template>
-      </el-empty>
+      <span>{{ $t('views.sharedZone.noDevice') }}</span>
     </div>
   </div>
 </template>
@@ -125,6 +119,8 @@ function sendTo(device: any) {
     display: flex;
     justify-content: center;
     align-items: center;
+    font-size: 14px;
+    color: var(--el-text-color-placeholder);
   }
 }
 </style>
