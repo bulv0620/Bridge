@@ -5,9 +5,14 @@ import ReceivedTable from './received-table/ReceivedTable.vue'
 import ReceivingTable from './receiving-table/ReceivingTable.vue'
 import SendingTable from './sending-table/SendingTable.vue'
 import { useTaskList } from '@renderer/composables/share-zone/useTaskList'
+import { watch } from 'vue'
 
 const { tasksActive } = useCollapse()
 const { activeTab, tabs } = useTaskList()
+
+watch(activeTab, () => {
+  tasksActive.value = true
+})
 </script>
 
 <template>

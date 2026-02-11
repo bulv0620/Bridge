@@ -140,6 +140,7 @@ async function handleCopy(content: ClipboardContent) {
       font-weight: 600;
       display: flex;
       gap: 6px;
+      align-items: center;
 
       .num-box {
         font-family: monospace;
