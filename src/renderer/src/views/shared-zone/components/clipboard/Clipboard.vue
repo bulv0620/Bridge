@@ -2,6 +2,11 @@
 import { CaretBottom, CaretTop } from '@element-plus/icons-vue'
 import { useRemoteRef } from '@renderer/composables/remote-ref/useRemoteRef'
 import { useCollapse } from '@renderer/composables/share-zone/useCollapse'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { toRaw } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const clips = useRemoteRef<ClipboardContent[]>('clipboard-history', [])
 
@@ -15,15 +20,45 @@ function toClipboardUrl(filePath: string): string {
   return `clipboard:///${encodeURI(normalized)}`
 }
 
-function handleClearHistory() {
+async function handleClearHistory() {
+  await ElMessageBox({
+    type: 'warning',
+    title: t('common.warning'),
+    message: t('views.sharedZone.confirmClearClipboard'),
+    showCancelButton: true,
+  })
   clips.value = []
+}
+
+async function handleCopy(content: ClipboardContent) {
+  try {
+    // 复制
+    await window.ipc.share.writeContent(toRaw(content))
+    ElMessage({
+      message: t('views.sharedZone.copySuccess'),
+      type: 'success',
+      plain: true,
+    })
+  } catch (e) {
+    console.error(e)
+    ElMessage({
+      message: t('views.sharedZone.copyFailed'),
+      type: 'error',
+      plain: true,
+    })
+  }
 }
 </script>
 
 <template>
   <div class="footer">
     <div class="footer-header" :class="{ border: clipboardActive }">
-      <div class="title">{{ $t('views.sharedZone.sharedClipboard') }}</div>
+      <div class="title">
+        <span>{{ $t('views.sharedZone.sharedClipboard') }}</span>
+        <div class="num-box" :class="{ light: clips.length > 0 }">
+          {{ clips.length }}
+        </div>
+      </div>
       <div>
         <el-button link size="small" @click="handleClearHistory">
           {{ $t('views.sharedZone.clearHistory') }}
@@ -68,7 +103,7 @@ function handleClearHistory() {
             <div class="clip-footer">
               <span class="device">{{ c.device.name }}</span>
 
-              <el-button type="primary" link size="small">
+              <el-button type="primary" link size="small" @click="handleCopy(c)">
                 {{ $t('views.sharedZone.copy') }}
               </el-button>
             </div>
@@ -103,6 +138,23 @@ function handleClearHistory() {
     .title {
       font-size: 14px;
       font-weight: 600;
+      display: flex;
+      gap: 6px;
+
+      .num-box {
+        font-family: monospace;
+        font-size: 11px;
+        padding: 0 5px;
+        height: 16px;
+        border-radius: 8px;
+        background: var(--el-fill-color-darker);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        &.light {
+          background: var(--el-color-primary);
+        }
+      }
     }
   }
 

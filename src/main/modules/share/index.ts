@@ -1,3 +1,4 @@
+import { IpcMainInvokeEvent } from 'electron'
 import { ClipboardManager } from './service/ClipboardManager'
 import { DeviceDiscovery } from './service/DeviceDiscovery'
 import { ShareServer } from './service/ShareServer'
@@ -24,4 +25,8 @@ export function stopService() {
   if (shareServer) {
     shareServer.stop()
   }
+}
+
+export function writeContent(_: IpcMainInvokeEvent, content: ClipboardContent) {
+  clipboardManager.setContent(content)
 }

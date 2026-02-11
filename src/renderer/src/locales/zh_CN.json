@@ -134,6 +134,7 @@
       "uploadHint": "点击或拖拽文件到此处",
       "selected": "已选择",
       "copySuccess": "复制成功",
+      "copyFailed": "复制失败",
       "settingTitle": "共享设置",
       "lanDiscoverable": "局域网发现",
       "lanDiscoverableDesc": "允许同一网络下的其他设备发现此设备",
@@ -155,7 +156,8 @@
       "size": "大小",
       "speed": "速度",
       "progress": "进度",
-      "targetDevice": "目标设备"
+      "targetDevice": "目标设备",
+      "confirmClearClipboard": "是否确认清空历史记录?"
     },
     "setting": {
       "title": "设置",

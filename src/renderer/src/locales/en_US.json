@@ -134,6 +134,7 @@
       "uploadHint": "Click or drag file here to upload",
       "selected": "Selected",
       "copySuccess": "Copied",
+      "copyFailed": "Copy failed",
       "settingTitle": "Settings",
       "lanDiscoverable": "LAN Discoverable",
       "lanDiscoverableDesc": "Allow other devices on the same network to find this device",
@@ -155,7 +156,8 @@
       "size": "Size",
       "speed": "Speed",
       "progress": "Progress",
-      "targetDevice": "Target"
+      "targetDevice": "Target",
+      "confirmClearClipboard": "Confirm clear history?"
     },
     "setting": {
       "title": "Settings",
