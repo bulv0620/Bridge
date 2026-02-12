@@ -64,7 +64,7 @@ const { receivedList, openFolder, deleteTask } = useTaskList()
               link
               type="warning"
               :title="$t('views.sharedZone.openFolder')"
-              :disabled="row.status !== 'success'"
+              :disabled="row.result !== 'success'"
               @click="openFolder(row.save.path)"
             />
             <el-button
