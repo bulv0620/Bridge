@@ -157,7 +157,12 @@
       "speed": "Speed",
       "progress": "Progress",
       "targetDevice": "Target",
-      "confirmClearClipboard": "Confirm clear history?"
+      "confirmClearClipboard": "Confirm clear history?",
+      "pending": "Pending",
+      "status": "Status",
+      "sent": "Sent",
+      "confirmDeleteTask": "Delete task?",
+      "confirmAbortTask": "Abort task?"
     },
     "setting": {
       "title": "Settings",

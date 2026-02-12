@@ -10,6 +10,7 @@ import { formatBytes } from '../../../utils/format'
 import { remoteRef, RemoteRefMain } from '../../../utils/remoteRef'
 import { locale } from '../../../config'
 import { messages } from '../../../locales'
+import cors from 'cors'
 
 export class ShareServer {
   private app = express()
@@ -19,6 +20,7 @@ export class ShareServer {
   private receivedList: RemoteRefMain<ReceivedItem[]> = remoteRef('received-list', [])
 
   constructor(private clipboardManager: ClipboardManager) {
+    this.app.use(cors())
     this.app.use(express.json())
 
     // 剪切板

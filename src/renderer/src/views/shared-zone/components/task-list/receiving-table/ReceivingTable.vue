@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { TrashBin, Document } from '@vicons/ionicons5'
+import { Document } from '@vicons/ionicons5'
 import { useTaskList } from '@renderer/composables/share-zone/useTaskList'
-import { formatBytes, formatBytesPerSecond } from '@renderer/utils/format'
+import { formatBytes, formatBytesPerSecond, round } from '@renderer/utils/format'
 
 const { receivingList } = useTaskList()
 </script>
@@ -27,7 +27,11 @@ const { receivingList } = useTaskList()
         </template>
       </el-table-column>
 
-      <el-table-column :label="$t('views.sharedZone.sourceDevice')" min-width="120">
+      <el-table-column
+        :label="$t('views.sharedZone.sourceDevice')"
+        min-width="120"
+        show-overflow-tooltip
+      >
         <template #default="{ row }">
           <span class="source-device">{{ row.meta.device.name }}</span>
         </template>
@@ -40,10 +44,14 @@ const { receivingList } = useTaskList()
         </template>
       </el-table-column> -->
 
-      <el-table-column :label="$t('views.sharedZone.progress')" min-width="170">
+      <el-table-column
+        :label="$t('views.sharedZone.progress')"
+        min-width="170"
+        show-overflow-tooltip
+      >
         <template #default="{ row }">
           <el-progress
-            :percentage="row.progress.percentage * 100"
+            :percentage="round(row.progress.percentage * 100)"
             :status="row.progress.percentage === 1 ? 'success' : ''"
             :stroke-width="6"
             :show-text="true"
@@ -51,13 +59,13 @@ const { receivingList } = useTaskList()
         </template>
       </el-table-column>
 
-      <el-table-column :label="$t('views.sharedZone.speed')" min-width="120">
+      <el-table-column :label="$t('views.sharedZone.speed')" min-width="120" show-overflow-tooltip>
         <template #default="{ row }">
           <span class="speed-text">{{ formatBytesPerSecond(row.progress.speed) }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column :label="$t('views.sharedZone.size')" min-width="120">
+      <el-table-column :label="$t('views.sharedZone.size')" min-width="160" show-overflow-tooltip>
         <template #default="{ row }">
           <span class="speed-text">
             {{ formatBytes(row.progress.transferred) }}/{{ formatBytes(row.progress.total) }}
@@ -65,7 +73,7 @@ const { receivingList } = useTaskList()
         </template>
       </el-table-column>
 
-      <el-table-column :label="$t('views.sharedZone.operation')" width="100" fixed="right">
+      <!-- <el-table-column :label="$t('views.sharedZone.operation')" width="100" fixed="right">
         <template #default>
           <div class="action-btns">
             <el-button
@@ -76,7 +84,7 @@ const { receivingList } = useTaskList()
             />
           </div>
         </template>
-      </el-table-column>
+      </el-table-column> -->
 
       <template #empty>
         <div class="empty-status">{{ $t('views.sharedZone.noTasks') }}</div>

@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { TrashBin, Document } from '@vicons/ionicons5'
 import { useTaskList } from '@renderer/composables/share-zone/useTaskList'
-import { formatBytes, formatBytesPerSecond, round } from '@renderer/utils/format'
+import dayjs from 'dayjs'
 
-const { sendingList, abortTask } = useTaskList()
+const { sentList, deleteTask } = useTaskList()
 </script>
 
 <template>
   <div class="table-container">
     <el-table
-      :data="sendingList"
+      :data="sentList"
       style="width: 100%"
       height="100%"
       :header-cell-style="{
@@ -29,7 +29,7 @@ const { sendingList, abortTask } = useTaskList()
 
       <el-table-column
         :label="$t('views.sharedZone.targetDevice')"
-        min-width="120"
+        min-width="150"
         show-overflow-tooltip
       >
         <template #default="{ row }">
@@ -37,51 +37,34 @@ const { sendingList, abortTask } = useTaskList()
         </template>
       </el-table-column>
 
-      <!-- <el-table-column label="状态" min-width="120" align="center">
+      <el-table-column :label="$t('views.sharedZone.result')" min-width="120">
         <template #default="{ row }">
-          <el-tag v-if="row.status === 'pending'" type="warning">等待中</el-tag>
-          <el-tag v-else-if="row.status === 'receiving'" type="primary">接收中</el-tag>
+          <el-tag v-if="row.result === 'success'" type="success">{{ $t('common.success') }}</el-tag>
+          <el-tag v-else type="danger">{{ $t('common.failed') }}</el-tag>
         </template>
-      </el-table-column> -->
+      </el-table-column>
 
       <el-table-column
-        :label="$t('views.sharedZone.progress')"
-        min-width="170"
+        :label="$t('views.sharedZone.finishedTime')"
+        min-width="200"
         show-overflow-tooltip
       >
         <template #default="{ row }">
-          <el-progress
-            :percentage="round(row.progress.percentage * 100)"
-            :status="row.progress.percentage === 1 ? 'success' : ''"
-            :stroke-width="6"
-            :show-text="true"
-          />
-        </template>
-      </el-table-column>
-
-      <el-table-column :label="$t('views.sharedZone.speed')" min-width="120" show-overflow-tooltip>
-        <template #default="{ row }">
-          <span class="speed-text">{{ formatBytesPerSecond(row.progress.speed) }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column :label="$t('views.sharedZone.size')" min-width="153" show-overflow-tooltip>
-        <template #default="{ row }">
-          <span class="speed-text">
-            {{ formatBytes(row.progress.transferred) }}/{{ formatBytes(row.progress.total) }}
+          <span class="finished-time">
+            {{ dayjs(row.finishedAt).format('YYYY-MM-DD HH:mm:ss') }}
           </span>
         </template>
       </el-table-column>
 
       <el-table-column :label="$t('views.sharedZone.operation')" width="100" fixed="right">
-        <template #default="{ row }">
+        <template #default="{ $index }">
           <div class="action-btns">
             <el-button
               :icon="TrashBin"
               link
               type="danger"
               :title="$t('views.sharedZone.deleteTask')"
-              @click="abortTask(row.id)"
+              @click="deleteTask(sentList, $index)"
             />
           </div>
         </template>
@@ -112,12 +95,6 @@ const { sendingList, abortTask } = useTaskList()
         text-overflow: ellipsis;
         white-space: nowrap;
       }
-    }
-
-    .speed-text {
-      font-family: monospace;
-      font-size: 12px;
-      color: var(--el-text-color-secondary);
     }
 
     .el-button [class^='el-icon'] {

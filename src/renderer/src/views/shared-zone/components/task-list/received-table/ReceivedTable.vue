@@ -3,7 +3,7 @@ import { TrashBin, Document, FolderOpen } from '@vicons/ionicons5'
 import { useTaskList } from '@renderer/composables/share-zone/useTaskList'
 import dayjs from 'dayjs'
 
-const { receivedList } = useTaskList()
+const { receivedList, openFolder, deleteTask } = useTaskList()
 </script>
 
 <template>
@@ -27,7 +27,11 @@ const { receivedList } = useTaskList()
         </template>
       </el-table-column>
 
-      <el-table-column :label="$t('views.sharedZone.sourceDevice')" min-width="150">
+      <el-table-column
+        :label="$t('views.sharedZone.sourceDevice')"
+        min-width="150"
+        show-overflow-tooltip
+      >
         <template #default="{ row }">
           <span class="source-device">{{ row.meta.device.name }}</span>
         </template>
@@ -40,7 +44,11 @@ const { receivedList } = useTaskList()
         </template>
       </el-table-column>
 
-      <el-table-column :label="$t('views.sharedZone.finishedTime')" min-width="200">
+      <el-table-column
+        :label="$t('views.sharedZone.finishedTime')"
+        min-width="200"
+        show-overflow-tooltip
+      >
         <template #default="{ row }">
           <span class="finished-time">
             {{ dayjs(row.finishedAt).format('YYYY-MM-DD HH:mm:ss') }}
@@ -49,19 +57,22 @@ const { receivedList } = useTaskList()
       </el-table-column>
 
       <el-table-column :label="$t('views.sharedZone.operation')" width="100" fixed="right">
-        <template #default>
+        <template #default="{ row, $index }">
           <div class="action-btns">
             <el-button
               :icon="FolderOpen"
               link
               type="warning"
               :title="$t('views.sharedZone.openFolder')"
+              :disabled="row.status !== 'success'"
+              @click="openFolder(row.save.path)"
             />
             <el-button
               :icon="TrashBin"
               link
               type="danger"
               :title="$t('views.sharedZone.deleteTask')"
+              @click="deleteTask(receivedList, $index)"
             />
           </div>
         </template>

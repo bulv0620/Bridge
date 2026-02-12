@@ -3,6 +3,7 @@ import { CaretBottom, CaretTop } from '@element-plus/icons-vue'
 import { useCollapse } from '@renderer/composables/share-zone/useCollapse'
 import ReceivedTable from './received-table/ReceivedTable.vue'
 import ReceivingTable from './receiving-table/ReceivingTable.vue'
+import SentTable from './sent-table/SentTable.vue'
 import SendingTable from './sending-table/SendingTable.vue'
 import { useTaskList } from '@renderer/composables/share-zone/useTaskList'
 import { watch } from 'vue'
@@ -45,8 +46,9 @@ watch(activeTab, () => {
 
     <div class="clipboard-wrapper" :class="{ active: tasksActive }">
       <SendingTable v-if="activeTab === 0"></SendingTable>
-      <ReceivingTable v-else-if="activeTab === 1"></ReceivingTable>
-      <ReceivedTable v-else-if="activeTab === 2"></ReceivedTable>
+      <SentTable v-else-if="activeTab === 1"></SentTable>
+      <ReceivingTable v-else-if="activeTab === 2"></ReceivingTable>
+      <ReceivedTable v-else-if="activeTab === 3"></ReceivedTable>
     </div>
   </div>
 </template>

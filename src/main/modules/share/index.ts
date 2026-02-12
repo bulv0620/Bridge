@@ -2,6 +2,8 @@ import { IpcMainInvokeEvent } from 'electron'
 import { ClipboardManager } from './service/ClipboardManager'
 import { DeviceDiscovery } from './service/DeviceDiscovery'
 import { ShareServer } from './service/ShareServer'
+import { deviceId, deviceName } from '../../config'
+import os from 'os'
 
 let deviceDiscovery: DeviceDiscovery | null
 let shareServer: ShareServer | null
@@ -29,4 +31,12 @@ export function stopService() {
 
 export function writeContent(_: IpcMainInvokeEvent, content: ClipboardContent) {
   clipboardManager.setContent(content)
+}
+
+export function getMyDeviceInfo(_: IpcMainInvokeEvent): DeviceInfo {
+  return {
+    id: deviceId.value,
+    name: deviceName.value,
+    platform: os.platform(),
+  }
 }

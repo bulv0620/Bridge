@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { UploadFilled, Close } from '@element-plus/icons-vue'
-import { useFile } from '@renderer/composables/share-zone/useFile'
+import { useTaskList } from '@renderer/composables/share-zone/useTaskList'
 
-const { file } = useFile()
+const { file } = useTaskList()
 
 function onFileChange(uploadFile: any) {
   file.value = uploadFile.raw

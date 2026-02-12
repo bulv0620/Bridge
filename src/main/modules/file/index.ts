@@ -1,5 +1,8 @@
 import { dialog, IpcMainInvokeEvent, shell } from 'electron'
 import { getWindow } from '../../utils/window'
+import fs from 'fs'
+import { messages } from '../../locales'
+import { locale } from '../../config'
 
 export async function selectFolder() {
   const mainWindow = getWindow('main')
@@ -16,5 +19,10 @@ export async function selectFolder() {
 }
 
 export async function openFolder(_: IpcMainInvokeEvent, filename: string) {
+  if (!fs.existsSync(filename)) {
+    dialog.showErrorBox(messages[locale.value].file.fileNotExist, filename)
+    return
+  }
+
   shell.showItemInFolder(filename)
 }

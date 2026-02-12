@@ -1,37 +1,11 @@
 <script setup lang="ts">
-import { ElMessage } from 'element-plus'
 import { Monitor } from '@element-plus/icons-vue'
-import { useI18n } from 'vue-i18n'
 import { useRemoteRef } from '@renderer/composables/remote-ref/useRemoteRef'
-import { useFile } from '@renderer/composables/share-zone/useFile'
-
-const { t } = useI18n()
-
-const { file } = useFile()
+import { useTaskList } from '@renderer/composables/share-zone/useTaskList'
 
 const devices = useRemoteRef<OnlineDevice[]>('online-devices', [])
 
-function sendTo(device: any) {
-  if (!file.value) {
-    ElMessage({
-      message: t('views.sharedZone.selectFileFirst'),
-      type: 'warning',
-      plain: true,
-    })
-    return
-  }
-
-  console.log(device)
-
-  setTimeout(() => {
-    ElMessage({
-      message: t('views.sharedZone.sendSuccess'),
-      type: 'warning',
-      plain: true,
-    })
-    file.value = null
-  }, 1500)
-}
+const { createSendingTask } = useTaskList()
 </script>
 
 <template>
@@ -40,7 +14,13 @@ function sendTo(device: any) {
       <span>{{ $t('views.sharedZone.availableDevices') }}</span>
     </div>
     <el-scrollbar v-if="devices.length" class="device-list">
-      <div v-for="d in devices" :key="d.id" class="device-card" @click="sendTo(d)">
+      <div
+        v-for="d in devices"
+        :key="d.id"
+        class="device-card"
+        :class="{ disabled: !d.services.cap.includes('file-push') }"
+        @click="createSendingTask(d)"
+      >
         <el-icon class="device-icon"><Monitor></Monitor></el-icon>
         <div class="device-info">
           <div class="name">{{ d.device.name }}</div>
@@ -85,6 +65,29 @@ function sendTo(device: any) {
       background: var(--el-fill-color-light);
       margin-bottom: 8px;
       transition: all 0.2s;
+
+      &.disabled {
+        cursor: not-allowed;
+        background: var(--el-fill-color-lighter);
+        border-color: var(--el-border-color-lighter);
+
+        .device-icon {
+          color: var(--el-text-color-placeholder);
+        }
+
+        .device-info {
+          .name,
+          .status {
+            color: var(--el-text-color-placeholder);
+          }
+        }
+
+        &:hover {
+          // 禁用态不响应 hover
+          border-color: var(--el-border-color-lighter);
+          background: var(--el-fill-color-lighter);
+        }
+      }
 
       &:hover {
         border-color: var(--el-color-primary-light-5);

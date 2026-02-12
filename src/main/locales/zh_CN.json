@@ -36,6 +36,9 @@
       "close": "关闭窗口"
     }
   },
+  "file": {
+    "fileNotExist": "文件不存在"
+  },
   "share": {
     "title": "接收文件",
     "message": "是否接收文件？",

@@ -95,6 +95,21 @@ declare interface ReceivingItem {
   createdAt: number // 创建时间
 }
 
+// 发送状态
+declare type SendingStatus =
+  | 'pending' // 未开始
+  | 'sending' // 发送中
+  | 'sent' // 发送完成
+
+// 发送文件项
+declare interface SendingItem {
+  id: string // uploadId
+  meta: FileMeta // 文件元信息
+  status: SendingStatus // 状态
+  progress: TransferProgress // 进度
+  createdAt: number // 创建时间
+}
+
 // 接收结果
 declare type ReceivedResult = 'success' | 'failed' | 'cancelled'
 
@@ -111,6 +126,21 @@ declare interface ReceivedItem {
   meta: FileMeta // 文件元信息
   result: ReceivedResult // 接收结果
   save?: ReceivedSaveInfo // 保存信息 (成功时存在)
+  error?: {
+    message: string
+  } // 错误信息（失败时存在）
+  createdAt: number
+  finishedAt: number
+}
+
+// 发送结果
+declare type SendResult = 'success' | 'failed' | 'cancelled'
+
+// 已发送项
+declare interface SentItem {
+  id: string // uploadId
+  meta: FileMeta // 文件元信息
+  result: SendResult // 接收结果
   error?: {
     message: string
   } // 错误信息（失败时存在）

@@ -36,6 +36,9 @@
       "close": "Close Window"
     }
   },
+  "file": {
+    "fileNotExist": "File does not exist"
+  },
   "share": {
     "title": "Receive File",
     "message": "Do you want to receive this file?",
