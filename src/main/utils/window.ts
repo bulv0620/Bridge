@@ -59,14 +59,6 @@ export function createCustomWindow(
     win.loadFile(join(__dirname, '../renderer/index.html'), { hash: windowOption?.location })
   }
 
-  const themeUpdateHandler = () => {
-    win.webContents.send('theme:switch', nativeTheme.themeSource)
-  }
-  nativeTheme.on('updated', themeUpdateHandler)
-  win.on('close', () => {
-    nativeTheme.removeListener('updated', themeUpdateHandler)
-  })
-
   return win
 }
 

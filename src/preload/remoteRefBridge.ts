@@ -17,14 +17,12 @@ export const remoteRefBridge = {
     const listeners = new Set<(payload: UpdatePayload<T>) => void>()
 
     // 监听主进程广播
-    const updateHandler = (_: any, ch: string, payload: UpdatePayload<T>) => {
-      if (ch === channel) {
-        listeners.forEach((fn) => fn(payload))
-      }
+    const updateHandler = (_: any, payload: UpdatePayload<T>) => {
+      listeners.forEach((fn) => fn(payload))
     }
 
-    ipcRenderer.on('remote-ref:update', updateHandler)
-    ipcRenderer.send('remote-ref:request-init', channel)
+    ipcRenderer.on('remote-ref:update:' + channel, updateHandler)
+    ipcRenderer.send('remote-ref:request-init:' + channel)
 
     return {
       get value() {
@@ -35,13 +33,13 @@ export const remoteRefBridge = {
         return () => listeners.delete(fn)
       },
       destroy() {
-        ipcRenderer.removeListener('remote-ref:update', updateHandler)
+        ipcRenderer.removeListener('remote-ref:update:' + channel, updateHandler)
         listeners.clear()
       },
     }
   },
 
   updateRemoteRef<T>(channel: string, payload: UpdatePayload<T>) {
-    ipcRenderer.send('remote-ref:change', channel, payload)
+    ipcRenderer.send('remote-ref:change:' + channel, payload)
   },
 }

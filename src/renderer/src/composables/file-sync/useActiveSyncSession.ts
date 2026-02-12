@@ -49,7 +49,11 @@ async function createSyncSession() {
 // 结束会话
 async function closeSyncSession(id: string, index: number) {
   if (sessions.value.length === 1) {
-    ElMessage.error(t('views.fileSync.lastCannotClose'))
+    ElMessage({
+      message: t('views.fileSync.lastCannotClose'),
+      type: 'error',
+      plain: true,
+    })
     return
   }
 
@@ -57,7 +61,11 @@ async function closeSyncSession(id: string, index: number) {
     sessions.value[index].sessionState.isSyncing ||
     sessions.value[index].sessionState.isComparing
   ) {
-    ElMessage.error(t('views.fileSync.inProgressPauseBeforeClose'))
+    ElMessage({
+      message: t('views.fileSync.inProgressPauseBeforeClose'),
+      type: 'error',
+      plain: true,
+    })
     return
   }
 

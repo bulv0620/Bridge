@@ -1,10 +1,7 @@
 {
   "tray": {
     "fileSync": "文件同步",
-    "ftpClient": "FTP会话",
-    "downloader": "下载器",
     "shareHub": "文件分享",
-    "pluginCenter": "插件中心",
     "setting": "设置",
     "show": "显示",
     "quit": "退出"
@@ -37,6 +34,20 @@
       "label": "窗口",
       "minimize": "最小化",
       "close": "关闭窗口"
+    }
+  },
+  "file": {
+    "fileNotExist": "文件不存在"
+  },
+  "share": {
+    "title": "接收文件",
+    "message": "是否接收文件？",
+    "accept": "接收",
+    "reject": "拒绝",
+    "detail": {
+      "filename": "文件名",
+      "size": "大小",
+      "from": "来自"
     }
   }
 }

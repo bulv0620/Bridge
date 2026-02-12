@@ -42,3 +42,8 @@ export function formatTimeDifference(ms: number): string {
   }
   return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
 }
+
+export function round(value: number, digits = 2): number {
+  const factor = 10 ** digits
+  return Number(Math.round((value + Number.EPSILON) * factor) / factor)
+}

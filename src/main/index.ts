@@ -3,15 +3,20 @@ import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { createCustomWindow } from './utils/window'
 import { createTray } from './utils/tray'
 import { installExtension, VUEJS_DEVTOOLS } from 'electron-devtools-installer'
-import { registerAllEvents } from './events/eventLoader'
-import { stopAllTasks } from './utils/pluginUtils'
+import { initAppConfig } from './config/index'
+import { registerAllEvents } from './modules/eventLoader'
+import { registerClipboardProtocol } from './utils/clipboardProtocol'
 
 const gotTheLock = app.requestSingleInstanceLock({ myKey: 'bulv' })
 if (!gotTheLock) {
   app.quit()
 }
 
-app.whenReady().then(() => {
+;(async () => {
+  await app.whenReady()
+
+  registerClipboardProtocol()
+
   installExtension(VUEJS_DEVTOOLS)
     .then(() => console.log(`vue_devtools installed`))
     .catch(() => console.error('vue_devtolls install failed'))
@@ -37,6 +42,7 @@ app.whenReady().then(() => {
   })
 
   const tray = createTray()
+  initAppConfig()
   registerAllEvents()
 
   app.on('activate', () => {
@@ -57,12 +63,10 @@ app.whenReady().then(() => {
   app.on('before-quit', async (event) => {
     if (!global.flagQuit) {
       event.preventDefault() // 阻止默认退出
-      console.log('before-quit: stopping all plugin tasks...')
-      await stopAllTasks()
-      console.log('before-quit: all stoped')
+      // await stopAllTasks()
       global.flagQuit = true
       tray.destroy()
       app.quit() // 继续退出流程
     }
   })
-})
+})()

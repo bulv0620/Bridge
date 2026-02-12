@@ -1,4 +1,4 @@
-import type { EventsMapType } from '../events/eventLoader'
+import type { EventsMapType } from '../modules/eventLoader'
 import { remoteRefBridge } from '../../preload/remoteRefBridge'
 
 // 去掉 IpcMainInvokeEvent（第一个参数）

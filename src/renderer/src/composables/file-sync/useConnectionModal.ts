@@ -80,7 +80,11 @@ async function submitForm() {
       selectedPath.value = ''
       currentStep.value++
     } catch (error) {
-      ElMessage.error(t('views.fileSync.connectionFailed'))
+      ElMessage({
+        message: t('views.fileSync.connectionFailed'),
+        type: 'error',
+        plain: true,
+      })
     } finally {
       connectLoading.value = false
     }
