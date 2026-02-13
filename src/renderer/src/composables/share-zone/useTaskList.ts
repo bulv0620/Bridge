@@ -45,7 +45,6 @@ const tabs = computed(() => {
 })
 
 async function createSendingTask(onlineDevice: OnlineDevice) {
-  // 已在模板判断过，但这里再确保一次
   if (!onlineDevice.services.cap.includes('file-push')) {
     return
   }
@@ -94,6 +93,7 @@ async function createSendingTask(onlineDevice: OnlineDevice) {
   const base = `http://${onlineDevice.ip}:${onlineDevice.services.http}/api`
 
   try {
+    // 发送文件的请求 获取uploadId
     const reqeustUploadResult = await axios.post(`${base}/upload/request`, fileMeta)
     if (!reqeustUploadResult.data.allowed || !reqeustUploadResult.data.uploadId) {
       throw new Error('upload not allowed')
@@ -102,6 +102,7 @@ async function createSendingTask(onlineDevice: OnlineDevice) {
     const uploadId = reqeustUploadResult.data.uploadId
     sendingItem.status = 'sending'
 
+    // 发送文件
     await uploadFile(id, base, uploadId, f, (progress) => {
       sendingItem.progress = {
         ...sendingItem.progress,
@@ -109,14 +110,7 @@ async function createSendingTask(onlineDevice: OnlineDevice) {
       }
     })
 
-    sendingItem.progress = {
-      ...sendingItem.progress,
-      ...{
-        transferred: fileMeta.size,
-        percentage: 1,
-      },
-    }
-
+    // 加入完成列表 成功任务
     sentList.value.unshift({
       id,
       meta: sendingItem.meta,
@@ -126,6 +120,7 @@ async function createSendingTask(onlineDevice: OnlineDevice) {
     })
   } catch (err: any) {
     console.error(err)
+    // 加入完成列表 失败任务
     sentList.value.unshift({
       id,
       meta: sendingItem.meta,
