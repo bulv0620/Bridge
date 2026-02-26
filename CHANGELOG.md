@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.6.1](https://github.com/bulv0620/Bridge/compare/v0.6.0...v0.6.1) (2026-02-26)
+
+
+### Bug Fixes
+
+* resolve packaging issue ([32d2127](https://github.com/bulv0620/Bridge/commit/32d2127b3256c579386b3f12325b5949e18c1d70))
+
+
+
 # [0.6.0](https://github.com/bulv0620/Bridge/compare/v0.5.0...v0.6.0) (2026-02-26)
 
 
