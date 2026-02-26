@@ -18,7 +18,7 @@ Offers three flexible synchronization strategies:
 - **Incremental Sync**: Overwrites identical files, copies new files, and retains old files existing only in the target directory.
 - **Bidirectional Sync**: Copies newer files in both directions; conflicting files are ignored by default.
 
-### 🌐 LAN File Sharing
+### 🌐 LAN Sharing
 
 Automatically discovers allowed devices on the same network.
 
@@ -60,19 +60,19 @@ Bridge supports the following platforms:
    ```bash
    # Clone the repository
    git clone https://github.com/bulv0620/Bridge.git
-   
+
    # Navigate into the directory
    cd bridge
-   
+
    # Install dependencies
    npm install
-   
+
    # Start development mode
    npm run dev
-   
+
    # Build for production
    npm run build:[your-system]
    ```
 
-   
+
 

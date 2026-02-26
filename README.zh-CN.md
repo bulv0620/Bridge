@@ -24,7 +24,7 @@
 
 选择需要传输的文件后点击在线设备，等待接收方确认接收后，即可发送文件。
 
-当然还有One More Thing，开启剪切板共享，你将与局域网中设备共享剪切板
+当然还有One More Thing，开启剪切板共享，你将与局域网中设备共享剪切板。
 
 > 剪切板共享当前支持图片和文本的共享
 
@@ -61,18 +61,17 @@ Bridge 为以下平台提供支持：
    ```bash
    # 克隆仓库
    git clone https://github.com/bulv0620/Bridge.git
-   
+
    # 进入目录
    cd bridge
-   
+
    # 安装依赖
    npm install
-   
+
    # 启动开发模式
    npm run dev
-   
+
    # 构建生产版本
    npm run build:[your-system]
    ```
 
-   
