@@ -15,6 +15,7 @@ const props = defineProps<{ type: 'source' | 'destination' }>()
 const endpoint = defineModel<StorageEngineConfig | null>('endpoint', { required: true })
 
 const { activeSessionState } = useActiveSyncSession()
+
 const { t } = useI18n()
 const { openConnectionModal } = useConectionModal()
 
@@ -63,6 +64,9 @@ function removeEndPoint(e: Event) {
 }
 
 async function handleClickCard() {
+  if (activeSessionState.value?.isComparing || activeSessionState.value?.isSyncing) {
+    return
+  }
   if (endpoint.value) {
     if (endpoint.value.storageType === 'local') {
       const path = await window.ipc.file.selectFolder()
@@ -85,7 +89,11 @@ watch(activeSessionState, () => {
 </script>
 
 <template>
-  <div class="endpoint-card" @click="handleClickCard">
+  <div
+    class="endpoint-card"
+    :class="{ disabled: activeSessionState?.isSyncing || activeSessionState?.isComparing }"
+    @click="handleClickCard"
+  >
     <div class="card-content-wrapper">
       <div class="card-main">
         <div class="endpoint-image">
@@ -171,10 +179,18 @@ watch(activeSessionState, () => {
   display: flex;
   flex-direction: column;
   transition: all 0.2s;
+  cursor: pointer;
 
   &:hover {
     border-color: var(--el-color-primary);
-    cursor: pointer;
+  }
+
+  &.disabled {
+    cursor: not-allowed;
+
+    &:hover {
+      border-color: var(--el-border-color);
+    }
   }
 }
 
@@ -230,6 +246,8 @@ watch(activeSessionState, () => {
     justify-content: space-between;
     font-size: 11px;
     color: var(--el-text-color-secondary);
+    height: 12px;
+
     .nums {
       font-family: monospace;
     }
