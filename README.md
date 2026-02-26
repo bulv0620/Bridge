@@ -1,14 +1,14 @@
 # 🛰️ Bridge
 
-> ⚡ A cross-platform file synchronization tool built with **Electron + Vite + Vue3**.
+> ⚡ A cross-platform file synchronization tool built with **Electron**.
 
-**Bridge** — Making file backup, sharing, and downloading as intuitive and effortless as breathing.
+**Bridge** — making file syncing and sharing as natural and smooth as breathing.
 
 English | [简体中文](./README.zh-CN.md)
 
 ## ✨ Features
 
-### 📁 **File Comparison & Synchronization**
+### 📁 File Comparison & Synchronization
 
 Automatically generates a differential file tree and performs synchronization after selecting source and target directories.
 
@@ -18,17 +18,11 @@ Offers three flexible synchronization strategies:
 - **Incremental Sync**: Overwrites identical files, copies new files, and retains old files existing only in the target directory.
 - **Bidirectional Sync**: Copies newer files in both directions; conflicting files are ignored by default.
 
-### 🌐 **LAN File Sharing**
+### 🌐 LAN File Sharing
 
-Automatically discovers devices on the same network via UDP broadcast.
+Automatically discover devices on the same network running Bridge.
 
-Securely share local files—receivers download using a unique file ID through the built-in HTTP service, without exposing the actual file path.
-
-### ⬇️ **Integrated Download Management**
-
-Built-in **Aria2** download engine with comprehensive support for HTTP, FTP, BitTorrent, and other protocols.
-
-Unified management for both internet downloads and LAN shared transfers, with an intuitive and clear interface.
+Select the files to transfer and click on an online device to send them.
 
 
 
@@ -36,7 +30,6 @@ Unified management for both internet downloads and LAN shared transfers, with an
 - **Frontend:** Vue 3 + Vite + TypeScript
 - **Backend / Runtime:** Electron + Node.js
 - **Network:** UDP broadcast discovery + HTTP transfer
-- **Downloader:** Aria2 RPC integration
 
 
 
