@@ -14,4 +14,6 @@ export interface AppStoreSchema {
   shareInterval: number
   capabilities: ServiceCapability[]
   downloadPath: string
+
+  syncSessions: CacehdSession[]
 }

@@ -9,14 +9,14 @@ const { activeSessionState } = useActiveSyncSession()
 <template>
   <div class="sync-form">
     <EndpointCard
-      v-model:endpoint="activeSessionState.formData.sourceConfig"
+      v-model:endpoint="activeSessionState!.formData.sourceConfig"
       type="source"
     ></EndpointCard>
     <StrategyDropdown
-      v-model:strategy="activeSessionState.formData.syncStrategy"
+      v-model:strategy="activeSessionState!.formData.syncStrategy"
     ></StrategyDropdown>
     <EndpointCard
-      v-model:endpoint="activeSessionState.formData.destinationConfig"
+      v-model:endpoint="activeSessionState!.formData.destinationConfig"
       type="destination"
     ></EndpointCard>
   </div>

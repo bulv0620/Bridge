@@ -1,37 +1,6 @@
 import { reactive, toRaw, watch } from 'vue'
 import { i18n } from '@renderer/locales'
 import { ElMessage } from 'element-plus'
-import { getCachedSyncSession, setCachedSyncSession } from '@renderer/utils/local-cache'
-
-interface SyncForm {
-  sourceConfig: StorageEngineConfig | null // 源
-  destinationConfig: StorageEngineConfig | null // 目标
-  ignoredFolders: string[] // 忽略文件夹
-  syncStrategy: SyncStrategy // 同步策略
-}
-
-export interface SyncSessionState {
-  sessionId: string
-  name: string
-  formData: SyncForm
-  tableData: FileDifference[]
-  status: CompareResult & SyncStatus
-  isComparing: boolean
-  isSyncing: boolean
-}
-
-export interface SyncSession {
-  sessionState: SyncSessionState
-  getRootList(): Promise<void>
-  handleConfigChange(type: 'source' | 'destination'): Promise<void>
-  handleStrategyChange(): Promise<void>
-  handleChangeResolution: (id: string, type: FileSyncResolition) => Promise<void>
-  startCompare(): Promise<void>
-  stopCompare(): void
-  startSync(): Promise<void>
-  stopSync(): void
-  dispose(): void
-}
 
 const { t } = i18n.global
 
@@ -42,7 +11,7 @@ export function useSyncSession(
 ): SyncSession {
   const sessionState = reactive<SyncSessionState>({
     sessionId,
-    name: initName ?? t('views.fileSync.newTab'),
+    name: initName ?? t('views.fileSync.newSession'),
     formData: initForm ?? {
       sourceConfig: null,
       destinationConfig: null,
@@ -62,41 +31,6 @@ export function useSyncSession(
     isComparing: false,
     isSyncing: false,
   })
-
-  const stopCacheWatch = watch(
-    () => [sessionState.name, sessionState.formData],
-    () => {
-      const cachedSessions = getCachedSyncSession()
-
-      const oldItem = cachedSessions.find((session) => session.sessionId === sessionState.sessionId)
-
-      if (oldItem) {
-        oldItem.name = sessionState.name
-        oldItem.formData = sessionState.formData
-      } else {
-        cachedSessions.push({
-          sessionId: sessionState.sessionId,
-          name: sessionState.name,
-          formData: sessionState.formData,
-          tableData: [],
-          status: {
-            totalBytes: 0,
-            totalCount: 0,
-            toLeftCount: 0,
-            toRightCount: 0,
-            ignoreCount: 0,
-            bytesTransferred: 0,
-            transferredCount: 0,
-          },
-          isComparing: false,
-          isSyncing: false,
-        })
-      }
-
-      setCachedSyncSession(cachedSessions)
-    },
-    { immediate: true, deep: true },
-  )
 
   const stopSourceWatch = watch(
     () => sessionState.formData.sourceConfig,
@@ -296,19 +230,10 @@ export function useSyncSession(
 
   // 清理函数
   function dispose() {
-    stopCacheWatch()
     stopSourceWatch()
     stopDestWatch()
     stopStrategyWatch()
     stopIgnoreFoldersWatch()
-
-    // 清理cache
-    const cachedSessions = getCachedSyncSession()
-    const cacheIndex = cachedSessions.findIndex((s) => s.sessionId === sessionState.sessionId)
-    if (cacheIndex > -1) {
-      cachedSessions.splice(cacheIndex, 1)
-    }
-    setCachedSyncSession(cachedSessions)
   }
 
   return {

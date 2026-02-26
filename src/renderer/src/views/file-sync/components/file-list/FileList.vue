@@ -140,9 +140,9 @@ async function handleResolutionChange(
 <template>
   <el-table
     ref="tableRef"
-    v-loading="activeSessionState.isComparing || activeSessionState.isSyncing"
+    v-loading="activeSessionState!.isComparing || activeSessionState!.isSyncing"
     class="diff-file-table"
-    :data="activeSessionState.tableData"
+    :data="activeSessionState!.tableData"
     height="100%"
     row-key="id"
     :cell-style="cellStyle"

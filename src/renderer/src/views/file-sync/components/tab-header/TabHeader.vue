@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, nextTick, computed, h } from 'vue'
-import type { SyncSession, SyncSessionState } from '@renderer/composables/file-sync/useSyncSession'
 import { Close, Plus } from '@element-plus/icons-vue'
 import { useActiveSyncSession } from '@renderer/composables/file-sync/useActiveSyncSession'
 import { ElIcon, ElMessage } from 'element-plus'
@@ -73,7 +72,7 @@ const handleCloseTab = (sessionId: string, index: number) => {
 const handleAddTab = () => {
   if (tabNameRef.value[0].clientWidth < 20) {
     ElMessage({
-      message: t('views.fileSync.tabsFull'),
+      message: t('views.fileSync.sessionsFull'),
       type: 'error',
       plain: true,
     })
@@ -102,9 +101,9 @@ const handleContextmenu = (e: MouseEvent, session: SyncSession, index: number) =
 
 // 边框颜色
 const borderColor = computed(() => {
-  if (activeSessionState.value.isSyncing) {
+  if (activeSessionState.value!.isSyncing) {
     return 'var(--el-color-success)'
-  } else if (activeSessionState.value.isComparing) {
+  } else if (activeSessionState.value!.isComparing) {
     return 'var(--el-color-primary)'
   } else {
     return 'var(--el-border-color)'
@@ -209,7 +208,7 @@ const borderColor = computed(() => {
       flex: 1;
       overflow: hidden;
       height: 34px;
-      max-width: 120px;
+      max-width: 140px;
       padding: 0 12px;
       position: relative;
       display: flex;

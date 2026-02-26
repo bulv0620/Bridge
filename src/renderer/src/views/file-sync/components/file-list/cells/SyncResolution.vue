@@ -28,7 +28,7 @@ async function handleActionClick(resolution: FileSyncResolition) {
 
   await nextTick()
 
-  await activeSession.value.handleChangeResolution(props.id, type.value)
+  await activeSession.value!.handleChangeResolution(props.id, type.value)
 
   emits('change', props.id, type.value, temp)
 }

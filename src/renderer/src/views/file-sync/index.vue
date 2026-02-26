@@ -6,6 +6,10 @@ import IgnoredFoldersModal from './components/ignored-folders-modal/IgnoredFolde
 import SyncStatus from './components/sync-status/SyncStatus.vue'
 import ConnectionModal from './components/connection-modal/ConnectionModal.vue'
 import TabHeader from './components/tab-header/TabHeader.vue'
+import { useActiveSyncSession } from '@renderer/composables/file-sync/useActiveSyncSession'
+import { Plus } from '@element-plus/icons-vue'
+
+const { activeSession, createSyncSession } = useActiveSyncSession()
 
 defineOptions({
   name: 'FileSync',
@@ -14,17 +18,30 @@ defineOptions({
 
 <template>
   <div class="file-sync">
-    <TabHeader></TabHeader>
-
-    <div class="main">
-      <SyncForm></SyncForm>
-      <SyncToolbar></SyncToolbar>
-      <div class="table">
-        <FileList></FileList>
-      </div>
+    <div v-if="!activeSession" class="no-session">
+      <div class="empty-text">{{ $t('views.fileSync.createSyncSession') }}</div>
+      <el-button
+        type="primary"
+        size="small"
+        circle
+        :icon="Plus"
+        @click="createSyncSession"
+      ></el-button>
     </div>
 
-    <div class="footer"><SyncStatus></SyncStatus></div>
+    <template v-else>
+      <TabHeader></TabHeader>
+
+      <div class="main">
+        <SyncForm></SyncForm>
+        <SyncToolbar></SyncToolbar>
+        <div class="table">
+          <FileList></FileList>
+        </div>
+      </div>
+
+      <div class="footer"><SyncStatus></SyncStatus></div>
+    </template>
   </div>
   <IgnoredFoldersModal></IgnoredFoldersModal>
   <ConnectionModal></ConnectionModal>
@@ -36,6 +53,21 @@ defineOptions({
   height: 100vh;
   display: flex;
   flex-direction: column;
+
+  .no-session {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    align-items: center;
+    background: var(--el-fill-color);
+
+    .empty-text {
+      font-size: 16px;
+      color: var(--el-text-color-placeholder);
+    }
+  }
 
   .main {
     flex: 1;

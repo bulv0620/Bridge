@@ -34,11 +34,11 @@ function selectStrategy(type: SyncStrategy) {
 <template>
   <el-dropdown
     trigger="click"
-    :disabled="activeSessionState.isComparing || activeSessionState.isSyncing"
+    :disabled="activeSessionState!.isComparing || activeSessionState!.isSyncing"
     @command="selectStrategy"
   >
     <!-- 触发按钮 -->
-    <el-button circle :disabled="activeSessionState.isComparing || activeSessionState.isSyncing">
+    <el-button circle :disabled="activeSessionState!.isComparing || activeSessionState!.isSyncing">
       <el-icon>
         <component :is="strategyIconMap[strategy]" />
       </el-icon>

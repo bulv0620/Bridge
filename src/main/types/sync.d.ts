@@ -102,3 +102,39 @@ declare interface SyncStatus {
   bytesTransferred: number
   transferredCount: number
 }
+
+declare interface SyncForm {
+  sourceConfig: StorageEngineConfig | null // 源
+  destinationConfig: StorageEngineConfig | null // 目标
+  ignoredFolders: string[] // 忽略文件夹
+  syncStrategy: SyncStrategy // 同步策略
+}
+
+declare interface SyncSessionState {
+  sessionId: string
+  name: string
+  formData: SyncForm
+  tableData: FileDifference[]
+  status: CompareResult & SyncStatus
+  isComparing: boolean
+  isSyncing: boolean
+}
+
+declare interface SyncSession {
+  sessionState: SyncSessionState
+  getRootList(): Promise<void>
+  handleConfigChange(type: 'source' | 'destination'): Promise<void>
+  handleStrategyChange(): Promise<void>
+  handleChangeResolution: (id: string, type: FileSyncResolition) => Promise<void>
+  startCompare(): Promise<void>
+  stopCompare(): void
+  startSync(): Promise<void>
+  stopSync(): void
+  dispose(): void
+}
+
+declare interface CacehdSession {
+  sessionId: string
+  name: string
+  formData: SyncForm
+}

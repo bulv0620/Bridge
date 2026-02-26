@@ -37,7 +37,8 @@
     "noResult": "No Result",
     "remember": "Remember",
     "complete": "Complete",
-    "dropHere": "Drop Here"
+    "dropHere": "Drop Here",
+    "back": "Back"
   },
   "views": {
     "fileSync": {

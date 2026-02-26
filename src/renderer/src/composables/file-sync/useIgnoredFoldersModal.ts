@@ -7,12 +7,12 @@ const visible = ref(false)
 const edtingIgnoredFolderList = ref<string[]>([])
 
 function openIgnoredFoldersModal() {
-  edtingIgnoredFolderList.value = [...activeSessionState.value.formData.ignoredFolders]
+  edtingIgnoredFolderList.value = [...activeSessionState.value!.formData.ignoredFolders]
   visible.value = true
 }
 
 function conifrmIgnoredFolders() {
-  activeSessionState.value.formData.ignoredFolders = edtingIgnoredFolderList.value.filter(
+  activeSessionState.value!.formData.ignoredFolders = edtingIgnoredFolderList.value.filter(
     (folder) => !!folder,
   )
 

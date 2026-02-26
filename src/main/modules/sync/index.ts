@@ -1,9 +1,22 @@
 import { IpcMainInvokeEvent } from 'electron'
 import { StorageSession } from './service/storage-session/StorageSession'
 import { SyncSession } from './service/sync-session/SyncSession'
+import { getStore } from '../../store'
+
+const store = getStore()
 
 const storageSessionMap = new Map<string, StorageSession>() // 连接会话
 const syncSessionMap = new Map<string, SyncSession>() // 同步会话
+
+// 缓存会话
+export function cacheSessions(_: IpcMainInvokeEvent, sessions: CacehdSession[]) {
+  store.set('syncSessions', sessions)
+}
+
+// 获取缓存的会话列表
+export function getCachedSessions(_: IpcMainInvokeEvent) {
+  return store.get('syncSessions')
+}
 
 // 创建同步会话
 export function createSyncSession(_: IpcMainInvokeEvent, id?: string) {

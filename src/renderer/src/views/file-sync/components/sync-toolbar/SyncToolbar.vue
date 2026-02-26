@@ -10,31 +10,31 @@ const { openIgnoredFoldersModal } = useIgnoredFoldersModal()
 
 const isFormCompleted = computed(() => {
   return (
-    !!activeSessionState.value.formData.sourceConfig &&
-    !!activeSessionState.value.formData.destinationConfig
+    !!activeSessionState.value!.formData.sourceConfig &&
+    !!activeSessionState.value!.formData.destinationConfig
   )
 })
 
 // 按钮类型映射到 Element Plus
 const compareButtonType = computed(() => {
-  if (activeSessionState.value.isComparing || activeSessionState.value.isSyncing) return ''
+  if (activeSessionState.value!.isComparing || activeSessionState.value!.isSyncing) return ''
   if (isFormCompleted.value) return 'primary'
   return ''
 })
 
 const stopButtonType = computed(() => {
-  if (activeSessionState.value.isComparing) return 'danger'
+  if (activeSessionState.value!.isComparing) return 'danger'
   return ''
 })
 
 const syncButtonType = computed(() => {
-  if (activeSessionState.value.isComparing || activeSessionState.value.isSyncing) return ''
-  if (isFormCompleted.value && activeSessionState.value.tableData.length > 0) return 'success'
+  if (activeSessionState.value!.isComparing || activeSessionState.value!.isSyncing) return ''
+  if (isFormCompleted.value && activeSessionState.value!.tableData.length > 0) return 'success'
   return ''
 })
 
 const pauseButtonType = computed(() => {
-  if (activeSessionState.value.isSyncing) return 'warning'
+  if (activeSessionState.value!.isSyncing) return 'warning'
   return ''
 })
 </script>
@@ -44,10 +44,10 @@ const pauseButtonType = computed(() => {
     <!-- 比较按钮 -->
     <el-button
       :type="compareButtonType"
-      :disabled="!isFormCompleted || activeSessionState.isSyncing"
-      :loading="activeSessionState.isComparing"
+      :disabled="!isFormCompleted || activeSessionState!.isSyncing"
+      :loading="activeSessionState!.isComparing"
       :icon="SwapHorizontal"
-      @click="activeSession.startCompare"
+      @click="activeSession!.startCompare"
     >
       {{ $t('views.fileSync.compare') }}
     </el-button>
@@ -55,9 +55,9 @@ const pauseButtonType = computed(() => {
     <!-- 停止比较 -->
     <el-button
       :type="stopButtonType"
-      :disabled="!activeSessionState.isComparing"
+      :disabled="!activeSessionState!.isComparing"
       :icon="Stop"
-      @click="activeSession.stopCompare"
+      @click="activeSession!.stopCompare"
     >
       {{ $t('views.fileSync.stop') }}
     </el-button>
@@ -66,12 +66,12 @@ const pauseButtonType = computed(() => {
     <el-button
       :type="syncButtonType"
       :disabled="
-        !(isFormCompleted && activeSessionState.tableData.length > 0) ||
-        activeSessionState.isComparing
+        !(isFormCompleted && activeSessionState!.tableData.length > 0) ||
+        activeSessionState!.isComparing
       "
-      :loading="activeSessionState.isSyncing"
+      :loading="activeSessionState!.isSyncing"
       :icon="Play"
-      @click="activeSession.startSync"
+      @click="activeSession!.startSync"
     >
       {{ $t('views.fileSync.startSync') }}
     </el-button>
@@ -79,9 +79,9 @@ const pauseButtonType = computed(() => {
     <!-- 暂停同步 -->
     <el-button
       :type="pauseButtonType"
-      :disabled="!activeSessionState.isSyncing"
+      :disabled="!activeSessionState!.isSyncing"
       :icon="Pause"
-      @click="activeSession.stopSync"
+      @click="activeSession!.stopSync"
     >
       {{ $t('views.fileSync.pauseSync') }}
     </el-button>
@@ -89,12 +89,12 @@ const pauseButtonType = computed(() => {
     <!-- 忽略文件夹 badge -->
     <el-badge
       :show-zero="false"
-      :value="activeSessionState.formData.ignoredFolders.length"
+      :value="activeSessionState!.formData.ignoredFolders.length"
       type="success"
       style="margin-left: auto"
     >
       <el-button
-        :disabled="activeSessionState.isComparing || activeSessionState.isSyncing"
+        :disabled="activeSessionState!.isComparing || activeSessionState!.isSyncing"
         :icon="Folder"
         @click="openIgnoredFoldersModal"
       >

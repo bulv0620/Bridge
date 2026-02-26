@@ -7,10 +7,10 @@ import { ChevronBack, ChevronForward, Ban, PieChart } from '@vicons/ionicons5'
 const { activeSessionState } = useActiveSyncSession()
 
 const percentage = computed(() => {
-  if (activeSessionState.value.status.totalCount === 0) return 0
+  if (activeSessionState.value!.status.totalCount === 0) return 0
   return Math.round(
-    (activeSessionState.value.status.transferredCount /
-      activeSessionState.value.status.totalCount) *
+    (activeSessionState.value!.status.transferredCount /
+      activeSessionState.value!.status.totalCount) *
       100,
   )
 })
@@ -20,25 +20,25 @@ const percentage = computed(() => {
   <div class="sync-status">
     <el-text class="text">
       <el-icon><PieChart></PieChart></el-icon>
-      {{ activeSessionState.status.transferredCount }}/{{ activeSessionState.status.totalCount }}
+      {{ activeSessionState!.status.transferredCount }}/{{ activeSessionState!.status.totalCount }}
     </el-text>
     <el-text type="primary">
       <el-icon><ChevronForward></ChevronForward></el-icon>
-      {{ activeSessionState.status.toRightCount }}
+      {{ activeSessionState!.status.toRightCount }}
     </el-text>
     <el-text type="success">
       <el-icon><ChevronBack></ChevronBack></el-icon>
-      {{ activeSessionState.status.toLeftCount }}
+      {{ activeSessionState!.status.toLeftCount }}
     </el-text>
     <el-text type="info">
       <el-icon><Ban></Ban></el-icon>
-      {{ activeSessionState.status.ignoreCount }}
+      {{ activeSessionState!.status.ignoreCount }}
     </el-text>
 
     <div class="progress-wrapper">
       <el-text class="text">
-        {{ formatBytes(activeSessionState.status.bytesTransferred) }}/{{
-          formatBytes(activeSessionState.status.totalBytes)
+        {{ formatBytes(activeSessionState!.status.bytesTransferred) }}/{{
+          formatBytes(activeSessionState!.status.totalBytes)
         }}
       </el-text>
       <el-progress class="progress" :percentage="percentage"></el-progress>

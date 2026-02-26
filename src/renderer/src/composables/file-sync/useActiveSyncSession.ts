@@ -1,25 +1,41 @@
-import { computed, ref } from 'vue'
-import { SyncSession, useSyncSession } from './useSyncSession'
-import { getCachedSyncSession } from '@renderer/utils/local-cache'
+import { computed, ref, watch } from 'vue'
+import { useSyncSession } from './useSyncSession'
 import { ElMessage } from 'element-plus'
 import { i18n } from '@renderer/locales'
 
 const { t } = i18n.global
 
 const sessions = ref<SyncSession[]>([])
+
+// 会话配置（用于缓存）
+const sessionConfigList = computed<CacehdSession[]>(() =>
+  sessions.value.map((session) => ({
+    sessionId: session.sessionState.sessionId,
+    name: session.sessionState.name,
+    formData: session.sessionState.formData,
+  })),
+)
+
+watch(
+  sessionConfigList,
+  (val) => {
+    window.ipc.sync.cacheSessions(JSON.parse(JSON.stringify(val)))
+  },
+  { deep: true },
+)
+
 // 当前激活的会话
 const activeSessionId = ref('')
-await initSessions()
 const activeSession = computed(() => {
-  return sessions.value.find((session) => session.sessionState.sessionId === activeSessionId.value)!
+  return sessions.value.find((session) => session.sessionState.sessionId === activeSessionId.value)
 })
 
 // 当前的state
-const activeSessionState = computed(() => activeSession.value.sessionState)
+const activeSessionState = computed(() => activeSession.value?.sessionState)
 
 // 初始化会话列表
 async function initSessions() {
-  const cachedSessions = getCachedSyncSession()
+  const cachedSessions = await window.ipc.sync.getCachedSessions()
   if (cachedSessions.length === 0) {
     // 没有历史方案则创建一个新的
     await createSyncSession()
@@ -35,6 +51,7 @@ async function initSessions() {
     activeSessionId.value = sessions.value[0].sessionState.sessionId
   }
 }
+initSessions() // 初始化即执行
 
 // 新建会话
 async function createSyncSession() {
@@ -49,11 +66,9 @@ async function createSyncSession() {
 // 结束会话
 async function closeSyncSession(id: string, index: number) {
   if (sessions.value.length === 1) {
-    ElMessage({
-      message: t('views.fileSync.lastCannotClose'),
-      type: 'error',
-      plain: true,
-    })
+    activeSessionId.value = ''
+    sessions.value[0].dispose()
+    sessions.value.splice(0)
     return
   }
 

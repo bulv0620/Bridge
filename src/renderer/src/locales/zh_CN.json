@@ -37,7 +37,8 @@
     "noResult": "无结果",
     "remember": "记住选择",
     "complete": "完成",
-    "dropHere": "释放上传"
+    "dropHere": "释放上传",
+    "back": "返回"
   },
   "views": {
     "fileSync": {

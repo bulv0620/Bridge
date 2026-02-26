@@ -48,8 +48,8 @@ const sessionId = ref('')
 
 const formRef = ref<any>(null)
 const currentStep = ref(1) // 当前步骤
-const storageType = ref<StorageType>('ftp') // 配置类型
-const connectionConfig = ref<ConnectionConfig>(connectionConfigInitData.get('ftp')!) // 配置form内容
+const storageType = ref<StorageType>('local') // 配置类型
+const connectionConfig = ref<any>(null) // 配置form内容
 const selectedPath = ref<string>('') // 选择的路径
 
 watch(visible, (val) => {
@@ -101,11 +101,11 @@ async function submitForm() {
   }
 }
 
-function openConnectionModal(type: StorageType) {
+function openConnectionModal(type: StorageType, config?: any) {
   sessionId.value = ''
   storageType.value = type
 
-  connectionConfig.value = structuredClone(connectionConfigInitData.get(type)!)
+  connectionConfig.value = structuredClone(config || connectionConfigInitData.get(type)!)
 
   currentStep.value = 1
   visible.value = true

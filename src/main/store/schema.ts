@@ -58,4 +58,11 @@ export const schema: Schema<AppStoreSchema> = {
     type: 'string',
     default: '',
   },
+  syncSessions: {
+    type: 'array',
+    items: {
+      type: 'object',
+    },
+    default: [],
+  },
 }
