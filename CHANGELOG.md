@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.6.2](https://github.com/bulv0620/Bridge/compare/v0.6.1...v0.6.2) (2026-02-26)
+
+
+### Bug Fixes
+
+* prevent config changes while sync session is running ([34644e1](https://github.com/bulv0620/Bridge/commit/34644e1587e6e8104d769019990056fcddff6d55))
+
+
+
 ## [0.6.1](https://github.com/bulv0620/Bridge/compare/v0.6.0...v0.6.1) (2026-02-26)
 
 

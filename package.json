@@ -1,6 +1,6 @@
 {
   "name": "bridge",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Bridge — A Smart LAN Collaboration & File Management Tool",
   "main": "./out/main/index.js",
   "author": "bulv.cc",
