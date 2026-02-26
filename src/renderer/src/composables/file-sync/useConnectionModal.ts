@@ -35,6 +35,8 @@ const connectionConfigInitData = new Map<StorageType, ConnectionConfig>([
       bucket: '',
       endpoint: '',
       forcePathStyle: true,
+      useProxy: false,
+      proxyUrl: '',
     } satisfies S3Config,
   ],
 ])

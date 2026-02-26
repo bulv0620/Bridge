@@ -114,11 +114,17 @@
       "s3EndpointPlaceholder": "例如：https://s3.amazonaws.com",
       "s3EndpointFormat": "Endpoint 格式不正确，请输入合法的 URL",
       "s3ForcePathStyle": "强制使用 Path Style",
-      "tabsFull": "标签数量已达上限",
-      "newTab": "新标签",
-      "lastCannotClose": "最后一个标签不可关闭",
+      "sessionsFull": "会话数量已达上限",
+      "newSession": "新会话",
       "inProgressPauseBeforeClose": "任务执行中，请先暂停任务后关闭",
-      "capacity": "容量"
+      "capacity": "容量",
+      "createSyncSession": "点击创建同步会话",
+      "s3UseProxy": "使用代理",
+      "s3ProxyUrl": "代理地址",
+      "s3ProxyRequired": "请输入代理地址",
+      "s3ProxyFormat": "代理地址格式不正确",
+      "s3AdvancedOptions": "高级选项",
+      "s3ProxyUrlPlaceholder": "例如：http://127.0.0.1:7890"
     },
     "sharedZone": {
       "title": "共享空间",

@@ -41,6 +41,8 @@ declare interface S3Config {
   bucket: string
   endpoint?: string // 可选：用于兼容 S3 兼容服务
   forcePathStyle?: boolean
+  useProxy?: boolean // 使用代理
+  proxyUrl?: string // 代理地址
 }
 
 /**

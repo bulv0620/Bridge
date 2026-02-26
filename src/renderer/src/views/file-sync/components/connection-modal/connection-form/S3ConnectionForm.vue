@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { ElForm } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 
@@ -37,6 +37,27 @@ const rules = computed(() => ({
       trigger: 'blur',
     },
   ],
+  proxyUrl: [
+    {
+      validator: (_, value, callback) => {
+        if (!s3Config.value.useProxy) {
+          return callback() // 没开启代理，不校验
+        }
+
+        if (!value) {
+          return callback(new Error(t('views.fileSync.s3ProxyRequired')))
+        }
+
+        try {
+          new URL(value)
+          callback()
+        } catch {
+          callback(new Error(t('views.fileSync.s3ProxyFormat')))
+        }
+      },
+      trigger: 'blur',
+    },
+  ],
 }))
 
 /** 暴露方法给父组件 */
@@ -47,6 +68,16 @@ function validate() {
 function clearValidate() {
   return formRef.value?.clearValidate()
 }
+
+watch(
+  () => s3Config.value.useProxy,
+  (val) => {
+    if (!val) {
+      s3Config.value.proxyUrl = ''
+      formRef.value?.clearValidate('proxyUrl')
+    }
+  },
+)
 
 defineExpose({
   validate,
@@ -119,6 +150,40 @@ defineExpose({
           <el-switch v-model="s3Config.forcePathStyle" />
         </el-form-item>
       </el-col>
+
+      <!-- Advanced Options -->
+      <el-col :span="24">
+        <el-collapse>
+          <el-collapse-item :title="t('views.fileSync.s3AdvancedOptions')" name="advanced">
+            <el-row :gutter="12">
+              <!-- Use Proxy -->
+              <el-col :span="6">
+                <el-form-item :label="t('views.fileSync.s3UseProxy')" prop="useProxy">
+                  <el-switch v-model="s3Config.useProxy" />
+                </el-form-item>
+              </el-col>
+
+              <!-- Proxy URL -->
+              <el-col :span="18">
+                <el-form-item :label="t('views.fileSync.s3ProxyUrl')" prop="proxyUrl">
+                  <el-input
+                    v-model="s3Config.proxyUrl"
+                    :placeholder="t('views.fileSync.s3ProxyUrlPlaceholder')"
+                    clearable
+                    :disabled="!s3Config.useProxy"
+                  />
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </el-collapse-item>
+        </el-collapse>
+      </el-col>
     </el-row>
   </el-form>
 </template>
+
+<style scoped lang="less">
+:deep(.el-collapse-item__content) {
+  padding-bottom: 4px;
+}
+</style>

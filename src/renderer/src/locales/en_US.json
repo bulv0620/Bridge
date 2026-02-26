@@ -114,11 +114,17 @@
       "s3EndpointPlaceholder": "e.g., https://s3.amazonaws.com",
       "s3EndpointFormat": "Invalid endpoint URL format",
       "s3ForcePathStyle": "Force Path Style",
-      "tabsFull": "Maximum number of tabs reached",
-      "newTab": "New Tab",
-      "lastCannotClose": "The last tab cannot be closed",
+      "sessionsFull": "Maximum number of sessions reached",
+      "newSession": "New Session",
       "inProgressPauseBeforeClose": "Task is running, please pause it before closing.",
-      "capacity": "Storage Capacity"
+      "capacity": "Storage Capacity",
+      "createSyncSession": "Create Sync Session",
+      "s3UseProxy": "Use Proxy",
+      "s3ProxyUrl": "Proxy URL",
+      "s3ProxyRequired": "Please enter the proxy URL",
+      "s3ProxyFormat": "Invalid proxy URL format",
+      "s3AdvancedOptions": "Advanced Options",
+      "s3ProxyUrlPlaceholder": "e.g., http://127.0.0.1:7890"
     },
     "sharedZone": {
       "title": "Shared Zone",

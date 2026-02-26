@@ -9,6 +9,8 @@ import {
   CopyObjectCommand,
 } from '@aws-sdk/client-s3'
 import { Upload } from '@aws-sdk/lib-storage'
+import { NodeHttpHandler } from '@smithy/node-http-handler'
+import { HttpsProxyAgent } from 'https-proxy-agent'
 import path from 'path'
 import { PassThrough, Readable } from 'stream'
 import { ReadStream, WriteStream } from 'fs'
@@ -30,6 +32,11 @@ export class S3StorageEngine extends StorageEngine {
         accessKeyId: config.accessKeyId,
         secretAccessKey: config.secretAccessKey,
       },
+      requestHandler: config.useProxy
+        ? new NodeHttpHandler({
+            httpsAgent: new HttpsProxyAgent(config.proxyUrl!),
+          })
+        : undefined,
     })
   }
 
