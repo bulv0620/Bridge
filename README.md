@@ -20,9 +20,13 @@ Offers three flexible synchronization strategies:
 
 ### 🌐 LAN File Sharing
 
-Automatically discover devices on the same network running Bridge.
+Automatically discovers allowed devices on the same network.
 
-Select the files to transfer and click on an online device to send them.
+Select the file you want to transfer, click on the online device, and wait for the recipient to confirm receipt before sending the file.
+
+And there's One More Thing: Enable clipboard sharing, and you'll share your clipboard with devices on the local network.
+
+> Clipboard sharing currently supports sharing images and text.
 
 
 
