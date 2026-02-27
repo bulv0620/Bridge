@@ -9,7 +9,7 @@ export const shareInterval = remoteRef('share-interval', store.get('shareInterva
 export const httpPort = remoteRef('http-port', store.get('ports').http)
 export const updPort = remoteRef('udp-port', store.get('ports').udp)
 
-export const lanDiscoverable = remoteRef('lan-discoverable', store.get('lanDiscoverable'))
+export const lanDiscovery = remoteRef('lan-discovery', store.get('lanDiscovery'))
 export const capabilities = remoteRef('share-capabilities', store.get('capabilities'))
 
 export const downloadPath = remoteRef('download-path', store.get('downloadPath'))
@@ -20,9 +20,9 @@ export function initShareConfig() {
     store.set('downloadPath', downloadPath.value)
   }
 
-  lanDiscoverable.onUpdate(
+  lanDiscovery.onUpdate(
     (val) => {
-      store.set('lanDiscoverable', val)
+      store.set('lanDiscovery', val)
       if (val) {
         startService()
       } else {

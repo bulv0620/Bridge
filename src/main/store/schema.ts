@@ -20,7 +20,7 @@ export const schema: Schema<AppStoreSchema> = {
     type: 'string',
     default: '',
   },
-  lanDiscoverable: {
+  lanDiscovery: {
     type: 'boolean',
     default: false,
   },

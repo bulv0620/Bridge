@@ -6,7 +6,7 @@ export interface AppStoreSchema {
 
   deviceId: string
   deviceName: string
-  lanDiscoverable: boolean
+  lanDiscovery: boolean
   ports: {
     udp: number
     http: number

@@ -4,14 +4,14 @@ import { useRemoteRef } from '@renderer/composables/remote-ref/useRemoteRef'
 
 const visible = ref(false)
 
-const lanDiscoverable = useRemoteRef('lan-discoverable', false)
+const lanDiscovery = useRemoteRef('lan-discovery', false)
 const capabilities = useRemoteRef<string[]>('share-capabilities', [])
 
 const filePushEnabled = createCapProxy('file-push')
 const clipboardEnabled = createCapProxy('clipboard')
 
 const configForm = ref({
-  lanDiscoverable: false,
+  lanDiscovery: false,
   filePushEnabled: false,
   clipboardEnabled: false,
 })
@@ -32,7 +32,7 @@ function createCapProxy(tag: string) {
 }
 
 function openSettingModal() {
-  configForm.value.lanDiscoverable = lanDiscoverable.value
+  configForm.value.lanDiscovery = lanDiscovery.value
   configForm.value.filePushEnabled = filePushEnabled.value
   configForm.value.clipboardEnabled = clipboardEnabled.value
 
@@ -40,7 +40,7 @@ function openSettingModal() {
 }
 
 function confirm() {
-  lanDiscoverable.value = configForm.value.lanDiscoverable
+  lanDiscovery.value = configForm.value.lanDiscovery
   filePushEnabled.value = configForm.value.filePushEnabled
   clipboardEnabled.value = configForm.value.clipboardEnabled
 

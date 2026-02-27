@@ -48,10 +48,10 @@ declare interface S3Config {
 /**
  * 同步策略类型
  * - incremental: 增量同步（仅同步变化的文件）
- * - bidirectional: 双向同步（冲突时提示用户选择）
+ * - to-way: 双向同步（冲突时提示用户选择）
  * - mirror: 镜像同步（强制目标端与源端完全一致）
  */
-declare type SyncStrategy = 'incremental' | 'bidirectional' | 'mirror'
+declare type SyncStrategy = 'incremental' | 'twoWay' | 'mirror'
 
 // 文件元数据接口
 declare interface FileMetaData {

@@ -16,7 +16,7 @@ Offers three flexible synchronization strategies:
 
 - **Mirror Sync**: Target directory becomes an exact replica of the source directory structure.
 - **Incremental Sync**: Overwrites identical files, copies new files, and retains old files existing only in the target directory.
-- **Bidirectional Sync**: Copies newer files in both directions; conflicting files are ignored by default.
+- **Two-way Sync**: Copies newer files in both directions; conflicting files are ignored by default.
 
 ### 🌐 LAN Sharing
 

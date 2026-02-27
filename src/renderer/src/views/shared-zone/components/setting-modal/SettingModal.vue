@@ -14,15 +14,15 @@ const { visible, configForm, confirm } = useSettingModal()
     <div class="settings-container">
       <div class="setting-item">
         <div class="label">
-          <span class="title">{{ $t('views.sharedZone.lanDiscoverable') }}</span>
-          <p class="desc">{{ $t('views.sharedZone.lanDiscoverableDesc') }}</p>
+          <span class="title">{{ $t('views.sharedZone.lanDiscovery') }}</span>
+          <p class="desc">{{ $t('views.sharedZone.lanDiscoveryDesc') }}</p>
         </div>
-        <el-switch v-model="configForm.lanDiscoverable" />
+        <el-switch v-model="configForm.lanDiscovery" />
       </div>
 
-      <el-divider v-if="configForm.lanDiscoverable" class="divider" />
+      <el-divider v-if="configForm.lanDiscovery" class="divider" />
 
-      <div v-if="configForm.lanDiscoverable" class="setting-item">
+      <div v-if="configForm.lanDiscovery" class="setting-item">
         <div class="label">
           <span class="title">{{ $t('views.sharedZone.filePush') }}</span>
           <p class="desc">{{ $t('views.sharedZone.filePushDesc') }}</p>
@@ -30,7 +30,7 @@ const { visible, configForm, confirm } = useSettingModal()
         <el-switch v-model="configForm.filePushEnabled" />
       </div>
 
-      <div v-if="configForm.lanDiscoverable" class="setting-item">
+      <div v-if="configForm.lanDiscovery" class="setting-item">
         <div class="label">
           <span class="title">{{ $t('views.sharedZone.clipboardShare') }}</span>
           <p class="desc">{{ $t('views.sharedZone.clipboardShareDesc') }}</p>

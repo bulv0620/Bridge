@@ -12,7 +12,7 @@ const strategy = defineModel<SyncStrategy>('strategy', { required: true })
 const strategyIconMap: Record<SyncStrategy, any> = {
   mirror: ArrowRight20Filled,
   incremental: ArrowStepOver20Filled,
-  bidirectional: ArrowSplit20Filled,
+  twoWay: ArrowSplit20Filled,
 }
 
 // 下拉菜单选项
@@ -20,9 +20,9 @@ const strategyOptions = [
   { label: t('views.fileSync.mirror'), key: 'mirror', icon: strategyIconMap.mirror },
   { label: t('views.fileSync.incremental'), key: 'incremental', icon: strategyIconMap.incremental },
   {
-    label: t('views.fileSync.bidirectional'),
-    key: 'bidirectional',
-    icon: strategyIconMap.bidirectional,
+    label: t('views.fileSync.twoWay'),
+    key: 'twoWay',
+    icon: strategyIconMap.twoWay,
   },
 ]
 
