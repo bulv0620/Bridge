@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.6.3](https://github.com/bulv0620/Bridge/compare/v0.6.2...v0.6.3) (2026-02-27)
+
+
+
 ## [0.6.2](https://github.com/bulv0620/Bridge/compare/v0.6.1...v0.6.2) (2026-02-26)
 
 
