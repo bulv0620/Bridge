@@ -33,13 +33,6 @@ if (!gotTheLock) {
     minHeight: 600,
     width: 1100,
   })
-  mainWindow.on('close', (event) => {
-    if (!global.flagQuit) {
-      // 在关闭窗口时取消默认行为，隐藏窗口到托盘
-      event.preventDefault()
-      mainWindow.hide()
-    }
-  })
 
   const tray = createTray()
   initAppConfig()
@@ -60,13 +53,21 @@ if (!gotTheLock) {
     }
   })
 
-  app.on('before-quit', async (event) => {
+  mainWindow.on('close', (event) => {
     if (!global.flagQuit) {
-      event.preventDefault() // 阻止默认退出
-      // await stopAllTasks()
+      // 在关闭窗口时取消默认行为，隐藏窗口到托盘
+      event.preventDefault()
+      mainWindow.hide()
+    }
+  })
+
+  app.on('before-quit', async () => {
+    if (!global.flagQuit) {
       global.flagQuit = true
-      tray.destroy()
-      app.quit() // 继续退出流程
+
+      if (tray) {
+        tray.destroy()
+      }
     }
   })
 })()
