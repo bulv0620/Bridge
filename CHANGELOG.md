@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.7.2](https://github.com/bulv0620/file-bridge/compare/v0.7.1...v0.7.2) (2026-04-11)
+
+
+### Bug Fixes
+
+* resolve issue in quit logic ([ff742c5](https://github.com/bulv0620/file-bridge/commit/ff742c5907ae6edb67c85876364c01edc2f346fd))
+
+
+
 ## [0.7.1](https://github.com/bulv0620/file-bridge/compare/v0.7.0...v0.7.1) (2026-04-11)
 
 
