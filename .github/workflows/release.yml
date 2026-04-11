@@ -13,9 +13,6 @@ jobs:
         include:
           # macOS
           - os: macos-latest
-            arch: x64
-            build_script: build:mac
-          - os: macos-latest
             arch: arm64
             build_script: build:mac
 
@@ -67,7 +64,6 @@ jobs:
         run: |
           echo "Building target: ${{ matrix.os }} / ${{ matrix.arch }}"
 
-          # electron-builder 支持 --arm64 --x64
           npm run ${{ matrix.build_script }} -- \
             --${{ matrix.arch }} \
             --publish always
