@@ -34,7 +34,7 @@ if (!gotTheLock) {
     width: 1100,
   })
 
-  const tray = createTray()
+  createTray()
   initAppConfig()
   registerAllEvents()
 
@@ -54,20 +54,10 @@ if (!gotTheLock) {
   })
 
   mainWindow.on('close', (event) => {
-    if (!global.flagQuit) {
+    if (!global.quitFlag) {
       // 在关闭窗口时取消默认行为，隐藏窗口到托盘
       event.preventDefault()
       mainWindow.hide()
-    }
-  })
-
-  app.on('before-quit', async () => {
-    if (!global.flagQuit) {
-      global.flagQuit = true
-
-      if (tray) {
-        tray.destroy()
-      }
     }
   })
 })()

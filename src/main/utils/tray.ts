@@ -4,7 +4,7 @@ import { getWindow } from './window'
 import { icon, iconMac } from './iconPath'
 import os from 'os'
 
-let tray: Tray
+let tray: Tray | undefined
 let contextMenu: Menu
 
 export function createTray(): Tray {
@@ -19,6 +19,7 @@ export function createTray(): Tray {
     {
       label: messages.en_US.tray.quit,
       click: () => {
+        global.quitFlag = true
         app.quit()
       },
     },
@@ -38,7 +39,7 @@ export function createTray(): Tray {
 
   // 右键：弹出菜单
   tray.on('right-click', () => {
-    tray.popUpContextMenu(contextMenu)
+    tray!.popUpContextMenu(contextMenu)
   })
 
   return tray
@@ -77,11 +78,19 @@ export function updateTray(lang: string, options: { mainWindow: BrowserWindow })
     {
       label: messages[lang].tray.quit,
       click: () => {
+        global.quitFlag = true
         app.quit()
       },
     },
   ])
   if (os.platform() === 'linux') {
-    tray.setContextMenu(contextMenu)
+    tray!.setContextMenu(contextMenu)
+  }
+}
+
+export function destroyTray() {
+  if (tray) {
+    tray.destroy()
+    tray = undefined
   }
 }

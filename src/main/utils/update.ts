@@ -1,6 +1,7 @@
 import { BrowserWindow, dialog } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import { messages } from '../locales'
+import { destroyTray } from './tray'
 
 export function checkUpdate() {
   return new Promise<string>((resolve, reject) => {
@@ -58,6 +59,8 @@ export function downloadUpdate(mainWindow: BrowserWindow) {
       })
 
       if (result.response === 0) {
+        global.quitFlag = true
+        destroyTray()
         autoUpdater.quitAndInstall()
       }
     })
