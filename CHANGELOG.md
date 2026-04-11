@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+# [0.7.0](https://github.com/bulv0620/file-bridge/compare/v0.6.3...v0.7.0) (2026-04-11)
+
+
+### Features
+
+* add notarization support for macOS and update build configurations ([ca2b201](https://github.com/bulv0620/file-bridge/commit/ca2b2014a9aad04ad134d6f6432a99e26951ffc4))
+
+
+
 ## [0.6.3](https://github.com/bulv0620/Bridge/compare/v0.6.2...v0.6.3) (2026-02-27)
 
 
