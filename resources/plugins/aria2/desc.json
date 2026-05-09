@@ -1,7 +1,0 @@
-{
-  "title": "aria2",
-  "summary": "Aria2 is a lightweight download utility that supports HTTP(S), FTP, SFTP, BitTorrent, and Metalink.",
-  "configPath": "./aria2.conf",
-  "entryPath": "./aria2c",
-  "cliArgs": ["--conf-path=aria2.conf"]
-}
