@@ -40,7 +40,6 @@
     "element-plus": "^2.11.7",
     "express": "^5.1.0",
     "https-proxy-agent": "^7.0.6",
-    "monaco-editor": "^0.52.2",
     "seemly": "^0.3.10",
     "stream-buffers": "^3.0.3",
     "uuid": "^13.0.0",
@@ -76,7 +75,6 @@
     "typescript": "^5.5.2",
     "vfonts": "^0.0.3",
     "vite": "^5.3.1",
-    "vite-plugin-monaco-editor": "^1.1.0",
     "vite-svg-loader": "^5.1.0",
     "vue": "^3.4.30",
     "vue-tsc": "^2.0.22"
