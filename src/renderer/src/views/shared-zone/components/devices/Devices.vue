@@ -9,36 +9,46 @@ const { createSendingTask } = useTaskList()
 </script>
 
 <template>
-  <div class="devices">
+  <aside class="devices">
     <div class="devices-header">
-      <span>{{ $t('views.sharedZone.availableDevices') }}</span>
+      <h2>{{ $t('views.sharedZone.availableDevices') }}</h2>
+      <span>{{ devices.length }}</span>
     </div>
     <el-scrollbar v-if="devices.length" class="device-list">
-      <div
+      <button
         v-for="d in devices"
         :key="d.id"
+        type="button"
         class="device-card"
-        :class="{ disabled: !d.services.cap.includes('file-push') }"
+        :disabled="!d.services.cap.includes('file-push')"
         @click="createSendingTask(d)"
       >
-        <el-icon class="device-icon"><Monitor></Monitor></el-icon>
+        <span class="device-icon-wrap">
+          <el-icon class="device-icon"><Monitor></Monitor></el-icon>
+          <span class="online-dot"></span>
+        </span>
         <div class="device-info">
           <div class="name">{{ d.device.name }}</div>
           <div class="status">{{ d.ip }}</div>
         </div>
-      </div>
+      </button>
     </el-scrollbar>
     <div v-else class="devices-empty">
-      <span>{{ $t('views.sharedZone.noDevice') }}</span>
+      <span class="empty-icon">
+        <el-icon><Monitor /></el-icon>
+      </span>
+      <strong>{{ $t('views.sharedZone.noDevice') }}</strong>
     </div>
-  </div>
+  </aside>
 </template>
 
 <style lang="less" scoped>
 .devices {
-  width: 300px;
-  background: var(--el-bg-color);
-  border-radius: 12px;
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  padding: 10px 10px 6px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 
@@ -46,66 +56,106 @@ const { createSendingTask } = useTaskList()
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
-    font-weight: 600;
-    font-size: 14px;
+    gap: 10px;
+    min-height: 30px;
+    padding: 0 4px;
+    margin-bottom: 6px;
+
+    h2 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+
+    > span {
+      color: var(--el-text-color-placeholder);
+      font: 600 11px/1 monospace;
+    }
   }
 
   .device-list {
+    min-height: 0;
     flex: 1;
 
+    :deep(.el-scrollbar__view) {
+      padding-right: 2px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 4px;
+    }
+
     .device-card {
+      width: 100%;
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 12px;
-      border-radius: 10px;
+      min-height: 56px;
+      padding: 8px 10px;
+      border-radius: 9px;
       cursor: pointer;
-      border: 1px solid var(--el-border-color-light);
-      background: var(--el-fill-color-light);
-      margin-bottom: 8px;
-      transition: all 0.2s;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      text-align: left;
+      transition:
+        color var(--bridge-motion),
+        background var(--bridge-motion);
 
-      &.disabled {
+      &:disabled {
         cursor: not-allowed;
-        background: var(--el-fill-color-lighter);
-        border-color: var(--el-border-color-lighter);
-
-        .device-icon {
-          color: var(--el-text-color-placeholder);
-        }
-
-        .device-info {
-          .name,
-          .status {
-            color: var(--el-text-color-placeholder);
-          }
-        }
+        opacity: 0.5;
 
         &:hover {
-          // 禁用态不响应 hover
-          border-color: var(--el-border-color-lighter);
-          background: var(--el-fill-color-lighter);
+          background: transparent;
         }
       }
 
       &:hover {
-        border-color: var(--el-color-primary-light-5);
-        background: var(--el-color-primary-light-9);
+        background: color-mix(in srgb, var(--bridge-surface) 72%, transparent);
       }
 
-      .device-icon {
-        font-size: 20px;
-        color: var(--el-text-color-secondary);
+      .device-icon-wrap {
+        width: 34px;
+        height: 34px;
+        flex: none;
+        position: relative;
+        border-radius: 9px;
+        display: grid;
+        place-items: center;
+        color: var(--el-color-primary);
+        background: color-mix(in srgb, var(--el-color-primary-light-9) 82%, transparent);
+
+        .device-icon {
+          font-size: 18px;
+        }
+
+        .online-dot {
+          width: 8px;
+          height: 8px;
+          position: absolute;
+          right: -1px;
+          bottom: -1px;
+          border: 2px solid var(--bridge-surface);
+          border-radius: 50%;
+          background: var(--el-color-success);
+        }
       }
 
       .device-info {
+        min-width: 0;
+
         .name {
-          font-size: 14px;
-          font-weight: 500;
+          overflow: hidden;
+          font-size: 13px;
+          font-weight: 600;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
         .status {
+          margin-top: 2px;
           font-size: 12px;
           color: var(--el-text-color-secondary);
         }
@@ -115,15 +165,37 @@ const { createSendingTask } = useTaskList()
 
   .devices-empty {
     flex: 1;
-    overflow: auto;
-    padding: 16px;
-    position: relative;
-
+    min-height: 0;
+    padding: 20px 10px;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+    gap: 6px;
+    text-align: center;
     font-size: 14px;
     color: var(--el-text-color-placeholder);
+
+    .empty-icon {
+      width: 40px;
+      height: 40px;
+      margin-bottom: 2px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      color: var(--el-text-color-secondary);
+      background: color-mix(in srgb, var(--bridge-surface) 72%, transparent);
+
+      .el-icon {
+        font-size: 21px;
+      }
+    }
+
+    strong {
+      color: var(--el-text-color-regular);
+      font-size: 13px;
+      font-weight: 600;
+    }
   }
 }
 </style>

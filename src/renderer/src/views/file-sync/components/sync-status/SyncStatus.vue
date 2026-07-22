@@ -49,9 +49,10 @@ const percentage = computed(() => {
 <style lang="less" scoped>
 .sync-status {
   height: 100%;
+  min-width: 0;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
 .text {
@@ -60,17 +61,24 @@ const percentage = computed(() => {
 
 .progress-wrapper {
   margin-left: auto;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
 .progress {
-  width: 180px;
+  width: clamp(100px, 18vw, 180px);
 }
 
 :deep(.el-progress__text) {
   font-size: 14px;
   min-width: auto;
+}
+
+@media (max-width: 720px) {
+  .progress-wrapper .text {
+    display: none;
+  }
 }
 </style>

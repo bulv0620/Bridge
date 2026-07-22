@@ -31,9 +31,24 @@ footer, header, hgroup, menu, nav, section {
 body {
   overflow: hidden;
   font-family:
-    'SF Pro Rounded', 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, 'Segoe UI',
+    Inter, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, 'Segoe UI Variable',
     'PingFang SC', 'HarmonyOS Sans SC', 'Noto Sans SC', 'Microsoft YaHei', 'WenQuanYi Micro Hei',
     sans-serif;
+  color: var(--el-text-color-primary);
+  background: var(--bridge-app-bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+button,
+[role='button'],
+a {
+  -webkit-tap-highlight-color: transparent;
 }
 ol, ul {
 	list-style: none;

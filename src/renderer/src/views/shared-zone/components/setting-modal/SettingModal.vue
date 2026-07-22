@@ -20,8 +20,6 @@ const { visible, configForm, confirm } = useSettingModal()
         <el-switch v-model="configForm.lanDiscovery" />
       </div>
 
-      <el-divider v-if="configForm.lanDiscovery" class="divider" />
-
       <div v-if="configForm.lanDiscovery" class="setting-item">
         <div class="label">
           <span class="title">{{ $t('views.sharedZone.filePush') }}</span>
@@ -43,17 +41,26 @@ const { visible, configForm, confirm } = useSettingModal()
 
 <style scoped lang="less">
 .settings-container {
-  padding: 0 12px;
+  padding: 2px 4px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .setting-item {
+  min-height: 54px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 0;
+  gap: 20px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--bridge-surface-soft);
+  box-shadow: inset 0 0 0 1px var(--bridge-stroke);
 }
 
 .label {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -66,11 +73,8 @@ const { visible, configForm, confirm } = useSettingModal()
 
 .desc {
   font-size: 12px;
-  color: #888;
+  line-height: 1.5;
+  color: var(--el-text-color-secondary);
   margin: 0;
-}
-
-.divider {
-  margin: 8px 0;
 }
 </style>

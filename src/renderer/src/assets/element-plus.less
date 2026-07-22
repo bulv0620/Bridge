@@ -1,15 +1,176 @@
-.el-table {
-  // 表头
-  th.el-table__cell {
-    background-color: var(--el-fill-color-light) !important;
-  }
-  // 行元素
-  tr {
-    background-color: var(--el-bg-color-overlay) !important;
+:root {
+  --bridge-app-bg: #eef1f6;
+  --bridge-sidebar-bg: #eef1f6;
+  --bridge-surface: #ffffff;
+  --bridge-surface-soft: #f6f7fa;
+  --bridge-surface-hover: #eef1f7;
+  --bridge-stroke: rgba(32, 40, 57, 0.08);
+  --bridge-shadow-sm: 0 1px 2px rgba(21, 27, 38, 0.04), 0 8px 24px rgba(21, 27, 38, 0.04);
+  --bridge-shadow-md: 0 18px 48px rgba(17, 24, 39, 0.12);
+  --bridge-radius-sm: 8px;
+  --bridge-radius-md: 12px;
+  --bridge-radius-lg: 18px;
+  --bridge-page-padding: 16px;
+  --bridge-motion: 180ms cubic-bezier(0.2, 0, 0, 1);
+
+  --el-color-primary: #409eff;
+  --el-color-primary-light-3: #79bbff;
+  --el-color-primary-light-5: #a0cfff;
+  --el-color-primary-light-7: #c6e2ff;
+  --el-color-primary-light-8: #d9ecff;
+  --el-color-primary-light-9: #ecf5ff;
+  --el-color-primary-dark-2: #337ecc;
+  --el-border-radius-base: 8px;
+  --el-border-radius-small: 6px;
+  --el-border-color: rgba(32, 40, 57, 0.12);
+  --el-border-color-light: rgba(32, 40, 57, 0.09);
+  --el-border-color-lighter: rgba(32, 40, 57, 0.06);
+  --el-fill-color: #f1f3f7;
+  --el-fill-color-light: #f6f7fa;
+  --el-fill-color-lighter: #fafbfc;
+  --el-fill-color-extra-light: #fcfcfd;
+  --el-bg-color-page: var(--bridge-app-bg);
+  --el-box-shadow-light: var(--bridge-shadow-sm);
+}
+
+html.dark {
+  --bridge-app-bg: #15171c;
+  --bridge-sidebar-bg: #15171c;
+  --bridge-surface: #1c1f26;
+  --bridge-surface-soft: #232730;
+  --bridge-surface-hover: #2a2f39;
+  --bridge-stroke: rgba(255, 255, 255, 0.07);
+  --bridge-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.18), 0 12px 28px rgba(0, 0, 0, 0.14);
+  --bridge-shadow-md: 0 20px 56px rgba(0, 0, 0, 0.38);
+
+  --el-color-primary: #409eff;
+  --el-color-primary-light-3: #3375b9;
+  --el-color-primary-light-5: #2a598a;
+  --el-color-primary-light-7: #213d5b;
+  --el-color-primary-light-8: #1d3043;
+  --el-color-primary-light-9: #18222c;
+  --el-color-primary-dark-2: #66b1ff;
+  --el-border-color: rgba(255, 255, 255, 0.12);
+  --el-border-color-light: rgba(255, 255, 255, 0.09);
+  --el-border-color-lighter: rgba(255, 255, 255, 0.06);
+  --el-fill-color: #282c35;
+  --el-fill-color-light: #232730;
+  --el-fill-color-lighter: #20232b;
+  --el-fill-color-extra-light: #1e2128;
+}
+
+@media (max-width: 760px) {
+  :root {
+    --bridge-page-padding: 12px;
   }
 }
 
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--el-text-color-placeholder) transparent;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--el-color-primary);
+  outline-offset: 2px;
+}
+
+.el-button {
+  min-height: 36px;
+  border-radius: var(--bridge-radius-sm);
+  font-weight: 500;
+  transition:
+    color var(--bridge-motion),
+    background-color var(--bridge-motion),
+    border-color var(--bridge-motion),
+    box-shadow var(--bridge-motion),
+    transform var(--bridge-motion);
+
+  &:not(.is-disabled):active {
+    transform: translateY(1px);
+  }
+
+  &.is-circle {
+    min-width: 36px;
+  }
+
+  &.is-link,
+  &.is-text {
+    min-height: 32px;
+  }
+}
+
+.el-table {
+  --el-table-border-color: var(--el-border-color-lighter);
+  --el-table-header-bg-color: var(--bridge-surface-soft);
+  --el-table-tr-bg-color: var(--bridge-surface);
+  --el-table-row-hover-bg-color: var(--bridge-surface-hover);
+  border-radius: var(--bridge-radius-md);
+  overflow: hidden;
+
+  &::before,
+  &.el-table--border::after,
+  &.el-table--border::before,
+  .el-table__inner-wrapper::before {
+    display: none;
+  }
+
+  th.el-table__cell {
+    height: 44px;
+    background: var(--bridge-surface-soft) !important;
+    color: var(--el-text-color-secondary);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  td.el-table__cell {
+    height: 44px;
+  }
+
+  tr {
+    background: var(--bridge-surface) !important;
+  }
+
+  &.el-table--border {
+    border: 1px solid var(--bridge-stroke);
+
+    .el-table__cell {
+      border-right-color: transparent;
+    }
+  }
+}
+
+.el-dialog,
+.el-message-box,
+.el-popover.el-popper,
+.el-dropdown__popper.el-popper {
+  border: 1px solid var(--bridge-stroke);
+  border-radius: var(--bridge-radius-lg);
+  box-shadow: var(--bridge-shadow-md);
+}
+
+.el-dialog {
+  background: var(--bridge-surface);
+  overflow: hidden;
+}
+
+.el-popper.is-light,
+.el-popper.is-dark {
+  border-color: var(--bridge-stroke);
+}
+
+.el-form-item__label {
+  color: var(--el-text-color-regular);
+  font-weight: 600;
+}
+
+.el-radio {
+  min-height: 40px;
+}
+
 .el-drawer {
+  border-radius: var(--bridge-radius-lg) 0 0 var(--bridge-radius-lg);
+
   .el-drawer__header {
     margin: 0;
     padding: 8px 12px;
@@ -25,9 +186,10 @@
 // 选择框
 .el-select__wrapper {
   box-shadow: none !important;
-  background: var(--el-fill-color) !important;
+  background: var(--bridge-surface-soft) !important;
   box-sizing: border-box;
-  transition: background 0.3s;
+  min-height: 38px;
+  transition: background var(--bridge-motion);
 
   &:hover {
     background: var(--el-fill-color-dark) !important;
@@ -43,8 +205,9 @@
 // 输入框
 .el-input__wrapper {
   box-shadow: none !important;
-  background: var(--el-fill-color) !important;
-  transition: background 0.3s;
+  background: var(--bridge-surface-soft) !important;
+  min-height: 38px;
+  transition: background var(--bridge-motion);
 
   &:hover {
     background: var(--el-fill-color-dark) !important;
@@ -60,8 +223,8 @@
 // 多行输入框
 .el-textarea__inner {
   box-shadow: none !important;
-  background: var(--el-fill-color) !important;
-  transition: background 0.3s;
+  background: var(--bridge-surface-soft) !important;
+  transition: background var(--bridge-motion);
 
   &:hover {
     background: var(--el-fill-color-dark) !important;
@@ -71,5 +234,16 @@
     background: var(--el-fill-color-extra-light) !important;
     outline: 1px solid var(--el-color-primary);
     outline-offset: -1px; /* 关键 */
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

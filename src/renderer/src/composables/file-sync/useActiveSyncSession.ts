@@ -37,8 +37,9 @@ const activeSessionState = computed(() => activeSession.value?.sessionState)
 async function initSessions() {
   const cachedSessions = await window.ipc.sync.getCachedSessions()
   if (cachedSessions.length === 0) {
-    // 没有历史方案则创建一个新的
-    await createSyncSession()
+    // 没有历史会话时保持空状态，由用户主动创建
+    activeSessionId.value = ''
+    return
   } else {
     // 取缓存方案并创建主进程的session实例
     await Promise.all(

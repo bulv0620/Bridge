@@ -29,37 +29,46 @@ const onSelect = (val: string) => {
 <style scoped lang="less">
 .theme-card-group {
   display: flex;
-  gap: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .theme-card {
-  width: 120px;
-  padding: 12px;
-  border-radius: 6px;
-  border: 2px solid transparent;
+  width: 128px;
+  min-height: 112px;
+  padding: 10px;
+  border-radius: var(--bridge-radius-md);
+  border: 1px solid transparent;
   cursor: pointer;
-  transition: all 0.25s;
-  border: 1px solid var(--el-border-color);
+  background: var(--bridge-surface-soft);
+  box-shadow: inset 0 0 0 1px var(--bridge-stroke);
+  transition:
+    border-color var(--bridge-motion),
+    background var(--bridge-motion),
+    box-shadow var(--bridge-motion);
 
   display: flex;
   flex-direction: column;
   align-items: center;
 
   &:hover {
-    box-shadow: var(--el-box-shadow-light);
+    background: var(--bridge-surface);
+    box-shadow: var(--bridge-shadow-sm);
   }
 
   &.active {
     border: 1px solid var(--el-color-primary);
+    background: var(--el-color-primary-light-9);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--el-color-primary) 12%, transparent);
   }
 }
 
 .preview {
   width: 100%;
   height: 60px;
-  border-radius: 6px;
+  border-radius: 8px;
   margin-bottom: 8px;
-  border: 1px solid var(--el-border-color);
+  box-shadow: inset 0 0 0 1px var(--bridge-stroke);
   overflow: hidden;
   box-sizing: border-box;
 }

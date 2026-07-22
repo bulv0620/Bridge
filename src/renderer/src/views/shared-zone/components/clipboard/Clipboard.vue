@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { CaretBottom, CaretTop } from '@element-plus/icons-vue'
+import { CopyDocument, Delete } from '@element-plus/icons-vue'
 import { useRemoteRef } from '@renderer/composables/remote-ref/useRemoteRef'
-import { useCollapse } from '@renderer/composables/share-zone/useCollapse'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -9,8 +8,6 @@ import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 
 const clips = useRemoteRef<ClipboardContent[]>('clipboard-history', [])
-
-const { clipboardActive } = useCollapse()
 
 const isText = (c: ClipboardContent) => c.mime.startsWith('text/')
 const isImage = (c: ClipboardContent) => c.mime.startsWith('image/')
@@ -51,41 +48,36 @@ async function handleCopy(content: ClipboardContent) {
 </script>
 
 <template>
-  <div class="footer">
-    <div class="footer-header" :class="{ border: clipboardActive }">
+  <section class="activity-panel clipboard-panel">
+    <header class="panel-header">
       <div class="title">
         <span>{{ $t('views.sharedZone.sharedClipboard') }}</span>
-        <div class="num-box" :class="{ light: clips.length > 0 }">
+        <span v-if="clips.length" class="count">
           {{ clips.length }}
-        </div>
+        </span>
       </div>
-      <div>
-        <el-button link size="small" @click="handleClearHistory">
-          {{ $t('views.sharedZone.clearHistory') }}
-        </el-button>
+      <div class="panel-actions">
         <el-button
-          size="small"
           circle
-          plain
-          :icon="clipboardActive ? CaretBottom : CaretTop"
-          @click="clipboardActive = !clipboardActive"
-        >
-        </el-button>
+          text
+          :icon="Delete"
+          :disabled="!clips.length"
+          :title="$t('views.sharedZone.clearHistory')"
+          :aria-label="$t('views.sharedZone.clearHistory')"
+          @click="handleClearHistory"
+        />
       </div>
-    </div>
+    </header>
 
-    <div class="clipboard-wrapper" :class="{ active: clipboardActive }">
+    <div class="panel-body">
       <el-scrollbar v-if="clips.length" class="clipboard">
         <div class="clipboard-list">
-          <div v-for="(c, i) in clips" :key="c.v ?? i" class="clip">
-            <!-- 内容区域 -->
+          <article v-for="(c, i) in clips" :key="c.v ?? i" class="clip">
             <div class="clip-content">
-              <!-- 文本 -->
               <p v-if="isText(c)" :title="c.text">
                 {{ c.text }}
               </p>
 
-              <!-- 图片 -->
               <img
                 v-else-if="isImage(c)"
                 :src="toClipboardUrl(c.path!)"
@@ -93,13 +85,11 @@ async function handleCopy(content: ClipboardContent) {
                 draggable="false"
               />
 
-              <!-- 兜底 -->
               <div v-else class="clip-unknown">
                 {{ c.mime }}
               </div>
             </div>
 
-            <!-- 底部 -->
             <div class="clip-footer">
               <span class="device">{{ c.device.name }}</span>
 
@@ -107,33 +97,37 @@ async function handleCopy(content: ClipboardContent) {
                 {{ $t('views.sharedZone.copy') }}
               </el-button>
             </div>
-          </div>
+          </article>
         </div>
       </el-scrollbar>
 
       <div v-else class="clipboard-empty">
-        {{ $t('views.sharedZone.emptyClipboard') }}
+        <span class="empty-icon"
+          ><el-icon><CopyDocument /></el-icon
+        ></span>
+        <span>{{ $t('views.sharedZone.emptyClipboard') }}</span>
       </div>
     </div>
-  </div>
+  </section>
 </template>
 
 <style lang="less" scoped>
-.footer {
-  border-top: 1px solid var(--el-border-color);
-  background: var(--el-fill-color-light);
+.activity-panel {
+  min-height: 0;
+  border-radius: var(--bridge-radius-md);
+  background: var(--bridge-surface-soft);
+  box-shadow: inset 0 0 0 1px var(--bridge-stroke);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 
-  .footer-header {
-    height: 47px;
+  .panel-header {
+    min-height: 46px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: var(--el-bg-color);
-    padding: 10px 16px;
-
-    &.border {
-      border-bottom: 1px solid var(--el-border-color-lighter);
-    }
+    background: transparent;
+    padding: 0 10px 0 16px;
 
     .title {
       font-size: 14px;
@@ -142,63 +136,68 @@ async function handleCopy(content: ClipboardContent) {
       gap: 6px;
       align-items: center;
 
-      .num-box {
+      .count {
         font-family: monospace;
         font-size: 11px;
-        padding: 0 5px;
-        height: 16px;
-        border-radius: 8px;
-        background: var(--el-fill-color-darker);
-        color: #fff;
-        display: flex;
-        align-items: center;
-        &.light {
-          background: var(--el-color-primary);
-        }
+        color: var(--el-text-color-placeholder);
       }
+    }
+
+    .panel-actions {
+      display: flex;
+      align-items: center;
+      gap: 2px;
     }
   }
 
-  .clipboard-wrapper {
-    height: 0px;
+  .panel-body {
+    min-height: 0;
+    flex: 1;
     overflow: hidden;
-    transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-    &.active {
-      height: 160px;
-    }
+    padding: 0 6px 6px;
+    background: transparent;
 
     .clipboard-empty {
       height: 100%;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
+      gap: 6px;
       font-size: 14px;
       color: var(--el-text-color-placeholder);
+
+      .empty-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 11px;
+        display: grid;
+        place-items: center;
+        color: var(--el-text-color-secondary);
+        background: var(--bridge-surface-soft);
+      }
     }
 
     .clipboard {
       height: 100%;
 
       :deep(.el-scrollbar__view) {
-        height: 100%;
-        display: flex;
+        min-height: 100%;
       }
 
       .clipboard-list {
-        padding: 10px 16px;
-        padding-bottom: 16px;
+        padding: 2px;
         display: flex;
+        flex-direction: column;
         gap: 10px;
       }
 
       .clip {
-        width: 260px;
-        min-width: 260px;
-        height: 100%;
-        background: var(--el-bg-color);
-        border: 1px solid var(--el-border-color-light);
-        border-radius: 12px;
+        min-height: 104px;
+        background: color-mix(in srgb, var(--bridge-surface) 74%, transparent);
+        border: 0;
+        border-radius: 9px;
+        box-shadow: inset 0 0 0 1px var(--bridge-stroke);
         padding: 12px;
         display: flex;
         flex-direction: column;
@@ -212,6 +211,7 @@ async function handleCopy(content: ClipboardContent) {
         justify-content: center;
 
         p {
+          margin: 0;
           height: fit-content;
           width: 100%;
           font-size: 14px;
@@ -226,7 +226,7 @@ async function handleCopy(content: ClipboardContent) {
 
         .clip-image {
           max-width: 100%;
-          max-height: 100%;
+          max-height: 150px;
           object-fit: contain;
           border-radius: 6px;
           background: var(--el-fill-color-light);
@@ -253,6 +253,16 @@ async function handleCopy(content: ClipboardContent) {
           white-space: nowrap;
         }
       }
+    }
+  }
+}
+
+@media (max-width: 760px) {
+  .activity-panel .panel-header {
+    padding-left: 12px;
+
+    .title {
+      font-size: 13px;
     }
   }
 }

@@ -106,8 +106,7 @@ const handleConfirm = async () => {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  padding: 8px 12px;
-  border-bottom: var(--el-color-primary-light-5) 1px solid;
+  padding: 14px 16px 10px;
 }
 
 .button-box {
@@ -120,8 +119,7 @@ const handleConfirm = async () => {
 }
 
 .dialog-footer {
-  padding: 8px 12px;
-  padding-top: 0;
+  padding: 10px 16px 16px;
 }
 
 :deep(.el-dialog) {
@@ -129,7 +127,7 @@ const handleConfirm = async () => {
 }
 
 :deep(.el-dialog__body) {
-  padding: 12px 12px;
+  padding: 10px 16px;
   display: flex;
   flex-direction: column;
   gap: 8px;

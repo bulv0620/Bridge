@@ -1,6 +1,7 @@
-import { nativeTheme } from 'electron'
+import { BrowserWindow, nativeTheme } from 'electron'
 import { remoteRef } from '../utils/remoteRef'
 import { getStore } from '../store'
+import { updateWindowTitleBarTheme } from '../utils/window'
 
 const store = getStore()
 
@@ -15,6 +16,7 @@ export const currentTheme = remoteRef(
 export function initThemeConfig() {
   nativeTheme.on('updated', () => {
     currentTheme.value = nativeTheme.shouldUseDarkColors ? 'dark' : 'light'
+    BrowserWindow.getAllWindows().forEach(updateWindowTitleBarTheme)
   })
 
   themeMode.onUpdate((mode: ThemeMode) => {

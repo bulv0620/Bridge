@@ -5,6 +5,21 @@ import { icon } from './iconPath'
 import os from 'os'
 
 const windowInstances = new Map<string, BrowserWindow>()
+export const WINDOW_TITLE_BAR_HEIGHT = 38
+
+function getWindowControlSymbolColor() {
+  return nativeTheme.shouldUseDarkColors ? '#F3F4F6' : '#20242D'
+}
+
+export function updateWindowTitleBarTheme(win: BrowserWindow) {
+  if (os.platform() === 'darwin' || win.isDestroyed()) return
+
+  win.setTitleBarOverlay({
+    color: '#00000000',
+    symbolColor: getWindowControlSymbolColor(),
+    height: WINDOW_TITLE_BAR_HEIGHT,
+  })
+}
 
 export function getWindow(name: string) {
   return windowInstances.get(name)
@@ -19,25 +34,29 @@ export function createCustomWindow(
     height: windowOption?.height || 660,
     minWidth: windowOption?.minWidth || 200,
     minHeight: windowOption?.minHeight || 50,
-    fullscreenable: false,
     resizable: windowOption?.resizable,
     show: false,
     autoHideMenuBar: windowOption?.hideMenuBar || true,
+    backgroundColor: nativeTheme.shouldUseDarkColors ? '#15171c' : '#eef1f6',
+    titleBarStyle: os.platform() === 'darwin' ? 'hiddenInset' : 'hidden',
+    roundedCorners: true,
+    ...(os.platform() === 'darwin'
+      ? {
+          trafficLightPosition: { x: 16, y: 13 },
+        }
+      : {
+          titleBarOverlay: {
+            color: '#00000000',
+            symbolColor: getWindowControlSymbolColor(),
+            height: WINDOW_TITLE_BAR_HEIGHT,
+          },
+        }),
     ...(os.platform() === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
     },
     parent: windowOption?.parent,
     modal: windowOption?.modal,
-    ...(os.platform() !== 'darwin'
-      ? {
-          titleBarOverlay: {
-            color: '#ffffff00',
-            symbolColor: nativeTheme.shouldUseDarkColors ? '#fff' : '#000',
-            height: 32,
-          },
-        }
-      : {}),
     icon: join(__dirname, '../../build/icon.ico'),
   })
 

@@ -1,18 +1,17 @@
 <script setup lang="ts">
-import { ref, nextTick, computed, h } from 'vue'
+import { ref, nextTick, h } from 'vue'
 import { Close, Plus } from '@element-plus/icons-vue'
 import { useActiveSyncSession } from '@renderer/composables/file-sync/useActiveSyncSession'
-import { ElIcon, ElMessage } from 'element-plus'
+import { ElIcon } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import ContextMenu from '@imengyu/vue3-context-menu'
 import { useTheme } from '@renderer/composables/setting/useTheme'
 
 const { currentTheme } = useTheme()
 const { t } = useI18n()
-const tabNameRef = ref<HTMLElement[]>([])
+const tabsScrollRef = ref<HTMLElement | null>(null)
 
-const { sessions, activeSessionId, activeSessionState, createSyncSession, closeSyncSession } =
-  useActiveSyncSession()
+const { sessions, activeSessionId, createSyncSession, closeSyncSession } = useActiveSyncSession()
 
 // 编辑相关状态
 const editingSessionId = ref<string | null>(null)
@@ -69,16 +68,21 @@ const handleCloseTab = (sessionId: string, index: number) => {
 }
 
 // 新增标签
-const handleAddTab = () => {
-  if (tabNameRef.value[0].clientWidth < 20) {
-    ElMessage({
-      message: t('views.fileSync.sessionsFull'),
-      type: 'error',
-      plain: true,
-    })
-    return
-  }
-  createSyncSession()
+const handleAddTab = async () => {
+  await createSyncSession()
+  await nextTick()
+  tabsScrollRef.value?.scrollTo({
+    left: tabsScrollRef.value.scrollWidth,
+    behavior: 'smooth',
+  })
+}
+
+const handleTabsWheel = (event: WheelEvent) => {
+  const el = tabsScrollRef.value
+  if (!el || el.scrollWidth <= el.clientWidth) return
+
+  event.preventDefault()
+  el.scrollLeft += Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY
 }
 
 // 右键标签
@@ -98,80 +102,84 @@ const handleContextmenu = (e: MouseEvent, session: SyncSession, index: number) =
     ],
   })
 }
-
-// 边框颜色
-const borderColor = computed(() => {
-  if (activeSessionState.value!.isSyncing) {
-    return 'var(--el-color-success)'
-  } else if (activeSessionState.value!.isComparing) {
-    return 'var(--el-color-primary)'
-  } else {
-    return 'var(--el-border-color)'
-  }
-})
 </script>
 
 <template>
   <div class="sync-session-tabs">
     <div class="tabs-container">
-      <!-- 标签页列表 -->
-      <div
-        v-for="(session, index) in sessions"
-        :key="session.sessionState.sessionId"
-        :class="[
-          'tab-item',
-          {
-            active: session.sessionState.sessionId === activeSessionId,
-            comparing: session.sessionState.isComparing,
-            syncing: session.sessionState.isSyncing,
-          },
-        ]"
-        :title="session.sessionState.name"
-        @click="handleTabClick(session.sessionState.sessionId)"
-        @contextmenu="handleContextmenu($event, session, index)"
-      >
-        <!-- 编辑状态 -->
-        <div v-if="editingSessionId === session.sessionState.sessionId" class="tab-edit">
-          <input
-            ref="editInputRef"
-            v-model="tempName"
-            type="text"
-            class="tab-edit-input"
-            @blur="confirmEdit"
-            @keyup.enter="confirmEdit"
-            @keyup.esc="cancelEdit"
-          />
-        </div>
-
-        <!-- 正常显示状态 -->
-        <div v-else class="tab-content">
-          <!-- 状态指示器 -->
-          <div class="status-indicator">
-            <div v-if="session.sessionState.isComparing" class="comparing-indicator"></div>
-            <div v-else-if="session.sessionState.isSyncing" class="syncing-indicator"></div>
-            <div v-else class="idle-indicator"></div>
+      <div ref="tabsScrollRef" class="tabs-scroll" role="tablist" @wheel="handleTabsWheel">
+        <!-- 标签页列表 -->
+        <div
+          v-for="(session, index) in sessions"
+          :key="session.sessionState.sessionId"
+          :class="[
+            'tab-item',
+            {
+              active: session.sessionState.sessionId === activeSessionId,
+              comparing: session.sessionState.isComparing,
+              syncing: session.sessionState.isSyncing,
+            },
+          ]"
+          :title="session.sessionState.name"
+          role="tab"
+          tabindex="0"
+          :aria-selected="session.sessionState.sessionId === activeSessionId"
+          @click="handleTabClick(session.sessionState.sessionId)"
+          @keydown.enter="handleTabClick(session.sessionState.sessionId)"
+          @contextmenu="handleContextmenu($event, session, index)"
+        >
+          <!-- 编辑状态 -->
+          <div v-if="editingSessionId === session.sessionState.sessionId" class="tab-edit">
+            <input
+              ref="editInputRef"
+              v-model="tempName"
+              type="text"
+              class="tab-edit-input"
+              @blur="confirmEdit"
+              @keyup.enter="confirmEdit"
+              @keyup.esc="cancelEdit"
+            />
           </div>
 
-          <!-- 标签名称 -->
-          <span
-            ref="tabNameRef"
-            class="tab-name"
-            @dblclick="handleTabDoubleClick(session.sessionState)"
-            >{{ session.sessionState.name }}</span
-          >
+          <!-- 正常显示状态 -->
+          <div v-else class="tab-content">
+            <!-- 状态指示器 -->
+            <div class="status-indicator">
+              <div v-if="session.sessionState.isComparing" class="comparing-indicator"></div>
+              <div v-else-if="session.sessionState.isSyncing" class="syncing-indicator"></div>
+              <div v-else class="idle-indicator"></div>
+            </div>
 
-          <!-- 关闭按钮 -->
-          <div
-            class="close-btn"
-            @click.stop="handleCloseTab(session.sessionState.sessionId, index)"
-          >
-            <el-icon><Close /></el-icon>
+            <!-- 标签名称 -->
+            <span class="tab-name" @dblclick="handleTabDoubleClick(session.sessionState)">
+              {{ session.sessionState.name }}
+            </span>
+
+            <!-- 关闭按钮 -->
+            <div
+              class="close-btn"
+              role="button"
+              tabindex="0"
+              :aria-label="$t('common.close')"
+              @click.stop="handleCloseTab(session.sessionState.sessionId, index)"
+              @keydown.enter.stop="handleCloseTab(session.sessionState.sessionId, index)"
+            >
+              <el-icon><Close /></el-icon>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- 新建标签按钮 -->
-      <div class="add-tab" @click="handleAddTab">
+      <div
+        class="add-tab"
+        role="button"
+        tabindex="0"
+        :title="$t('views.fileSync.newSession')"
+        :aria-label="$t('views.fileSync.newSession')"
+        @click="handleAddTab"
+        @keydown.enter="handleAddTab"
+      >
         <el-icon><Plus /></el-icon>
       </div>
     </div>
@@ -192,48 +200,70 @@ const borderColor = computed(() => {
 }
 
 .sync-session-tabs {
-  background: var(--el-bg-color);
-  padding: 0 12px;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--bridge-surface);
+  padding: var(--bridge-page-padding) var(--bridge-page-padding) 2px;
   user-select: none;
-  border-bottom: 1px solid v-bind(borderColor);
 
   .tabs-container {
     display: flex;
-    align-items: end;
-    gap: 4px;
+    align-items: center;
+    gap: 6px;
     width: 100%;
-    height: 40px;
+    min-width: 0;
+    min-height: 38px;
+    overflow: hidden;
+
+    .tabs-scroll {
+      min-width: 0;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scrollbar-width: none;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
 
     .tab-item {
-      flex: 1;
+      width: 148px;
+      flex: 0 0 148px;
       overflow: hidden;
-      height: 34px;
-      max-width: 140px;
+      height: 36px;
       padding: 0 12px;
       position: relative;
       display: flex;
       align-items: center;
-      background: var(--el-fill-color);
-      border: 1px solid var(--el-border-color);
-      border-bottom: none;
-      border-radius: 6px 6px 0 0;
+      background: transparent;
+      border: 0;
+      border-radius: 9px;
       cursor: pointer;
-      transition: border 0.2s;
+      transition:
+        color var(--bridge-motion),
+        background var(--bridge-motion),
+        box-shadow var(--bridge-motion);
+
+      &:hover {
+        background: var(--bridge-surface-soft);
+      }
 
       &.active {
-        background: var(--el-bg-color);
-        // border-color: var(--el-color-primary);
+        background: var(--bridge-surface-soft);
         z-index: 1;
-        padding-bottom: 1px;
-        margin-bottom: -1px;
+        box-shadow: inset 0 0 0 1px var(--bridge-stroke);
       }
 
       &.comparing {
-        border-color: var(--el-color-primary);
+        background: var(--el-color-primary-light-9);
       }
 
       &.syncing {
-        border-color: var(--el-color-success);
+        background: var(--el-color-success-light-9);
       }
 
       .tab-edit {
@@ -244,7 +274,8 @@ const borderColor = computed(() => {
           width: 100%;
           height: 24px;
           border: none;
-          border-bottom: 1px solid var(--el-color-primary);
+          border: 0;
+          border-radius: 5px;
           padding: 0 6px;
           font-size: 12px;
           background: var(--el-bg-color);
@@ -308,7 +339,9 @@ const borderColor = computed(() => {
           height: 16px;
           border-radius: 50%;
           color: var(--el-text-color-secondary);
-          transition: all 0.2s;
+          transition:
+            color var(--bridge-motion),
+            background var(--bridge-motion);
           flex-shrink: 0;
 
           &:hover {
@@ -321,24 +354,26 @@ const borderColor = computed(() => {
   } // .tabs-container
 
   .add-tab {
-    margin-bottom: 4px;
     font-size: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
-    border: 1px dashed var(--el-border-color-light);
-    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 9px;
     color: var(--el-text-color-secondary);
     cursor: pointer;
-    transition: all 0.2s;
+    transition:
+      color var(--bridge-motion),
+      background var(--bridge-motion);
     flex-shrink: 0;
+    box-shadow: inset 0 0 0 1px transparent;
 
     &:hover {
-      border-color: var(--el-color-primary);
       color: var(--el-color-primary);
       background: var(--el-color-primary-light-9);
+      box-shadow: inset 0 0 0 1px var(--el-color-primary-light-7);
     }
   }
 }
