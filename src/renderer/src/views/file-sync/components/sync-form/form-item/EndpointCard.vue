@@ -70,7 +70,7 @@ async function handleClickCard() {
   if (endpoint.value) {
     if (endpoint.value.storageType === 'local') {
       const path = await window.ipc.file.selectFolder()
-      if (path) endpoint.value.path = path
+      if (path) endpoint.value = { storageType: 'local', path }
     } else {
       const config = await openConnectionModal(
         endpoint.value.storageType,
