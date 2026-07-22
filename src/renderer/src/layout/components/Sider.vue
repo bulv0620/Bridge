@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
 import AppVersion from '@renderer/components/AppVersion.vue'
+import { useSidebarCollapse } from '@renderer/composables/layout/useSidebarCollapse'
 
 import { FolderOpened, Promotion, Setting } from '@element-plus/icons-vue'
 import { CaretBack, CaretForward } from '@vicons/ionicons5'
@@ -13,7 +14,8 @@ const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
 
-const collapsed = ref(false)
+const { isSidebarCollapsed: collapsed } = useSidebarCollapse()
+const isWindows = /Win/.test(navigator.platform)
 
 const menu = computed(() => [
   {
@@ -40,7 +42,7 @@ const handleSelect = (path: string) => {
 
 <template>
   <div class="sidebar" :class="{ collapsed }">
-    <div class="brand">
+    <div v-if="!isWindows" class="brand">
       <div class="brand-mark">
         <img :src="appIcon" alt="" />
       </div>

@@ -211,6 +211,12 @@ async function handleResolutionChange(
 </template>
 
 <style lang="less" scoped>
+.diff-file-table {
+  --el-table-fixed-left-column: none;
+  --el-table-fixed-right-column: none;
+  box-shadow: none;
+}
+
 :deep(.grey-row) {
   color: var(--el-text-color-placeholder) !important;
 }

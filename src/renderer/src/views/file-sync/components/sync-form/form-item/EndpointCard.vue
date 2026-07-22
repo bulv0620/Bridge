@@ -175,30 +175,26 @@ watch(activeSessionState, () => {
   overflow: hidden;
   min-width: 0;
   border-radius: var(--bridge-radius-md);
-  border: 1px solid transparent;
+  border: 1px solid var(--bridge-stroke);
   background: var(--bridge-surface-soft);
-  box-shadow: inset 0 0 0 1px var(--bridge-stroke);
   display: flex;
   flex-direction: column;
   transition:
     background var(--bridge-motion),
-    border-color var(--bridge-motion),
-    box-shadow var(--bridge-motion);
+    border-color var(--bridge-motion);
   cursor: pointer;
 
   &:hover {
     border-color: var(--el-color-primary-light-7);
     background: var(--bridge-surface);
-    box-shadow: var(--bridge-shadow-sm);
   }
 
   &.disabled {
     cursor: not-allowed;
 
     &:hover {
-      border-color: transparent;
+      border-color: var(--bridge-stroke);
       background: var(--bridge-surface-soft);
-      box-shadow: inset 0 0 0 1px var(--bridge-stroke);
     }
   }
 }

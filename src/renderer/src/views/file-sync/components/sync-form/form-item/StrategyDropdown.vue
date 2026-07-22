@@ -34,6 +34,7 @@ function selectStrategy(type: SyncStrategy) {
 <template>
   <el-dropdown
     trigger="click"
+    :show-arrow="false"
     :disabled="activeSessionState!.isComparing || activeSessionState!.isSyncing"
     @command="selectStrategy"
   >

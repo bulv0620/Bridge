@@ -111,7 +111,11 @@ html.dark {
   &::before,
   &.el-table--border::after,
   &.el-table--border::before,
-  .el-table__inner-wrapper::before {
+  .el-table__inner-wrapper::before,
+  .el-table__inner-wrapper::after,
+  .el-table__border-left-patch,
+  .el-table__border-right-patch,
+  .el-table__border-bottom-patch {
     display: none;
   }
 
@@ -147,6 +151,13 @@ html.dark {
   border: 1px solid var(--bridge-stroke);
   border-radius: var(--bridge-radius-lg);
   box-shadow: var(--bridge-shadow-md);
+}
+
+.el-dropdown__popper.el-popper.toolbar-more-popper {
+  border: 1px solid var(--bridge-stroke);
+  border-radius: var(--bridge-radius-sm);
+  box-shadow: none;
+  overflow: hidden;
 }
 
 .el-dialog {

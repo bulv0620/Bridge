@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, nextTick, h } from 'vue'
+import { computed, ref, nextTick, h } from 'vue'
 import { Close, Plus } from '@element-plus/icons-vue'
 import { useActiveSyncSession } from '@renderer/composables/file-sync/useActiveSyncSession'
 import { ElIcon } from 'element-plus'
@@ -7,11 +7,21 @@ import { useI18n } from 'vue-i18n'
 import ContextMenu from '@imengyu/vue3-context-menu'
 import { useTheme } from '@renderer/composables/setting/useTheme'
 
+defineProps<{ titlebar?: boolean }>()
+
 const { currentTheme } = useTheme()
 const { t } = useI18n()
 const tabsScrollRef = ref<HTMLElement | null>(null)
 
-const { sessions, activeSessionId, createSyncSession, closeSyncSession } = useActiveSyncSession()
+const {
+  sessions,
+  activeSessionId,
+  canCreateSyncSession,
+  isCreatingSession,
+  createSyncSession,
+  closeSyncSession,
+} = useActiveSyncSession()
+const isAddTabDisabled = computed(() => !canCreateSyncSession.value || isCreatingSession.value)
 
 // 编辑相关状态
 const editingSessionId = ref<string | null>(null)
@@ -69,7 +79,9 @@ const handleCloseTab = (sessionId: string, index: number) => {
 
 // 新增标签
 const handleAddTab = async () => {
-  await createSyncSession()
+  const created = await createSyncSession()
+  if (!created) return
+
   await nextTick()
   tabsScrollRef.value?.scrollTo({
     left: tabsScrollRef.value.scrollWidth,
@@ -105,7 +117,7 @@ const handleContextmenu = (e: MouseEvent, session: SyncSession, index: number) =
 </script>
 
 <template>
-  <div class="sync-session-tabs">
+  <div class="sync-session-tabs" :class="{ 'is-titlebar': titlebar }">
     <div class="tabs-container">
       <div ref="tabsScrollRef" class="tabs-scroll" role="tablist" @wheel="handleTabsWheel">
         <!-- 标签页列表 -->
@@ -171,17 +183,20 @@ const handleContextmenu = (e: MouseEvent, session: SyncSession, index: number) =
       </div>
 
       <!-- 新建标签按钮 -->
-      <div
+      <el-button
+        circle
+        text
         class="add-tab"
-        role="button"
-        tabindex="0"
-        :title="$t('views.fileSync.newSession')"
-        :aria-label="$t('views.fileSync.newSession')"
+        :icon="Plus"
+        :disabled="isAddTabDisabled"
+        :title="
+          canCreateSyncSession ? $t('views.fileSync.newSession') : $t('views.fileSync.sessionsFull')
+        "
+        :aria-label="
+          canCreateSyncSession ? $t('views.fileSync.newSession') : $t('views.fileSync.sessionsFull')
+        "
         @click="handleAddTab"
-        @keydown.enter="handleAddTab"
-      >
-        <el-icon><Plus /></el-icon>
-      </div>
+      />
     </div>
   </div>
 </template>
@@ -205,6 +220,75 @@ const handleContextmenu = (e: MouseEvent, session: SyncSession, index: number) =
   background: var(--bridge-surface);
   padding: var(--bridge-page-padding) var(--bridge-page-padding) 2px;
   user-select: none;
+
+  &.is-titlebar {
+    height: 100%;
+    padding: 0;
+    background: transparent;
+    -webkit-app-region: drag;
+
+    .tabs-container {
+      height: 100%;
+      min-height: 0;
+      align-items: flex-end;
+
+      .tabs-scroll {
+        height: 100%;
+        align-items: flex-end;
+      }
+
+      .tab-item {
+        height: 30px;
+        margin-bottom: 4px;
+        -webkit-app-region: no-drag;
+
+        &.active {
+          height: 34px;
+          margin-bottom: 0;
+          overflow: visible;
+          border-radius: 10px 10px 0 0;
+          background: var(--bridge-surface);
+          box-shadow: none;
+          z-index: 2;
+
+          &::before,
+          &::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            position: absolute;
+            bottom: 0;
+            pointer-events: none;
+          }
+
+          &::before {
+            left: -8px;
+            border-bottom-right-radius: 8px;
+            box-shadow: 4px 4px 0 4px var(--bridge-surface);
+          }
+
+          &::after {
+            right: -8px;
+            border-bottom-left-radius: 8px;
+            box-shadow: -4px 4px 0 4px var(--bridge-surface);
+          }
+
+          .tab-content,
+          .tab-edit {
+            min-width: 0;
+            overflow: hidden;
+          }
+        }
+      }
+    }
+
+    .add-tab {
+      width: 30px;
+      height: 30px;
+      margin-bottom: 4px;
+      -webkit-app-region: no-drag;
+    }
+  }
 
   .tabs-container {
     display: flex;
@@ -354,26 +438,25 @@ const handleContextmenu = (e: MouseEvent, session: SyncSession, index: number) =
   } // .tabs-container
 
   .add-tab {
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border: 0;
-    border-radius: 9px;
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    min-height: 30px;
+    margin: 0;
+    border-radius: 8px;
     color: var(--el-text-color-secondary);
-    cursor: pointer;
     transition:
       color var(--bridge-motion),
       background var(--bridge-motion);
     flex-shrink: 0;
-    box-shadow: inset 0 0 0 1px transparent;
 
-    &:hover {
-      color: var(--el-color-primary);
-      background: var(--el-color-primary-light-9);
-      box-shadow: inset 0 0 0 1px var(--el-color-primary-light-7);
+    &:hover:not(.is-disabled) {
+      color: var(--el-text-color-primary);
+      background: color-mix(in srgb, var(--bridge-surface) 74%, transparent);
+    }
+
+    &.is-disabled {
+      opacity: 0.5;
     }
   }
 }

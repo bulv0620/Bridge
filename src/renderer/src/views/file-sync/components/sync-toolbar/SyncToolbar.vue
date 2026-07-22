@@ -93,7 +93,13 @@ function handleToolbarCommand(command: ToolbarCommand) {
     </el-button>
 
     <div class="toolbar-more">
-      <el-dropdown trigger="click" placement="bottom-end" @command="handleToolbarCommand">
+      <el-dropdown
+        trigger="click"
+        placement="bottom-end"
+        :show-arrow="false"
+        popper-class="toolbar-more-popper"
+        @command="handleToolbarCommand"
+      >
         <el-badge
           class="toolbar-more-badge"
           :show-zero="false"

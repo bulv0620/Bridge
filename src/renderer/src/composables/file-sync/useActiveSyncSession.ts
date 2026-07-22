@@ -5,7 +5,10 @@ import { i18n } from '@renderer/locales'
 
 const { t } = i18n.global
 
+const MAX_SYNC_SESSION_COUNT = 3
 const sessions = ref<SyncSession[]>([])
+const isCreatingSession = ref(false)
+const canCreateSyncSession = computed(() => sessions.value.length < MAX_SYNC_SESSION_COUNT)
 
 // 会话配置（用于缓存）
 const sessionConfigList = computed<CacehdSession[]>(() =>
@@ -36,17 +39,19 @@ const activeSessionState = computed(() => activeSession.value?.sessionState)
 // 初始化会话列表
 async function initSessions() {
   const cachedSessions = await window.ipc.sync.getCachedSessions()
-  if (cachedSessions.length === 0) {
+  const sessionsToRestore = cachedSessions.slice(0, MAX_SYNC_SESSION_COUNT)
+
+  if (sessionsToRestore.length === 0) {
     // 没有历史会话时保持空状态，由用户主动创建
     activeSessionId.value = ''
     return
   } else {
     // 取缓存方案并创建主进程的session实例
     await Promise.all(
-      cachedSessions.map((session) => window.ipc.sync.createSyncSession(session.sessionId)),
+      sessionsToRestore.map((session) => window.ipc.sync.createSyncSession(session.sessionId)),
     )
 
-    sessions.value = cachedSessions.map((session) =>
+    sessions.value = sessionsToRestore.map((session) =>
       useSyncSession(session.sessionId, session.name, session.formData),
     )
     activeSessionId.value = sessions.value[0].sessionState.sessionId
@@ -56,12 +61,30 @@ initSessions() // 初始化即执行
 
 // 新建会话
 async function createSyncSession() {
-  const sessionId = await window.ipc.sync.createSyncSession()
+  if (!canCreateSyncSession.value) {
+    ElMessage({
+      message: t('views.fileSync.sessionsFull'),
+      type: 'warning',
+      plain: true,
+    })
+    return false
+  }
 
-  const syncSession = useSyncSession(sessionId)
-  sessions.value.push(syncSession)
+  if (isCreatingSession.value) return false
 
-  activeSessionId.value = sessionId
+  isCreatingSession.value = true
+
+  try {
+    const sessionId = await window.ipc.sync.createSyncSession()
+
+    const syncSession = useSyncSession(sessionId)
+    sessions.value.push(syncSession)
+
+    activeSessionId.value = sessionId
+    return true
+  } finally {
+    isCreatingSession.value = false
+  }
 }
 
 // 结束会话
@@ -106,6 +129,8 @@ export function useActiveSyncSession() {
     activeSessionId,
     activeSession,
     activeSessionState,
+    canCreateSyncSession,
+    isCreatingSession,
     createSyncSession,
     closeSyncSession,
   }

@@ -5,7 +5,6 @@ import SyncToolbar from './components/sync-toolbar/SyncToolbar.vue'
 import IgnoredFoldersModal from './components/ignored-folders-modal/IgnoredFoldersModal.vue'
 import SyncStatus from './components/sync-status/SyncStatus.vue'
 import ConnectionModal from './components/connection-modal/ConnectionModal.vue'
-import TabHeader from './components/tab-header/TabHeader.vue'
 import { useActiveSyncSession } from '@renderer/composables/file-sync/useActiveSyncSession'
 import { FolderOpened, Plus, Switch } from '@element-plus/icons-vue'
 
@@ -47,8 +46,6 @@ defineOptions({
     </div>
 
     <template v-else>
-      <TabHeader></TabHeader>
-
       <div class="main">
         <SyncForm></SyncForm>
         <SyncToolbar></SyncToolbar>
