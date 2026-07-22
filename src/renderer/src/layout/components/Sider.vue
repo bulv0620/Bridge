@@ -81,6 +81,16 @@ const handleSelect = (path: string) => {
 
   &.collapsed {
     width: 62px;
+
+    .brand {
+      padding-inline: 0;
+      justify-content: center;
+      gap: 0;
+
+      .brand-name {
+        display: none;
+      }
+    }
   }
 
   .brand {
@@ -171,10 +181,13 @@ const handleSelect = (path: string) => {
 
     /* 折叠后的菜单更紧凑 */
     &.el-menu--collapse {
+      width: 100%;
+
       .el-menu-item {
+        width: 100%;
         justify-content: center;
         margin: 4px 0;
-        padding: 0;
+        padding: 0 !important;
 
         span {
           display: none;
@@ -194,6 +207,7 @@ const handleSelect = (path: string) => {
 
     &.collapsed {
       justify-content: center;
+      padding: 6px;
     }
 
     :deep(.version-trigger) {
