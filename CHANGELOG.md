@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.10.1](https://github.com/bulv0620/file-bridge/compare/v0.10.0...v0.10.1) (2026-07-23)
+
+
+### Bug Fixes
+
+* update SegmentedControl styles for better UI consistency and adjust settings layout ([351b905](https://github.com/bulv0620/file-bridge/commit/351b905b3e5d42680413ac5ede91c79f5aa79a92))
+
+
+
 # [0.10.0](https://github.com/bulv0620/file-bridge/compare/v0.9.0...v0.10.0) (2026-07-23)
 
 
