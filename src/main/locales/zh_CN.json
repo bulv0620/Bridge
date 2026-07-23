@@ -39,6 +39,10 @@
   "file": {
     "fileNotExist": "文件不存在"
   },
+  "diagnostics": {
+    "exportTitle": "导出 Bridge 诊断包",
+    "zipArchive": "ZIP 压缩包"
+  },
   "share": {
     "title": "接收文件",
     "message": "是否接收文件？",

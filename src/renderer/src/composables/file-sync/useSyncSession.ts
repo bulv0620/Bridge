@@ -1,8 +1,10 @@
 import { reactive, toRaw, watch } from 'vue'
 import { i18n } from '@renderer/locales'
 import { ElMessage } from 'element-plus'
+import { createRendererLogger } from '@renderer/utils/logger'
 
 const { t } = i18n.global
+const logger = createRendererLogger('sync')
 
 export function useSyncSession(
   sessionId: string,
@@ -146,7 +148,9 @@ export function useSyncSession(
 
       getRootList()
     } catch (error) {
-      console.log(error)
+      logger.error('sync.compare.ui_failed', error, {
+        sessionId: sessionState.sessionId.slice(0, 8),
+      })
       ElMessage({
         message: t('views.fileSync.compareFailed'),
         type: 'error',
@@ -188,7 +192,9 @@ export function useSyncSession(
       window.events.on(`sync:updateStatus:${sessionState.sessionId}`, syncStatusHanlder)
       await window.ipc.sync.startSync(sessionState.sessionId)
     } catch (error) {
-      console.log(error)
+      logger.error('sync.ui_failed', error, {
+        sessionId: sessionState.sessionId.slice(0, 8),
+      })
       ElMessage({
         message: t('views.fileSync.syncFailed'),
         type: 'error',

@@ -4,8 +4,11 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { computed, ref } from 'vue'
 import axios from 'axios'
 import { v4 as uuid } from 'uuid'
+import { createRendererLogger } from '@renderer/utils/logger'
 
 const { t } = i18n.global
+const logger = createRendererLogger('share')
+const shortId = (value: string) => (value.length <= 8 ? value : `${value.slice(0, 8)}…`)
 
 // 选中的文件
 const file = ref<File | null>(null)
@@ -89,6 +92,17 @@ async function createSendingTask(onlineDevice: OnlineDevice) {
     createdAt: Date.now(),
   })
   const sendingItem = sendingList.value.find((el) => el.id === id)!
+  const transferContext = {
+    transferId: shortId(id),
+    targetDeviceId: shortId(onlineDevice.id),
+    size: fileMeta.size,
+    mime: fileMeta.mime,
+  }
+  logger.info('share.send.requested', transferContext)
+  logger.debug('share.send.file_selected', {
+    ...transferContext,
+    filename: fileMeta.filename,
+  })
 
   const base = `http://${onlineDevice.ip}:${onlineDevice.services.http}/api`
 
@@ -101,6 +115,11 @@ async function createSendingTask(onlineDevice: OnlineDevice) {
 
     const uploadId = reqeustUploadResult.data.uploadId
     sendingItem.status = 'sending'
+    logger.info('share.send.accepted', {
+      ...transferContext,
+      uploadId: shortId(uploadId),
+    })
+    logger.info('share.send.started', transferContext)
 
     // 发送文件
     await uploadFile(id, base, uploadId, f, (progress) => {
@@ -118,13 +137,29 @@ async function createSendingTask(onlineDevice: OnlineDevice) {
       createdAt: sendingItem.createdAt,
       finishedAt: Date.now(),
     })
+    logger.info('share.send.completed', {
+      ...transferContext,
+      durationMs: Date.now() - sendingItem.createdAt,
+    })
   } catch (err: any) {
-    console.error(err)
+    const cancelled = axios.isCancel(err) || err?.code === 'ERR_CANCELED'
+    if (cancelled) {
+      logger.warn('share.send.cancelled', {
+        ...transferContext,
+        durationMs: Date.now() - sendingItem.createdAt,
+      })
+    } else {
+      logger.error('share.send.failed', err, {
+        ...transferContext,
+        filename: fileMeta.filename,
+        durationMs: Date.now() - sendingItem.createdAt,
+      })
+    }
     // 加入完成列表 失败任务
     sentList.value.unshift({
       id,
       meta: sendingItem.meta,
-      result: 'failed',
+      result: cancelled ? 'cancelled' : 'failed',
       error: {
         message: err && err.message ? String(err.message) : String(err),
       },
@@ -132,6 +167,7 @@ async function createSendingTask(onlineDevice: OnlineDevice) {
       finishedAt: Date.now(),
     })
   } finally {
+    sendingControllerMap.delete(id)
     // 从任务列表中清除
     sendingList.value = sendingList.value.filter((item) => item.id !== sendingItem.id)
   }
@@ -211,6 +247,7 @@ async function abortTask(id: string) {
   if (!controller) return
 
   controller.abort()
+  logger.info('share.send.cancel_requested', { transferId: shortId(id) })
 }
 
 export function useTaskList() {

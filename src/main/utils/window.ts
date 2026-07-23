@@ -3,9 +3,11 @@ import { is } from '@electron-toolkit/utils'
 import { join } from 'path'
 import { icon } from './iconPath'
 import os from 'os'
+import { createLogger } from '../services/logging'
 
 const windowInstances = new Map<string, BrowserWindow>()
 export const WINDOW_TITLE_BAR_HEIGHT = 42
+const logger = createLogger('window')
 
 function getWindowControlSymbolColor() {
   return nativeTheme.shouldUseDarkColors ? '#F3F4F6' : '#20242D'
@@ -29,6 +31,7 @@ export function createCustomWindow(
   name: string,
   windowOption?: CreateWindowOptions,
 ): BrowserWindow {
+  logger.info('window.create.started', { name })
   const win = new BrowserWindow({
     width: windowOption?.width || 990,
     height: windowOption?.height || 660,
@@ -64,7 +67,29 @@ export function createCustomWindow(
   windowInstances.set(name, win)
 
   win.on('ready-to-show', () => {
+    logger.info('window.ready', { name, webContentsId: win.webContents.id })
     win.show()
+  })
+
+  win.on('unresponsive', () => {
+    logger.warn('window.unresponsive', { name, webContentsId: win.webContents.id })
+  })
+
+  win.webContents.on('preload-error', (_event, preloadPath, error) => {
+    logger.error('window.preload.failed', error, {
+      name,
+      preloadPath,
+      webContentsId: win.webContents.id,
+    })
+  })
+
+  win.webContents.on('did-fail-load', (_event, errorCode, errorDescription, validatedURL) => {
+    logger.error('window.load.failed', new Error(errorDescription), {
+      name,
+      errorCode,
+      url: validatedURL,
+      webContentsId: win.webContents.id,
+    })
   })
 
   win.webContents.setWindowOpenHandler((details) => {

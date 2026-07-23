@@ -12,6 +12,11 @@ export const schema: Schema<AppStoreSchema> = {
     enum: ['zh_CN', 'en_US'],
     default: 'en_US',
   },
+  logLevel: {
+    type: 'string',
+    enum: ['info', 'debug'],
+    default: 'info',
+  },
   deviceId: {
     type: 'string',
     default: '',

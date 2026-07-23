@@ -5,6 +5,9 @@ import { shouldIgnoreFile, StorageEngine } from '../StorageEngine'
 import streamBuffers from 'stream-buffers'
 import { PassThrough, Readable } from 'stream'
 import { ReadStream, WriteStream } from 'fs'
+import { createLogger } from '../../../../../services/logging'
+
+const logger = createLogger('sync.storage.ftp')
 
 /**
  * FTP 文件系统实现
@@ -44,7 +47,7 @@ export class FtpStorageEngine extends StorageEngine {
       this.connected = true
       return true
     } catch (err) {
-      console.error('FTP connection failed:', err)
+      logger.warn('sync.storage.ftp.validation_failed', undefined, err)
       this.connected = false
       return false
     }
@@ -242,7 +245,7 @@ export class FtpStorageEngine extends StorageEngine {
       const mtimeStr = this.formatDateForMFMT(meta.mtime)
       await this.client.send(`MFMT ${mtimeStr} ${resolvedPath}`)
     } catch (e) {
-      console.warn('Failed to set FTP file time:', e)
+      logger.warn('sync.file.metadata_failed', { storageType: 'ftp', relativePath: filePath }, e)
     }
   }
 

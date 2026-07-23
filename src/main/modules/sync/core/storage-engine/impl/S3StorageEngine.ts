@@ -15,6 +15,9 @@ import path from 'path'
 import { PassThrough, Readable } from 'stream'
 import { ReadStream, WriteStream } from 'fs'
 import { StorageEngine, shouldIgnoreFile } from '../StorageEngine'
+import { createLogger } from '../../../../../services/logging'
+
+const logger = createLogger('sync.storage.s3')
 
 export class S3StorageEngine extends StorageEngine {
   private client: S3Client
@@ -53,7 +56,7 @@ export class S3StorageEngine extends StorageEngine {
       await this.client.send(new HeadBucketCommand({ Bucket: this.bucket }))
       return true
     } catch (err) {
-      console.error('S3 validate failed:', err)
+      logger.warn('sync.storage.s3.validation_failed', undefined, err)
       return false
     }
   }
@@ -323,7 +326,7 @@ export class S3StorageEngine extends StorageEngine {
       )
     } catch (e) {
       // 非致命：记录警告
-      console.warn('S3 setMeta failed (metadata replace may not be supported):', e)
+      logger.warn('sync.file.metadata_failed', { storageType: 's3', relativePath: filePath }, e)
     }
   }
 

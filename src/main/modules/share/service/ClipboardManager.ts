@@ -7,6 +7,7 @@ import os from 'os'
 import { pipeline } from 'stream/promises'
 import { remoteRef, RemoteRefMain } from '../../../utils/remoteRef'
 import { deviceId, deviceName } from '../../../config'
+import { createLogger, shortId } from '../../../services/logging'
 
 // 本地剪贴板缓存目录
 const CLIPBOARD_DIR = path.join(app.getPath('userData'), 'clipboard')
@@ -32,6 +33,7 @@ export class ClipboardManager {
 
   // 最近一次剪贴板状态（用于去重 & 防回环）
   private lastState: ClipboardState | null = null
+  private logger = createLogger('clipboard')
 
   private sha1() {
     return crypto.createHash('sha1')
@@ -109,6 +111,16 @@ export class ClipboardManager {
 
     // 持久化并写入历史
     this.persistSnapshot(snapshot)
+    this.logger.debug('clipboard.local.changed', {
+      clipboardId: shortId(snapshot.v),
+      mime: snapshot.mime,
+      size:
+        snapshot.text != null
+          ? Buffer.byteLength(snapshot.text)
+          : snapshot.image
+            ? snapshot.image.toPNG().length
+            : 0,
+    })
 
     this.lastState = {
       v: snapshot.v,
@@ -192,6 +204,12 @@ export class ClipboardManager {
       default:
         break
     }
+
+    this.logger.info('clipboard.content.applied', {
+      clipboardId: shortId(content.v),
+      mime,
+      sourceDeviceId: shortId(content.device.id),
+    })
   }
 
   // 从远端拉取剪贴板内容
@@ -204,51 +222,76 @@ export class ClipboardManager {
     if (this.lastState?.v === state.v) return
 
     const { v, mime } = state
-
-    const res = await fetch(`${url}/api/clipboard/${v}`, {
-      method: 'GET',
-      signal: AbortSignal.timeout(3000),
+    const startedAt = Date.now()
+    this.logger.info('clipboard.fetch.started', {
+      clipboardId: shortId(v),
+      mime,
+      sourceDeviceId: shortId(msg.device.id),
     })
 
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status}`)
-    }
-
-    const now = Date.now()
-
-    if (mime.startsWith('text/')) {
-      const text = await res.text()
-      this.pushHistory({
-        v,
-        mime,
-        text,
-        createdAt: now,
-        device: msg.device,
+    try {
+      const res = await fetch(`${url}/api/clipboard/${v}`, {
+        method: 'GET',
+        signal: AbortSignal.timeout(3000),
       })
-    } else {
-      const ext = this.getExtensionByMime(mime)
-      await ensureDir(FILE_DIR)
 
-      const filePath = path.join(FILE_DIR, `${v}.${ext}`)
-      if (!fs.existsSync(filePath)) {
-        if (!res.body) throw new Error('Response body is null')
-        await pipeline(res.body as unknown as NodeJS.ReadableStream, fs.createWriteStream(filePath))
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`)
       }
 
-      this.pushHistory({
-        v,
+      const now = Date.now()
+
+      if (mime.startsWith('text/')) {
+        const text = await res.text()
+        this.pushHistory({
+          v,
+          mime,
+          text,
+          createdAt: now,
+          device: msg.device,
+        })
+      } else {
+        const ext = this.getExtensionByMime(mime)
+        await ensureDir(FILE_DIR)
+
+        const filePath = path.join(FILE_DIR, `${v}.${ext}`)
+        if (!fs.existsSync(filePath)) {
+          if (!res.body) throw new Error('Response body is null')
+          await pipeline(
+            res.body as unknown as NodeJS.ReadableStream,
+            fs.createWriteStream(filePath),
+          )
+        }
+
+        this.pushHistory({
+          v,
+          mime,
+          path: filePath,
+          createdAt: now,
+          device: msg.device,
+        })
+      }
+
+      // 写入系统剪贴板并更新 lastState
+      const latest = this.clipboardHistory.value[0]
+      this.setContent(latest)
+
+      this.lastState = { v, mime }
+      this.logger.info('clipboard.fetch.completed', {
+        clipboardId: shortId(v),
         mime,
-        path: filePath,
-        createdAt: now,
-        device: msg.device,
+        sourceDeviceId: shortId(msg.device.id),
+        durationMs: Date.now() - startedAt,
       })
+    } catch (error) {
+      this.logger.error('clipboard.fetch.failed', error, {
+        clipboardId: shortId(v),
+        mime,
+        sourceDeviceId: shortId(msg.device.id),
+        durationMs: Date.now() - startedAt,
+      })
+      throw error
     }
-
-    // 写入系统剪贴板并更新 lastState
-    const latest = this.clipboardHistory.value[0]
-    this.setContent(latest)
-
-    this.lastState = { v, mime }
   }
 
   private getExtensionByMime(mime: string): string {

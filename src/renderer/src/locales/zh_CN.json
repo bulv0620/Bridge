@@ -193,12 +193,31 @@
     },
     "setting": {
       "title": "设置",
-      "description": "全局参数设置",
+      "basicTab": "基础设置",
+      "logsTab": "日志",
       "language": "语言",
       "theme": "主题",
       "save": "保存",
       "reset": "恢复默认",
-      "resetConfirm": "是否恢复默认设置?"
+      "resetConfirm": "是否恢复默认设置?",
+      "diagnostics": {
+        "active": "正在记录",
+        "level": "日志级别",
+        "standard": "标准",
+        "detailed": "详细",
+        "storage": "占用",
+        "storageLimit": "/ 约 25 MB",
+        "openDirectory": "打开日志目录",
+        "export": "导出诊断包",
+        "clear": "清除日志",
+        "clearConfirm": "是否清除当前及全部历史日志？",
+        "clearSuccess": "日志已清除",
+        "clearFailed": "日志清除失败",
+        "openFailed": "无法打开日志目录",
+        "exportSuccess": "诊断包已导出",
+        "exportFailed": "诊断包导出失败",
+        "privacy": "日志仅保存在本机，不会自动上传。"
+      }
     }
   },
   "layout": {},

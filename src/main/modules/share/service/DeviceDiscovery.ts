@@ -10,6 +10,7 @@ import {
   deviceId,
   deviceName,
 } from '../../../config/index'
+import { createLogger, shortId } from '../../../services/logging'
 
 export class DeviceDiscovery {
   private server?: dgram.Socket
@@ -19,6 +20,8 @@ export class DeviceDiscovery {
   // 在线设备
   private onlineDeviceMap = new Map<string, OnlineDevice>()
   private onlineDevices: RemoteRefMain<OnlineDevice[]> = remoteRef('online-devices', [])
+  private logger = createLogger('discovery')
+  private lastInvalidMessageLogAt = 0
 
   constructor(private clipboardManager: ClipboardManager) {}
 
@@ -28,14 +31,27 @@ export class DeviceDiscovery {
     const server = dgram.createSocket('udp4')
     this.server = server
 
-    await new Promise<void>((resolve) => {
-      server.bind(updPort.value, resolve)
+    await new Promise<void>((resolve, reject) => {
+      const onError = (error: Error) => {
+        server.removeListener('listening', onListening)
+        reject(error)
+      }
+      const onListening = () => {
+        server.removeListener('error', onError)
+        resolve()
+      }
+      server.once('error', onError)
+      server.once('listening', onListening)
+      server.bind(updPort.value)
     })
 
     server.setBroadcast(true)
     server.setSendBufferSize(1024 * 1024)
 
     this.setupListeners(server)
+    server.on('error', (error) => {
+      this.logger.error('discovery.socket.failed', error, { port: updPort.value })
+    })
 
     this.timer = setInterval(() => {
       this.broadcastAnnounce()
@@ -43,7 +59,7 @@ export class DeviceDiscovery {
     }, shareInterval.value)
 
     this.running = true
-    console.log(`✅ DeviceDiscovery started on UDP ${updPort.value}`)
+    this.logger.info('discovery.started', { port: updPort.value })
   }
 
   public async stop(): Promise<void> {
@@ -63,7 +79,7 @@ export class DeviceDiscovery {
     this.running = false
     this.server = undefined
 
-    console.log('🛑 DeviceDiscovery stopped')
+    this.logger.info('discovery.stopped')
   }
 
   public getOnlineDevices(): OnlineDevice[] {
@@ -77,10 +93,14 @@ export class DeviceDiscovery {
       try {
         msg = JSON.parse(buf.toString())
       } catch {
+        this.logInvalidMessage('discovery.message.invalid_json')
         return
       }
 
-      if (msg.v !== 1 || !msg.device?.id) return
+      if (msg.v !== 1 || !msg.device?.id) {
+        this.logInvalidMessage('discovery.message.invalid_protocol', { version: msg.v })
+        return
+      }
       if (msg.device.id === deviceId.value) return
 
       const now = Date.now()
@@ -93,6 +113,10 @@ export class DeviceDiscovery {
       if (msg.type === 'bye') {
         if (existing) {
           this.onlineDeviceMap.delete(sourceDeviceId)
+          this.logger.info('discovery.device.offline', {
+            deviceId: shortId(sourceDeviceId),
+            reason: 'bye',
+          })
         }
         return
       }
@@ -118,6 +142,11 @@ export class DeviceDiscovery {
         }
 
         this.onlineDeviceMap.set(sourceDeviceId, dev)
+        this.logger.info('discovery.device.online', {
+          deviceId: shortId(sourceDeviceId),
+          platform: msg.device.platform,
+          capabilities: msg.services.cap,
+        })
         return
       }
 
@@ -137,7 +166,9 @@ export class DeviceDiscovery {
           )
         ) {
           // 目标设备剪切板产生更新，并且内容不在本地历史记录中
-          this.clipboardManager.fetchClipboard(`http://${ip}:${existing.services.http}`, msg)
+          void this.clipboardManager
+            .fetchClipboard(`http://${ip}:${existing.services.http}`, msg)
+            .catch(() => undefined)
         }
       }
 
@@ -226,9 +257,14 @@ export class DeviceDiscovery {
       if (delta > shareInterval.value * 5) {
         this.onlineDeviceMap.delete(id)
         changed = true
+        this.logger.info('discovery.device.offline', {
+          deviceId: shortId(id),
+          reason: 'timeout',
+        })
       } else if (delta > shareInterval.value * 2 && dev.status !== 'stale') {
         dev.status = 'stale'
         changed = true
+        this.logger.debug('discovery.device.stale', { deviceId: shortId(id) })
       }
     }
 
@@ -239,6 +275,13 @@ export class DeviceDiscovery {
 
   private syncOnlineDevices() {
     this.onlineDevices.value = Array.from(this.onlineDeviceMap.values())
+  }
+
+  private logInvalidMessage(event: string, context?: Record<string, unknown>) {
+    const now = Date.now()
+    if (now - this.lastInvalidMessageLogAt < 30_000) return
+    this.lastInvalidMessageLogAt = now
+    this.logger.debug(event, context)
   }
 
   private getBroadcastAddresses(): string[] {

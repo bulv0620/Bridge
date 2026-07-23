@@ -3,6 +3,11 @@ import * as fileEvents from './file'
 import * as syncEvents from './sync'
 import * as shareEvents from './share'
 import * as updateEvents from './update'
+import * as logEvents from './log'
+import { createLogger } from '../services/logging'
+
+const logger = createLogger('ipc')
+const SLOW_IPC_THRESHOLD_MS = 1000
 
 // 事件映射
 export const eventsMap = {
@@ -10,6 +15,7 @@ export const eventsMap = {
   sync: syncEvents,
   share: shareEvents,
   update: updateEvents,
+  log: logEvents,
 }
 
 export const handlerKeys: string[] = []
@@ -20,7 +26,28 @@ export function registerAllEvents() {
       const key = `${namespace}:${eventName}`
       handlerKeys.push(key)
 
-      ipcMain.handle(key, (_event, ...params) => (fn as Function)(_event, ...params))
+      ipcMain.handle(key, async (_event, ...params) => {
+        if (namespace === 'log') {
+          return (fn as Function)(_event, ...params)
+        }
+
+        const startedAt = Date.now()
+        try {
+          const result = await (fn as Function)(_event, ...params)
+          const durationMs = Date.now() - startedAt
+          if (durationMs >= SLOW_IPC_THRESHOLD_MS) {
+            logger.warn('ipc.slow', { namespace, eventName, durationMs })
+          }
+          return result
+        } catch (error) {
+          logger.error('ipc.failed', error, {
+            namespace,
+            eventName,
+            durationMs: Date.now() - startedAt,
+          })
+          throw error
+        }
+      })
     })
   })
 

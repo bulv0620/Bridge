@@ -4,6 +4,7 @@ import { DiffStore, ROOT_KEY } from '../../store/DiffStore'
 import { getResolution, getTransferByte } from './utils'
 import { getWindow } from '../../../../utils/window'
 import { createStorageEngineInstance } from '../../core/storage-engine/utils/StorageEngineFactory'
+import { createLogger, shortId } from '../../../../services/logging'
 
 export class SyncSession {
   private sourceStorageEngine: StorageEngine | null = null // 源
@@ -20,6 +21,9 @@ export class SyncSession {
   private totalCount: number = 0 // 需要同步的文件数
   private bytesTransferred: number = 0 // 已经同步的bytes
   private transferredCount: number = 0 // 已经同步的文件数
+  private sourceStorageType: StorageType | null = null
+  private destinationStorageType: StorageType | null = null
+  private logger = createLogger('sync')
 
   constructor(
     private sessionId: string, // sessionId
@@ -38,6 +42,7 @@ export class SyncSession {
     this.destinationStorageEngine = null
     this.ignoredFolders = []
     this.diffStore.delAll()
+    this.logger.debug('sync.session.disposed', { sessionId: shortId(this.sessionId) })
   }
 
   /**
@@ -49,14 +54,18 @@ export class SyncSession {
     if (type === 'source') {
       if (config) {
         this.sourceStorageEngine = createStorageEngineInstance(config)
+        this.sourceStorageType = config.storageType
       } else {
         this.sourceStorageEngine = null
+        this.sourceStorageType = null
       }
     } else {
       if (config) {
         this.destinationStorageEngine = createStorageEngineInstance(config)
+        this.destinationStorageType = config.storageType
       } else {
         this.destinationStorageEngine = null
+        this.destinationStorageType = null
       }
     }
   }
@@ -67,6 +76,10 @@ export class SyncSession {
    */
   setIgnoredFolders(folders: string[]) {
     this.ignoredFolders = folders
+    this.logger.debug('sync.ignored_folders.updated', {
+      sessionId: shortId(this.sessionId),
+      count: folders.length,
+    })
   }
 
   /**
@@ -96,6 +109,12 @@ export class SyncSession {
     this.diffStore.updateAll(diffItems)
 
     this.computeResolutionCount()
+    this.logger.info('sync.strategy.changed', {
+      sessionId: shortId(this.sessionId),
+      strategy,
+      totalCount: this.totalCount,
+      totalBytes: this.totalBytes,
+    })
 
     return {
       totalBytes: this.totalBytes,
@@ -143,6 +162,9 @@ export class SyncSession {
    */
   setStopFlag(flag: boolean) {
     this.stopFlag = flag
+    if (flag) {
+      this.logger.info('sync.stop.requested', { sessionId: shortId(this.sessionId) })
+    }
   }
 
   /**
@@ -171,22 +193,41 @@ export class SyncSession {
    * @returns
    */
   async validateStorageEngine(): Promise<[boolean, boolean]> {
+    const startedAt = Date.now()
     const validateResult: [boolean, boolean] = [true, true]
-    if (!this.sourceStorageEngine) {
-      validateResult[0] = false
-    } else {
-      validateResult[0] = await this.sourceStorageEngine.validate()
-      await this.sourceStorageEngine.disconnect()
-    }
+    try {
+      if (!this.sourceStorageEngine) {
+        validateResult[0] = false
+      } else {
+        validateResult[0] = await this.sourceStorageEngine.validate()
+        await this.sourceStorageEngine.disconnect()
+      }
 
-    if (!this.destinationStorageEngine) {
-      validateResult[1] = false
-    } else {
-      validateResult[1] = await this.destinationStorageEngine.validate()
-      await this.destinationStorageEngine.disconnect()
-    }
+      if (!this.destinationStorageEngine) {
+        validateResult[1] = false
+      } else {
+        validateResult[1] = await this.destinationStorageEngine.validate()
+        await this.destinationStorageEngine.disconnect()
+      }
 
-    return validateResult
+      this.logger.info('sync.storage.validation_completed', {
+        sessionId: shortId(this.sessionId),
+        sourceType: this.sourceStorageType,
+        destinationType: this.destinationStorageType,
+        sourceValid: validateResult[0],
+        destinationValid: validateResult[1],
+        durationMs: Date.now() - startedAt,
+      })
+      return validateResult
+    } catch (error) {
+      this.logger.error('sync.storage.validation_failed', error, {
+        sessionId: shortId(this.sessionId),
+        sourceType: this.sourceStorageType,
+        destinationType: this.destinationStorageType,
+        durationMs: Date.now() - startedAt,
+      })
+      throw error
+    }
   }
 
   /**
@@ -205,6 +246,13 @@ export class SyncSession {
    * @returns
    */
   async compare(): Promise<CompareResult> {
+    const startedAt = Date.now()
+    this.logger.info('sync.compare.started', {
+      sessionId: shortId(this.sessionId),
+      strategy: this.syncStrategy,
+      sourceType: this.sourceStorageType,
+      destinationType: this.destinationStorageType,
+    })
     this.clearStatus()
     this.diffStore.delAll()
 
@@ -222,39 +270,54 @@ export class SyncSession {
       },
     ]
 
-    while (differentStack.length > 0 && !this.stopFlag) {
-      const differentItem = differentStack.pop()!
+    try {
+      while (differentStack.length > 0 && !this.stopFlag) {
+        const differentItem = differentStack.pop()!
 
-      if (differentItem.isDirectory) {
-        await this.compareDirectory(differentItem, differentStack)
+        if (differentItem.isDirectory) {
+          await this.compareDirectory(differentItem, differentStack)
+        }
+
+        await this.clearEmptyDirectory(differentItem.parentId)
+
+        if (differentItem.id) {
+          this.diffStore.add(differentItem)
+          // 更新记数
+          this.updateTotals(differentItem, null)
+        }
       }
 
-      await this.clearEmptyDirectory(differentItem.parentId)
+      await this.clearEmptyDirectory(null)
 
-      if (differentItem.id) {
-        this.diffStore.add(differentItem)
-        // 更新记数
-        this.updateTotals(differentItem, null)
+      const cancelled = this.stopFlag
+      if (this.stopFlag) this.stopFlag = false
+
+      await Promise.all([
+        this.sourceStorageEngine?.disconnect(),
+        this.destinationStorageEngine?.disconnect(),
+      ])
+
+      this.computeResolutionCount()
+
+      const result = {
+        totalBytes: this.totalBytes,
+        totalCount: this.totalCount,
+        toLeftCount: this.toLeftCount,
+        toRightCount: this.toRightCount,
+        ignoreCount: this.ignoreCount,
       }
-    }
-
-    await this.clearEmptyDirectory(null)
-
-    if (this.stopFlag) this.stopFlag = false
-
-    await Promise.all([
-      this.sourceStorageEngine?.disconnect(),
-      this.destinationStorageEngine?.disconnect(),
-    ])
-
-    this.computeResolutionCount()
-
-    return {
-      totalBytes: this.totalBytes,
-      totalCount: this.totalCount,
-      toLeftCount: this.toLeftCount,
-      toRightCount: this.toRightCount,
-      ignoreCount: this.ignoreCount,
+      this.logger.info(cancelled ? 'sync.compare.cancelled' : 'sync.compare.completed', {
+        sessionId: shortId(this.sessionId),
+        ...result,
+        durationMs: Date.now() - startedAt,
+      })
+      return result
+    } catch (error) {
+      this.logger.error('sync.compare.failed', error, {
+        sessionId: shortId(this.sessionId),
+        durationMs: Date.now() - startedAt,
+      })
+      throw error
     }
   }
 
@@ -276,6 +339,13 @@ export class SyncSession {
       const currentPath = item.destination.relativePath
       destList = await this.destinationStorageEngine!.list(currentPath, this.ignoredFolders)
     }
+
+    this.logger.debug('sync.directory.scanned', {
+      sessionId: shortId(this.sessionId),
+      relativePath: item.source?.relativePath ?? item.destination?.relativePath ?? '',
+      sourceCount: sourceList.length,
+      destinationCount: destList.length,
+    })
 
     const fileMap = new Map<string, [FileInfo | null, FileInfo | null]>()
     for (const file of sourceList) {
@@ -409,33 +479,58 @@ export class SyncSession {
    */
   async startSync() {
     const mainWindow = getWindow('main')
+    const startedAt = Date.now()
+    this.logger.info('sync.started', {
+      sessionId: shortId(this.sessionId),
+      strategy: this.syncStrategy,
+      sourceType: this.sourceStorageType,
+      destinationType: this.destinationStorageType,
+      totalCount: this.totalCount,
+      totalBytes: this.totalBytes,
+    })
 
-    let differentItem = this.diffStore.getLast()
-    while (!!differentItem && !this.stopFlag) {
-      await this.syncFile(differentItem)
-      if (!differentItem.isDirectory) {
-        this.bytesTransferred += differentItem.transferBytes
-        this.transferredCount++
+    try {
+      let differentItem = this.diffStore.getLast()
+      while (!!differentItem && !this.stopFlag) {
+        await this.syncFile(differentItem)
+        if (!differentItem.isDirectory) {
+          this.bytesTransferred += differentItem.transferBytes
+          this.transferredCount++
+        }
+
+        mainWindow!.webContents.send(`sync:updateStatus:${this.sessionId}`, {
+          bytesTransferred: this.bytesTransferred,
+          transferredCount: this.transferredCount,
+        })
+
+        this.diffStore.delLast()
+        this.clearEmptyDirectory(null)
+        differentItem = this.diffStore.getLast()
       }
 
-      mainWindow!.webContents.send(`sync:updateStatus:${this.sessionId}`, {
+      const cancelled = this.stopFlag
+      if (this.stopFlag) this.stopFlag = false
+
+      await Promise.all([
+        this.sourceStorageEngine?.disconnect(),
+        this.destinationStorageEngine?.disconnect(),
+      ])
+
+      this.logger.info(cancelled ? 'sync.cancelled' : 'sync.completed', {
+        sessionId: shortId(this.sessionId),
         bytesTransferred: this.bytesTransferred,
         transferredCount: this.transferredCount,
+        durationMs: Date.now() - startedAt,
       })
-
-      this.diffStore.delLast()
-      this.clearEmptyDirectory(null)
-      differentItem = this.diffStore.getLast()
+    } catch (error) {
+      this.logger.error('sync.failed', error, {
+        sessionId: shortId(this.sessionId),
+        bytesTransferred: this.bytesTransferred,
+        transferredCount: this.transferredCount,
+        durationMs: Date.now() - startedAt,
+      })
+      throw error
     }
-
-    if (this.stopFlag) this.stopFlag = false
-
-    await Promise.all([
-      this.sourceStorageEngine?.disconnect(),
-      this.destinationStorageEngine?.disconnect(),
-    ])
-
-    return
   }
 
   /**
@@ -447,32 +542,84 @@ export class SyncSession {
     if (!this.sourceStorageEngine || !this.destinationStorageEngine) {
       throw new Error('Storage engine is not initialized')
     }
-    if (diff.isDirectory || diff.resolution === 'ignore') return
+    if (diff.isDirectory) return
 
-    if (diff.resolution === 'toLeft') {
-      if (diff.source) {
-        await this.sourceStorageEngine?.delFile(diff.source.relativePath)
+    const relativePath = diff.source?.relativePath ?? diff.destination?.relativePath
+    const context = {
+      sessionId: shortId(this.sessionId),
+      resolution: diff.resolution,
+      relativePath,
+      size: diff.transferBytes,
+    }
+
+    if (diff.resolution === 'ignore') {
+      this.logger.debug('sync.file.skipped', context)
+      return
+    }
+
+    try {
+      if (diff.resolution === 'toLeft') {
+        if (diff.source) {
+          this.logger.debug('sync.file.delete.started', {
+            ...context,
+            storageType: this.sourceStorageType,
+          })
+          await this.sourceStorageEngine.delFile(diff.source.relativePath)
+          this.logger.debug('sync.file.delete.completed', {
+            ...context,
+            storageType: this.sourceStorageType,
+          })
+        }
+        if (diff.destination) {
+          this.logger.debug('sync.file.copy.started', {
+            ...context,
+            sourceType: this.destinationStorageType,
+            destinationType: this.sourceStorageType,
+          })
+          await this.transfer(
+            this.destinationStorageEngine,
+            this.sourceStorageEngine,
+            diff.destination.relativePath,
+          )
+          this.logger.debug('sync.file.copy.completed', {
+            ...context,
+            sourceType: this.destinationStorageType,
+            destinationType: this.sourceStorageType,
+          })
+        }
+      } else {
+        if (diff.destination) {
+          this.logger.debug('sync.file.delete.started', {
+            ...context,
+            storageType: this.destinationStorageType,
+          })
+          await this.destinationStorageEngine.delFile(diff.destination.relativePath)
+          this.logger.debug('sync.file.delete.completed', {
+            ...context,
+            storageType: this.destinationStorageType,
+          })
+        }
+        if (diff.source) {
+          this.logger.debug('sync.file.copy.started', {
+            ...context,
+            sourceType: this.sourceStorageType,
+            destinationType: this.destinationStorageType,
+          })
+          await this.transfer(
+            this.sourceStorageEngine,
+            this.destinationStorageEngine,
+            diff.source.relativePath,
+          )
+          this.logger.debug('sync.file.copy.completed', {
+            ...context,
+            sourceType: this.sourceStorageType,
+            destinationType: this.destinationStorageType,
+          })
+        }
       }
-      if (diff.destination) {
-        // ←
-        await this.transfer(
-          this.destinationStorageEngine,
-          this.sourceStorageEngine,
-          diff.destination.relativePath,
-        )
-      }
-    } else {
-      if (diff.destination) {
-        await this.destinationStorageEngine?.delFile(diff.destination.relativePath)
-      }
-      if (diff.source) {
-        // →
-        await this.transfer(
-          this.sourceStorageEngine,
-          this.destinationStorageEngine,
-          diff.source.relativePath,
-        )
-      }
+    } catch (error) {
+      this.logger.error('sync.file.failed', error, context)
+      throw error
     }
   }
 

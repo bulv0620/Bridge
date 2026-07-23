@@ -193,12 +193,31 @@
     },
     "setting": {
       "title": "Settings",
-      "description": "Global parameter settings",
+      "basicTab": "General",
+      "logsTab": "Logs",
       "language": "Language",
       "theme": "Theme",
       "save": "Save",
       "reset": "Reset to Default",
-      "resetConfirm": "Reset to default settings?"
+      "resetConfirm": "Reset to default settings?",
+      "diagnostics": {
+        "active": "Recording",
+        "level": "Log Level",
+        "standard": "Standard",
+        "detailed": "Detailed",
+        "storage": "Storage",
+        "storageLimit": "/ about 25 MB",
+        "openDirectory": "Open Log Folder",
+        "export": "Export Diagnostics",
+        "clear": "Clear Logs",
+        "clearConfirm": "Clear the current log and all archived logs?",
+        "clearSuccess": "Logs cleared",
+        "clearFailed": "Failed to clear logs",
+        "openFailed": "Failed to open the log folder",
+        "exportSuccess": "Diagnostics exported",
+        "exportFailed": "Failed to export diagnostics",
+        "privacy": "Logs stay on this device and are never uploaded automatically."
+      }
     }
   },
   "layout": {},

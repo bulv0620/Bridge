@@ -11,6 +11,7 @@ import { remoteRef, RemoteRefMain } from '../../../utils/remoteRef'
 import { locale } from '../../../config'
 import { messages } from '../../../locales'
 import cors from 'cors'
+import { createLogger, shortId } from '../../../services/logging'
 
 export class ShareServer {
   private app = express()
@@ -18,6 +19,7 @@ export class ShareServer {
   private receivingMap: Map<string, ReceivingItem> = new Map()
   private receivingList: RemoteRefMain<ReceivingItem[]> = remoteRef('receiving-list', [])
   private receivedList: RemoteRefMain<ReceivedItem[]> = remoteRef('received-list', [])
+  private logger = createLogger('share')
 
   constructor(private clipboardManager: ClipboardManager) {
     this.app.use(cors())
@@ -39,11 +41,24 @@ export class ShareServer {
     const clipboardItem = clipboardHistory.value.find((c) => c.v === v)
 
     if (!clipboardItem) {
+      this.logger.warn('share.clipboard.request_not_found', {
+        clipboardId: shortId(v),
+      })
       res.status(404).end()
       return
     }
 
     const { mime, text, path } = clipboardItem
+    this.logger.debug('share.clipboard.requested', {
+      clipboardId: shortId(v),
+      mime,
+      size:
+        text != null
+          ? Buffer.byteLength(text)
+          : path && fs.existsSync(path)
+            ? fs.statSync(path).size
+            : 0,
+    })
 
     res.setHeader('Content-Type', mime)
 
@@ -73,12 +88,18 @@ export class ShareServer {
     const fileMeta = req.body as FileMeta
 
     if (!fileMeta.filename || !fileMeta.size || !fileMeta.device) {
+      this.logger.warn('share.receive.request_invalid')
       res.status(400).end()
       return
     }
 
     const filePushEnabled = capabilities.value.includes('file-push')
     if (!filePushEnabled) {
+      this.logger.info('share.receive.rejected', {
+        reason: 'file_push_disabled',
+        size: fileMeta.size,
+        sourceDeviceId: shortId(fileMeta.device.id),
+      })
       res.status(403).json({ allowed: false })
       return
     }
@@ -86,6 +107,11 @@ export class ShareServer {
     const allowed = await this.confirmReceiveFile(fileMeta)
 
     if (!allowed) {
+      this.logger.info('share.receive.rejected', {
+        reason: 'user_rejected',
+        size: fileMeta.size,
+        sourceDeviceId: shortId(fileMeta.device.id),
+      })
       res.status(403).json({ allowed: false })
       return
     }
@@ -108,6 +134,17 @@ export class ShareServer {
       createdAt: Date.now(),
     })
     this.syncReceivingList()
+    this.logger.info('share.receive.accepted', {
+      transferId: shortId(uploadId),
+      size: fileMeta.size,
+      mime: fileMeta.mime,
+      sourceDeviceId: shortId(fileMeta.device.id),
+    })
+    this.logger.debug('share.receive.file_selected', {
+      transferId: shortId(uploadId),
+      filename: fileMeta.filename,
+      savePath,
+    })
 
     res.json({ allowed: true, uploadId })
   }
@@ -118,6 +155,9 @@ export class ShareServer {
     const receivingItem = this.receivingMap.get(uploadId)
 
     if (!receivingItem) {
+      this.logger.warn('share.receive.transfer_not_found', {
+        transferId: shortId(uploadId),
+      })
       res.status(404).end()
       return
     }
@@ -131,6 +171,11 @@ export class ShareServer {
     const total = receivingItem.meta.size
     let transferred = 0
     const startTime = Date.now()
+    this.logger.info('share.receive.started', {
+      transferId: shortId(uploadId),
+      size: total,
+      sourceDeviceId: shortId(receivingItem.meta.device.id),
+    })
     receivingItem.progress = {
       transferred: 0,
       total,
@@ -156,6 +201,11 @@ export class ShareServer {
     })
 
     req.on('aborted', () => {
+      this.logger.warn('share.receive.aborted', {
+        transferId: shortId(uploadId),
+        transferred,
+        size: total,
+      })
       writeStream.destroy(new Error('aborted'))
     })
 
@@ -188,11 +238,16 @@ export class ShareServer {
         })
       })
 
+      this.logger.info('share.receive.completed', {
+        transferId: shortId(uploadId),
+        size: total,
+        transferred,
+        durationMs: Date.now() - startTime,
+      })
       res.json({ success: true })
     })
 
     writeStream.on('error', (err) => {
-      console.error(err)
       this.receivingMap.delete(uploadId)
       this.syncReceivingList()
 
@@ -210,6 +265,14 @@ export class ShareServer {
         })
       })
 
+      this.logger.error('share.receive.failed', err, {
+        transferId: shortId(uploadId),
+        size: total,
+        transferred,
+        durationMs: Date.now() - startTime,
+        filename: receivingItem.meta.filename,
+        savePath: receivingItem.savePath,
+      })
       res.status(500).end()
     })
   }
@@ -218,7 +281,11 @@ export class ShareServer {
     if (this.server) return
 
     this.server = this.app.listen(httpPort.value, () => {
-      console.log(`✅ ShareServer started on HTTP ${httpPort.value}`)
+      this.logger.info('share.server.started', { port: httpPort.value })
+    })
+    this.server.on('error', (error) => {
+      this.logger.error('share.server.failed', error, { port: httpPort.value })
+      this.server = undefined
     })
   }
 
@@ -226,7 +293,7 @@ export class ShareServer {
     if (!this.server) return
 
     this.server.close(() => {
-      console.log('🛑 ShareServer stopped')
+      this.logger.info('share.server.stopped')
     })
     this.server = undefined
   }

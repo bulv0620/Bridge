@@ -4,7 +4,9 @@ import path from 'path'
 import fs from 'fs'
 import { exec as execCb } from 'child_process'
 import util from 'util'
+import { createLogger } from '../../../../../services/logging'
 const exec = util.promisify(execCb)
+const logger = createLogger('sync.storage.local')
 
 /**
  * 本地文件系统实现
@@ -25,7 +27,7 @@ export class LocalStorageEngine extends StorageEngine {
       await fs.promises.access(this.basePath)
       return true
     } catch (err) {
-      console.error('Base path does not exist:', this.basePath, err)
+      logger.warn('sync.storage.local.validation_failed', { path: this.basePath }, err)
       return false
     }
   }
@@ -240,8 +242,6 @@ export class LocalStorageEngine extends StorageEngine {
       }
     } catch (err) {
       // 出错时返回 undefined（调用方可以决定是否降级处理）
-      // 可以根据需要把错误打印出来
-      // console.error('getCapacity error:', err)
       return
     }
   }

@@ -4,10 +4,12 @@ import { DeviceDiscovery } from './service/DeviceDiscovery'
 import { ShareServer } from './service/ShareServer'
 import { deviceId, deviceName } from '../../config'
 import os from 'os'
+import { createLogger } from '../../services/logging'
 
 let deviceDiscovery: DeviceDiscovery | null
 let shareServer: ShareServer | null
 const clipboardManager = new ClipboardManager()
+const logger = createLogger('share')
 
 export function startService() {
   if (!deviceDiscovery) {
@@ -16,7 +18,9 @@ export function startService() {
   if (!shareServer) {
     shareServer = new ShareServer(clipboardManager)
   }
-  deviceDiscovery.start()
+  void deviceDiscovery.start().catch((error) => {
+    logger.error('discovery.start.failed', error)
+  })
   shareServer.start()
 }
 
@@ -27,6 +31,7 @@ export function stopService() {
   if (shareServer) {
     shareServer.stop()
   }
+  logger.info('share.services.stop_requested')
 }
 
 export function writeContent(_: IpcMainInvokeEvent, content: ClipboardContent) {

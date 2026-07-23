@@ -39,6 +39,10 @@
   "file": {
     "fileNotExist": "File does not exist"
   },
+  "diagnostics": {
+    "exportTitle": "Export Bridge Diagnostics",
+    "zipArchive": "ZIP Archive"
+  },
   "share": {
     "title": "Receive File",
     "message": "Do you want to receive this file?",

@@ -1,8 +1,10 @@
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { i18n } from '@renderer/locales'
+import { createRendererLogger } from '@renderer/utils/logger'
 
 const { t } = i18n.global
+const logger = createRendererLogger('update')
 
 const version = ref('')
 const newVersion = ref('')
@@ -36,7 +38,7 @@ async function checkForUpdate() {
       })
     }
   } catch (err) {
-    console.error(err)
+    logger.error('update.check.ui_failed', err)
   } finally {
     checkLoading.value = false
   }
@@ -47,7 +49,7 @@ async function downloadUpdate() {
     downloading.value = true
     await window.ipc.update.download()
   } catch (err) {
-    console.error(err)
+    logger.error('update.download.ui_failed', err)
   } finally {
     downloading.value = false
   }

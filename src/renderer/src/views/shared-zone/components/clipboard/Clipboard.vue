@@ -4,8 +4,10 @@ import { useRemoteRef } from '@renderer/composables/remote-ref/useRemoteRef'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { createRendererLogger } from '@renderer/utils/logger'
 
 const { t } = useI18n()
+const logger = createRendererLogger('clipboard')
 
 const clips = useRemoteRef<ClipboardContent[]>('clipboard-history', [])
 
@@ -25,19 +27,27 @@ async function handleClearHistory() {
     showCancelButton: true,
   })
   clips.value = []
+  logger.info('clipboard.history.cleared')
 }
 
 async function handleCopy(content: ClipboardContent) {
   try {
     // 复制
     await window.ipc.share.writeContent(toRaw(content))
+    logger.info('clipboard.copy.completed', {
+      clipboardId: content.v.slice(0, 8),
+      mime: content.mime,
+    })
     ElMessage({
       message: t('views.sharedZone.copySuccess'),
       type: 'success',
       plain: true,
     })
   } catch (e) {
-    console.error(e)
+    logger.error('clipboard.copy.failed', e, {
+      clipboardId: content.v.slice(0, 8),
+      mime: content.mime,
+    })
     ElMessage({
       message: t('views.sharedZone.copyFailed'),
       type: 'error',

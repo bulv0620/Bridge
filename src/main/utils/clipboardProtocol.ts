@@ -1,6 +1,9 @@
 import { app, protocol } from 'electron'
 import fs from 'fs'
 import path from 'path'
+import { createLogger } from '../services/logging'
+
+const logger = createLogger('clipboard')
 
 export function registerClipboardProtocol() {
   const rootDir = path.resolve(app.getPath('userData'), 'clipboard')
@@ -20,10 +23,12 @@ export function registerClipboardProtocol() {
       const resolvedPath = path.resolve(filePath)
 
       if (!resolvedPath.startsWith(rootDir + path.sep)) {
+        logger.warn('clipboard.protocol.forbidden')
         return new Response('Forbidden', { status: 403 })
       }
 
       if (!fs.existsSync(resolvedPath)) {
+        logger.warn('clipboard.protocol.not_found', { path: resolvedPath })
         return new Response('Not Found', { status: 404 })
       }
 
@@ -37,7 +42,7 @@ export function registerClipboardProtocol() {
         },
       })
     } catch (e) {
-      console.error('[clipboard protocol]', e)
+      logger.error('clipboard.protocol.failed', e)
       return new Response('Bad Request', { status: 400 })
     }
   })

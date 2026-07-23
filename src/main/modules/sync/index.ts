@@ -2,8 +2,10 @@ import { IpcMainInvokeEvent } from 'electron'
 import { StorageSession } from './service/storage-session/StorageSession'
 import { SyncSession } from './service/sync-session/SyncSession'
 import { getStore } from '../../store'
+import { createLogger, shortId } from '../../services/logging'
 
 const store = getStore()
+const logger = createLogger('sync')
 
 const storageSessionMap = new Map<string, StorageSession>() // 连接会话
 const syncSessionMap = new Map<string, SyncSession>() // 同步会话
@@ -11,6 +13,7 @@ const syncSessionMap = new Map<string, SyncSession>() // 同步会话
 // 缓存会话
 export function cacheSessions(_: IpcMainInvokeEvent, sessions: CacehdSession[]) {
   store.set('syncSessions', sessions)
+  logger.debug('sync.sessions.cached', { count: sessions.length })
 }
 
 // 获取缓存的会话列表
@@ -24,6 +27,7 @@ export function createSyncSession(_: IpcMainInvokeEvent, id?: string) {
   const syncSession = new SyncSession(uuid)
 
   syncSessionMap.set(uuid, syncSession)
+  logger.info('sync.session.created', { sessionId: shortId(uuid) })
 
   return uuid
 }
@@ -33,6 +37,7 @@ export function closeSyncSession(_: IpcMainInvokeEvent, id: string) {
   const item = syncSessionMap.get(id)!
   item.dispose()
   syncSessionMap.delete(id)
+  logger.info('sync.session.closed', { sessionId: shortId(id) })
 }
 
 // 设置同步引擎配置
@@ -45,6 +50,11 @@ export function setStorageEngineConfig(
   const session = syncSessionMap.get(id)
   if (!session) return
   session.setStorageEngineConfig(type, config)
+  logger.info('sync.storage.configured', {
+    sessionId: shortId(id),
+    side: type,
+    storageType: config?.storageType ?? null,
+  })
 }
 
 // 验证同步引擎是否可用
@@ -132,12 +142,26 @@ export function getCapacity(_: IpcMainInvokeEvent, id: string, type: 'source' | 
 
 // 创建连接实例
 export async function createStorageSession(_: IpcMainInvokeEvent, config: StorageEngineConfig) {
+  const startedAt = Date.now()
   const session = new StorageSession(config)
 
-  await session.validate()
+  try {
+    await session.validate()
+  } catch (error) {
+    logger.error('sync.storage_session.validation_failed', error, {
+      storageType: config.storageType,
+      durationMs: Date.now() - startedAt,
+    })
+    throw error
+  }
 
   const uuid = crypto.randomUUID()
   storageSessionMap.set(uuid, session)
+  logger.info('sync.storage_session.created', {
+    storageSessionId: shortId(uuid),
+    storageType: config.storageType,
+    durationMs: Date.now() - startedAt,
+  })
 
   return uuid
 }
@@ -162,4 +186,5 @@ export function releaseSession(_: IpcMainInvokeEvent, id: string) {
   session?.disconnect()
 
   storageSessionMap.delete(id)
+  logger.debug('sync.storage_session.released', { storageSessionId: shortId(id) })
 }

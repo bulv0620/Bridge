@@ -2,10 +2,12 @@ import path from 'path'
 import fs from 'fs'
 import { spawn } from 'child_process'
 import os from 'os'
+import { createLogger } from '../services/logging'
 
 let resourcesPath = ''
 let pluginProcess: PluginProcess[] = []
 const availablePlugin = new Map<string, PluginInfo>()
+const logger = createLogger('plugin')
 
 /** 初始化资源路径 */
 function initResourcesPath() {
@@ -31,7 +33,7 @@ async function killProcess(pid: number) {
     try {
       process.kill(pid, 'SIGTERM')
     } catch (err) {
-      console.warn(`Failed to kill process ${pid}:`, err)
+      logger.warn('plugin.process.kill_failed', { pid }, err)
     }
   }
 }
@@ -125,9 +127,33 @@ export async function runTask(pluginInfo: PluginInfo) {
     stdio: ['ignore', 'pipe', 'pipe'],
   })
 
-  child.stdout.on('data', (d) => console.log(`stdout: ${d}`))
-  child.stderr.on('data', (d) => console.error(`stderr: ${d}`))
-  child.on('close', (code) => console.log(`${pluginInfo.name} exited with ${code}`))
+  logger.info('plugin.process.started', {
+    plugin: pluginInfo.name,
+    pid: child.pid,
+    platform,
+    arch: os.arch(),
+  })
+  child.stdout.on('data', (data) => {
+    for (const line of String(data).split(/\r?\n/).filter(Boolean)) {
+      logger.debug('plugin.process.stdout', { plugin: pluginInfo.name, output: line })
+    }
+  })
+  child.stderr.on('data', (data) => {
+    for (const line of String(data).split(/\r?\n/).filter(Boolean)) {
+      logger.debug('plugin.process.stderr', { plugin: pluginInfo.name, output: line })
+    }
+  })
+  child.on('error', (error) => {
+    logger.error('plugin.process.failed', error, { plugin: pluginInfo.name, pid: child.pid })
+  })
+  child.on('close', (code, signal) => {
+    const context = { plugin: pluginInfo.name, pid: child.pid, code, signal }
+    if (code === 0) {
+      logger.info('plugin.process.exited', context)
+    } else {
+      logger.warn('plugin.process.exited', context)
+    }
+  })
   child.on('exit', () => {
     pluginProcess = pluginProcess.filter((p) => p.pid !== child.pid)
   })
@@ -139,6 +165,7 @@ export async function runTask(pluginInfo: PluginInfo) {
 export async function stopTask(pluginInfo: PluginInfo) {
   const p = pluginProcess.find((el) => el.name === pluginInfo.name)
   if (p) {
+    logger.info('plugin.process.stop_requested', { plugin: pluginInfo.name, pid: p.pid })
     await killProcess(p.pid!)
     pluginProcess = pluginProcess.filter((el) => el.name !== pluginInfo.name)
   }
@@ -147,6 +174,7 @@ export async function stopTask(pluginInfo: PluginInfo) {
 /** 停止所有任务 */
 export async function stopAllTasks() {
   for (const p of pluginProcess) {
+    logger.info('plugin.process.stop_requested', { plugin: p.name, pid: p.pid })
     await killProcess(p.pid!)
   }
   pluginProcess = []
