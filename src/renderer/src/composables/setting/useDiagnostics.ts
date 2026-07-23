@@ -29,7 +29,11 @@ async function openDirectory() {
     await window.ipc.log.openDirectory()
   } catch {
     logger.error('diagnostics.directory.open_failed', new Error('Failed to open log directory'))
-    ElMessage.error(t('views.setting.diagnostics.openFailed'))
+    ElMessage({
+      message: t('views.setting.diagnostics.openFailed'),
+      type: 'error',
+      plain: true,
+    })
   } finally {
     loadingAction.value = undefined
   }
@@ -40,10 +44,18 @@ async function exportDiagnostics() {
   try {
     const result = await window.ipc.log.exportDiagnostics()
     if (!result.cancelled) {
-      ElMessage.success(t('views.setting.diagnostics.exportSuccess'))
+      ElMessage({
+        message: t('views.setting.diagnostics.exportSuccess'),
+        type: 'success',
+        plain: true,
+      })
     }
   } catch {
-    ElMessage.error(t('views.setting.diagnostics.exportFailed'))
+    ElMessage({
+      message: t('views.setting.diagnostics.exportFailed'),
+      type: 'error',
+      plain: true,
+    })
   } finally {
     loadingAction.value = undefined
     await refreshStatus()
@@ -66,9 +78,17 @@ async function clearLogs() {
   try {
     await window.ipc.log.clear()
     await refreshStatus()
-    ElMessage.success(t('views.setting.diagnostics.clearSuccess'))
+    ElMessage({
+      message: t('views.setting.diagnostics.clearSuccess'),
+      type: 'success',
+      plain: true,
+    })
   } catch {
-    ElMessage.error(t('views.setting.diagnostics.clearFailed'))
+    ElMessage({
+      message: t('views.setting.diagnostics.clearFailed'),
+      type: 'error',
+      plain: true,
+    })
   } finally {
     loadingAction.value = undefined
   }
