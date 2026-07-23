@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.10.2](https://github.com/bulv0620/file-bridge/compare/v0.10.1...v0.10.2) (2026-07-23)
+
+
+### Bug Fixes
+
+* improve ElMessage usage for diagnostics actions with consistent formatting ([a1ecf86](https://github.com/bulv0620/file-bridge/commit/a1ecf863a67479d4c4a2b5c83effa51ef0f8be94))
+
+
+
 ## [0.10.1](https://github.com/bulv0620/file-bridge/compare/v0.10.0...v0.10.1) (2026-07-23)
 
 
