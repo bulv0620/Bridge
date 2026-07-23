@@ -45,7 +45,7 @@ export function createTray(): Tray {
   return tray
 }
 
-export function updateTray(lang: string, options: { mainWindow: BrowserWindow }) {
+export function updateTray(lang: Locales, options: { mainWindow: BrowserWindow }) {
   contextMenu = Menu.buildFromTemplate([
     {
       label: messages[lang].tray.fileSync,
@@ -83,8 +83,8 @@ export function updateTray(lang: string, options: { mainWindow: BrowserWindow })
       },
     },
   ])
-  if (os.platform() === 'linux') {
-    tray!.setContextMenu(contextMenu)
+  if (os.platform() === 'linux' && tray) {
+    tray.setContextMenu(contextMenu)
   }
 }
 

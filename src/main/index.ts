@@ -40,7 +40,6 @@ if (!gotTheLock) {
     optimizer.watchWindowShortcuts(window)
   })
 
-  initAppConfig()
   registerAllEvents()
 
   const mainWindow = createCustomWindow('main', {
@@ -51,6 +50,7 @@ if (!gotTheLock) {
   })
 
   createTray()
+  initAppConfig()
 
   app.on('activate', () => {
     logger.debug('app.activated')
