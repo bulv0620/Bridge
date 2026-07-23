@@ -3,8 +3,9 @@ import { useI18n } from 'vue-i18n'
 import { languageOptions } from '@renderer/locales'
 import { useTheme } from '@renderer/composables/setting/useTheme'
 import { computed, ref } from 'vue'
-import ThemeCardGroup from './components/ThemeCardGroup.vue'
+import SegmentedControl from './components/SegmentedControl.vue'
 import { ElMessageBox } from 'element-plus'
+import { RefreshLeft } from '@element-plus/icons-vue'
 import { useLang } from '@renderer/composables/setting/useLang'
 import { useRemoteRef } from '@renderer/composables/remote-ref/useRemoteRef'
 import DiagnosticsSettings from './components/DiagnosticsSettings.vue'
@@ -48,33 +49,33 @@ const handleReset = async () => {
       <el-tabs v-model="activeTab" class="settings-tabs">
         <el-tab-pane :label="$t('views.setting.basicTab')" name="basic">
           <el-scrollbar class="tab-scroll">
-            <el-form ref="formRef" class="settings-card" label-position="top">
-              <section class="setting-section">
-                <el-form-item :label="$t('views.setting.theme')">
-                  <ThemeCardGroup v-model:value="themeMode" :options="themeOptions" />
-                </el-form-item>
+            <div class="settings-card">
+              <section class="setting-row">
+                <span id="theme-label" class="row-label">{{ $t('views.setting.theme') }}</span>
+                <SegmentedControl
+                  v-model:value="themeMode"
+                  :options="themeOptions"
+                  labelledby="theme-label"
+                />
               </section>
 
-              <section class="setting-section">
-                <el-form-item :label="$t('views.setting.language')">
-                  <el-radio-group v-model="currentLocale">
-                    <el-radio
-                      v-for="option in languageOptions"
-                      :key="option.value"
-                      :value="option.value"
-                    >
-                      {{ option.label }}
-                    </el-radio>
-                  </el-radio-group>
-                </el-form-item>
+              <section class="setting-row">
+                <span id="language-label" class="row-label">
+                  {{ $t('views.setting.language') }}
+                </span>
+                <SegmentedControl
+                  v-model:value="currentLocale"
+                  :options="languageOptions"
+                  labelledby="language-label"
+                />
               </section>
 
               <footer class="setting-actions">
-                <el-button @click="handleReset">
+                <el-button :icon="RefreshLeft" @click="handleReset">
                   {{ $t('views.setting.reset') }}
                 </el-button>
               </footer>
-            </el-form>
+            </div>
           </el-scrollbar>
         </el-tab-pane>
 
@@ -164,10 +165,23 @@ const handleReset = async () => {
     box-shadow: inset 0 0 0 1px var(--bridge-stroke);
   }
 
-  .setting-section + .setting-section {
-    margin-top: 18px;
-    padding-top: 18px;
+  .setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .setting-row + .setting-row {
+    margin-top: 20px;
+    padding-top: 20px;
     box-shadow: inset 0 1px 0 var(--bridge-stroke);
+  }
+
+  .row-label {
+    color: var(--el-text-color-primary);
+    font-size: 13px;
+    font-weight: 600;
   }
 
   .setting-actions {
@@ -179,13 +193,6 @@ const handleReset = async () => {
     box-shadow: inset 0 1px 0 var(--bridge-stroke);
   }
 
-  :deep(.el-form-item) {
-    margin-bottom: 10px;
-  }
-
-  :deep(.el-form-item__label) {
-    padding-bottom: 10px;
-  }
 }
 
 @media (max-width: 760px) {
