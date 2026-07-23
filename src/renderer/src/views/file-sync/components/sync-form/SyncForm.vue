@@ -24,10 +24,16 @@ const { activeSessionState } = useActiveSyncSession()
 
 <style lang="less" scoped>
 .sync-form {
-  padding: 16px;
-  padding-bottom: 0;
+  min-width: 0;
+  padding: var(--bridge-page-padding) var(--bridge-page-padding) 0;
   display: flex;
-  gap: 12px;
+  gap: 14px;
   align-items: center;
+}
+
+@media (max-width: 760px) {
+  .sync-form {
+    gap: 8px;
+  }
 }
 </style>

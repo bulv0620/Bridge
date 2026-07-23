@@ -1,133 +1,358 @@
 <script setup lang="ts">
-import { CaretBottom, CaretTop } from '@element-plus/icons-vue'
-import { useCollapse } from '@renderer/composables/share-zone/useCollapse'
-import ReceivedTable from './received-table/ReceivedTable.vue'
-import ReceivingTable from './receiving-table/ReceivingTable.vue'
-import SentTable from './sent-table/SentTable.vue'
-import SendingTable from './sending-table/SendingTable.vue'
+import { computed } from 'vue'
+import {
+  CircleCheck,
+  CircleClose,
+  Close,
+  Delete,
+  Document,
+  FolderOpened,
+} from '@element-plus/icons-vue'
+import dayjs from 'dayjs'
 import { useTaskList } from '@renderer/composables/share-zone/useTaskList'
-import { watch } from 'vue'
+import { formatBytes, formatBytesPerSecond, round } from '@renderer/utils/format'
 
-const { tasksActive } = useCollapse()
-const { activeTab, tabs } = useTaskList()
+type ActivityItem = SendingItem | SentItem | ReceivingItem | ReceivedItem
+type ProgressItem = SendingItem | ReceivingItem
 
-watch(activeTab, () => {
-  tasksActive.value = true
+const {
+  activeTab,
+  tabs,
+  sendingList,
+  sentList,
+  receivingList,
+  receivedList,
+  abortTask,
+  deleteTask,
+  openFolder,
+} = useTaskList()
+
+const activeItems = computed<ActivityItem[]>(() => {
+  const lists = [sendingList.value, sentList.value, receivingList.value, receivedList.value]
+  return lists[activeTab.value] as ActivityItem[]
 })
+
+function hasProgress(item: ActivityItem): item is ProgressItem {
+  return 'progress' in item
+}
+
+function progressValue(item: ProgressItem) {
+  return round(item.progress.percentage * 100)
+}
+
+function resultOf(item: ActivityItem) {
+  return 'result' in item ? item.result : undefined
+}
+
+function finishedAt(item: ActivityItem) {
+  return 'finishedAt' in item ? dayjs(item.finishedAt).format('HH:mm') : ''
+}
+
+function canOpen(item: ActivityItem) {
+  const received = item as ReceivedItem
+  return activeTab.value === 3 && received.result === 'success' && Boolean(received.save?.path)
+}
+
+function openReceived(item: ActivityItem) {
+  const path = (item as ReceivedItem).save?.path
+  if (path) openFolder(path)
+}
+
+function removeItem(item: ActivityItem, index: number) {
+  if (activeTab.value === 0) {
+    abortTask(item.id)
+  } else if (activeTab.value === 1) {
+    deleteTask(sentList.value, index)
+  } else if (activeTab.value === 3) {
+    deleteTask(receivedList.value, index)
+  }
+}
 </script>
 
 <template>
-  <div class="footer">
-    <div class="footer-header" :class="{ border: tasksActive }">
-      <div class="tabs">
-        <div
-          v-for="(tab, index) in tabs"
-          :key="index"
-          class="tab-item"
-          :class="{ active: activeTab === index }"
-          @click="activeTab = index"
-        >
-          <div class="text">{{ tab.name }}</div>
-          <div class="num-box" :class="{ light: tab.num > 0 }">
-            {{ tab.num }}
-          </div>
-        </div>
-      </div>
-      <div>
-        <el-button
-          size="small"
-          circle
-          plain
-          :icon="tasksActive ? CaretBottom : CaretTop"
-          @click="tasksActive = !tasksActive"
-        />
-      </div>
-    </div>
+  <section class="activity-panel">
+    <nav class="activity-tabs" :aria-label="$t('views.sharedZone.transferTasks')">
+      <button
+        v-for="(tab, index) in tabs"
+        :key="tab.id"
+        type="button"
+        :class="{ active: activeTab === index }"
+        :aria-pressed="activeTab === index"
+        @click="activeTab = index"
+      >
+        <span>{{ tab.name }}</span>
+        <span v-if="tab.num" class="count">{{ tab.num }}</span>
+      </button>
+    </nav>
 
-    <div class="clipboard-wrapper" :class="{ active: tasksActive }">
-      <SendingTable v-if="activeTab === 0"></SendingTable>
-      <SentTable v-else-if="activeTab === 1"></SentTable>
-      <ReceivingTable v-else-if="activeTab === 2"></ReceivingTable>
-      <ReceivedTable v-else-if="activeTab === 3"></ReceivedTable>
+    <div class="activity-body">
+      <el-scrollbar v-if="activeItems.length" class="activity-scroll">
+        <div class="activity-list">
+          <article v-for="(item, index) in activeItems" :key="item.id" class="activity-item">
+            <span class="file-icon"
+              ><el-icon><Document /></el-icon
+            ></span>
+
+            <div class="item-info">
+              <strong :title="item.meta.filename">{{ item.meta.filename }}</strong>
+              <span>{{ item.meta.device.name }} · {{ formatBytes(item.meta.size) }}</span>
+            </div>
+
+            <div v-if="hasProgress(item)" class="progress-info">
+              <div class="progress-meta">
+                <span>{{ formatBytesPerSecond(item.progress.speed || 0) }}</span>
+                <strong>{{ progressValue(item) }}%</strong>
+              </div>
+              <el-progress :percentage="progressValue(item)" :stroke-width="4" :show-text="false" />
+            </div>
+
+            <div v-else class="result-info" :class="resultOf(item)">
+              <el-icon v-if="resultOf(item) === 'success'"><CircleCheck /></el-icon>
+              <el-icon v-else><CircleClose /></el-icon>
+              <span>
+                {{ $t(resultOf(item) === 'success' ? 'common.success' : 'common.failed') }}
+              </span>
+              <time>{{ finishedAt(item) }}</time>
+            </div>
+
+            <div v-if="activeTab !== 2" class="item-actions">
+              <el-button
+                v-if="canOpen(item)"
+                circle
+                text
+                :icon="FolderOpened"
+                :title="$t('views.sharedZone.openFolder')"
+                :aria-label="$t('views.sharedZone.openFolder')"
+                @click="openReceived(item)"
+              />
+              <el-button
+                circle
+                text
+                :icon="activeTab === 0 ? Close : Delete"
+                :title="
+                  $t(activeTab === 0 ? 'views.sharedZone.abortTask' : 'views.sharedZone.deleteTask')
+                "
+                :aria-label="
+                  $t(activeTab === 0 ? 'views.sharedZone.abortTask' : 'views.sharedZone.deleteTask')
+                "
+                @click="removeItem(item, index)"
+              />
+            </div>
+          </article>
+        </div>
+      </el-scrollbar>
+
+      <div v-else class="empty-status">{{ $t('views.sharedZone.noTasks') }}</div>
     </div>
-  </div>
+  </section>
 </template>
 
 <style lang="less" scoped>
-.footer {
-  border-top: 1px solid var(--el-border-color);
-  background: var(--el-bg-color);
+.activity-panel {
+  height: 190px;
+  min-height: 150px;
+  flex: 0 0 190px;
+  padding: 6px;
+  border-radius: var(--bridge-radius-md);
+  background: var(--bridge-surface-soft);
+  box-shadow: inset 0 0 0 1px var(--bridge-stroke);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 
-  .footer-header {
-    height: 48px;
+  .activity-tabs {
+    min-width: 0;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 16px;
+    gap: 4px;
+    padding-bottom: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
 
-    &.border {
-      border-bottom: 1px solid var(--el-border-color-lighter);
+    &::-webkit-scrollbar {
+      display: none;
     }
 
-    .tabs {
-      display: flex;
-      gap: 20px;
+    button {
+      height: 34px;
+      padding: 0 11px;
+      border: 0;
+      border-radius: 8px;
+      color: var(--el-text-color-secondary);
+      background: transparent;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition:
+        color var(--bridge-motion),
+        background var(--bridge-motion);
 
-      .tab-item {
-        display: flex;
-        gap: 6px;
-        align-items: center;
-        cursor: pointer;
-        position: relative;
-        height: 48px; // 与 header 同高以便定位下划线
+      &:hover {
+        color: var(--el-text-color-primary);
+        background: color-mix(in srgb, var(--bridge-surface) 58%, transparent);
+      }
 
-        &.active {
-          color: var(--el-color-primary);
-          &::after {
-            content: '';
-            width: 100%;
-            height: 2px;
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            background: var(--el-color-primary);
-          }
-        }
+      &.active {
+        color: var(--el-color-primary);
+        background: var(--bridge-surface);
+      }
 
-        .text {
-          font-size: 14px;
-        }
-        .num-box {
-          font-family: monospace;
-          font-size: 11px;
-          padding: 0 5px;
-          height: 16px;
-          border-radius: 8px;
-          background: var(--el-fill-color-darker);
-          color: #fff;
-          display: flex;
-          align-items: center;
-          &.light {
-            background: var(--el-color-primary);
-          }
-        }
+      .count {
+        color: inherit;
+        font: 600 11px/1 monospace;
       }
     }
   }
 
-  .clipboard-wrapper {
-    height: 0;
+  .activity-body {
+    min-height: 0;
+    flex: 1;
     overflow: hidden;
-    transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 9px;
+    background: transparent;
 
-    &.active {
-      height: 200px;
+    .activity-scroll {
+      height: 100%;
+    }
+
+    .activity-list {
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .activity-item {
+      min-height: 58px;
+      padding: 7px 8px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background var(--bridge-motion);
+
+      &:hover {
+        background: color-mix(in srgb, var(--bridge-surface) 72%, transparent);
+      }
+
+      .file-icon {
+        width: 32px;
+        height: 32px;
+        flex: none;
+        border-radius: 9px;
+        display: grid;
+        place-items: center;
+        color: var(--el-color-primary);
+        background: var(--el-color-primary-light-9);
+      }
+
+      .item-info {
+        min-width: 0;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+
+        strong {
+          overflow: hidden;
+          color: var(--el-text-color-primary);
+          font-size: 13px;
+          font-weight: 600;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        span {
+          margin-top: 2px;
+          overflow: hidden;
+          color: var(--el-text-color-secondary);
+          font-size: 11px;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      }
+
+      .progress-info {
+        width: min(32%, 220px);
+        min-width: 130px;
+
+        .progress-meta {
+          margin-bottom: 4px;
+          display: flex;
+          justify-content: space-between;
+          color: var(--el-text-color-secondary);
+          font: 11px/1 monospace;
+
+          strong {
+            color: var(--el-text-color-regular);
+          }
+        }
+      }
+
+      .result-info {
+        min-width: 100px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: var(--el-text-color-secondary);
+        font-size: 12px;
+
+        &.success {
+          color: var(--el-color-success);
+        }
+
+        &.failed,
+        &.cancelled {
+          color: var(--el-color-danger);
+        }
+
+        time {
+          margin-left: 3px;
+          color: var(--el-text-color-placeholder);
+          font: 11px/1 monospace;
+        }
+      }
+
+      .item-actions {
+        flex: none;
+        display: flex;
+
+        :deep(.el-button) {
+          margin: 0;
+        }
+      }
     }
 
     .empty-status {
-      padding: 40px 0;
+      height: 100%;
+      display: grid;
+      place-items: center;
       color: var(--el-text-color-placeholder);
+      font-size: 13px;
     }
+  }
+}
+
+@media (max-width: 760px) {
+  .activity-panel {
+    .activity-tabs button {
+      padding-inline: 8px;
+      font-size: 12px;
+    }
+
+    .activity-item .progress-info {
+      min-width: 100px;
+    }
+  }
+}
+
+@media (max-height: 680px) {
+  .activity-panel {
+    height: 168px;
+    flex-basis: 168px;
   }
 }
 </style>

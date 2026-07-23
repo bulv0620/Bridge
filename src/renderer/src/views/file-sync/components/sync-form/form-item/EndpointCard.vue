@@ -70,7 +70,7 @@ async function handleClickCard() {
   if (endpoint.value) {
     if (endpoint.value.storageType === 'local') {
       const path = await window.ipc.file.selectFolder()
-      if (path) endpoint.value.path = path
+      if (path) endpoint.value = { storageType: 'local', path }
     } else {
       const config = await openConnectionModal(
         endpoint.value.storageType,
@@ -173,23 +173,28 @@ watch(activeSessionState, () => {
   position: relative; // Required for absolute overlay
   flex: 1;
   overflow: hidden;
-  border-radius: var(--el-border-radius-base);
-  border: 1px solid var(--el-border-color);
-  background: var(--el-bg-color);
+  min-width: 0;
+  border-radius: var(--bridge-radius-md);
+  border: 1px solid var(--bridge-stroke);
+  background: var(--bridge-surface-soft);
   display: flex;
   flex-direction: column;
-  transition: all 0.2s;
+  transition:
+    background var(--bridge-motion),
+    border-color var(--bridge-motion);
   cursor: pointer;
 
   &:hover {
-    border-color: var(--el-color-primary);
+    border-color: var(--el-color-primary-light-7);
+    background: var(--bridge-surface);
   }
 
   &.disabled {
     cursor: not-allowed;
 
     &:hover {
-      border-color: var(--el-border-color);
+      border-color: var(--bridge-stroke);
+      background: var(--bridge-surface-soft);
     }
   }
 }
@@ -234,9 +239,8 @@ watch(activeSessionState, () => {
 }
 
 .capacity-footer {
-  background: var(--el-fill-color-light);
-  border-top: 1px solid var(--el-border-color-lighter);
-  padding: 8px 12px;
+  background: color-mix(in srgb, var(--bridge-surface-hover) 64%, transparent);
+  padding: 7px 12px 9px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -259,7 +263,7 @@ watch(activeSessionState, () => {
   height: 100%;
   position: absolute;
   inset: 0;
-  background: var(--el-bg-color);
+  background: var(--bridge-surface);
   z-index: 10;
   display: flex;
   flex-direction: column;
@@ -278,6 +282,7 @@ watch(activeSessionState, () => {
 
     .option-item {
       height: 100%;
+      min-width: 44px;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -285,7 +290,9 @@ watch(activeSessionState, () => {
       gap: 8px;
       padding: 8px;
       border-radius: 8px;
-      transition: background 0.2s;
+      transition:
+        color var(--bridge-motion),
+        background var(--bridge-motion);
       flex: 1;
 
       &:hover {
