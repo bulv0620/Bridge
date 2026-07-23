@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+# [0.10.0](https://github.com/bulv0620/file-bridge/compare/v0.9.0...v0.10.0) (2026-07-23)
+
+
+### Bug Fixes
+
+* initialize app configuration and update tray function type ([59c2c6f](https://github.com/bulv0620/file-bridge/commit/59c2c6fd732f727a43e01885ba40dd2bc6ae28e6))
+
+
+### Features
+
+* replace ThemeCardGroup with SegmentedControl for theme and language selection ([4fcbc73](https://github.com/bulv0620/file-bridge/commit/4fcbc73dddee1ec7211bda704ba70d942757d749))
+* update diagnostics settings to manage active state and improve UI interactions ([4a0615b](https://github.com/bulv0620/file-bridge/commit/4a0615b034ac240e6d9e1f7fc43a74df46a1e736))
+
+
+
 # [0.9.0](https://github.com/bulv0620/file-bridge/compare/v0.7.6...v0.9.0) (2026-07-23)
 
 
