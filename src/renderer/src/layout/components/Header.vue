@@ -84,8 +84,8 @@ const isLinux = /Linux/.test(navigator.platform)
   --titlebar-leading-width: 234px;
 
   width: 100%;
-  height: 38px;
-  flex: 0 0 38px;
+  height: 42px;
+  flex: 0 0 42px;
   padding: 0 10px 0 0;
   background: var(--bridge-app-bg);
   display: flex;
