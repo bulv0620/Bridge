@@ -88,6 +88,9 @@ const onSelect = (value: string | number | boolean | undefined) => {
   :deep(.el-radio-button) {
     z-index: 1;
     cursor: pointer;
+    --el-radio-button-checked-bg-color: transparent;
+    --el-radio-button-checked-text-color: var(--el-text-color-primary);
+    --el-radio-button-checked-border-color: transparent;
   }
 
   :deep(.el-radio-button__inner) {
@@ -108,7 +111,13 @@ const onSelect = (value: string | number | boolean | undefined) => {
   }
 
   :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
-    color: var(--el-text-color-primary);
+    color: var(--el-text-color-primary) !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  :deep(.el-radio-button.is-active .el-radio-button__inner) {
+    color: var(--el-text-color-primary) !important;
     background: transparent !important;
     box-shadow: none !important;
   }

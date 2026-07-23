@@ -93,15 +93,15 @@ const handleReset = async () => {
 .setting {
   height: 100%;
   padding: 0 var(--bridge-page-padding) var(--bridge-page-padding);
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   background: var(--bridge-surface);
 
   .settings-body {
-    width: min(100%, 800px);
+    width: 100%;
     flex: 1;
     min-height: 0;
-    margin: 0 auto;
   }
 
   .settings-tabs {
