@@ -201,7 +201,6 @@
       "reset": "Reset to Default",
       "resetConfirm": "Reset to default settings?",
       "diagnostics": {
-        "active": "Recording",
         "level": "Log Level",
         "standard": "Standard",
         "detailed": "Detailed",

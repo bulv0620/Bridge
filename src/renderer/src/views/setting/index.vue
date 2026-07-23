@@ -80,7 +80,7 @@ const handleReset = async () => {
 
         <el-tab-pane :label="$t('views.setting.logsTab')" name="logs">
           <el-scrollbar class="tab-scroll">
-            <DiagnosticsSettings />
+            <DiagnosticsSettings :active="activeTab === 'logs'" />
           </el-scrollbar>
         </el-tab-pane>
       </el-tabs>
