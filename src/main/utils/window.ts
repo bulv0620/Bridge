@@ -5,7 +5,7 @@ import { icon } from './iconPath'
 import os from 'os'
 
 const windowInstances = new Map<string, BrowserWindow>()
-export const WINDOW_TITLE_BAR_HEIGHT = 38
+export const WINDOW_TITLE_BAR_HEIGHT = 42
 
 function getWindowControlSymbolColor() {
   return nativeTheme.shouldUseDarkColors ? '#F3F4F6' : '#20242D'
