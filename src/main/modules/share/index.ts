@@ -2,14 +2,19 @@ import { IpcMainInvokeEvent } from 'electron'
 import { ClipboardManager } from './service/ClipboardManager'
 import { DeviceDiscovery } from './service/DeviceDiscovery'
 import { ShareServer } from './service/ShareServer'
+import { FileSender } from './service/FileSender'
 import { deviceId, deviceName } from '../../config'
 import os from 'os'
 import { createLogger } from '../../services/logging'
+import { getWindow } from '../../utils/window'
 
-let deviceDiscovery: DeviceDiscovery | null
-let shareServer: ShareServer | null
+let deviceDiscovery: DeviceDiscovery | null = null
+let shareServer: ShareServer | null = null
 const clipboardManager = new ClipboardManager()
 const logger = createLogger('share')
+const fileSender = new FileSender((targetDeviceId) =>
+  deviceDiscovery?.getOnlineDevices().find((device) => device.id === targetDeviceId),
+)
 
 export function startService() {
   if (!deviceDiscovery) {
@@ -31,6 +36,7 @@ export function stopService() {
   if (shareServer) {
     shareServer.stop()
   }
+  fileSender.stop()
   logger.info('share.services.stop_requested')
 }
 
@@ -43,5 +49,39 @@ export function getMyDeviceInfo(_: IpcMainInvokeEvent): DeviceInfo {
     id: deviceId.value,
     name: deviceName.value,
     platform: os.platform(),
+  }
+}
+
+export function sendFileBatch(
+  _: IpcMainInvokeEvent,
+  selectionId: unknown,
+  targetDeviceId: unknown,
+) {
+  return fileSender.sendSelection(selectionId, targetDeviceId)
+}
+
+export function cancelSendingFile(_: IpcMainInvokeEvent, taskId: unknown) {
+  return fileSender.cancel(taskId)
+}
+
+export function deleteSentTask(event: IpcMainInvokeEvent, taskId: unknown) {
+  assertMainWindowSender(event)
+  return fileSender.deleteSentTask(taskId)
+}
+
+export function deleteReceivedTask(event: IpcMainInvokeEvent, taskId: unknown) {
+  assertMainWindowSender(event)
+  return shareServer?.deleteReceivedTask(taskId) ?? false
+}
+
+export function acknowledgeIncomingBatchNavigation(event: IpcMainInvokeEvent, requestId: unknown) {
+  assertMainWindowSender(event)
+  return shareServer?.acknowledgeIncomingBatchNavigation(requestId) ?? false
+}
+
+function assertMainWindowSender(event: IpcMainInvokeEvent) {
+  const mainWindow = getWindow('main')
+  if (!mainWindow || event.sender !== mainWindow.webContents) {
+    throw new Error('INVALID_IPC_SENDER')
   }
 }

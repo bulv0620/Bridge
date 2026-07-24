@@ -25,5 +25,6 @@ declare global {
     remoteRef: typeof remoteRefBridge
     ipc: IpcApi
     events: EventsApi
+    shareFiles: ShareFilesApi
   }
 }

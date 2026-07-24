@@ -5,7 +5,7 @@ import { useTaskList } from '@renderer/composables/share-zone/useTaskList'
 
 const devices = useRemoteRef<OnlineDevice[]>('online-devices', [])
 
-const { createSendingTask } = useTaskList()
+const { createSendingTask, batchRequesting } = useTaskList()
 </script>
 
 <template>
@@ -20,7 +20,8 @@ const { createSendingTask } = useTaskList()
         :key="d.id"
         type="button"
         class="device-card"
-        :disabled="!d.services.cap.includes('file-push')"
+        :disabled="batchRequesting || !d.services.cap.includes('file-push-v2')"
+        :aria-busy="batchRequesting"
         @click="createSendingTask(d)"
       >
         <span class="device-icon-wrap">

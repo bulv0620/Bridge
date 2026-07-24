@@ -15,6 +15,17 @@ export const capabilities = remoteRef('share-capabilities', store.get('capabilit
 export const downloadPath = remoteRef('download-path', store.get('downloadPath'))
 
 export function initShareConfig() {
+  if (capabilities.value.includes('file-push')) {
+    capabilities.value = Array.from(
+      new Set(
+        capabilities.value.map((capability) =>
+          capability === 'file-push' ? 'file-push-v2' : capability,
+        ),
+      ),
+    )
+    store.set('capabilities', capabilities.value)
+  }
+
   if (!downloadPath.value) {
     downloadPath.value = app.getPath('downloads')
     store.set('downloadPath', downloadPath.value)

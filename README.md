@@ -22,7 +22,8 @@ Offers three flexible synchronization strategies:
 
 Automatically discovers allowed devices on the same network.
 
-Select the file you want to transfer, click on the online device, and wait for the recipient to confirm receipt before sending the file.
+Choose or drop a batch of files, then select an online device. The recipient confirms the batch once,
+and Bridge transfers each file without overwriting an existing file in the download directory.
 
 And there's One More Thing: Enable clipboard sharing, and you'll share your clipboard with devices on the local network.
 
@@ -73,6 +74,5 @@ Bridge supports the following platforms:
    # Build for production
    npm run build:[your-system]
    ```
-
 
 

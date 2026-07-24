@@ -44,14 +44,15 @@
     "zipArchive": "ZIP 压缩包"
   },
   "share": {
-    "title": "接收文件",
-    "message": "是否接收文件？",
-    "accept": "接收",
+    "title": "接收一批文件",
+    "batchMessage": "是否接收这 {count} 个文件？",
+    "accept": "全部接收",
     "reject": "拒绝",
     "detail": {
-      "filename": "文件名",
       "size": "大小",
-      "from": "来自"
+      "from": "来自",
+      "count": "文件数",
+      "more": "另有 {count} 个文件"
     }
   }
 }

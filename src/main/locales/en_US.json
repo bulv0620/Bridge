@@ -44,14 +44,15 @@
     "zipArchive": "ZIP Archive"
   },
   "share": {
-    "title": "Receive File",
-    "message": "Do you want to receive this file?",
-    "accept": "Accept",
+    "title": "Receive a File Batch",
+    "batchMessage": "Receive these {count} files?",
+    "accept": "Receive All",
     "reject": "Reject",
     "detail": {
-      "filename": "Filename",
       "size": "Size",
-      "from": "From"
+      "from": "From",
+      "count": "Files",
+      "more": "{count} more files"
     }
   }
 }

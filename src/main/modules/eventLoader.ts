@@ -5,6 +5,7 @@ import * as shareEvents from './share'
 import * as updateEvents from './update'
 import * as logEvents from './log'
 import { createLogger } from '../services/logging'
+import { registerShareFileSelectionBridge } from './share/service/ShareFileSelectionRegistry'
 
 const logger = createLogger('ipc')
 const SLOW_IPC_THRESHOLD_MS = 1000
@@ -21,6 +22,8 @@ export const eventsMap = {
 export const handlerKeys: string[] = []
 
 export function registerAllEvents() {
+  registerShareFileSelectionBridge()
+
   Object.entries(eventsMap).forEach(([namespace, handlers]) => {
     Object.entries(handlers).forEach(([eventName, fn]) => {
       const key = `${namespace}:${eventName}`

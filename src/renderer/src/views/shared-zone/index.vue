@@ -8,15 +8,15 @@ import { useCollapse } from '@renderer/composables/share-zone/useCollapse'
 import { useTaskList } from '@renderer/composables/share-zone/useTaskList'
 
 const { clipboardActive } = useCollapse()
-const { file } = useTaskList()
+const { files } = useTaskList()
 </script>
 
 <template>
   <div id="share-zone" class="share-zone">
     <div class="share-content">
       <main class="transfer-main">
-        <section class="send-panel" :class="{ selected: file }">
-          <Devices v-if="file"></Devices>
+        <section class="send-panel" :class="{ selected: files.length }">
+          <Devices v-if="files.length"></Devices>
           <Uploader></Uploader>
         </section>
         <TaskList></TaskList>

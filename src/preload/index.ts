@@ -1,7 +1,20 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { contextBridge, ipcRenderer, webUtils } from 'electron'
 import { on, off, once } from './listener'
 import { generateApi } from './handler'
 import { remoteRefBridge } from './remoteRefBridge'
+
+const shareFilesBridge: ShareFilesApi = {
+  register(files) {
+    const input = files.map((file) => ({
+      path: webUtils.getPathForFile(file),
+      mime: file.type || undefined,
+    }))
+    return ipcRenderer.invoke('share-files:register', input)
+  },
+  release(selectionId) {
+    return ipcRenderer.invoke('share-files:release', selectionId)
+  },
+}
 
 function reportPreloadError(event: string, error: unknown) {
   const caughtError = error instanceof Error ? error : new Error(String(error))
@@ -30,6 +43,7 @@ generateApi()
           once,
         })
         contextBridge.exposeInMainWorld('remoteRef', remoteRefBridge)
+        contextBridge.exposeInMainWorld('shareFiles', shareFilesBridge)
       } catch (error) {
         reportPreloadError('bridge.expose_failed', error)
       }
@@ -44,6 +58,7 @@ generateApi()
       }
       // @ts-ignore (define in dts)
       window.remoteRef = remoteRefBridge
+      window.shareFiles = shareFilesBridge
     }
   })
   .catch((error) => reportPreloadError('bridge.initialize_failed', error))

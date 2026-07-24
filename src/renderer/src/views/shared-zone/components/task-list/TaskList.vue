@@ -44,6 +44,15 @@ function resultOf(item: ActivityItem) {
   return 'result' in item ? item.result : undefined
 }
 
+function resultLabel(item: ActivityItem) {
+  const result = resultOf(item)
+  if (result === 'success') return 'common.success'
+  if (result === 'cancelled') return 'views.sharedZone.cancelled'
+  if (result === 'rejected') return 'views.sharedZone.rejected'
+  if (result === 'expired') return 'views.sharedZone.expired'
+  return 'common.failed'
+}
+
 function finishedAt(item: ActivityItem) {
   return 'finishedAt' in item ? dayjs(item.finishedAt).format('HH:mm') : ''
 }
@@ -53,18 +62,23 @@ function canOpen(item: ActivityItem) {
   return activeTab.value === 3 && received.result === 'success' && Boolean(received.save?.path)
 }
 
+function canShowActions(item: ActivityItem) {
+  if (activeTab.value === 1 || activeTab.value === 3) return true
+  return activeTab.value === 0 && 'status' in item && item.status === 'sending'
+}
+
 function openReceived(item: ActivityItem) {
   const path = (item as ReceivedItem).save?.path
   if (path) openFolder(path)
 }
 
-function removeItem(item: ActivityItem, index: number) {
+function removeItem(item: ActivityItem) {
   if (activeTab.value === 0) {
     abortTask(item.id)
   } else if (activeTab.value === 1) {
-    deleteTask(sentList.value, index)
+    deleteTask('sent', item.id)
   } else if (activeTab.value === 3) {
-    deleteTask(receivedList.value, index)
+    deleteTask('received', item.id)
   }
 }
 </script>
@@ -88,7 +102,7 @@ function removeItem(item: ActivityItem, index: number) {
     <div class="activity-body">
       <el-scrollbar v-if="activeItems.length" class="activity-scroll">
         <div class="activity-list">
-          <article v-for="(item, index) in activeItems" :key="item.id" class="activity-item">
+          <article v-for="item in activeItems" :key="item.id" class="activity-item">
             <span class="file-icon"
               ><el-icon><Document /></el-icon
             ></span>
@@ -109,13 +123,11 @@ function removeItem(item: ActivityItem, index: number) {
             <div v-else class="result-info" :class="resultOf(item)">
               <el-icon v-if="resultOf(item) === 'success'"><CircleCheck /></el-icon>
               <el-icon v-else><CircleClose /></el-icon>
-              <span>
-                {{ $t(resultOf(item) === 'success' ? 'common.success' : 'common.failed') }}
-              </span>
+              <span>{{ $t(resultLabel(item)) }}</span>
               <time>{{ finishedAt(item) }}</time>
             </div>
 
-            <div v-if="activeTab !== 2" class="item-actions">
+            <div v-if="canShowActions(item)" class="item-actions">
               <el-button
                 v-if="canOpen(item)"
                 circle
@@ -135,7 +147,7 @@ function removeItem(item: ActivityItem, index: number) {
                 :aria-label="
                   $t(activeTab === 0 ? 'views.sharedZone.abortTask' : 'views.sharedZone.deleteTask')
                 "
-                @click="removeItem(item, index)"
+                @click="removeItem(item)"
               />
             </div>
           </article>
@@ -305,8 +317,13 @@ function removeItem(item: ActivityItem, index: number) {
         }
 
         &.failed,
-        &.cancelled {
+        &.cancelled,
+        &.expired {
           color: var(--el-color-danger);
+        }
+
+        &.rejected {
+          color: var(--el-color-warning);
         }
 
         time {

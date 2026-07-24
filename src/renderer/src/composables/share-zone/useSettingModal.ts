@@ -7,7 +7,7 @@ const visible = ref(false)
 const lanDiscovery = useRemoteRef('lan-discovery', false)
 const capabilities = useRemoteRef<string[]>('share-capabilities', [])
 
-const filePushEnabled = createCapProxy('file-push')
+const filePushEnabled = createCapProxy('file-push-v2')
 const clipboardEnabled = createCapProxy('clipboard')
 
 const configForm = ref({

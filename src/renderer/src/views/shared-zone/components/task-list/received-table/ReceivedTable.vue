@@ -57,7 +57,7 @@ const { receivedList, openFolder, deleteTask } = useTaskList()
       </el-table-column>
 
       <el-table-column :label="$t('views.sharedZone.operation')" width="100" fixed="right">
-        <template #default="{ row, $index }">
+        <template #default="{ row }">
           <div class="action-btns">
             <el-button
               :icon="FolderOpen"
@@ -72,7 +72,7 @@ const { receivedList, openFolder, deleteTask } = useTaskList()
               link
               type="danger"
               :title="$t('views.sharedZone.deleteTask')"
-              @click="deleteTask(receivedList, $index)"
+              @click="deleteTask('received', row.id)"
             />
           </div>
         </template>

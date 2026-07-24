@@ -10,7 +10,11 @@ export interface RemoteRefMain<T> {
 /**
  * 在主进程创建一个可同步的响应值
  */
-export function remoteRef<T>(channel: string, initialValue: T): RemoteRefMain<T> {
+export function remoteRef<T>(
+  channel: string,
+  initialValue: T,
+  options?: { readOnly?: boolean },
+): RemoteRefMain<T> {
   let value = structuredClone(initialValue)
 
   const cb: ((v: T) => void)[] = []
@@ -32,7 +36,9 @@ export function remoteRef<T>(channel: string, initialValue: T): RemoteRefMain<T>
     cb.forEach((fn) => fn(value))
   }
 
-  ipcMain.on('remote-ref:change:' + channel, changeListener)
+  if (!options?.readOnly) {
+    ipcMain.on('remote-ref:change:' + channel, changeListener)
+  }
 
   ipcMain.on('remote-ref:request-init:' + channel, (event) => {
     event.sender.send('remote-ref:update:' + channel, { value: value })
@@ -63,7 +69,9 @@ export function remoteRef<T>(channel: string, initialValue: T): RemoteRefMain<T>
       }
     },
     destroy() {
-      ipcMain.removeListener('remote-ref:change:' + channel, changeListener)
+      if (!options?.readOnly) {
+        ipcMain.removeListener('remote-ref:change:' + channel, changeListener)
+      }
       cb.length = 0
     },
   }

@@ -88,19 +88,24 @@ export class DeviceDiscovery {
 
   private setupListeners(server: dgram.Socket) {
     server.on('message', (buf: Buffer, rinfo: RemoteInfo) => {
-      let msg: AnnounceMessage
+      let parsed: unknown
 
       try {
-        msg = JSON.parse(buf.toString())
+        parsed = JSON.parse(buf.toString())
       } catch {
         this.logInvalidMessage('discovery.message.invalid_json')
         return
       }
 
-      if (msg.v !== 1 || !msg.device?.id) {
-        this.logInvalidMessage('discovery.message.invalid_protocol', { version: msg.v })
+      if (!this.isValidAnnounceMessage(parsed)) {
+        const version =
+          parsed && typeof parsed === 'object' && 'v' in parsed
+            ? (parsed as { v?: unknown }).v
+            : undefined
+        this.logInvalidMessage('discovery.message.invalid_protocol', { version })
         return
       }
+      const msg = parsed
       if (msg.device.id === deviceId.value) return
 
       const now = Date.now()
@@ -113,6 +118,7 @@ export class DeviceDiscovery {
       if (msg.type === 'bye') {
         if (existing) {
           this.onlineDeviceMap.delete(sourceDeviceId)
+          this.syncOnlineDevices()
           this.logger.info('discovery.device.offline', {
             deviceId: shortId(sourceDeviceId),
             reason: 'bye',
@@ -142,6 +148,7 @@ export class DeviceDiscovery {
         }
 
         this.onlineDeviceMap.set(sourceDeviceId, dev)
+        this.syncOnlineDevices()
         this.logger.info('discovery.device.online', {
           deviceId: shortId(sourceDeviceId),
           platform: msg.device.platform,
@@ -181,6 +188,55 @@ export class DeviceDiscovery {
       existing.lastAnnounce = msg
 
       this.syncOnlineDevices()
+    })
+  }
+
+  private isValidAnnounceMessage(value: unknown): value is AnnounceMessage {
+    if (!value || typeof value !== 'object') return false
+    const message = value as Partial<AnnounceMessage>
+    if (message.v !== 1 || (message.type !== 'announce' && message.type !== 'bye')) return false
+    if (!this.isValidText(message.device?.id, 128)) return false
+    if (!this.isValidText(message.device?.name, 255)) return false
+    if (!this.isValidText(message.device?.platform, 32)) return false
+    if (!this.isValidPort(message.services?.udp) || !this.isValidPort(message.services?.http)) {
+      return false
+    }
+    if (
+      !Array.isArray(message.services?.cap) ||
+      message.services.cap.length > 32 ||
+      !message.services.cap.every((capability) => this.isValidText(capability, 64))
+    ) {
+      return false
+    }
+    if (typeof message.ts !== 'number' || !Number.isFinite(message.ts)) return false
+
+    const clipboard = message.state?.clipboard
+    if (
+      clipboard &&
+      (!this.isValidText(clipboard.v, 128) || !this.isValidText(clipboard.mime, 255))
+    ) {
+      return false
+    }
+    return true
+  }
+
+  private isValidPort(value: unknown): value is number {
+    return Number.isInteger(value) && Number(value) >= 1 && Number(value) <= 65535
+  }
+
+  private isValidText(value: unknown, maxLength: number): value is string {
+    return (
+      typeof value === 'string' &&
+      value.length > 0 &&
+      value.length <= maxLength &&
+      !this.hasControlCharacters(value)
+    )
+  }
+
+  private hasControlCharacters(value: string) {
+    return Array.from(value).some((character) => {
+      const code = character.charCodeAt(0)
+      return code <= 31 || code === 127
     })
   }
 

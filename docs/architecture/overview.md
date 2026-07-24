@@ -37,6 +37,8 @@ Electron Main
 - `handler.ts` 根据主进程的事件表生成 `window.ipc`。
 - `listener.ts` 将主进程主动事件暴露为 `window.events`。
 - `remoteRefBridge.ts` 暴露 `window.remoteRef`。
+- `window.shareFiles` 只接受浏览器提供的真实 `File` 对象，由 preload 使用 Electron
+  `webUtils` 取得其路径并直接登记到主进程，renderer 只得到不透明选择 ID 和安全元数据。
 
 渲染进程不得直接引入 Electron 或 Node.js API。
 
@@ -74,13 +76,16 @@ Electron Main
 RemoteRef 设置启用发现/能力
   → UDP 广播设备、HTTP 端口和能力
   → Renderer 展示在线设备
-  → Sender 请求上传
-  → Receiver 原生确认
-  → HTTP 流式上传
+  → Preload 登记用户选择的一批文件
+  → Sender 主进程请求整批授权
+  → Receiver 原生确认一次
+  → Sender 主进程按单文件令牌并发流式上传
+  → Receiver 写入独占临时文件并以不覆盖方式提交
   → 两端更新运行时任务列表
 ```
 
-剪贴板只在双方都声明 `clipboard` 能力时根据广播版本拉取内容。
+文件发送和接收的网络、授权及文件系统操作都在主进程完成。剪贴板只在双方都声明
+`clipboard` 能力时根据广播版本拉取内容。
 
 ### 配置与状态
 

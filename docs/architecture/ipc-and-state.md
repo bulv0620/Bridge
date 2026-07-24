@@ -22,12 +22,27 @@
 | --------- | ------------------------------------------------------------------------------ | ------------------------------ |
 | `file`    | `selectFolder`, `openFolder`                                                   | 原生目录选择、在系统中定位文件 |
 | `sync`    | 会话、端点、比较、resolution、同步、容量、连接浏览                             | 文件读写和删除，数据安全高风险 |
-| `share`   | `startService`, `stopService`, `writeContent`, `getMyDeviceInfo`               | 网络服务和剪贴板输入           |
+| `share`   | 服务启停、剪贴板写入、设备信息、批量文件发送/取消、历史删除、接收导航确认        | 网络、文件读取和剪贴板输入     |
 | `update`  | `getCurrentVersion`, `check`, `download`                                       | 外部网络、下载和安装           |
 | `log`     | `write`, `getDiagnosticsStatus`, `openDirectory`, `exportDiagnostics`, `clear` | 日志输入、文件导出和删除       |
 
 函数的精确签名以对应 `src/main/modules/*/index.ts` 和共享类型为准。此表用于说明所有权，不重复
 维护容易漂移的完整 TypeScript 声明。
+
+### 用户选择文件桥
+
+`window.shareFiles` 是文件发送专用的 preload 桥，不属于通用生成式 IPC：
+
+- renderer 只能传入文件选择器或拖拽产生的真实 `File` 对象。
+- preload 使用 `webUtils.getPathForFile` 取得路径后直接调用隐藏的
+  `share-files:register` channel。
+- 主进程解析真实路径、读取文件元数据并保存短期登记；renderer 只收到不透明 selection/file ID、
+  文件名、大小和 MIME。
+- 发送 IPC 只接受 selection ID 和在线设备 ID，主进程从自己的发现状态解析目标，并消费该选择
+  一次。
+- `share-files:release` 只释放未消费的短期登记，不提供文件读取能力。
+
+这一边界避免为了取消 CORS 而向 renderer 暴露任意本地路径读取或任意网络请求能力。
 
 ## 主进程主动事件
 
@@ -35,6 +50,8 @@
 
 - `sync:updateStatus:<sessionId>`：同步进度。
 - `page:link`：主进程菜单/托盘导航。
+- `share:incoming-batch`：接收确认前请求主窗口进入共享空间，携带随机导航请求 ID。
+- `share:incoming-batch-accepted`：批次批准后让共享空间切换到 Receiving。
 - `new-version-ready`：更新已下载。
 - `new-version-download-failed`：更新下载失败。
 
@@ -53,11 +70,16 @@ RemoteRef 用于主进程所有、renderer 观察或修改的轻量状态。当�
 | `lan-discovery`, `share-capabilities`                      | 主进程 config      | 是               |
 | `download-path`, `http-port`, `udp-port`, `share-interval` | 主进程 config      | store 中有对应值 |
 | `online-devices`                                           | `DeviceDiscovery`  | 否               |
+| `sending-list`, `sent-list`                                | `FileSender`       | 否               |
 | `receiving-list`, `received-list`                          | `ShareServer`      | 否               |
 | `clipboard-history`                                        | `ClipboardManager` | 否               |
 
 RemoteRef channel 是内部协议。重命名会同时影响 main、preload 和 renderer，应作为契约变更处理。
 RemoteRef 不提供身份认证、授权或输入校验；从 renderer 写入的值仍属于不可信输入。
+
+四个文件传输任务 channel 使用只读模式：主进程不注册对应的 renderer change listener，renderer
+也只订阅更新。Sent/Received 历史删除由 share IPC 按任务 ID 在主进程执行。这样可避免并发文件
+完成时 renderer 收到的旧数组快照反向覆盖主进程的新终态。
 
 ## 持久化数据
 

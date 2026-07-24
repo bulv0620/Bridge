@@ -33,3 +33,14 @@ export function useRemoteRef<T>(channel: string, initialValue: T): Ref<T> {
 
   return state
 }
+
+export function useRemoteRefReadonly<T>(channel: string, initialValue: T): Ref<T> {
+  const remote = window.remoteRef.useRemoteRef(channel, initialValue)
+  const state = ref(remote.value) as Ref<T>
+
+  remote.onUpdate((payload) => {
+    state.value = payload.value
+  })
+
+  return state
+}

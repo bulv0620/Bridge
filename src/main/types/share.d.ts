@@ -1,4 +1,5 @@
 declare type ProtocolVersion = 1
+declare type FileTransferProtocolVersion = 2
 declare type AnnounceType = 'announce' | 'bye'
 declare interface DeviceInfo {
   id: string
@@ -6,7 +7,7 @@ declare interface DeviceInfo {
   platform: NodeJS.Platform // 平台
   model?: string // 设备型号（可选）
 }
-declare type ServiceCapability = 'clipboard' | 'file-push' | 'message' | string
+declare type ServiceCapability = 'clipboard' | 'file-push-v2' | 'message' | string
 declare interface ServiceInfo {
   udp: number // UDP announce 端口
   http: number // HTTP 服务端口
@@ -70,6 +71,82 @@ declare interface FileMeta {
   device: DeviceInfo
 }
 
+declare interface SelectedShareFile {
+  id: string
+  filename: string
+  size: number
+  mime?: string
+}
+
+declare interface ShareFileSelection {
+  id: string
+  files: SelectedShareFile[]
+  createdAt: number
+}
+
+declare type ShareFileRegistrationResult =
+  | {
+      ok: true
+      selection: ShareFileSelection
+    }
+  | {
+      ok: false
+      error: 'INVALID_FILE_SELECTION'
+    }
+
+declare interface ShareFilesApi {
+  register(files: File[]): Promise<ShareFileRegistrationResult>
+  release(selectionId: string): Promise<void>
+}
+
+declare interface FileBatchItemRequest {
+  fileId: string
+  filename: string
+  size: number
+  mime?: string
+}
+
+declare interface FileBatchRequest {
+  protocol: FileTransferProtocolVersion
+  device: DeviceInfo
+  files: FileBatchItemRequest[]
+}
+
+declare interface FileUploadGrant {
+  fileId: string
+  token: string
+}
+
+declare interface FileBatchResponse {
+  protocol: FileTransferProtocolVersion
+  batchId: string
+  uploads: FileUploadGrant[]
+}
+
+declare type FileTransferErrorCode =
+  | 'INVALID_REQUEST'
+  | 'REQUEST_TOO_LARGE'
+  | 'FILE_PUSH_DISABLED'
+  | 'RECEIVER_BUSY'
+  | 'BATCH_REJECTED'
+  | 'TRANSFER_NOT_FOUND'
+  | 'TRANSFER_EXPIRED'
+  | 'TRANSFER_UNAUTHORIZED'
+  | 'TRANSFER_ALREADY_STARTED'
+  | 'LENGTH_REQUIRED'
+  | 'LENGTH_MISMATCH'
+  | 'WRITE_FAILED'
+  | 'NETWORK_ERROR'
+  | 'SELECTION_EXPIRED'
+  | 'FILE_CHANGED'
+  | 'CANCELLED'
+
+declare interface FileTransferErrorResponse {
+  error: {
+    code: FileTransferErrorCode
+  }
+}
+
 // 接收状态
 declare type ReceivingStatus =
   | 'pending' // 已允许，未开始
@@ -87,11 +164,12 @@ declare interface TransferProgress {
 
 // 接收文件项
 declare interface ReceivingItem {
-  id: string // uploadId
+  id: string
+  batchId: string
+  fileId: string
   meta: FileMeta // 文件元信息
   status: ReceivingStatus // 状态
   progress: TransferProgress // 进度
-  savePath: string // 用户选择的保存路径
   createdAt: number // 创建时间
 }
 
@@ -103,7 +181,9 @@ declare type SendingStatus =
 
 // 发送文件项
 declare interface SendingItem {
-  id: string // uploadId
+  id: string
+  batchId?: string
+  fileId: string
   meta: FileMeta // 文件元信息
   status: SendingStatus // 状态
   progress: TransferProgress // 进度
@@ -111,7 +191,7 @@ declare interface SendingItem {
 }
 
 // 接收结果
-declare type ReceivedResult = 'success' | 'failed' | 'cancelled'
+declare type ReceivedResult = 'success' | 'failed' | 'cancelled' | 'expired'
 
 // 保存信息
 declare interface ReceivedSaveInfo {
@@ -122,7 +202,9 @@ declare interface ReceivedSaveInfo {
 
 // 已接收文件项
 declare interface ReceivedItem {
-  id: string // uploadId
+  id: string
+  batchId: string
+  fileId: string
   meta: FileMeta // 文件元信息
   result: ReceivedResult // 接收结果
   save?: ReceivedSaveInfo // 保存信息 (成功时存在)
@@ -134,13 +216,16 @@ declare interface ReceivedItem {
 }
 
 // 发送结果
-declare type SendResult = 'success' | 'failed' | 'cancelled'
+declare type SendResult = 'success' | 'failed' | 'cancelled' | 'rejected'
 
 // 已发送项
 declare interface SentItem {
-  id: string // uploadId
+  id: string
+  batchId?: string
+  fileId: string
   meta: FileMeta // 文件元信息
   result: SendResult // 接收结果
+  reason?: FileTransferErrorCode
   error?: {
     message: string
   } // 错误信息（失败时存在）
