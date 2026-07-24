@@ -12,6 +12,7 @@ Agent，不替代面向用户的 `README.md`。
 | 领域规则 | 用户可观察行为和高风险语义     | `behavior/`                     |
 | 变更意图 | 某次迭代要改变什么、如何验收   | `specs/`                        |
 | 工程质量 | 不同改动需要哪些验证           | `quality/`                      |
+| 发布运维 | 如何 commit、push 和 release   | `operations/`                   |
 | 稳定决策 | 为什么选择某个长期方案         | `decisions/`                    |
 
 ## 权威性与冲突处理
@@ -40,6 +41,8 @@ Agent，不替代面向用户的 `README.md`。
 
 涉及 IPC、RemoteRef 或持久化时，再阅读
 [`architecture/ipc-and-state.md`](architecture/ipc-and-state.md)。
+准备提交、推送或发版时，阅读
+[`operations/release.md`](operations/release.md)。
 
 ## 维护规则
 

@@ -57,7 +57,7 @@ npm run build:unpack    # 生成未打包应用，便于本地验证
 
 平台安装包分别使用 `npm run build:win`、`npm run build:mac` 和 `npm run build:linux`。不要在普通代码修改中执行发布流程或创建版本标签。
 
-仓库目前没有自动化测试脚本。提交修改前至少运行 `npm run typecheck`；代码风格或静态检查相关修改还应运行 `npm run lint`。涉及构建配置、Electron 主进程、预加载层或打包行为时，再运行 `npm run build`。
+仓库目前没有自动化测试脚本。提交修改前至少运行 `npm run typecheck`；代码风格或静态检查相关修改还应运行 `npm run lint`。普通业务开发本地通常不运行生产 build；涉及构建配置、打包、更新、签名、公证或 CI 时，再按风险运行 `npm run build` 或 `npm run build:unpack`。正式跨平台构建由 release tag 触发的 GitHub Actions 完成。
 
 `npm run lint` 当前包含 `--fix`，会修改文件；运行前后检查工作区，避免混入无关自动修复。不同
 改动的验证矩阵、手工场景和交付证据格式见 `docs/quality/verification.md`。
@@ -113,6 +113,24 @@ npm run build:unpack    # 生成未打包应用，便于本地验证
 - 单次变更：更新 active Spec 的状态和验收记录；Verified 后将稳定规则沉淀到长期文档再归档。
 
 文档中的计划能力不得写成当前事实。不要为 S 级改动创建空洞 Spec。
+
+## Git 提交与发布
+
+commit、push、版本和发布流程以 `docs/operations/release.md` 为准。
+
+- 一个完整、可独立回退的逻辑修改对应一个 Conventional Commit；不要按文件机械拆分，也不要
+  把无关修改混入同一个 commit。
+- 实现完成或 Spec 归档不自动授权 Git 或发布操作。只有用户明确说“提交”“提交并推送”“提交并
+  发版”或“发版”时，才执行对应范围。
+- “提交并发版”授权 Agent 连续完成普通 commit、push、`npm run release`、release commit/tag
+  push 和 GitHub Actions 跟踪；满足停止条件时必须暂停。
+- `npm run release` 前必须位于与 `origin/main` 一致的干净 `main`，本次普通 commit 已 push，
+  typecheck 已通过，Spec 没有 Fail。
+- standard-version 生成 `chore(release): X.Y.Z` commit 和 `vX.Y.Z` tag。检查版本与
+  CHANGELOG 后，先 push `main`，再 push 本次精确 tag；不要默认使用 `git push --tags`。
+- tag 触发 GitHub Actions 后，正式构建、macOS 签名与公证在 CI 完成。本地不读取或处理 GitHub
+  secrets，也不以关闭签名/公证的方式绕过失败。
+- 已推送 tag 不得移动、覆盖或擅自删除；发布失败按规范报告和处理，不 force-push。
 
 ## 完成标准
 

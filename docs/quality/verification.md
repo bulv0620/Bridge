@@ -27,14 +27,18 @@ npm run build:unpack
 | Markdown 文档        | 链接、路径和内容一致性检查             | 对照代码抽查事实                             |
 | renderer UI/交互     | `npm run typecheck`                    | 中英文、主题、窗口最小尺寸、加载/空/失败状态 |
 | renderer 状态逻辑    | `npm run typecheck`                    | 生命周期、重复监听、快速重复操作             |
-| preload/IPC/共享类型 | `npm run typecheck`、`npm run build`   | 参数校验、错误传播、暴露面检查               |
-| 主进程配置/持久化    | `npm run typecheck`、`npm run build`   | 默认值、旧配置、损坏配置、退出重启           |
-| 同步逻辑/存储引擎    | `npm run typecheck`、`npm run build`   | 临时端点矩阵、删除/覆盖/失败/停止            |
-| 局域网共享           | `npm run typecheck`、`npm run build`   | 两实例/两设备、拒绝/取消/断线、恶意输入      |
+| preload/IPC/共享类型 | `npm run typecheck`                    | 参数校验、错误传播、暴露面检查               |
+| 主进程配置/持久化    | `npm run typecheck`                    | 默认值、旧配置、损坏配置、退出重启           |
+| 同步逻辑/存储引擎    | `npm run typecheck`                    | 临时端点矩阵、删除/覆盖/失败/停止            |
+| 局域网共享           | `npm run typecheck`                    | 两实例/两设备、拒绝/取消/断线、恶意输入      |
 | 构建/打包/更新       | `npm run build`，适用时 `build:unpack` | 目标平台启动、签名/更新环境另行说明          |
 | 代码风格规则         | `npm run lint`                         | 运行前记录工作区，确认无无关自动修复         |
 
 如果任务涉及多个类别，取验证要求的并集。
+
+普通业务开发本地通常不执行生产 build 或平台安装包构建。主进程、preload 和 renderer 变更以
+typecheck 与针对性手工验证为最低要求；构建配置、打包、更新、签名、公证或 CI 变化再执行适用的
+本地 build。正式跨平台构建、macOS 签名与公证由 release tag 触发的 GitHub Actions 完成。
 
 ## 数据安全验证规则
 

@@ -128,6 +128,17 @@ docs/specs/
 - 将可长期复用的规则更新到 `behavior/` 或 `architecture/`。
 - 记录实现偏差、未验证项和关联 ADR。
 - 状态改为 Verified 后移至年度 archive。
+- 归档不自动授权 commit、push 或 release；用户明确授权后按
+  [`../operations/release.md`](../operations/release.md) 执行。
+
+### 提交与发版
+
+- 用户说“提交”时，只创建当前逻辑修改的普通 commit。
+- 用户说“提交并推送”时，创建普通 commit 并 push，不创建版本。
+- 用户说“提交并发版”时，可以连续执行普通 commit、push、`npm run release`、release
+  commit/tag push 和 Actions 跟踪。
+- Agent 在执行前仍需满足 Spec、验证、分支、工作区和远端同步条件。
+- 多个普通 commit 可以共同进入一次 release，不要求每个 commit 都生成版本。
 
 ## Spec 可以省略的情况
 
