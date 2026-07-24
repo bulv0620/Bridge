@@ -12,7 +12,6 @@ declare interface StorageEngineConfig {
   storageType: StorageType
   path: string
   connectionConfig?: ConnectionConfig
-  storageCapacity?: StorageCapacity
 }
 
 // 存储容量信息
@@ -20,6 +19,16 @@ declare interface StorageCapacity {
   used: number
   total: number
 }
+
+declare type StorageCapacityResult =
+  | { status: 'ready'; capacity: StorageCapacity }
+  | { status: 'unsupported' }
+  | { status: 'unavailable' }
+
+declare type StorageCapacityState =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | StorageCapacityResult
 
 // ftp配置信息
 declare interface FtpConfig {
@@ -114,6 +123,7 @@ declare interface SyncSessionState {
   sessionId: string
   name: string
   formData: SyncForm
+  capacityStates: Record<'source' | 'destination', StorageCapacityState>
   tableData: FileDifference[]
   status: CompareResult & SyncStatus
   isComparing: boolean
@@ -130,6 +140,7 @@ declare interface SyncSession {
   stopCompare(): void
   startSync(): Promise<void>
   stopSync(): void
+  refreshCapacity(type: 'source' | 'destination'): Promise<void>
   dispose(): void
 }
 

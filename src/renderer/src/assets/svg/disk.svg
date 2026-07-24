@@ -1,1 +1,14 @@
-<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg t="1764316903551" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4776" xmlns:xlink="http://www.w3.org/1999/xlink" width="128" height="128"><path d="M228.266667 64h565.333333c21.333333 0 38.4 14.933333 38.4 32 0 14.933333-17.066667 32-36.266667 32H228.266667C209.066667 128 192 110.933333 192 96c0-17.066667 17.066667-32 36.266667-32z m0 0M789.333333 192H234.666667c-23.466667 0-42.666667 21.333333-42.666667 49.066667V490.666667h640V241.066667C832 213.333333 812.8 192 789.333333 192z" fill="#91D5FF" p-id="4777"></path><path d="M192 469.333333h640v128H192z" fill="#103F91" p-id="4778"></path><path d="M136.533333 405.333333h211.2l64 149.333334h200.533334l76.8-149.333334h200.533333c27.733333 0 51.2 23.466667 51.2 51.2v409.6c0 27.733333-23.466667 51.2-51.2 51.2H136.533333C108.8 917.333333 85.333333 893.866667 85.333333 866.133333V456.533333c4.266667-27.733333 23.466667-51.2 51.2-51.2z m0 0" fill="#2B7CD3" p-id="4779"></path><path d="M330.666667 746.666667h362.666666c19.2 0 32 12.8 32 32s-12.8 32-32 32h-362.666666c-19.2 0-32-12.8-32-32s12.8-32 32-32z m0 0" fill="#FFFFFF" p-id="4780"></path></svg>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.6"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <rect x="3.5" y="4.5" width="17" height="15" rx="3.25" />
+  <path d="M3.5 13.5h17" opacity="0.7" />
+  <path d="M6.75 16.5h5" opacity="0.7" />
+  <circle cx="17.25" cy="16.5" r="0.8" fill="currentColor" stroke="none" />
+</svg>

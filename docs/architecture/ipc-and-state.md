@@ -22,12 +22,17 @@
 | --------- | ------------------------------------------------------------------------------ | ------------------------------ |
 | `file`    | `selectFolder`, `openFolder`                                                   | 原生目录选择、在系统中定位文件 |
 | `sync`    | 会话、端点、比较、resolution、同步、容量、连接浏览                             | 文件读写和删除，数据安全高风险 |
-| `share`   | 服务启停、剪贴板写入、设备信息、批量文件发送/取消、历史删除、接收导航确认        | 网络、文件读取和剪贴板输入     |
+| `share`   | 服务启停、剪贴板写入、设备信息、批量文件发送/取消、历史删除、接收导航确认      | 网络、文件读取和剪贴板输入     |
 | `update`  | `getCurrentVersion`, `check`, `download`                                       | 外部网络、下载和安装           |
 | `log`     | `write`, `getDiagnosticsStatus`, `openDirectory`, `exportDiagnostics`, `clear` | 日志输入、文件导出和删除       |
 
 函数的精确签名以对应 `src/main/modules/*/index.ts` 和共享类型为准。此表用于说明所有权，不重复
 维护容易漂移的完整 TypeScript 声明。
+
+同步容量查询返回可判别的 `ready`、`unsupported` 或 `unavailable` 结果。Local 的查询由主进程
+存储引擎执行；FTP/FTPS 和 S3 直接返回 `unsupported`，renderer 不为这些端点发起容量刷新。
+renderer 另外维护 `idle` 和 `loading` 作为同步会话的短期界面状态，并以请求版本避免已替换端点
+或已关闭会话接收旧结果。
 
 ### 用户选择文件桥
 
@@ -94,6 +99,9 @@ RemoteRef 不提供身份认证、授权或输入校验；从 renderer 写入的
 
 `syncSessions` 只保存 session id、名称和表单配置，因此可能包含 FTP/S3 连接信息。任何修改其结构、
 日志记录或诊断导出的任务都必须检查凭据泄漏和已有数据迁移。
+
+存储容量、容量加载状态和容量错误不属于表单配置，不写入 `syncSessions`。恢复包含旧
+`storageCapacity` 字段的历史配置时，renderer 忽略该字段，并在下一次保存时将其移除。
 
 改变 schema 时必须在 Spec 中说明：
 

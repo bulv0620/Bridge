@@ -235,9 +235,9 @@ export class SyncSession {
    */
   async getCapacity(type: 'source' | 'destination') {
     if (type === 'source') {
-      return this.sourceStorageEngine?.getCapacity()
+      return this.sourceStorageEngine?.getCapacity() ?? { status: 'unsupported' as const }
     } else {
-      return this.destinationStorageEngine?.getCapacity()
+      return this.destinationStorageEngine?.getCapacity() ?? { status: 'unsupported' as const }
     }
   }
 

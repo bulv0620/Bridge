@@ -6,19 +6,52 @@ import { createRendererLogger } from '@renderer/utils/logger'
 const { t } = i18n.global
 const logger = createRendererLogger('sync')
 
+function sanitizeStorageConfig(config: StorageEngineConfig | null): StorageEngineConfig | null {
+  if (!config) return null
+
+  const sanitized = {
+    ...config,
+  } as StorageEngineConfig & { storageCapacity?: StorageCapacity }
+  delete sanitized.storageCapacity
+  return sanitized
+}
+
+function createInitialForm(initForm?: SyncForm): SyncForm {
+  if (!initForm) {
+    return {
+      sourceConfig: null,
+      destinationConfig: null,
+      ignoredFolders: [],
+      syncStrategy: 'mirror',
+    }
+  }
+
+  return {
+    sourceConfig: sanitizeStorageConfig(initForm.sourceConfig),
+    destinationConfig: sanitizeStorageConfig(initForm.destinationConfig),
+    ignoredFolders: [...initForm.ignoredFolders],
+    syncStrategy: initForm.syncStrategy,
+  }
+}
+
 export function useSyncSession(
   sessionId: string,
   initName?: string,
   initForm?: SyncForm,
 ): SyncSession {
+  const capacityRequestVersions = {
+    source: 0,
+    destination: 0,
+  }
+  let disposed = false
+
   const sessionState = reactive<SyncSessionState>({
     sessionId,
     name: initName ?? t('views.fileSync.newSession'),
-    formData: initForm ?? {
-      sourceConfig: null,
-      destinationConfig: null,
-      ignoredFolders: [],
-      syncStrategy: 'mirror',
+    formData: createInitialForm(initForm),
+    capacityStates: {
+      source: { status: 'idle' },
+      destination: { status: 'idle' },
     },
     tableData: [],
     status: {
@@ -82,24 +115,88 @@ export function useSyncSession(
       type === 'source'
         ? sessionState.formData.sourceConfig
         : sessionState.formData.destinationConfig
-    window.ipc.sync.setStorageEngineConfig(sessionState.sessionId, type, toRaw(configData))
+    const requestVersion = ++capacityRequestVersions[type]
+
     sessionState.tableData = []
     resetSyncStatus()
 
-    getCapacity(type)
+    if (!configData) {
+      sessionState.capacityStates[type] = { status: 'idle' }
+    } else if (configData.storageType === 'local') {
+      sessionState.capacityStates[type] = { status: 'loading' }
+    } else {
+      sessionState.capacityStates[type] = { status: 'unsupported' }
+    }
+
+    try {
+      await window.ipc.sync.setStorageEngineConfig(sessionState.sessionId, type, toRaw(configData))
+    } catch (error) {
+      if (
+        !disposed &&
+        capacityRequestVersions[type] === requestVersion &&
+        configData?.storageType === 'local'
+      ) {
+        sessionState.capacityStates[type] = { status: 'unavailable' }
+      }
+      logger.error('sync.storage.config_update_failed', error, {
+        sessionId: sessionState.sessionId.slice(0, 8),
+        side: type,
+      })
+      return
+    }
+
+    if (
+      disposed ||
+      capacityRequestVersions[type] !== requestVersion ||
+      configData?.storageType !== 'local'
+    ) {
+      return
+    }
+
+    await requestCapacity(type, requestVersion)
   }
 
-  // 更新容量信息
-  async function getCapacity(type: 'source' | 'destination') {
-    const capacity = await window.ipc.sync.getCapacity(sessionState.sessionId, type)
+  async function requestCapacity(
+    type: 'source' | 'destination',
+    requestVersion: number,
+  ): Promise<void> {
+    let result: StorageCapacityResult
 
-    if (type === 'source' && sessionState.formData.sourceConfig) {
-      sessionState.formData.sourceConfig.storageCapacity = capacity
+    try {
+      result = await window.ipc.sync.getCapacity(sessionState.sessionId, type)
+    } catch (error) {
+      result = { status: 'unavailable' }
+      logger.error('sync.storage.capacity_failed', error, {
+        sessionId: sessionState.sessionId.slice(0, 8),
+        side: type,
+      })
     }
 
-    if (type === 'destination' && sessionState.formData.destinationConfig) {
-      sessionState.formData.destinationConfig.storageCapacity = capacity
+    if (disposed || capacityRequestVersions[type] !== requestVersion) {
+      return
     }
+
+    sessionState.capacityStates[type] = result
+  }
+
+  async function refreshCapacity(type: 'source' | 'destination'): Promise<void> {
+    const config =
+      type === 'source'
+        ? sessionState.formData.sourceConfig
+        : sessionState.formData.destinationConfig
+    const requestVersion = ++capacityRequestVersions[type]
+
+    if (!config) {
+      sessionState.capacityStates[type] = { status: 'idle' }
+      return
+    }
+    if (config.storageType !== 'local') {
+      sessionState.capacityStates[type] = { status: 'unsupported' }
+      return
+    }
+
+    sessionState.capacityStates[type] = { status: 'loading' }
+    await requestCapacity(type, requestVersion)
   }
 
   // 策略变化
@@ -207,8 +304,8 @@ export function useSyncSession(
       getRootList()
 
       // 更新容量信息
-      getCapacity('source')
-      getCapacity('destination')
+      void refreshCapacity('source')
+      void refreshCapacity('destination')
     }
   }
 
@@ -236,6 +333,9 @@ export function useSyncSession(
 
   // 清理函数
   function dispose() {
+    disposed = true
+    capacityRequestVersions.source++
+    capacityRequestVersions.destination++
     stopSourceWatch()
     stopDestWatch()
     stopStrategyWatch()
@@ -250,6 +350,7 @@ export function useSyncSession(
     stopCompare,
     startSync,
     stopSync,
+    refreshCapacity,
     handleConfigChange,
     handleStrategyChange,
     handleChangeResolution,

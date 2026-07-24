@@ -20,7 +20,7 @@ export abstract class StorageEngine {
   abstract ensureDir(dirPath: string): Promise<void>
   abstract getMeta(filePath: string): Promise<FileMetaData>
   abstract setMeta(filePath: string, meta: FileMetaData): Promise<void>
-  abstract getCapacity(): Promise<StorageCapacity | undefined>
+  abstract getCapacity(): Promise<StorageCapacityResult>
   abstract disconnect(): Promise<void>
 }
 

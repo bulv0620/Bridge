@@ -249,8 +249,8 @@ export class FtpStorageEngine extends StorageEngine {
     }
   }
 
-  async getCapacity(): Promise<StorageCapacity | undefined> {
-    return
+  async getCapacity(): Promise<StorageCapacityResult> {
+    return { status: 'unsupported' }
   }
 
   private formatDateForMFMT(date: Date): string {

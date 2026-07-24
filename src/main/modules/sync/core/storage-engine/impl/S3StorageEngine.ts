@@ -330,8 +330,8 @@ export class S3StorageEngine extends StorageEngine {
     }
   }
 
-  async getCapacity(): Promise<StorageCapacity | undefined> {
-    return
+  async getCapacity(): Promise<StorageCapacityResult> {
+    return { status: 'unsupported' }
   }
 
   async disconnect(): Promise<void> {
