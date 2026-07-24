@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+# [0.11.0](https://github.com/bulv0620/file-bridge/compare/v0.10.2...v0.11.0) (2026-07-24)
+
+
+### Features
+
+* add comprehensive documentation for Bridge project ([466abe6](https://github.com/bulv0620/file-bridge/commit/466abe60e04b8098a5bcc4a23272a539d4513e16))
+* enhance file sharing capabilities with batch upload support ([cf38b89](https://github.com/bulv0620/file-bridge/commit/cf38b89fa08c962e6a2a5e49ece3b31ceb0b3492))
+* enhance file upload functionality with updated drag-and-drop texts and improve UI elements ([87dce1d](https://github.com/bulv0620/file-bridge/commit/87dce1d6c68d969e4ca7025c6419cdf261b5e277))
+* **sync:** redesign endpoint capacity display ([eb0e21a](https://github.com/bulv0620/file-bridge/commit/eb0e21adb603d0ff9b030f569451432e0b02fd00))
+
+
+
 ## [0.10.2](https://github.com/bulv0620/file-bridge/compare/v0.10.1...v0.10.2) (2026-07-23)
 
 
